@@ -1,0 +1,22 @@
+{
+  "name": "green_mafia",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.0",
+    "livekit-server-sdk": "^1.2.1",
+    "mongoose": "^7.2.0",
+    "socket.io": "^4.6.1",
+    "trez-sms-client": "^1.0.4",
+    "uid": "^2.0.2"
+  }
+}
