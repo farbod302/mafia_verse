@@ -55,7 +55,7 @@ const find_match = {
                 partys: new_partys_list,
             }
             for (let party of new_partys_list) {
-                socket.to(party).emit("find_match", { data: new_users_list.map(() => { return { user_image: `${static.url}/files/0.png` } }) })
+                socket.to(party).emit("find_match", { data: new_users_list.map((user) => { return { user_image: `${static.url}/files/0.png`,user_id:user.uid } }) })
             }
             db.replaceOne("games_queue", "game_id", game_id, updated_game)
             if (new_remain === 0) {

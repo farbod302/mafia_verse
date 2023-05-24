@@ -188,10 +188,20 @@ const Game = class {
 
     pre_vote(){
         vote.start_vote({game_vars:this.game_vars})
-        // const {}
+        const {game_id}=this
+        this.socket.to(game_id).emit("game_event",{data:{game_event:"vote"}})
+        this.mainCycle()
     }
 
 
 }
 
 module.exports = Game
+
+
+
+
+
+
+
+
