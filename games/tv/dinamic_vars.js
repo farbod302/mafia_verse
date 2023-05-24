@@ -14,6 +14,7 @@ const dinamic_vars = {
     speech_type: "introduction",
     can_take_challenge:false,
     custom_queue:[],
+    votes_status:[],
     edit_event(op, event, value, from) {
         switch (op) {
             case ("edit"): {

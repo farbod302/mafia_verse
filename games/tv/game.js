@@ -3,6 +3,7 @@ const TempDb = require("../../helper/temp_db")
 const dinamic_vars = require("./dinamic_vars")
 const befor_start = require("./funcs/before_start")
 const start = require("./funcs/start")
+const vote = require("./funcs/vote")
 const static_vars = require("./static_vars")
 
 const Game = class {
@@ -183,6 +184,11 @@ const Game = class {
             users: this.users,
             socket: this.socket
         })
+    }
+
+    pre_vote(){
+        vote.start_vote({game_vars:this.game_vars})
+        // const {}
     }
 
 
