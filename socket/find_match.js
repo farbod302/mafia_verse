@@ -77,7 +77,7 @@ const find_match = {
         let { users: users_befor_leave, partys, remain, game_id } = game_to_leave
         let users_after_leave = users_befor_leave.filter(user => !users_ids.includes(user.user_id))
         let new_party_lists = partys.filter(party => party !== party_id)
-        let new_remain = remain + users.length
+        let new_remain = remain - users.length
         let updated_game = {
             game_id,
             users: users_after_leave,
