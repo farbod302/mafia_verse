@@ -31,8 +31,9 @@ const befor_start = {
 
     player_status_generate({game_vars}){
         const {players_compleate_list}=game_vars
-        let player_status_list=players_compleate_list.map(user=>{
+        let player_status_list=players_compleate_list.map((user,index)=>{
            return{
+            user_index:index,
             user_id:user.uid,
             user_status:{
                 is_connected:true,
@@ -86,6 +87,7 @@ const befor_start = {
         new_carts_setup[cart]={
             selected:true,
             selected_by:avatar,
+            user_id,
             name:carts[cart].name
         }
         game_vars.edit_event("edit","carts",new_carts_setup,"submit_cart_pick")
@@ -104,7 +106,12 @@ const befor_start = {
             }
         }
         run_timer(5,random_pick_func)
-    }
+    },
+
+   pick_player_from_user_id({users,user_id}){
+    let s_user=users.find(user=>user.uid === user_id)
+    return s_user
+   }
 }
 
 module.exports = befor_start

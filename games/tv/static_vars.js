@@ -11,7 +11,13 @@ const static_vars={
         "godfather",
         "nato",
         "hostage_taker",
-    ]
+    ],
+    speech_time:{
+        introduction:30,
+        turn:45,
+        challenge:15,
+        defence:30
+    }
 }
 
 module.exports=static_vars

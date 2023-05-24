@@ -10,6 +10,8 @@ const dinamic_vars = {
     w8: [],
     reval: false,
     vote_type: "pre_vote",
+    speech_type: "introduction",
+    can_take_challenge:false,
     edit_event(op, event, value, from) {
         switch (op) {
             case ("edit"): {
