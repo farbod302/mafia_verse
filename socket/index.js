@@ -13,7 +13,7 @@ const SocketProvider = class {
     lunch() {
         this.io.on("connection", (client) => {
             client.on("join", ({ token }) => { join_handler({ token, db: this.db, client }) })
-            client.on("find_robot_game", (senario) => { find_match.find_robot_game({ senario, client, db: this.db, socket: this.io }) })
+            client.on("find_match", (senario) => { find_match.find_robot_game({ senario, client, db: this.db, socket: this.io }) })
             client.on("leave_find", () => { find_match.leave_find({ client, db: this.db, socket: this.io }) })
             client.on("game_handle", ({ op, data }) => {
                 let game_id = client.game_id

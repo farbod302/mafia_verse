@@ -11,7 +11,9 @@ const games = {
 
 const find_match = {
     find_robot_game({ senario, client, db, socket }) {
-        senario = senario || "tv"
+        console.log({senario, client:client.idenity});
+        // senario = senario || "tv"
+        senario = "tv"
         const  party_id  = client.idenity?.party_id
         if(!party_id)return
         client.to(party_id).emit("find_game_started", { user_started: client.idenity, senario })
@@ -23,6 +25,7 @@ const find_match = {
         let available_games = db.filterModel("games_queue", "senario", senario)
         let choosen_game = available_games.find(e => e.remain >= party_players_count)
         if (!choosen_game) {
+            console.log("game created");
             //create game queue
             let game_id = uuid(4)
             let new_game = {
@@ -34,6 +37,7 @@ const find_match = {
             }
 
             db.add_data("games_queue", new_game)
+            console.log({party_id,users});
             socket.to(party_id).emit("find_match", { users: users.map(e => { return { avatar: `${static.url}/files/0.png` } }) })
             if (party_players_count === game_players_count) {
                 this.create_game({game_id,db,socket})

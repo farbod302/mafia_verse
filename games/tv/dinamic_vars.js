@@ -1,8 +1,9 @@
 const dinamic_vars = {
     time: "day",
+    start:false,
     turn: -1,
     cur_event: " wait_to_join",
-    next_event: "pick_carts",
+    next_event: "wait_to_join",
     queue: [],
     day: 1,
     dead_list: [],
@@ -12,6 +13,7 @@ const dinamic_vars = {
     vote_type: "pre_vote",
     speech_type: "introduction",
     can_take_challenge:false,
+    custom_queue:[],
     edit_event(op, event, value, from) {
         switch (op) {
             case ("edit"): {

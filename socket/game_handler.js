@@ -30,7 +30,7 @@ const game_handler = {
 
     abandon_game({game_id,socket,db}){
         console.log("im run");
-       socket.to(game_id).emit("pre_game_abandon")
+       socket.to(game_id).emit("abandon")
        db.removeOne("game","game_id",game_id)
     }
 }

@@ -19,6 +19,7 @@ const Game = class {
 
     mainCycle() {
         const next_event = this.game_vars.next_event
+        console.log(next_event);
         this[next_event]()
     }
 
@@ -33,6 +34,7 @@ const Game = class {
                     const game_id = this.game_id
                     this.socket.to(game_id).emit("game_started")
                     this.game_vars.edit_event("edit", "next_event", "pick_cart_phase", "user connection")
+                    this.game_vars.edit_event("edit", "start", true, "user connection")
                     this.mainCycle()
                 }
                 break
@@ -118,9 +120,13 @@ const Game = class {
 
 
     start_speech() {
-        let { speech_type, can_take_challenge } = this.game_vars
+        let { speech_type, can_take_challenge, custom_queue } = this.game_vars
         const { game_id } = this
-        let queue = start.generate_queue({ type: speech_type, game_vars: this.game_vars })
+        let queue = start.generate_queue({
+            type: speech_type,
+            game_vars: this.game_vars,
+            users: custom_queue.length ? custom_queue : null
+        })
         this.game_vars.edit_event("edit", "turn", -1)
         this.game_vars.edit_event("edit", "queue", queue)
         this.game_vars.edit_event("edit", "next_event", "next_player_speech")

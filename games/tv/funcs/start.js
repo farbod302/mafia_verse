@@ -28,7 +28,7 @@ const start = {
         let queue = live_users.map(user => {
             const { user_id, user_index } = user
             return {
-                user_id, user_index, speech_status: type, pass: false
+                user_id, user_index, speech_status: type, pass: false,challenge_used:false
             }
         })
         return queue
@@ -81,7 +81,10 @@ const start = {
         mafia.forEach(user=>{
             socket.to(user.socket_id).emit("mafia_visitation",{data:{mafia:encrypt(JSON.stringify(users_pick_mafia))}})
         })
-
+        game_vars.edit_event("edit","speech_type","turn")
+        game_vars.edit_event("edit","reval",true)
+        game_vars.edit_event("edit","next_event","start_speech")
+        game_vars.edit_event("edit","can_take_challenge",true)
     }
 
 
