@@ -10,8 +10,9 @@ const vote = {
 
     },
     next_player_vote_turn({game_vars,socket,game_id,cycle}){
-        game_vars.edit_event("edit","turn")
+        game_vars.edit_event("edit","turn","plus")
         const {queue,turn}=game_vars
+        game_vars.edit_event("push","")
 
     }
 }
