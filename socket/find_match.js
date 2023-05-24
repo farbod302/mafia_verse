@@ -38,7 +38,7 @@ const find_match = {
 
             db.add_data("games_queue", new_game)
             console.log({party_id,users});
-            socket.to(party_id).emit("find_match", { users: users.map(e => { return { avatar: `${static.url}/files/0.png` } }) })
+            socket.to(party_id).emit("find_match", { users: users.map(e => { return { user_image: `${static.url}/files/0.png` } }) })
             if (party_players_count === game_players_count) {
                 this.create_game({game_id,db,socket})
             }
@@ -55,7 +55,7 @@ const find_match = {
                 partys: new_partys_list,
             }
             for (let party of new_partys_list) {
-                socket.to(party).emit("find_match", { users: new_users_list.map(() => { return { avatar: `${static.url}/files/0.png` } }) })
+                socket.to(party).emit("find_match", { users: new_users_list.map(() => { return { user_image: `${static.url}/files/0.png` } }) })
             }
             db.replaceOne("games_queue", "game_id", game_id, updated_game)
             if (new_remain === 0) {
