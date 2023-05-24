@@ -91,7 +91,7 @@ const find_match = {
             db.replaceOne("games_queue", "game_id", game_id, updated_game)
         }
         for (let party of partys) {
-           socket.to(party).emit("join_status", { users:users_after_leave.map(()=>{return {avatar:`${static.url}/files/0.png`}}) })
+           socket.to(party).emit("find_match", { users:users_after_leave.map((user)=>{return {user_image:`${static.url}/files/0.png`,user_id:user.user_id}}) })
         }
        socket.to(party_id).emit("find_stop")
 

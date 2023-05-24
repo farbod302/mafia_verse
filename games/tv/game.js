@@ -20,7 +20,6 @@ const Game = class {
 
     mainCycle() {
         const next_event = this.game_vars.next_event
-        console.log(next_event);
         this[next_event]()
     }
 
@@ -66,14 +65,22 @@ const Game = class {
                     await Helper.delay(3)
                     let status_list = game_vars.player_status
                     this.socket.to(game_id).emit("game_action", { data: status_list })
-
-
                 }
             }
 
             case ("next_speech"): {
                 this.mainCycle()
                 break
+            }
+
+
+            case ("vote"): {
+                vote.submit_vote({
+                    client,
+                    socket: this.socket,
+                    game_id: this.game_id,
+                    game_vars: this.game_vars
+                })
             }
         }
     }
@@ -186,11 +193,31 @@ const Game = class {
         })
     }
 
-    pre_vote(){
-        vote.start_vote({game_vars:this.game_vars})
-        const {game_id}=this
-        this.socket.to(game_id).emit("game_event",{data:{game_event:"vote"}})
+    pre_vote() {
+        vote.start_vote({ game_vars: this.game_vars })
+        const { game_id } = this
+        this.socket.to(game_id).emit("game_event", { data: { game_event: "vote" } })
         this.mainCycle()
+    }
+
+    next_player_vote_time() {
+        const { turn, queue, vote_type } = this.game_vars
+        if (turn + 1 === queue.length) {
+            let next_event = vote_type === "pre_vote" ? "arange_defence" : "count_vote"
+            this.game_vars.edit_event("edit", "next_event", next_event)
+            this.mainCycle()
+        } else {
+            vote.next_player_vote_turn({
+                game_vars: this.game_vars,
+                socket: this, socket,
+                game_id: this.game_id,
+                cycle: this.mainCycle
+            })
+        }
+    }
+
+    arange_defence(){
+        
     }
 
 
