@@ -15,6 +15,7 @@ const dinamic_vars = {
     can_take_challenge:false,
     custom_queue:[],
     votes_status:[],
+    rols:[],
     edit_event(op, event, value, from) {
         switch (op) {
             case ("edit"): {
