@@ -8,7 +8,7 @@ const befor_start = {
             let user_joined = game_vars.join_status.length
             if (user_joined !== static_vars.player_count) abandon()
         }
-        run_timer(10, abandon_func)
+        // run_timer(10, abandon_func)
     },
 
 
@@ -63,7 +63,7 @@ const befor_start = {
 
     pick_cart_phase({ game_vars ,users}) {
         let carts = this.shuffel_carts()
-        game_vars.edit_event("new_value", "carts", carts.map((cart,index) => { return { name: cart, selected_by: null, selected: false ,id:index} }))
+        game_vars.edit_event("new_value", "carts", carts.map((cart,index) => { return { name: cart, selected_by: "", selected: false ,id:index} }))
         game_vars.edit_event("edit", "queue", users, "pick_cart_phase from befor start")
         game_vars.edit_event("edit", "turn", -1, "pick_cart_phase from befor start")
         game_vars.edit_event("edit", "next_event", "next_player_pick_cart", "pick_cart_phase from befor start")
@@ -104,13 +104,15 @@ const befor_start = {
                 let user=befor_start.pick_player_from_user_id({users,user_id})
                 befor_start.submit_cart_pick({game_vars,cart:random_cart.id,users,contnue_func:cycle})
                 socket.to(user.socket_id).emit("random_character",{data:{name:random_cart.name},scenario:static_vars.scenario})
+                console.log("emited");
+                cycle()
             }
         }
         run_timer(5,random_pick_func)
     },
 
    pick_player_from_user_id({users,user_id}){
-    let s_user=users.find(user=>user.uid === user_id)
+    let s_user=users.find(user=>user.user_id === user_id)
     return s_user
    }
 }
