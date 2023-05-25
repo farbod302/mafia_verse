@@ -11,7 +11,6 @@ const games = {
 
 const find_match = {
     find_robot_game({ senario, client, db, socket }) {
-        console.log({senario, client:client.idenity});
         // senario = senario || "tv"
         senario = "tv"
         const  party_id  = client.idenity?.party_id
@@ -23,6 +22,7 @@ const find_match = {
         let seleced_game = games[senario]
         let game_players_count = seleced_game.static_vars.player_count
         let available_games = db.filterModel("games_queue", "senario", senario)
+        console.log({available_games});
         let choosen_game = available_games.find(e => e.remain >= party_players_count)
         if (!choosen_game) {
             console.log("game created");
@@ -37,8 +37,7 @@ const find_match = {
             }
 
             db.add_data("games_queue", new_game)
-            console.log({party_id,users});
-            socket.to(party_id).emit("find_match", { data: users.map(user => { return { user_image: `${static.url}/files/0.png`,user_id:user.user_id } }) })
+            socket.to(party_id).emit("find_match", { data: users.map(user => { return { user_image: `files/0.png`,user_id:user.user_id } }) })
             if (party_players_count === game_players_count) {
                 this.create_game({game_id,db,socket})
             }
@@ -53,9 +52,10 @@ const find_match = {
                 users: new_users_list,
                 remain: new_remain,
                 partys: new_partys_list,
+                senario
             }
             for (let party of new_partys_list) {
-                socket.to(party).emit("find_match", { data: new_users_list.map((user) => {return { user_image: `${static.url}/files/0.png`,user_id:user.user_id } }) })
+                socket.to(party).emit("find_match", { data: new_users_list.map((user) => {return { user_image: `files/0.png`,user_id:user.user_id } }) })
             }
             db.replaceOne("games_queue", "game_id", game_id, updated_game)
             if (new_remain === 0) {
@@ -77,21 +77,25 @@ const find_match = {
         let { users: users_befor_leave, partys, remain, game_id } = game_to_leave
         let users_after_leave = users_befor_leave.filter(user => !users_ids.includes(user.user_id))
         let new_party_lists = partys.filter(party => party !== party_id)
-        let new_remain = remain - users.length
+        let new_remain = remain + users.length
         let updated_game = {
             game_id,
             users: users_after_leave,
             remain:new_remain,
-            partys:new_party_lists
+            partys:new_party_lists,
+            senario:"tv"
         }
         //remove game if its empty
         if(updated_game.users.length === 0){
+            console.log("REMOVE");
             db.removeOne("games_queue","game_id",game_id)
         }else{
+            console.log("REPLACE");
             db.replaceOne("games_queue", "game_id", game_id, updated_game)
         }
+        console.log({gamessss:db.getAll("games_queue")});
         for (let party of partys) {
-           socket.to(party).emit("find_match", { data:users_after_leave.map((user)=>{return {user_image:`${static.url}/files/0.png`,user_id:user.user_id}}) })
+           socket.to(party).emit("find_match", { data:users_after_leave.map((user)=>{return {user_image:`files/0.png`,user_id:user.user_id}}) })
         }
        socket.to(party_id).emit("find_stop")
 

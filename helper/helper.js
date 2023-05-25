@@ -16,7 +16,7 @@ const Helper = {
 
 
     encrypt(str) {
-        str = JSON.stringify()
+        str = JSON.stringify(str)
         let key = process.env.ENC_KEY
         key=key.split("")
         let output = []

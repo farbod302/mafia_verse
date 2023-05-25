@@ -17,7 +17,8 @@ const static_vars={
         turn:45,
         challenge:15,
         defence:30
-    }
+    },
+    scenario:"nato"
 }
 
 module.exports=static_vars

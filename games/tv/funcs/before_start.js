@@ -8,12 +8,12 @@ const befor_start = {
             let user_joined = game_vars.join_status.length
             if (user_joined !== static_vars.player_count) abandon()
         }
-        run_timer(5, abandon_func)
+        run_timer(10, abandon_func)
     },
 
 
-    async players_list_generate({ game_vars }) {
-        let users = game_vars.users
+    async players_list_generate({ users }) {
+
         let users_device_id = users.map(user => user.device_id)
         let users_from_db = await Users.find({ user_id: { $in: users_device_id } })
         const player_clean_list = users.map((user, index) => {
@@ -61,10 +61,9 @@ const befor_start = {
         return carts
     },
 
-    pick_cart_phase({ game_vars }) {
+    pick_cart_phase({ game_vars ,users}) {
         let carts = this.shuffel_carts()
-        game_vars.edit_event("new_value", "carts", carts.map(cart => { return { name: cart, selected_by: null, selected: false } }))
-        let users = [...game_vars.users]
+        game_vars.edit_event("new_value", "carts", carts.map((cart,index) => { return { name: cart, selected_by: null, selected: false ,id:index} }))
         game_vars.edit_event("edit", "queue", users, "pick_cart_phase from befor start")
         game_vars.edit_event("edit", "turn", -1, "pick_cart_phase from befor start")
         game_vars.edit_event("edit", "next_event", "next_player_pick_cart", "pick_cart_phase from befor start")
@@ -95,14 +94,16 @@ const befor_start = {
         contnue_func()
     },
 
-    set_timer_to_random_pick_cart({game_vars}){
-        const {users,turn,rols}=game_vars
+    set_timer_to_random_pick_cart({game_vars,socket,users}){
+        const {turn,rols}=game_vars
         let random_pick_func=()=>{
             let {user_id}=users[turn]
             let is_selected=rols.find(role=>role.user_id===user_id)
             if(!is_selected){
                 let random_cart=befor_start.pick_random_cart()
+                let user=befor_start.pick_player_from_user_id({user:user_id})
                 befor_start.submit_cart_pick({game_vars,cart:random_cart})
+                socket.to(user.socket_id).emit("random_character",{data:{name:random_cart.name},scenario:static_vars.scenario})
             }
         }
         run_timer(5,random_pick_func)
