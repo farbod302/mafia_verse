@@ -22,7 +22,7 @@ const dinamic_vars = {
                 return this[event] = value == "plus" ? this[event] + 1 : value
             }
             case ("push"): {
-                return this[event].push(value)
+                return this[event]=this[event].concat(value)
             }
             case ("pull"): {
                 return this[event] = this[event].filter(e => e !== value)
@@ -32,6 +32,9 @@ const dinamic_vars = {
             }
         }
     },
-    real_gun_used: false
+    real_gun_used: false,
+    pick_event(event){
+        return this[event]
+    }
 }
 module.exports = dinamic_vars

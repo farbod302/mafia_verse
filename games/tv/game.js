@@ -17,9 +17,11 @@ const Game = class {
         this.mainCycle()
     }
 
+    pick_game_vars() { return this.game_vars }
 
     mainCycle() {
         const next_event = this.game_vars.next_event
+        console.log({ next_event });
         this[next_event]()
     }
 
@@ -41,6 +43,7 @@ const Game = class {
                 break
 
             case ("selected_character"): {
+                console.log("selected from user");
                 const { selected_character } = data
                 befor_start.submit_cart_pick({
                     contnue_func: this.mainCycle, game_vars: this.game_vars, cart: selected_character
@@ -85,6 +88,7 @@ const Game = class {
         }
     }
 
+  
 
     wait_to_join() {
         befor_start.wait_to_join({
@@ -104,28 +108,29 @@ const Game = class {
     next_player_pick_cart() {
         this.game_vars.edit_event("edit", "turn", "plus", "next_player_pick_cart")
         const { turn, carts, queue } = this.game_vars
-
         const { game_id, users } = this
+
         if (turn == queue.length) {
+            console.log("players end");
             this.game_vars.edit_event("edit", "next_event", "wait_to_join_second_phase")
             this.mainCycle()
             return
         }
-        let encrypted_data = Helper.encrypt(JSON.stringify(carts))
+        console.log("have player");
 
+        let encrypted_data = Helper.encrypt(JSON.stringify(carts))
         this.socket.to(game_id).emit("characters", { data: encrypted_data, scenario: static_vars.scenario })
         this.socket.to(users[turn].socket_id).emit("your_turn")
         let user_turn = this.game_vars.users_comp_list[turn]
         const { player_name, user_id, avatar } = user_turn
         this.socket.to(game_id).emit("users_turn", { data: { user_name: player_name, user_id, user_image: avatar } })
-        let mainCycle = () => { this.mainCycle() }
         befor_start.set_timer_to_random_pick_cart({
-            game_vars: this.game_vars, users: this.users, socket: this.socket, cycle: mainCycle,
+            game_vars: this.game_vars, users: this.users, socket: this.socket, cycle: () => { this.mainCycle(); console.log("i do this"); },
         })
+        console.log("timer set");
     }
 
     wait_to_join_second_phase() {
-        this.game_vars.edit_event("edit", "join_status", [])
         befor_start.wait_to_join({
             game_vars: this.game_vars,
             abandon: () => { this.game_handlers.abandon_game(this.socket) }
@@ -206,7 +211,7 @@ const Game = class {
         this.mainCycle()
     }
 
-   
+
 
     next_player_vote_time() {
         const { turn, queue, vote_type } = this.game_vars
@@ -225,11 +230,11 @@ const Game = class {
     }
 
     arange_defence() {
-        vote.arange_defence({game_vars:this.game_vars,users:this.users})
+        vote.arange_defence({ game_vars: this.game_vars, users: this.users })
     }
 
-    count_exit_vote(){
-        
+    count_exit_vote() {
+
     }
 
 

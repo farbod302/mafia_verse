@@ -3,24 +3,29 @@ const static_vars = require("../static_vars");
 const static = require("../../../container/static")
 const Users = require("../../../db/user")
 const befor_start = {
-    wait_to_join({ game_vars, abandon }) {
-        let abandon_func = () => {
-            let user_joined = game_vars.join_status.length
-            if (user_joined !== static_vars.player_count) abandon()
+    wait_to_join({ abandon,game_vars }) {
+        
+        const abandon_func=()=>{
+            const {join_status}=game_vars
+            const {player_count}=static_vars
+            let players_join=join_status.length
+            if(player_count !== players_join)abandon()
+            else console.log("Players ready");
         }
-        // run_timer(10, abandon_func)
+        run_timer(10,abandon_func)
+        
     },
 
 
     async players_list_generate({ users }) {
 
         let users_device_id = users.map(user => user.device_id)
-        let users_from_db = await Users.find({ user_id: { $in: users_device_id } })
+        let users_from_db = await Users.find({ device_id: { $in: users_device_id } })
         const player_clean_list = users.map((user, index) => {
             let sleced_user_from_db = users_from_db.find(d_user => user.device_id === d_user.device_id)
             return {
                 index,
-                user_id: user.uid,
+                user_id: user.user_id,
                 player_name: sleced_user_from_db ? `${sleced_user_from_db.idenity.name}` : "کاربر مهمان",
                 avatar: `${static.url}/files/0.png`,
             }
@@ -63,7 +68,7 @@ const befor_start = {
 
     pick_cart_phase({ game_vars ,users}) {
         let carts = this.shuffel_carts()
-        game_vars.edit_event("new_value", "carts", carts.map((cart,index) => { return { name: cart, selected_by: "", selected: false ,id:index} }))
+        game_vars.edit_event("new_value", "carts", carts.map((cart,index) => { return { name: cart, selected_by: "not", selected: false ,id:index} }))
         game_vars.edit_event("edit", "queue", users, "pick_cart_phase from befor start")
         game_vars.edit_event("edit", "turn", -1, "pick_cart_phase from befor start")
         game_vars.edit_event("edit", "next_event", "next_player_pick_cart", "pick_cart_phase from befor start")
@@ -80,21 +85,24 @@ const befor_start = {
     submit_cart_pick({contnue_func,game_vars,cart,users}){
         const {turn,carts,users_comp_list}=game_vars
         const {user_id}=users[turn]
-        let user_comp_data=users_comp_list.filter(user=>user.user_id === user_id)
+        let user_comp_data=users_comp_list.find(user=>user.user_id === user_id)
         const {avatar}=user_comp_data
         let new_carts_setup=[...carts]
         new_carts_setup[cart]={
             selected:true,
             selected_by:avatar,
             user_id,
-            name:carts[cart].name
+            name:carts[cart].name,
+            id:cart
         }
         game_vars.edit_event("edit","carts",new_carts_setup,"submit_cart_pick")
         game_vars.edit_event("push","rols",{user_id,cart:carts[cart]})
+        console.log(game_vars.carts);
         contnue_func()
     },
 
     set_timer_to_random_pick_cart({game_vars,socket,users,cycle}){
+        
         const {turn,rols}=game_vars
         let random_pick_func=()=>{
             let {user_id}=users[turn]
@@ -104,11 +112,10 @@ const befor_start = {
                 let user=befor_start.pick_player_from_user_id({users,user_id})
                 befor_start.submit_cart_pick({game_vars,cart:random_cart.id,users,contnue_func:cycle})
                 socket.to(user.socket_id).emit("random_character",{data:{name:random_cart.name},scenario:static_vars.scenario})
-                console.log("emited");
-                cycle()
+               
             }
         }
-        run_timer(5,random_pick_func)
+        run_timer(4,random_pick_func)
     },
 
    pick_player_from_user_id({users,user_id}){
