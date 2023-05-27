@@ -60,7 +60,15 @@ const vote = {
                 game_vars
             })
         }
-    }
+        game_vars.edit_event("edit","vote_type","pre_vote")
+        game_vars.edit_event("edit","custom_queue",[])
+        game_vars.edit_event("edit","report_data",{user:user_id,event:"exit_vote",msg:"از بازی یک نفر با رای بازیکنان خارج شد "})
+
+    },
+
+    
+    
+
 }
 
 module.exports = vote

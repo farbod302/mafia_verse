@@ -85,6 +85,30 @@ const start = {
         game_vars.edit_event("edit","reval",true)
         game_vars.edit_event("edit","next_event","start_speech")
         game_vars.edit_event("edit","can_take_challenge",true)
+    },
+
+
+    generate_report({game_vars,report_type,socket,game_id}){
+
+        let raw_reports={
+            day_report:{},
+            vote_report:{},
+            night_report:{},
+            game_result_report:{}
+        }
+
+        const {report_data}=game_vars
+        const {user_id,event,msg}=report_data
+        raw_reports[report_type]={
+            msg,
+            event,
+            user_data:{
+                user_id
+            }
+        }
+
+        socket.to(game_id).emit("report",{data:raw_reports})
+        game_vars.edit_event("edit","report_data",{})
     }
 
 

@@ -109,15 +109,12 @@ const Game = class {
         this.game_vars.edit_event("edit", "turn", "plus", "next_player_pick_cart")
         const { turn, carts, queue } = this.game_vars
         const { game_id, users } = this
-
         if (turn == queue.length) {
             console.log("players end");
             this.game_vars.edit_event("edit", "next_event", "wait_to_join_second_phase")
             this.mainCycle()
             return
         }
-        console.log("have player");
-
         let encrypted_data = Helper.encrypt(JSON.stringify(carts))
         this.socket.to(game_id).emit("characters", { data: encrypted_data, scenario: static_vars.scenario })
         this.socket.to(users[turn].socket_id).emit("your_turn")
@@ -127,7 +124,6 @@ const Game = class {
         befor_start.set_timer_to_random_pick_cart({
             game_vars: this.game_vars, users: this.users, socket: this.socket, cycle: () => { this.mainCycle(); console.log("i do this"); },
         })
-        console.log("timer set");
     }
 
     wait_to_join_second_phase() {
@@ -164,7 +160,6 @@ const Game = class {
             this.mainCycle()
         }
         const { game_id } = this
-
         //emit to player to speech
         let user = queue[turn].user_id
         user = befor_start.pick_player_from_user_id({ users: this.users, user_id: user })
@@ -234,7 +229,7 @@ const Game = class {
     }
 
     count_exit_vote() {
-
+        vote.count_exit_vote({game_vars:this.game_vars})
     }
 
 
