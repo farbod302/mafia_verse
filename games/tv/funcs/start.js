@@ -6,12 +6,13 @@ const { encrypt } = require("../../../helper/helper")
 const start = {
 
     async create_live_room({ game_id, game_vars, socket }) {
-        await Voice.start_room(game_id)
+        console.log("call");
+        // await Voice.start_room(game_id)
         const { users } = game_vars
         for (let user of users) {
             const { user_id, socket_id } = user
-            let token = Voice.join_room(user_id, game_id)
-            socket.to(socket_id).emit("voice_bridge_token", { token })
+            // let token = Voice.join_room(user_id, game_id)
+            socket.to(socket_id).emit("game_started", { token:"1234" })
         }
     },
 

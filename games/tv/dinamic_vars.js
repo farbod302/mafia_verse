@@ -23,7 +23,7 @@ const dinamic_vars = {
                 return this[event] = value == "plus" ? this[event] + 1 : value
             }
             case ("push"): {
-                return this[event]=this[event].concat(value)
+                return this[event].push(value)
             }
             case ("pull"): {
                 return this[event] = this[event].filter(e => e !== value)

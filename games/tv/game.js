@@ -43,20 +43,22 @@ const Game = class {
                 break
 
             case ("selected_character"): {
-                console.log("selected from user");
-                const { selected_character } = data
+                const {turn}=this.game_vars
+                const { index } = data
+                let contnue_func = () => { this.mainCycle() }
                 befor_start.submit_cart_pick({
-                    contnue_func: this.mainCycle, game_vars: this.game_vars, cart: selected_character
+                    contnue_func, game_vars: this.game_vars, cart: index, users: this.users,turn
                 })
             }
                 break
 
             case ("ready_to_game"): {
+                console.log("READY TO GAME");
                 const { game_id, game_vars } = this
                 const { users_comp_list, time } = game_vars
                 this.game_vars.edit_event("push", "join_status", user_call_idenity)
                 let connected_users_length = this.game_vars.join_status.length
-                if (connected_users_length == static_vars.player_count) {
+                if (connected_users_length > static_vars.player_count) {
                     start.create_live_room({
                         game_id: this.game_id,
                         game_vars: this.game_vars,
@@ -88,7 +90,7 @@ const Game = class {
         }
     }
 
-  
+
 
     wait_to_join() {
         befor_start.wait_to_join({
@@ -120,9 +122,14 @@ const Game = class {
         this.socket.to(users[turn].socket_id).emit("your_turn")
         let user_turn = this.game_vars.users_comp_list[turn]
         const { player_name, user_id, avatar } = user_turn
+        let cur_turn=turn
         this.socket.to(game_id).emit("users_turn", { data: { user_name: player_name, user_id, user_image: avatar } })
         befor_start.set_timer_to_random_pick_cart({
-            game_vars: this.game_vars, users: this.users, socket: this.socket, cycle: () => { this.mainCycle(); console.log("i do this"); },
+            game_vars: this.game_vars,
+            users: this.users,
+            socket: this.socket,
+            cycle: () => { this.mainCycle() },
+            turn:cur_turn
         })
     }
 
@@ -229,7 +236,7 @@ const Game = class {
     }
 
     count_exit_vote() {
-        vote.count_exit_vote({game_vars:this.game_vars})
+        vote.count_exit_vote({ game_vars: this.game_vars })
     }
 
 

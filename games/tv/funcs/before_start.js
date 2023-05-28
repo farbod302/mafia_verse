@@ -82,8 +82,9 @@ const befor_start = {
         return carts[random_index]
     },
 
-    submit_cart_pick({contnue_func,game_vars,cart,users}){
-        const {turn,carts,users_comp_list}=game_vars
+    submit_cart_pick({contnue_func,game_vars,cart,users,turn}){
+        const {carts,users_comp_list}=game_vars
+        console.log({users});
         const {user_id}=users[turn]
         let user_comp_data=users_comp_list.find(user=>user.user_id === user_id)
         const {avatar}=user_comp_data
@@ -101,16 +102,17 @@ const befor_start = {
         contnue_func()
     },
 
-    set_timer_to_random_pick_cart({game_vars,socket,users,cycle}){
-        
-        const {turn,rols}=game_vars
+    set_timer_to_random_pick_cart({game_vars,socket,users,cycle,turn}){
+        const {rols}=game_vars
         let random_pick_func=()=>{
             let {user_id}=users[turn]
+            console.log({user_id,rols});
             let is_selected=rols.find(role=>role.user_id===user_id)
             if(!is_selected){
+                console.log("NOT SELECTED");
                 let random_cart=befor_start.pick_random_cart({game_vars})
                 let user=befor_start.pick_player_from_user_id({users,user_id})
-                befor_start.submit_cart_pick({game_vars,cart:random_cart.id,users,contnue_func:cycle})
+                befor_start.submit_cart_pick({game_vars,cart:random_cart.id,users,contnue_func:cycle,turn})
                 socket.to(user.socket_id).emit("random_character",{data:{name:random_cart.name},scenario:static_vars.scenario})
                
             }
