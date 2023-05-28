@@ -62,7 +62,8 @@ const Game = class {
                     start.create_live_room({
                         game_id: this.game_id,
                         game_vars: this.game_vars,
-                        socket: this.socket
+                        socket: this.socket,
+                        users:this.users
                     })
                     this.socket.to(game_id).emit("user_data", { data: users_comp_list })
                     this.socket.to(game_id).emit("game_event", { data: { game_event: time } })
