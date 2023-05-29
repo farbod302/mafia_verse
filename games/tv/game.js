@@ -67,7 +67,7 @@ const Game = class {
                     })
                     this.socket.to(game_id).emit("user_data", { data: users_comp_list })
                     this.socket.to(game_id).emit("game_event", { data: { game_event: time } })
-                    befor_start.player_status_generate()
+                    befor_start.player_status_generate({game_vars:this.game_vars})
                     await Helper.delay(3)
                     let status_list = game_vars.player_status
                     this.socket.to(game_id).emit("game_action", { data: status_list })

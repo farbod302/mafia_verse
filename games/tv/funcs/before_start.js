@@ -35,8 +35,9 @@ const befor_start = {
 
 
     player_status_generate({game_vars}){
-        const {players_compleate_list}=game_vars
-        let player_status_list=players_compleate_list.map((user,index)=>{
+        const {players_com_list}=game_vars
+        console.log({players_com_list});
+        let player_status_list=players_com_list.map((user,index)=>{
            return{
             user_index:index,
             user_id:user.uid,
