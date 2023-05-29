@@ -59,6 +59,7 @@ const Game = class {
                 this.game_vars.edit_event("push", "join_status", user_call_idenity)
                 let connected_users_length = this.game_vars.join_status.length
                 if (connected_users_length > static_vars.player_count) {
+                    console.log("READY TO GAME");
                     start.create_live_room({
                         game_id: this.game_id,
                         game_vars: this.game_vars,
@@ -75,6 +76,7 @@ const Game = class {
                     this.mainCycle()
 
                 }
+                break
             }
 
             case ("next_speech"): {
@@ -156,25 +158,27 @@ const Game = class {
         this.game_vars.edit_event("edit", "queue", queue)
         this.game_vars.edit_event("edit", "next_event", "next_player_speech")
         this.socket.to(game_id).emit("in_game_turn_speech", { data: { queue, can_take_challenge } })
+        console.log("START SPEECH");
         this.mainCycle()
     }
 
 
     next_player_speech() {
+        
         this.game_vars.edit_event("edit", "turn", "plus")
         const { queue, turn, can_take_challenge, speech_type, reval } = this.game_vars
         if (queue.length === turn ) {
             //end speech
             let next_event = !reval ? "mafia_reval" : "pre_vote"
             this.game_vars.edit_event("edit", "next_event", next_event, "next_player_speech")
+            console.log("SPEECH CYCLE END");
             this.mainCycle()
-            console.log("SPEECH END");
             return
         }
+        console.log("PLAYER SPEECHING");
         const { game_id } = this
         //emit to player to speech
         let user = queue[turn].user_id
-        console.log({queue,turn});
         user = befor_start.pick_player_from_user_id({ users: this.users, user_id: user })
         const { socket_id } = user
         this.socket.to(socket_id).emit("start_speech")
@@ -194,8 +198,9 @@ const Game = class {
         let new_queue = this.game_vars.queue
         this.socket.to(game_id).emit("in_game_turn_speech", { data: { queue: new_queue, can_take_challenge } })
         //set timer
-        const contnue_func=()=>{this.mainCycle()}
-        let time = static_vars[speech_type]
+        const contnue_func=()=>{this.mainCycle();console.log("PLAYER SPEECH END");}
+        let time = static_vars.speech_time[speech_type]
+        console.log("TIME :",time);
         start.set_timer_to_contnue_speech_queue({
             func: contnue_func,
             game_vars: this.game_vars,

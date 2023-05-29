@@ -13,7 +13,7 @@ const static_vars={
         "hostage_taker",
     ],
     speech_time:{
-        introduction:30,
+        introduction:3,
         turn:45,
         challenge:15,
         defence:30

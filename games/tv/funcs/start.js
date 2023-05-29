@@ -74,7 +74,9 @@ const start = {
         let speeching_user = queue.find(user => !user.pass)
         const {socket_id}=users.find(user=>speeching_user.user_id === user.user_id)
         const timer_func = () => {
+            console.log({player_speeck: speeching_user.user_id});
             let s_player = player_status.find(player => player.user_id === speeching_user.user_id)
+            console.log("TIMER RUN FOR SPEECH TURN");
             if (s_player.is_talking) {
                 socket.to(socket_id).emit("speech_time_up")
                 func()
