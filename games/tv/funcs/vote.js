@@ -30,44 +30,57 @@ const vote = {
     },
 
 
-    arange_defence({ game_vars,users }) {
+    arange_defence({ game_vars, users }) {
         const { votes_status } = game_vars
         //todo : count users
         let users_to_defence = votes_status.filter(user => user.users.length)
-        let defender_ids=users_to_defence.map(user=>user.user_id)
-        let defenders_queue=users.filter(user=>defender_ids.includes(user.user_id))
-        game_vars.edit_event("edit","can_take_challenge",false)
-        game_vars.edit_event("edit","custom_queue",defenders_queue)
-        game_vars.edit_event("edit","turn",-1)
-        game_vars.edit_event("edit","cur_event","defence")
-        game_vars.edit_event("edit","vote_type","defence")
-        game_vars.edit_event("edit","next_event","start_speech")
+        let defender_ids = users_to_defence.map(user => user.user_id)
+        let defenders_queue = users.filter(user => defender_ids.includes(user.user_id))
+        game_vars.edit_event("edit", "can_take_challenge", false)
+        game_vars.edit_event("edit", "custom_queue", defenders_queue)
+        game_vars.edit_event("edit", "turn", -1)
+        game_vars.edit_event("edit", "cur_event", "defence")
+        game_vars.edit_event("edit", "vote_type", "defence")
+        game_vars.edit_event("edit", "next_event", "start_speech")
 
     },
 
-    count_exit_vote({game_vars,users}){
-        const {vote_status}=game_vars
-        let user_to_exit=vote_status.sort((a,b)=>{b.users.length - a.users.length})[0]
+    count_exit_vote({ game_vars, users,socket ,game_id}) {
+        const { vote_status } = game_vars
+        let user_to_exit = vote_status.sort((a, b) => { b.users.length - a.users.length })[0]
         //todo count exit vote
-        if(user_to_exit.users.length){
-            const {user_id}=user_to_exit
-            let index=users.findIndex(user=>user.user_id === user_id)
+        if (user_to_exit.users.length) {
+            const { user_id } = user_to_exit
+            let index = users.findIndex(user => user.user_id === user_id)
             start.edit_game_action({
                 index,
-                prime_event:"user_status",
-                second_event:"is_aliave",
-                new_value:false,
+                prime_event: "user_status",
+                second_event: "is_aliave",
+                new_value: false,
                 game_vars
             })
+            game_vars.edit_event("edit", "report_data",
+                {
+                    user: user_id,
+                    event: "exit_vote",
+                    msg: "از بازی یک نفر با رای بازیکنان خارج شد "
+                })
+                start.generate_report({
+                    game_vars,
+                    report_type:"vote_report",
+                    socket,
+                    game_id
+                })
+
         }
-        game_vars.edit_event("edit","vote_type","pre_vote")
-        game_vars.edit_event("edit","custom_queue",[])
-        game_vars.edit_event("edit","report_data",{user:user_id,event:"exit_vote",msg:"از بازی یک نفر با رای بازیکنان خارج شد "})
+        game_vars.edit_event("edit", "vote_type", "pre_vote")
+        game_vars.edit_event("edit", "custom_queue", [])
+        game_vars.edit_event("edit", "next_event", "start_night")
 
     },
 
-    
-    
+
+
 
 }
 

@@ -15,6 +15,16 @@ const start = {
         }
     },
 
+    async create_room_for_mafia({mafia,socket,room_id}){
+        await Voice.start_room(room_id)
+        for (let user of mafia) {
+            const { user_id, socket_id } = user
+            let token = Voice.join_room(user_id, game_id)
+            socket.to(socket_id).emit("mafia_speech", { token })
+        }
+
+    },
+
 
     pick_live_users({ game_vars }) {
         let { player_status } = game_vars

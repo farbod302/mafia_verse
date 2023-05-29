@@ -2,6 +2,7 @@ const Helper = require("../../helper/helper")
 const TempDb = require("../../helper/temp_db")
 const dinamic_vars = require("./dinamic_vars")
 const befor_start = require("./funcs/before_start")
+const night = require("./funcs/night")
 const start = require("./funcs/start")
 const vote = require("./funcs/vote")
 const static_vars = require("./static_vars")
@@ -43,11 +44,11 @@ const Game = class {
                 break
 
             case ("selected_character"): {
-                const {turn}=this.game_vars
+                const { turn } = this.game_vars
                 const { index } = data
                 let contnue_func = () => { this.mainCycle() }
                 befor_start.submit_cart_pick({
-                    contnue_func, game_vars: this.game_vars, cart: index, users: this.users,turn
+                    contnue_func, game_vars: this.game_vars, cart: index, users: this.users, turn
                 })
             }
                 break
@@ -63,11 +64,11 @@ const Game = class {
                         game_id: this.game_id,
                         game_vars: this.game_vars,
                         socket: this.socket,
-                        users:this.users
+                        users: this.users
                     })
                     this.socket.to(game_id).emit("user_data", { data: users_comp_list })
                     this.socket.to(game_id).emit("game_event", { data: { game_event: time } })
-                    befor_start.player_status_generate({game_vars:this.game_vars})
+                    befor_start.player_status_generate({ game_vars: this.game_vars })
                     await Helper.delay(3)
                     let status_list = game_vars.player_status
                     this.socket.to(game_id).emit("game_action", { data: status_list })
@@ -123,14 +124,14 @@ const Game = class {
         this.socket.to(users[turn].socket_id).emit("your_turn")
         let user_turn = this.game_vars.users_comp_list[turn]
         const { player_name, user_id, avatar } = user_turn
-        let cur_turn=turn
+        let cur_turn = turn
         this.socket.to(game_id).emit("users_turn", { data: { user_name: player_name, user_id, user_image: avatar } })
         befor_start.set_timer_to_random_pick_cart({
             game_vars: this.game_vars,
             users: this.users,
             socket: this.socket,
             cycle: () => { this.mainCycle() },
-            turn:cur_turn
+            turn: cur_turn
         })
     }
 
@@ -237,9 +238,18 @@ const Game = class {
     }
 
     count_exit_vote() {
-        vote.count_exit_vote({ game_vars: this.game_vars })
+        const { game_id, socket } = this
+        vote.count_exit_vote({ game_vars: this.game_vars, game_id, socket })
+        this.mainCycle()
     }
 
+    start_night() {
+        night.start_night({
+            game_vars: this.game_vars,
+            socket: this.socket,
+            game_id: this.game_id
+        })
+    }
 
 }
 
