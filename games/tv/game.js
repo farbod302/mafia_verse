@@ -54,7 +54,6 @@ const Game = class {
                 break
 
             case ("ready_to_game"): {
-                console.log("READY TO GAME");
                 const { game_id, game_vars } = this
                 const { users_comp_list, time } = game_vars
                 this.game_vars.edit_event("push", "join_status", user_call_idenity)
@@ -72,6 +71,9 @@ const Game = class {
                     await Helper.delay(3)
                     let status_list = game_vars.player_status
                     this.socket.to(game_id).emit("game_action", { data: status_list })
+                    this.game_vars.edit_event("edit", "next_event", "start_speech")
+                    this.mainCycle()
+
                 }
             }
 
@@ -114,7 +116,6 @@ const Game = class {
         const { turn, carts, queue } = this.game_vars
         const { game_id, users } = this
         if (turn == queue.length) {
-            console.log("players end");
             this.game_vars.edit_event("edit", "next_event", "wait_to_join_second_phase")
             this.mainCycle()
             return
@@ -160,17 +161,20 @@ const Game = class {
 
 
     next_player_speech() {
-        this.game_vars.edit_event("edit", "turn", plus)
+        this.game_vars.edit_event("edit", "turn", "plus")
         const { queue, turn, can_take_challenge, speech_type, reval } = this.game_vars
-        if (queue.length === turn - 1) {
+        if (queue.length === turn ) {
             //end speech
             let next_event = !reval ? "mafia_reval" : "pre_vote"
-            this.game_vars.edit_event("edit", next_event, next_event, "next_player_speech")
+            this.game_vars.edit_event("edit", "next_event", next_event, "next_player_speech")
             this.mainCycle()
+            console.log("SPEECH END");
+            return
         }
         const { game_id } = this
         //emit to player to speech
         let user = queue[turn].user_id
+        console.log({queue,turn});
         user = befor_start.pick_player_from_user_id({ users: this.users, user_id: user })
         const { socket_id } = user
         this.socket.to(socket_id).emit("start_speech")
@@ -183,16 +187,17 @@ const Game = class {
             game_vars: this.game_vars,
             edit_others: true
         })
-        let status_list = game_vars.player_status
+        let status_list = this.game_vars.player_status
         this.socket.to(game_id).emit("game_action", { data: status_list })
         //edit speech queue
-        start.move_speech_queue()
-        let new_queue = game_vars.queue
+        start.move_speech_queue({game_vars:this.game_vars})
+        let new_queue = this.game_vars.queue
         this.socket.to(game_id).emit("in_game_turn_speech", { data: { queue: new_queue, can_take_challenge } })
         //set timer
+        const contnue_func=()=>{this.mainCycle()}
         let time = static_vars[speech_type]
         start.set_timer_to_contnue_speech_queue({
-            func: this.mainCycle,
+            func: contnue_func,
             game_vars: this.game_vars,
             time,
             socket: this.socket,
@@ -206,6 +211,7 @@ const Game = class {
             users: this.users,
             socket: this.socket
         })
+        // this.mainCycle()
     }
 
     pre_vote() {

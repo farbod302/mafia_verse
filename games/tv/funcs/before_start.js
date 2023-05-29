@@ -9,8 +9,7 @@ const befor_start = {
             const {join_status}=game_vars
             const {player_count}=static_vars
             let players_join=join_status.length
-            if(player_count !== players_join)abandon()
-            else console.log("Players ready");
+            if(player_count > players_join)abandon()
         }
         run_timer(10,abandon_func)
         
@@ -35,12 +34,11 @@ const befor_start = {
 
 
     player_status_generate({game_vars}){
-        const {players_com_list}=game_vars
-        console.log({players_com_list});
-        let player_status_list=players_com_list.map((user,index)=>{
+        const {users_comp_list}=game_vars
+        let player_status_list=users_comp_list.map((user,index)=>{
            return{
             user_index:index,
-            user_id:user.uid,
+            user_id:user.user_id,
             user_status:{
                 is_connected:true,
                 is_alive:true,
@@ -85,7 +83,6 @@ const befor_start = {
 
     submit_cart_pick({contnue_func,game_vars,cart,users,turn}){
         const {carts,users_comp_list}=game_vars
-        console.log({users});
         const {user_id}=users[turn]
         let user_comp_data=users_comp_list.find(user=>user.user_id === user_id)
         const {avatar}=user_comp_data
@@ -99,7 +96,6 @@ const befor_start = {
         }
         game_vars.edit_event("edit","carts",new_carts_setup,"submit_cart_pick")
         game_vars.edit_event("push","rols",{user_id,cart:carts[cart]})
-        console.log(game_vars.carts);
         contnue_func()
     },
 
@@ -107,10 +103,8 @@ const befor_start = {
         const {rols}=game_vars
         let random_pick_func=()=>{
             let {user_id}=users[turn]
-            console.log({user_id,rols});
             let is_selected=rols.find(role=>role.user_id===user_id)
             if(!is_selected){
-                console.log("NOT SELECTED");
                 let random_cart=befor_start.pick_random_cart({game_vars})
                 let user=befor_start.pick_player_from_user_id({users,user_id})
                 befor_start.submit_cart_pick({game_vars,cart:random_cart.id,users,contnue_func:cycle,turn})

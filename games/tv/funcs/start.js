@@ -28,13 +28,14 @@ const start = {
 
     pick_live_users({ game_vars }) {
         let { player_status } = game_vars
+        console.log({player_status});
         let live_users = player_status.filter(user => user.user_status.is_alive)
         return live_users
     },
 
     generate_queue({ type, game_vars, users }) {
         let live_users = users
-        if (!live_users) live_users = befor_start.pick_live_users({ game_vars })
+        if (!live_users) live_users = start.pick_live_users({ game_vars })
         let queue = live_users.map(user => {
             const { user_id, user_index } = user
             return {
@@ -71,7 +72,7 @@ const start = {
     set_timer_to_contnue_speech_queue({ func, game_vars,time,socket ,users}) {
         const { queue, player_status } = game_vars
         let speeching_user = queue.find(user => !user.pass)
-        const {socket_id}=users.find(user=>speeching_user.user_id === user.uid)
+        const {socket_id}=users.find(user=>speeching_user.user_id === user.user_id)
         const timer_func = () => {
             let s_player = player_status.find(player => player.user_id === speeching_user.user_id)
             if (s_player.is_talking) {
