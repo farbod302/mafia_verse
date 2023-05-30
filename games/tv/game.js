@@ -230,7 +230,7 @@ const Game = class {
 
     next_player_vote_time() {
         const { turn, queue, vote_type } = this.game_vars
-        if (turn + 1 === queue.length) {
+        if (turn === queue.length) {
             let next_event = vote_type === "pre_vote" ? "arange_defence" : "count_exit_vote"
             this.game_vars.edit_event("edit", "next_event", next_event)
             this.mainCycle()
