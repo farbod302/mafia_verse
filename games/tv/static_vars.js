@@ -14,7 +14,7 @@ const static_vars={
     ],
     speech_time:{
         introduction:3,
-        turn:45,
+        turn:3,
         challenge:15,
         defence:30
     },

@@ -74,9 +74,9 @@ const start = {
         let speeching_user = queue.find(user => !user.pass)
         const {socket_id}=users.find(user=>speeching_user.user_id === user.user_id)
         const timer_func = () => {
-            console.log({player_speeck: speeching_user.user_id});
             let s_player = player_status.find(player => player.user_id === speeching_user.user_id)
-            if (s_player.is_talking) {
+            console.log({s_player:s_player.user_status});
+            if (s_player.user_status.is_talking) {
                 socket.to(socket_id).emit("speech_time_up")
                 func()
             }
@@ -89,7 +89,7 @@ const start = {
         const mafai_rols=["godfather","nato","hostage_taker"]
         let users_pick_mafia=carts.filter(user=>mafai_rols.includes(user.name))
         let users_pick_mafia_ids=users_pick_mafia.map(user=>user.user_id)
-        let mafia=users.filter(user=>users_pick_mafia_ids.includes(user.uid))
+        let mafia=users.filter(user=>users_pick_mafia_ids.includes(user.user_id))
         mafia.forEach(user=>{
             socket.to(user.socket_id).emit("mafia_visitation",{data:{mafia:encrypt(JSON.stringify(users_pick_mafia))}})
         })
