@@ -183,7 +183,6 @@ const Game = class {
         const { socket_id } = user
         this.socket.to(socket_id).emit("start_speech")
         other_users.forEach(u => { this.socket.to(u.socket_id).emit("game_event", { data: { game_event: "action" } }) })
-
         // edit game action
         start.edit_game_action({
             index: turn,
