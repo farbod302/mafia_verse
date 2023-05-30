@@ -33,7 +33,6 @@ const Game = class {
                 this.game_vars.edit_event("push", "join_status", user_call_idenity)
                 let connected_users_length = this.game_vars.join_status.length
                 if (connected_users_length == static_vars.player_count) {
-                    // await befor_start.players_list_generate({ users:this.users })
                     const game_id = this.game_id
                     this.socket.to(game_id).emit("game_started")
                     this.game_vars.edit_event("edit", "next_event", "pick_cart_phase", "user connection")
@@ -55,7 +54,8 @@ const Game = class {
 
             case ("ready_to_game"): {
                 const { game_id, game_vars } = this
-                const { users_comp_list, time } = game_vars
+                const { time } = game_vars
+                let user_data=await  befor_start.players_list_generate({ users:this.users })
                 this.game_vars.edit_event("push", "join_status", user_call_idenity)
                 let connected_users_length = this.game_vars.join_status.length
                 if (connected_users_length > static_vars.player_count) {
@@ -66,11 +66,12 @@ const Game = class {
                         socket: this.socket,
                         users: this.users
                     })
-                    this.socket.to(game_id).emit("user_data", { data: users_comp_list })
+                    this.socket.to(game_id).emit("user_data", { data: user_data })
                     this.socket.to(game_id).emit("game_event", { data: { game_event: time } })
                     befor_start.player_status_generate({ game_vars: this.game_vars })
                     await Helper.delay(3)
                     let status_list = game_vars.player_status
+                    console.log({status_list});
                     this.socket.to(game_id).emit("game_action", { data: status_list })
                     this.game_vars.edit_event("edit", "next_event", "start_speech")
                     this.mainCycle()
