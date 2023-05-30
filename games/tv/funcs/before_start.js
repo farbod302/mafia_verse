@@ -122,8 +122,8 @@ const befor_start = {
    },
 
    pick_other_player_from_user_id({users,user_id}){
-    let s_user=users.find(user=>user.user_id !== user_id)
-    return s_user
+    let other_users=users.filter(user=>user.user_id !== user_id)
+    return other_users
    }
 }
 
