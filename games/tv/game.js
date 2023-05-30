@@ -66,7 +66,7 @@ const Game = class {
                         socket: this.socket,
                         users: this.users
                     })
-                    this.socket.to(game_id).emit("user_data", { data: user_data })
+                    this.socket.to(game_id).emit("users_data", { data: user_data })
                     this.socket.to(game_id).emit("game_event", { data: { game_event: time } })
                     befor_start.player_status_generate({ game_vars: this.game_vars })
                     await Helper.delay(3)
@@ -235,11 +235,12 @@ const Game = class {
             this.game_vars.edit_event("edit", "next_event", next_event)
             this.mainCycle()
         } else {
+            let cycle=()=>{this.mainCycle()}
             vote.next_player_vote_turn({
                 game_vars: this.game_vars,
                 socket: this.socket,
                 game_id: this.game_id,
-                cycle: this.mainCycle
+                cycle,
             })
         }
     }
