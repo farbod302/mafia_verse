@@ -93,6 +93,39 @@ const Game = class {
                 })
                 break
             }
+
+            case ("user_action"): {
+                const { action } = data
+                const { user_id } = client.idenity
+                const { game_id } = this
+                let index = this.users.findIndex(user => user.user_id === user_id)
+                start.edit_game_action({
+                    index,
+                    prime_event: "user_action",
+                    second_event: action,
+                    new_value: true,
+                    game_vars: this.game_vars,
+                })
+                const { player_status } = this.game_vars
+                this.socket.to(game_id).emit("game_action", { data: player_status })
+                start.edit_game_action({
+                    index,
+                    prime_event: "user_action",
+                    second_event: action,
+                    new_value: false,
+                    game_vars: this.game_vars,
+                })
+                break
+            }
+
+            case ("accept_challenge"): {
+                const { user_id } = data
+                start.accept_cahllenge({
+                    game_vars:this.game_vars,
+                    user_id,
+                    users:this.users
+                })
+            }
         }
     }
 

@@ -25,8 +25,9 @@ const befor_start = {
             return {
                 index,
                 user_id: user.user_id,
-                player_name: sleced_user_from_db ? `${sleced_user_from_db.idenity.name}` : "کاربر مهمان",
-                avatar: `${static.url}/files/0.png`,
+                user_name: sleced_user_from_db ? `${sleced_user_from_db.idenity.name}` : "کاربر مهمان",
+                user_image: `files/0.png`,
+                user_anim: `files/test1.json`,
             }
         })
         return player_clean_list

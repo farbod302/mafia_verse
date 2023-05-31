@@ -63,9 +63,11 @@ const start = {
 
     move_speech_queue({ game_vars }) {
         const { turn, queue } = game_vars
+        console.log({turn});
         let new_queue = [...queue].map((user, index) => {
             return { ...user, pass: index < turn ? true : false }
         })
+        console.log({new_queue});
         game_vars.edit_event("edit", "queue", new_queue)
     },
 
@@ -82,6 +84,17 @@ const start = {
             }
         }
         run_timer(time,timer_func)
+    },
+
+    accept_cahllenge({game_vars,user_id,users,socket}){
+        let speeching_user_index = queue.findIndex(user => !user.pass)
+        let challenge_user=befor_start.pick_player_from_user_id({users,user_id})
+        let prv_queue=[...game_vars.queue]
+        let user_in_queue_index=prv_queue.findIndex(user=>user.user_id === user_id)
+        prv_queue[user_in_queue_index].challenge_used=true
+        prv_queue.splice(speeching_user_index,0,challenge_user)
+        game_vars.edit_event("edit","queue",prv_queue)
+        socket.to(challenge_user.socket_id).emit("challenge_accepted")
     },
 
     mafia_reval({game_vars,users,socket}){
