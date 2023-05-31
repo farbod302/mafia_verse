@@ -5,15 +5,15 @@ const vote = {
     start_vote({ game_vars }) {
         game_vars.edit_event("edit", "vote_status", [])
         const { custom_queue, vote_type } = game_vars
-        let users_to_vote = vote_type !== "pre_vote" ? custom_queue : start.pick_live_users({game_vars})
+        let users_to_vote = vote_type !== "pre_vote" ? custom_queue : start.pick_live_users({ game_vars })
         game_vars.edit_event("edit", "queue", users_to_vote)
         game_vars.edit_event("edit", "turn", -1)
         game_vars.edit_event("edit", "next_event", "next_player_vote_time")
 
     },
     next_player_vote_turn({ game_vars, socket, game_id, cycle }) {
-        game_vars.edit_event("edit", "turn", "plus")
         const { queue, turn, vote_type } = game_vars
+        console.log({ queue, turn });
         let new_vote_record = { user_id: queue[turn].user_id, users: [], vote_type }
         game_vars.edit_event("push", "votes_status", new_vote_record)
         socket.to(game_id).emit("vote", { data: new_vote_record })
@@ -36,16 +36,22 @@ const vote = {
         let users_to_defence = votes_status.filter(user => user.users.length)
         let defender_ids = users_to_defence.map(user => user.user_id)
         let defenders_queue = users.filter(user => defender_ids.includes(user.user_id))
-        game_vars.edit_event("edit", "can_take_challenge", false)
-        game_vars.edit_event("edit", "custom_queue", defenders_queue)
-        game_vars.edit_event("edit", "turn", -1)
-        game_vars.edit_event("edit", "cur_event", "defence")
-        game_vars.edit_event("edit", "vote_type", "defence")
-        game_vars.edit_event("edit", "next_event", "start_speech")
+        if (defenders_queue.length) {
+            game_vars.edit_event("edit", "can_take_challenge", false)
+            game_vars.edit_event("edit", "custom_queue", defenders_queue)
+            game_vars.edit_event("edit", "turn", -1)
+            game_vars.edit_event("edit", "cur_event", "defence")
+            game_vars.edit_event("edit", "vote_type", "defence")
+            game_vars.edit_event("edit", "next_event", "start_speech")
+        }
+        else{
+            game_vars.edit_event("edit", "next_event", "start_night")
+
+        }
 
     },
 
-    count_exit_vote({ game_vars, users,socket ,game_id}) {
+    count_exit_vote({ game_vars, users, socket, game_id }) {
         const { vote_status } = game_vars
         let user_to_exit = vote_status.sort((a, b) => { b.users.length - a.users.length })[0]
         //todo count exit vote
@@ -65,12 +71,12 @@ const vote = {
                     event: "exit_vote",
                     msg: "از بازی یک نفر با رای بازیکنان خارج شد "
                 })
-                start.generate_report({
-                    game_vars,
-                    report_type:"vote_report",
-                    socket,
-                    game_id
-                })
+            start.generate_report({
+                game_vars,
+                report_type: "vote_report",
+                socket,
+                game_id
+            })
 
         }
         game_vars.edit_event("edit", "vote_type", "pre_vote")

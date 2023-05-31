@@ -18,7 +18,6 @@ const Game = class {
         this.mainCycle()
     }
 
-    pick_game_vars() { return this.game_vars }
 
     mainCycle() {
         const next_event = this.game_vars.next_event
@@ -231,6 +230,8 @@ const Game = class {
 
 
     next_player_vote_time() {
+        this.game_vars.edit_event("edit", "turn", "plus")
+
         const { turn, queue, vote_type } = this.game_vars
         if (turn === queue.length) {
             let next_event = vote_type === "pre_vote" ? "arange_defence" : "count_exit_vote"
@@ -249,6 +250,7 @@ const Game = class {
 
     arange_defence() {
         vote.arange_defence({ game_vars: this.game_vars, users: this.users })
+        this.mainCycle()
     }
 
     count_exit_vote() {
