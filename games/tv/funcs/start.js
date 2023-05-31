@@ -28,7 +28,6 @@ const start = {
 
     pick_live_users({ game_vars }) {
         let { player_status } = game_vars
-        console.log({player_status});
         let live_users = player_status.filter(user => user.user_status.is_alive)
         return live_users
     },

@@ -6,7 +6,7 @@ const night = {
 
     async generate_room_for_mafia({ game_vars, users, socket }) {
         const { carts } = game_vars
-        const mafai_rols = ["godfather", "nato", "hostage_taker"]
+        const mafai_rols = ["godfather", "nato"]
         let users_pick_mafia = carts.filter(user => mafai_rols.includes(user.name))
         let random_room_id = uid(4)
         let users_pick_mafia_ids = users_pick_mafia.map(user => user.user_id)

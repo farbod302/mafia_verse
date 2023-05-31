@@ -125,6 +125,22 @@ const Game = class {
                     user_id,
                     users:this.users
                 })
+                break
+            }
+
+            case("target_ability"):{
+                const {character,targets}=data
+                const {day}=this.game_vars
+                let cur_night_events=this.db.getOne("night_reports",night,day)
+                let prv_events=[...cur_night_events.events]
+                targets.forEach(target=>{
+                    prv_events.push({
+                        act:character,
+                        target
+                    })
+                })
+                cur_night_events.events=prv_events
+               this.db.replaceOne("night_reports",night,day,cur_night_events)
             }
         }
     }
@@ -159,9 +175,9 @@ const Game = class {
         this.socket.to(game_id).emit("characters", { data: encrypted_data, scenario: static_vars.scenario })
         this.socket.to(users[turn].socket_id).emit("your_turn")
         let user_turn = this.game_vars.users_comp_list[turn]
-        const { player_name, user_id, avatar } = user_turn
+        const { player_name, user_id, user_image } = user_turn
         let cur_turn = turn
-        this.socket.to(game_id).emit("users_turn", { data: { user_name: player_name, user_id, user_image: avatar } })
+        this.socket.to(game_id).emit("users_turn", { data: { user_name: player_name, user_id, user_image: user_image } })
         befor_start.set_timer_to_random_pick_cart({
             game_vars: this.game_vars,
             users: this.users,
@@ -298,6 +314,8 @@ const Game = class {
             socket: this.socket,
             game_id: this.game_id
         })
+        const {day}=this.game_vars
+        this.db.add_data("night_report",{night:day,events:[]})
     }
 
 }
