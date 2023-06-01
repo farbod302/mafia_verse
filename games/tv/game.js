@@ -1,5 +1,6 @@
 const Helper = require("../../helper/helper")
 const TempDb = require("../../helper/temp_db")
+const run_timer = require("../../helper/timer")
 const dinamic_vars = require("./dinamic_vars")
 const befor_start = require("./funcs/before_start")
 const night = require("./funcs/night")
@@ -323,6 +324,39 @@ const Game = class {
         })
         const {day}=this.game_vars
         this.db.add_data("night_report",{night:day,events:[]})
+        this.mainCycle()
+    }
+    guard_and_hostage_taker_act(){
+        night.guard_and_hostage_taker_act({
+            game_vars:this.game_vars,
+            users:this.users,
+            socket:this.socket
+        })
+        let mainCycle=()=>{this.mainCycle()}
+        this.game_vars.edit_event("edit","next_event","mafia_shot")
+        run_timer(20,mainCycle)
+    }
+
+    mafia_shot(){
+        night.mafia_shot({
+            game_vars:this.game_vars,
+            users:this.users,
+            socket:this.socket
+        })
+        this.game_vars.edit_event("edit","next_event","other_acts")
+        let mainCycle=()=>{this.mainCycle()}
+        run_timer(30,mainCycle)
+
+    }
+    other_acts(){
+        night.other_acts({
+            game_vars:this.game_vars,
+            users:this.users,
+            socket:this.socket
+        })
+        this.game_vars.edit_event("edit","next_event","night_result")
+        let mainCycle=()=>{this.mainCycle()}
+        run_timer(40,mainCycle)
     }
 
 }

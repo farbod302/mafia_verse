@@ -20,7 +20,7 @@ const night = {
         game_vars.edit_event("edit", "time", "night")
         socket.to(game_id).emit("game_event", { data: { game_event: "night" } })
         game_vars.edit_event("push", "nigth_reports", { night: day, events: [] })
-        console.log("Night started");
+        game_vars.edit_event("edit","next_event","guard_and_hostage_taker_act")
     },
 
     emit_to_act({ user_id, list_of_users_can_targeted, users, socket }) {
@@ -49,6 +49,17 @@ const night = {
         let godfather_user=start.pick_player_from_user_id({users,user_id})
         let list_of_users_can_targeted=this.pick_user_for_act({game_vars,act:"mafia",user_id})
         socket.to(godfather_user.socket_id).emit("use_ability",{data:{max_count:1,list_of_users_can_targeted}})
+    },
+
+    other_acts({game_vars,users,socket}){
+        let acts_used=["gurd","nato","godfather","hostage_taker"]
+        const {carts}=game_vars
+        let users_remain=carts.filter(cart=>!acts_used.includes(cart.name))
+        for(let act of users_remain){
+            let {user_id} = carts
+            let list_of_users_can_targeted = this.pick_user_for_act({ game_vars, act:act.name, user_id })
+            this.emit_to_act({ user_id, list_of_users_can_targeted, users, socket })
+        }
     },
 
     pick_user_for_act({ game_vars, act, user_id }) {
