@@ -94,6 +94,7 @@ const start = {
         prv_queue[user_in_queue_index].challenge_used=true
         prv_queue.splice(speeching_user_index,0,challenge_user)
         game_vars.edit_event("edit","queue",prv_queue)
+        console.log({challenge_userrrrrrrrrrrrrrrrrr:challenge_user});
         socket.to(challenge_user.socket_id).emit("accept_challenge")
     },
 
