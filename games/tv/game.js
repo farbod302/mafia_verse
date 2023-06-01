@@ -123,7 +123,8 @@ const Game = class {
                 start.accept_cahllenge({
                     game_vars:this.game_vars,
                     user_id,
-                    users:this.users
+                    users:this.users,
+                    socket:this.socket
                 })
                 start.edit_game_action({
                     index,
