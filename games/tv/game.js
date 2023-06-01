@@ -174,8 +174,6 @@ const Game = class {
         let encrypted_data = Helper.encrypt(JSON.stringify(carts))
         this.socket.to(game_id).emit("characters", { data: encrypted_data, scenario: static_vars.scenario })
         this.socket.to(users[turn].socket_id).emit("your_turn")
-        let user_turn = this.game_vars.users_comp_list[turn]
-        const { player_name, user_id, user_image } = user_turn
         let cur_turn = turn
         let clean_users=users.map(user=>{
             const {user_id,user_name,user_image}=user
