@@ -121,11 +121,29 @@ const Game = class {
 
             case ("accept_challenge"): {
                 const { user_id } = data
+                let index = this.users.findIndex(user => user.user_id === user_id)
                 start.accept_cahllenge({
                     game_vars:this.game_vars,
                     user_id,
                     users:this.users
                 })
+                start.edit_game_action({
+                    index,
+                    prime_event: "user_action",
+                    second_event: "accepted_challenge_request",
+                    new_value: true,
+                    game_vars: this.game_vars,
+                })
+                const { player_status } = this.game_vars
+                this.socket.to(game_id).emit("game_action", { data: player_status })
+                start.edit_game_action({
+                    index,
+                    prime_event: "user_action",
+                    second_event: "accepted_challenge_request",
+                    new_value: false,
+                    game_vars: this.game_vars,
+                })
+
                 break
             }
 
@@ -349,14 +367,27 @@ const Game = class {
 
     }
     other_acts(){
+        const {day}=this.game_vars
+        let records=this.db.getOne("night_records","night",day)
         night.other_acts({
             game_vars:this.game_vars,
             users:this.users,
-            socket:this.socket
+            socket:this.socket,
+            records
         })
         this.game_vars.edit_event("edit","next_event","night_result")
         let mainCycle=()=>{this.mainCycle()}
         run_timer(40,mainCycle)
+    }
+
+    night_results(){
+        const {day}=this.game_vars
+        const night_records=this.db.getOne("night_records","nigth",day)
+        night.night_results({
+            game_vars:this.game_vars,
+            night_records:night_records.events,
+            socket:this.socket
+        })
     }
 
 }

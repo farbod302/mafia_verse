@@ -49,6 +49,7 @@ const befor_start = {
                 like:false,
                 dislike:false,
                 challenge_request:false,
+                accepted_challenge_request:false,
             }
            }
         })
