@@ -86,6 +86,7 @@ const start = {
     },
 
     accept_cahllenge({game_vars,user_id,users,socket}){
+        const {queue}=game_vars
         let speeching_user_index = queue.findIndex(user => !user.pass)
         let challenge_user=befor_start.pick_player_from_user_id({users,user_id})
         let prv_queue=[...game_vars.queue]
