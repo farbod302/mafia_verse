@@ -88,7 +88,7 @@ const befor_start = {
         const {carts,users_comp_list}=game_vars
         const {user_id}=users[turn]
         let user_comp_data=users_comp_list.find(user=>user.user_id === user_id)
-
+        console.log({user_comp_data,turn});
         const {user_image}=user_comp_data
         let new_carts_setup=[...carts]
         new_carts_setup[cart]={
