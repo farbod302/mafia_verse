@@ -177,6 +177,7 @@ const Game = class {
         let cur_turn = turn
         let clean_users=users.map(user=>{
             const {user_id,user_name,user_image}=user
+            console.log({user});
             return{
                 user_name,user_id,user_image
             }
