@@ -94,7 +94,7 @@ const start = {
         prv_queue[user_in_queue_index].challenge_used=true
         prv_queue.splice(speeching_user_index,0,challenge_user)
         game_vars.edit_event("edit","queue",prv_queue)
-        socket.to(challenge_user.socket_id).emit("challenge_accepted")
+        socket.to(challenge_user.socket_id).emit("accept_challenge")
     },
 
     mafia_reval({game_vars,users,socket}){
