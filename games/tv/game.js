@@ -177,7 +177,14 @@ const Game = class {
         let user_turn = this.game_vars.users_comp_list[turn]
         const { player_name, user_id, user_image } = user_turn
         let cur_turn = turn
-        this.socket.to(game_id).emit("users_turn", { data: { user_name: player_name, user_id, user_image: user_image } })
+        let clean_users=users.map(user=>{
+            const {user_id,user_name,user_image}=user
+            return{
+                user_name,user_id,user_image
+            }
+        })
+        clean_users=clean_users.slice(turn)
+        this.socket.to(game_id).emit("users_turn", { data: clean_users })
         befor_start.set_timer_to_random_pick_cart({
             game_vars: this.game_vars,
             users: this.users,

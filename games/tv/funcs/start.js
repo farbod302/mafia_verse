@@ -105,6 +105,7 @@ const start = {
         mafia.forEach(user=>{
             socket.to(user.socket_id).emit("mafia_visitation",{data:{mafia:encrypt(JSON.stringify(users_pick_mafia))}})
         })
+        game_vars.edit_event("new_value","mafia_list",mafia)
         game_vars.edit_event("edit","speech_type","turn")
         game_vars.edit_event("edit","reval",true)
         game_vars.edit_event("edit","next_event","start_speech")
