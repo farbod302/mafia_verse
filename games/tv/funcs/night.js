@@ -19,7 +19,6 @@ const night = {
         const { day } = game_vars
         game_vars.edit_event("edit", "time", "night")
         socket.to(game_id).emit("game_event", { data: { game_event: "night" } })
-        game_vars.edit_event("push", "nigth_reports", { night: day, events: [] })
         game_vars.edit_event("edit", "next_event", "guard_and_hostage_taker_act")
     },
 
@@ -37,7 +36,7 @@ const night = {
         for (let act of users_to_act) {
             let user_id = carts.find(cart => cart.name === act)
             let list_of_users_can_targeted = this.pick_user_for_act({ game_vars, act, user_id })
-            this.emit_to_act({ user_id, list_of_users_can_targeted, users, socket })
+            this.emit_to_act({ user_id, list_of_users_can_targeted, users, socket, can_act: true, msg: "" })
         }
     },
 
@@ -48,7 +47,9 @@ const night = {
         const { user_id } = godfather
         let godfather_user = start.pick_player_from_user_id({ users, user_id })
         let list_of_users_can_targeted = this.pick_user_for_act({ game_vars, act: "mafia", user_id })
-        socket.to(godfather_user.socket_id).emit("use_ability", { data: { max_count: 1, list_of_users_can_targeted } })
+        socket.to(godfather_user.socket_id).emit("use_ability", {
+            data: { max_count: 1, list_of_users_can_targeted, can_act: true, msg: "" }
+        })
     },
 
     other_acts({ game_vars, users, socket, records }) {
@@ -56,15 +57,15 @@ const night = {
         const { carts } = game_vars
         let users_remain = carts.filter(cart => !acts_used.includes(cart.name))
         for (let act of users_remain) {
-            let check_act = this.check_act({ records, act })
+            let { can_act, msg } = this.check_act({ records, act })
             let { user_id } = carts
             let list_of_users_can_targeted = this.pick_user_for_act({ game_vars, act: act.name, user_id })
-            this.emit_to_act({ user_id, list_of_users_can_targeted, users, socket })
+            this.emit_to_act({ user_id, list_of_users_can_targeted, users, socket, can_act, msg })
         }
     },
 
     check_act({ records, act }) {
-        const { name,user_id } = act
+        const { name, user_id } = act
         let hostage_taker_act = records.find(each_act => each_act.act === "hostage_taker")
         hostage_taker_act = hostage_taker_act.targets || []
         switch (name) {
@@ -72,14 +73,19 @@ const night = {
                 let mafia_shot = records.find(each_act => each_act.act === "mafia_shot")
                 mafia_shot = mafia_shot.targets || []
                 //check _shot
-                let can_act=false
-                let msg=""
-                if(mafia_shot.includes(user_id))can_act=true
-                if(hostage_taker_act.includes(user_id)){can_act=false;msg="شما در توسط مافیا مورد هدف قرار گرفتید ولی نمی توانید از توانایی خود استفاده کنید"}
-                return result
+                let can_act = false
+                let msg = "شما نمی توانید امشب از توانایی خود استفاده کنید"
+                let is_targeted = mafia_shot.includes(user_id)
+                if (is_targeted) { can_act = true; msg = "" }
+                if (hostage_taker_act.includes(user_id) && is_targeted) {
+                    can_act = false;
+                    msg = "شما توسط مافیا مورد هدف قرار گرفتید ولی نمی توانید از توانایی خود استفاده کنید"
+                }
+                return { can_act, msg }
             }
             default: {
-                return !hostage_taker_act.includes(user_id)
+                let can_act = !hostage_taker_act.includes(user_id)
+                return { can_act, msg: can_act ? "" : "شما نمی توانید امشب از توانایی خود استفاده کنید" }
             }
         }
 
