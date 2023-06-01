@@ -83,8 +83,6 @@ const Game = class {
                 this.mainCycle()
                 break
             }
-
-
             case ("vote"): {
                 vote.submit_vote({
                     client,
