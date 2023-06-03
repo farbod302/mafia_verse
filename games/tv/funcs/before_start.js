@@ -81,7 +81,7 @@ const befor_start = {
         let free_carts = carts.filter(cart => !cart.selected)
         let remain_carts_count = free_carts.length - 1
         let random_index = Math.floor(Math.random() * remain_carts_count)
-        return carts[random_index]
+        return free_carts[random_index]
     },
 
     submit_cart_pick({contnue_func,game_vars,cart,users,turn}){

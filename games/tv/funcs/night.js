@@ -24,7 +24,7 @@ const night = {
 
     emit_to_act({ user_id, list_of_users_can_targeted, users, socket }) {
         let selected_user = befor_start.pick_player_from_user_id({ users, user_id })
-        if(!selected_user)return
+        if (!selected_user) return
         //check alive
         const { socket_id } = selected_user
         socket.to(socket_id).emit("use_ability", { data: { max_count: 1, list_of_users_can_targeted } })
@@ -68,7 +68,7 @@ const night = {
         }
     },
 
-    check_act({ records, act }) {
+    check_act({ records, act, game_vars }) {
         const { name, user_id } = act
         let hostage_taker_act = records.find(each_act => each_act.act === "hostage_taker")
         hostage_taker_act = hostage_taker_act.targets || []
@@ -87,6 +87,14 @@ const night = {
                 }
                 return { can_act, msg }
             }
+            case ("rifleman"): {
+                const { real_gun_used } = game_vars
+                let can_act = !hostage_taker_act.includes(user_id)
+                if (can_act && !real_gun_used) {
+                    return { can_act, msg: "" }
+                }
+                return { can_act: false, msg: "شما نمی توانید از توانایی خود استفاده کنید" }
+            }
             default: {
                 let can_act = !hostage_taker_act.includes(user_id)
                 return { can_act, msg: can_act ? "" : "شما نمی توانید امشب از توانایی خود استفاده کنید" }
@@ -97,7 +105,14 @@ const night = {
 
     pick_user_for_act({ game_vars, act, user_id }) {
         switch (act) {
-            case ("doctor"): { return [] }
+            case ("doctor"): {
+                let live_users = start.pick_live_users({ game_vars })
+                const { doctor_self_save } = game_vars
+                if (doctor_self_save) {
+                    live_users = live_users.filter(user => user.user_id !== user_id)
+                }
+                return live_users
+            }
             case ("mafia"): {
                 const { mafia } = game_vars
                 let mafia_ids = mafia.map(user => user.user_id)
@@ -105,10 +120,36 @@ const night = {
                 live_users = live_users.filter(user => !mafia_ids.includes(user.user_id))
                 return live_users
             }
+
+            case("detective"):{
+                const {users_gurd_check}=game_vars
+                let live_users = start.pick_live_users({ game_vars })
+                live_users = live_users.filter(user => user.user_id !== user_id && !users_gurd_check.includes(user.user_id))
+                return live_users
+            }
+
             default: {
                 let live_users = start.pick_live_users({ game_vars })
                 live_users = live_users.filter(user => user.user_id !== user_id)
                 return live_users
+            }
+        }
+    },
+
+
+    night_act_handler({ user_id, game_vars, act, targets,socket,idenity }) {
+        switch (act) {
+            case ("doctor"): {
+                if (targets.includes(user_id)) { game_vars.edit_event("edit", "doctor_self_save", true) }
+                return
+            }
+            case("detective"):{
+                let mafia_acts=["nato","hostage_taker"]
+                let user_to_check=targets[0].user_id
+                let target=game_vars.carts.find(cart=>cart.user_id === user_to_check)
+                let status=mafia_acts.includes(target.name)
+                socket.to(idenity.socket_id).emit("check_result",{data:{mafia:status}})
+                game_vars.edit_event("push","users_gurd_check",user_to_check)
             }
         }
     },

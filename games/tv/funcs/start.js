@@ -94,7 +94,6 @@ const start = {
         prv_queue[user_in_queue_index].challenge_used=true
         prv_queue.splice(speeching_user_index,0,challenge_user)
         game_vars.edit_event("edit","queue",prv_queue)
-        console.log({challenge_userrrrrrrrrrrrrrrrrr:challenge_user});
         socket.to(challenge_user.socket_id).emit("accept_challenge")
     },
 
@@ -104,8 +103,16 @@ const start = {
         let users_pick_mafia=carts.filter(user=>mafai_rols.includes(user.name))
         let users_pick_mafia_ids=users_pick_mafia.map(user=>user.user_id)
         let mafia=users.filter(user=>users_pick_mafia_ids.includes(user.user_id))
+        let clean_mafia_detile=mafia.map(user=>{
+            let selected_cart=carts.find(cart=>cart.user_id === user.user_id)
+            return{
+                index:user.id,
+                role:selected_cart.name,
+                user_id:user.user_id
+            }
+        })
         mafia.forEach(user=>{
-            socket.to(user.socket_id).emit("mafia_visitation",{data:{mafia:encrypt(JSON.stringify(users_pick_mafia))}})
+            socket.to(user.socket_id).emit("mafia_visitation",{data:{mafia:encrypt(JSON.stringify(clean_mafia_detile))}})
         })
         game_vars.edit_event("new_value","mafia_list",mafia)
         game_vars.edit_event("edit","speech_type","turn")

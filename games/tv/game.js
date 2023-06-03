@@ -253,7 +253,7 @@ const Game = class {
         //emit to player to speech
         let user = queue[turn].user_id
         user = befor_start.pick_player_from_user_id({ users: this.users, user_id: user })
-        let other_users = befor_start.pick_other_player_from_user_id({ users: this.users, user_id: user })
+        let other_users = befor_start.pick_other_player_from_user_id({ users: this.users, user_id: user.user_id })
         const { socket_id } = user
         this.socket.to(socket_id).emit("start_speech")
         other_users.forEach(u => { this.socket.to(u.socket_id).emit("game_event", { data: { game_event: "action" } }) })

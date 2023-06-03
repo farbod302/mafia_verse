@@ -35,6 +35,8 @@ const dinamic_vars = {
         }
     },
     real_gun_used: false,
+    doctor_self_save: false,
+    users_gurd_check:[],
     pick_event(event){
         return this[event]
     }
