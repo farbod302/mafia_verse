@@ -165,9 +165,13 @@ const night = {
                 socket.to(idenity.socket_id).emit("check_result", { data: { mafia: status } })
                 game_vars.edit_event("push", "users_gurd_check", user_to_check)
             }
-
             case ("nato"): {
                 game_vars.edit_event("edit", "nato_act", true)
+            }
+            case("rifleman"):{
+                game_vars.edit_event("edit","guns_status",targets)
+                let real_gun=targets.find(gun=>gun.is_real)
+                if(real_gun)game_vars.edit_event("edit","real_gun_used",true)
             }
         }
     },

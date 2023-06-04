@@ -22,7 +22,7 @@ const spin = () => {
         },
     ]
     let chance = 0
-    let bones = 5
+    let bones = 0
 
     let rand = Math.random() * 100
     rand = +rand.toFixed(1)
