@@ -119,13 +119,13 @@ const Game = class {
 
             case ("accept_challenge"): {
                 const { user_id } = data
-                const {game_id}=this
+                const { game_id } = this
                 let index = this.users.findIndex(user => user.user_id === user_id)
                 start.accept_cahllenge({
-                    game_vars:this.game_vars,
+                    game_vars: this.game_vars,
                     user_id,
-                    users:this.users,
-                    socket:this.socket
+                    users: this.users,
+                    socket: this.socket
                 })
                 start.edit_game_action({
                     index,
@@ -147,19 +147,26 @@ const Game = class {
                 break
             }
 
-            case("target_ability"):{
-                const {character,targets}=data
-                const {day}=this.game_vars
-                let cur_night_events=this.db.getOne("night_reports",night,day)
-                let prv_events=[...cur_night_events.events]
-                targets.forEach(target=>{
+            case ("target_ability"): {
+                const { character, targets } = data
+                const { day } = this.game_vars
+                let cur_night_events = this.db.getOne("night_reports", night, day)
+                let prv_events = [...cur_night_events.events]
+                targets.forEach(target => {
                     prv_events.push({
-                        act:character,
-                        target
+                        act: character,
+                        target,
                     })
                 })
-                cur_night_events.events=prv_events
-               this.db.replaceOne("night_reports",night,day,cur_night_events)
+                cur_night_events.events = prv_events
+                this.db.replaceOne("night_reports", night, day, cur_night_events)
+                night.night_act_handler({
+                    user_id: client.idenity.user_id,
+                    game_vars: this.game_vars,
+                    act: character,
+                    socket: this.socket,
+                    idenity: client.idenity
+                })
             }
         }
     }
@@ -194,15 +201,15 @@ const Game = class {
         this.socket.to(game_id).emit("characters", { data: encrypted_data, scenario: static_vars.scenario })
         this.socket.to(users[turn].socket_id).emit("your_turn")
         let cur_turn = turn
-        let players_comp_list=this.game_vars.users_comp_list
-        let clean_users=players_comp_list.map(user=>{
-            console.log({user});
-            const {user_id,user_name,user_image}=user
-            return{
-                user_name,user_id,user_image
+        let players_comp_list = this.game_vars.users_comp_list
+        let clean_users = players_comp_list.map(user => {
+            console.log({ user });
+            const { user_id, user_name, user_image } = user
+            return {
+                user_name, user_id, user_image
             }
         })
-        clean_users=clean_users.slice(turn)
+        clean_users = clean_users.slice(turn)
         this.socket.to(game_id).emit("users_turn", { data: clean_users })
         befor_start.set_timer_to_random_pick_cart({
             game_vars: this.game_vars,
@@ -271,10 +278,10 @@ const Game = class {
         //edit speech queue
         start.move_speech_queue({ game_vars: this.game_vars })
         let new_queue = this.game_vars.queue
-        this.socket.to(game_id).emit("in_game_turn_speech", { data: { queue: new_queue, can_take_challenge } })
+        let time = static_vars.speech_time[speech_type]
+        this.socket.to(game_id).emit("in_game_turn_speech", { data: { queue: new_queue, can_take_challenge,time } })
         //set timer
         const contnue_func = () => { this.mainCycle(); }
-        let time = static_vars.speech_time[speech_type]
         console.log("TIME :", time);
         start.set_timer_to_contnue_speech_queue({
             func: contnue_func,
@@ -306,7 +313,6 @@ const Game = class {
 
     next_player_vote_time() {
         this.game_vars.edit_event("edit", "turn", "plus")
-
         const { turn, queue, vote_type } = this.game_vars
         if (turn === queue.length) {
             let next_event = vote_type === "pre_vote" ? "arange_defence" : "count_exit_vote"
@@ -340,53 +346,53 @@ const Game = class {
             socket: this.socket,
             game_id: this.game_id
         })
-        const {day}=this.game_vars
-        this.db.add_data("night_report",{night:day,events:[]})
+        const { day } = this.game_vars
+        this.db.add_data("night_report", { night: day, events: [] })
         this.mainCycle()
     }
-    guard_and_hostage_taker_act(){
+    guard_and_hostage_taker_act() {
         night.guard_and_hostage_taker_act({
-            game_vars:this.game_vars,
-            users:this.users,
-            socket:this.socket
+            game_vars: this.game_vars,
+            users: this.users,
+            socket: this.socket
         })
-        let mainCycle=()=>{this.mainCycle()}
-        this.game_vars.edit_event("edit","next_event","mafia_shot")
-        run_timer(20,mainCycle)
+        let mainCycle = () => { this.mainCycle() }
+        this.game_vars.edit_event("edit", "next_event", "mafia_shot")
+        run_timer(20, mainCycle)
     }
 
-    mafia_shot(){
+    mafia_shot() {
         night.mafia_shot({
-            game_vars:this.game_vars,
-            users:this.users,
-            socket:this.socket
+            game_vars: this.game_vars,
+            users: this.users,
+            socket: this.socket
         })
-        this.game_vars.edit_event("edit","next_event","other_acts")
-        let mainCycle=()=>{this.mainCycle()}
-        run_timer(30,mainCycle)
+        this.game_vars.edit_event("edit", "next_event", "other_acts")
+        let mainCycle = () => { this.mainCycle() }
+        run_timer(30, mainCycle)
 
     }
-    other_acts(){
-        const {day}=this.game_vars
-        let records=this.db.getOne("night_records","night",day)
+    other_acts() {
+        const { day } = this.game_vars
+        let records = this.db.getOne("night_records", "night", day)
         night.other_acts({
-            game_vars:this.game_vars,
-            users:this.users,
-            socket:this.socket,
+            game_vars: this.game_vars,
+            users: this.users,
+            socket: this.socket,
             records
         })
-        this.game_vars.edit_event("edit","next_event","night_result")
-        let mainCycle=()=>{this.mainCycle()}
-        run_timer(40,mainCycle)
+        this.game_vars.edit_event("edit", "next_event", "night_result")
+        let mainCycle = () => { this.mainCycle() }
+        run_timer(40, mainCycle)
     }
 
-    night_results(){
-        const {day}=this.game_vars
-        const night_records=this.db.getOne("night_records","nigth",day)
+    night_results() {
+        const { day } = this.game_vars
+        const night_records = this.db.getOne("night_records", "nigth", day)
         night.night_results({
-            game_vars:this.game_vars,
-            night_records:night_records.events,
-            socket:this.socket
+            game_vars: this.game_vars,
+            night_records: night_records.events,
+            socket: this.socket
         })
     }
 

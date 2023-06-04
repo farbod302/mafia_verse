@@ -65,6 +65,7 @@ const vote = {
                 new_value: false,
                 game_vars
             })
+            game_vars.edit_event("push","dead_list",user_id)
             game_vars.edit_event("edit", "report_data",
                 {
                     user: user_id,

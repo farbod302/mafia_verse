@@ -15,6 +15,7 @@ const dinamic_vars = {
     can_take_challenge:false,
     custom_queue:[],
     votes_status:[],
+    guns_status:[],
     rols:[],
     report_data:{},
     nigth_reports:[],
@@ -36,6 +37,7 @@ const dinamic_vars = {
     },
     real_gun_used: false,
     doctor_self_save: false,
+    nato_act: false,
     users_gurd_check:[],
     pick_event(event){
         return this[event]
