@@ -2,7 +2,7 @@
 const Jwt=require("../helper/jwt")
 const {uid:uuid}=require("uid")
 
-const join_handler = ({ token,db,client }) => {
+const join_handler = ({ token,db,client,socket }) => {
     const user = Jwt.verify(token)
     if (!user) return
     const { uid, device_id } = user
@@ -12,6 +12,10 @@ const join_handler = ({ token,db,client }) => {
         party_id: user_party,
         user_id: uid,
         device_id
+    }
+    let user_exist_game=db.getOne("disconnect","user_id",uid)
+    if(user_exist_game){
+        socket.to(client.id).emit("has_exist_game")
     }
     client.join(user_party)
     client.idenity = idenity

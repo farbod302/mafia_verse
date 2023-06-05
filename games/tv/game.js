@@ -4,6 +4,7 @@ const run_timer = require("../../helper/timer")
 const dinamic_vars = require("./dinamic_vars")
 const befor_start = require("./funcs/before_start")
 const night = require("./funcs/night")
+const reconnect = require("./funcs/reconnect")
 const start = require("./funcs/start")
 const vote = require("./funcs/vote")
 const static_vars = require("./static_vars")
@@ -24,6 +25,35 @@ const Game = class {
         const next_event = this.game_vars.next_event
         console.log({ next_event });
         this[next_event]()
+    }
+
+    submit_user_disconnect({ client }) {
+        console.log(`${client.idenity.user_id} Disconnectet from game`);
+        const { user_id } = client.idenity
+        let index = this.users.findIndex(user => user.user_id === user_id)
+        start.edit_game_action({
+            index,
+            prime_event: "user_status",
+            second_event: "is_connected",
+            new_value: false,
+            game_vars: this.game_vars
+        })
+        const {game_id}=this
+        let status_list = this.game_vars.player_status
+        this.socket.to(game_id).emit("game_action", { data: status_list })
+
+    }
+
+    re_connect({ client }) {
+
+        const data=reconnect({
+            game_vars:this.game_vars,
+            users:this.users,
+            client,
+            game_id:this.game_id
+        })
+        this.socket.to(client.id).emit("game_history",{data})
+
     }
 
     async player_action({ op, data, client }) {
@@ -279,7 +309,7 @@ const Game = class {
         start.move_speech_queue({ game_vars: this.game_vars })
         let new_queue = this.game_vars.queue
         let time = static_vars.speech_time[speech_type]
-        this.socket.to(game_id).emit("in_game_turn_speech", { data: { queue: new_queue, can_take_challenge,time } })
+        this.socket.to(game_id).emit("in_game_turn_speech", { data: { queue: new_queue, can_take_challenge, time } })
         //set timer
         const contnue_func = () => { this.mainCycle(); }
         console.log("TIME :", time);
