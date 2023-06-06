@@ -34,6 +34,7 @@ const SocketProvider = class {
                 user_game.game_class.player_action({op, data, client})
             })
             client.on("disconnect", () => { handel_disconnect({ client, db: this.db, socket: this.io }) })
+            client.on("game_history",()=>{})
         })
 
     }

@@ -8,6 +8,8 @@ const dinamic_vars = {
     day: 1,
     dead_list: [],
     join_status: [],
+    join_status_second_phase: [],
+    game_go_live:false,
     w8: [],
     reval: false,
     vote_type: "pre_vote",

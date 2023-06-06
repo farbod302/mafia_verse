@@ -38,7 +38,7 @@ const Game = class {
             new_value: false,
             game_vars: this.game_vars
         })
-        const {game_id}=this
+        const { game_id } = this
         let status_list = this.game_vars.player_status
         this.socket.to(game_id).emit("game_action", { data: status_list })
 
@@ -46,13 +46,13 @@ const Game = class {
 
     re_connect({ client }) {
 
-        const data=reconnect({
-            game_vars:this.game_vars,
-            users:this.users,
+        const data = reconnect({
+            game_vars: this.game_vars,
+            users: this.users,
             client,
-            game_id:this.game_id
+            game_id: this.game_id
         })
-        this.socket.to(client.id).emit("game_history",{data})
+        this.socket.to(client.id).emit("game_history", { data })
 
     }
 
@@ -83,29 +83,13 @@ const Game = class {
                 break
 
             case ("ready_to_game"): {
-                const { game_id, game_vars } = this
-                const { time } = game_vars
-                let user_data = await befor_start.players_list_generate({ users: this.users })
-                this.game_vars.edit_event("push", "join_status", user_call_idenity)
-                let connected_users_length = this.game_vars.join_status.length
-                if (connected_users_length === static_vars.player_count * 2) {
-                    console.log("READY TO GAME");
-                    start.create_live_room({
-                        game_id: this.game_id,
-                        game_vars: this.game_vars,
-                        socket: this.socket,
-                        users: this.users
-                    })
-                    this.socket.to(game_id).emit("users_data", { data: user_data })
-                    this.socket.to(game_id).emit("game_event", { data: { game_event: time } })
-                    befor_start.player_status_generate({ game_vars: this.game_vars })
-                    await Helper.delay(3)
-                    let status_list = game_vars.player_status
-                    this.socket.to(game_id).emit("game_action", { data: status_list })
-                    this.game_vars.edit_event("edit", "next_event", "start_speech")
-                    this.mainCycle()
-
+                this.game_vars.edit_event("push", "join_status_second_phase", user_call_idenity)
+                let connected_users_length = this.game_vars.join_status_second_phase.length
+                if (connected_users_length === static_vars.player_count) {
+                    this.go_live()
+                    this.game_vars.edit_event("edit","game_go_live",true)
                 }
+
                 break
             }
 
@@ -217,6 +201,27 @@ const Game = class {
         this.mainCycle()
     }
 
+    async go_live() {
+        let user_data = await befor_start.players_list_generate({ users: this.users })
+        const { game_id, game_vars } = this
+        const { time } = game_vars
+        console.log("READY TO GAME");
+        start.create_live_room({
+            game_id: this.game_id,
+            game_vars: this.game_vars,
+            socket: this.socket,
+            users: this.users
+        })
+        this.socket.to(game_id).emit("users_data", { data: user_data })
+        this.socket.to(game_id).emit("game_event", { data: { game_event: time } })
+        befor_start.player_status_generate({ game_vars: this.game_vars })
+        await Helper.delay(3)
+        let status_list = game_vars.player_status
+        this.socket.to(game_id).emit("game_action", { data: status_list })
+        this.game_vars.edit_event("edit", "next_event", "start_speech")
+        this.mainCycle()
+    }
+
 
     next_player_pick_cart() {
         this.game_vars.edit_event("edit", "turn", "plus", "next_player_pick_cart")
@@ -251,10 +256,14 @@ const Game = class {
     }
 
     wait_to_join_second_phase() {
-        befor_start.wait_to_join({
-            game_vars: this.game_vars,
-            abandon: () => { this.game_handlers.abandon_game(this.socket) }
-        })
+        const func=()=>{
+            const {game_go_live}=this.game_vars
+            if(!game_go_live){
+                this.go_live()
+                //todo :emit dc users
+            }
+        }
+        run_timer(20,func)
     }
 
 
