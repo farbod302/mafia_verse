@@ -50,22 +50,22 @@ const night = {
         let act_sort = ["godfather", "nato", "hostage_taker"]
         let mafia_list_in_order = act_sort.map(act => mafia_list.find(mafia => mafia.role === act))
         //remove after debug
-        mafia_list_in_order=mafia_list_in_order.filter(e=>e)
+        mafia_list_in_order = mafia_list_in_order.filter(e => e)
         //
         let shoot_permision = mafia_list_in_order.filter(mafia => dead_list.includes(mafia.user_id))
         let nato = mafia_list.find(mafia => mafia.role === "nato")
         let can_use_nato = nato && !dead_list.includes(nato.user_id) ? true : false
-        let user_for_create_room=0
-        let users_can_cop=["godfather", "nato"]
-        shoot_permision.forEach(mafia=>{if(users_can_cop.includes(mafia.role))user_for_create_room++})
-        if(user_for_create_room === 2){
+        let user_for_create_room = 0
+        let users_can_cop = ["godfather", "nato"]
+        shoot_permision.forEach(mafia => { if (users_can_cop.includes(mafia.role)) user_for_create_room++ })
+        if (user_for_create_room === 2) {
             this.generate_room_for_mafia({ game_vars, users, socket })
         }
         const { user_id } = shoot_permision[0]
         let mafia_shot_player = start.pick_player_from_user_id({ users, user_id })
         let list_of_users_can_targeted = this.pick_user_for_act({ game_vars, act: "mafia", user_id })
         socket.to(mafia_shot_player.socket_id).emit("use_ability", {
-            data: { max_count: 1, list_of_users_can_targeted, can_act: true, msg: "" ,can_use_nato}
+            data: { max_count: 1, list_of_users_can_targeted, can_act: true, msg: "", can_use_nato }
         })
     },
 
@@ -168,17 +168,98 @@ const night = {
             case ("nato"): {
                 game_vars.edit_event("edit", "nato_act", true)
             }
-            case("rifleman"):{
-                game_vars.edit_event("edit","guns_status",targets)
-                let real_gun=targets.find(gun=>gun.is_real)
-                if(real_gun)game_vars.edit_event("edit","real_gun_used",true)
+            case ("rifleman"): {
+                game_vars.edit_event("edit", "guns_status", targets)
+                let real_gun = targets.find(gun => gun.is_real)
+                if (real_gun) game_vars.edit_event("edit", "real_gun_used", true)
             }
         }
     },
 
 
-    night_results({ game_vars, records, socket }) {
+    night_results({ game_vars, records, socket, users, game_id }) {
+        const { carts } = game_vars
+        let mafia_shot = records.find(act => act.act === "godfather")
+        let mafia_target = mafia_shot.targets[0]
+        let deth = null
+        let abs_deth = null
+        if (mafia_target) {
+            deth = mafia_target
+        }
+        //check comondo act
+        const comondo_act = records.find(act => act.act === "commando")
+        if (comondo_act) {
+            const comondo_shot = comondo_act.targets[0]
+            if (comondo_shot) {
+                let user_targeted_by_comondo = carts.find(cart => cart.user_id === comondo_shot)
+                let mafia_rols = ["godfather", "nato", "hostage_taker"]
+                if (!mafia_rols.includes(user_targeted_by_comondo.name)) {
+                    let comondo = carts.find(cart => cart.name === "commando")
+                    abs_deth = comondo.user_id
+                    mafia_target = null
+                }
+                else {
+                    if (user_targeted_by_comondo.name === "godfather") mafia_target = null
+                    else mafia_target = user_targeted_by_comondo.user_id
+                }
+            }
 
+        }
+        //check doctor act
+        const doctor_save = records.find(act => act.act === "commando")
+        if (doctor_save) {
+            let user_saved = doctor_save.targets[0]
+            if (user_saved === mafia_shot) mafia_shot = null
+        }
+        let user_to_kill = abs_deth || mafia_shot
+        if (user_to_kill) {
+
+            let index = users.findIndex(user => user.user_id === user_to_kill)
+            start.edit_game_action({
+                index,
+                prime_event: "user_status",
+                second_event: "is_aliave",
+                new_value: false,
+                game_vars
+            })
+            game_vars.edit_event("push", "dead_list", user_to_kill)
+            game_vars.edit_event("edit", "report_data",
+                {
+                    user: user_to_kill,
+                    event: "exit_vote",
+                    msg: "دیشب یک نفر از بازی خداحافظی کرد"
+                })
+            start.generate_report({
+                game_vars,
+                report_type: "night_report",
+                socket,
+                game_id
+            })
+
+
+        }
+
+
+    },
+
+
+    check_next_day({ game_vars }) {
+        let live_users = start.pick_live_users({ game_vars })
+        const { carts } = game_vars
+        let mafia_rols = ["godfather", "nato", "hostage_taker"]
+        let live_users_with_role = live_users.map(user => {
+            const { user_id } = user
+            let user_role = carts.find(cart => cart.user_id === user_id)
+            return {
+                user_id,
+                role: user_role.name
+            }
+        })
+        let mafia_remain = live_users_with_role.filter(user => mafia_rols.includes(user.role))
+        let city = live_users_with_role.filter(user => !mafia_rols.includes(user.role))
+        if(!mafia_remain.length)console.log("City Win");
+        if(city.length <= mafia_remain.length)console.log("Mafia Win")
+        if(live_users.length === 3)console.log("Chaos begin");
     }
 
 
