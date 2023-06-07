@@ -275,10 +275,12 @@ const Game = class {
             game_vars: this.game_vars,
             users: custom_queue.length ? custom_queue : null
         })
+        let timer = static_vars.speech_time[speech_type]
+
         this.game_vars.edit_event("edit", "turn", -1)
         this.game_vars.edit_event("edit", "queue", queue)
         this.game_vars.edit_event("edit", "next_event", "next_player_speech")
-        this.socket.to(game_id).emit("in_game_turn_speech", { data: { queue, can_take_challenge } })
+        this.socket.to(game_id).emit("in_game_turn_speech", { data: { queue, can_take_challenge,timer } })
         console.log("START SPEECH");
         this.mainCycle()
     }
@@ -318,7 +320,7 @@ const Game = class {
         start.move_speech_queue({ game_vars: this.game_vars })
         let new_queue = this.game_vars.queue
         let time = static_vars.speech_time[speech_type]
-        this.socket.to(game_id).emit("in_game_turn_speech", { data: { queue: new_queue, can_take_challenge, time } })
+        this.socket.to(game_id).emit("in_game_turn_speech", { data: { queue: new_queue, can_take_challenge, timer:time } })
         //set timer
         const contnue_func = () => { this.mainCycle(); }
         console.log("TIME :", time);
