@@ -1,8 +1,12 @@
+const { delay } = require("../../../helper/helper")
 const run_timer = require("../../../helper/timer")
 const start = require("./start")
 
 const vote = {
-    start_vote({ game_vars }) {
+    async start_vote({ game_vars }) {
+        game_vars.edit_event("edit", "votes_status", [])
+
+        await delay(3)
         game_vars.edit_event("edit", "vote_status", [])
         const { custom_queue, vote_type } = game_vars
         let users_to_vote = vote_type !== "pre_vote" ? custom_queue : start.pick_live_users({ game_vars })
@@ -12,18 +16,24 @@ const vote = {
 
     },
     next_player_vote_turn({ game_vars, socket, game_id, cycle }) {
+        console.log("VOTE ADD");
         const { queue, turn, vote_type } = game_vars
         let new_vote_record = { user_id: queue[turn].user_id, users: [], vote_type }
         game_vars.edit_event("push", "votes_status", new_vote_record)
         socket.to(game_id).emit("vote", { data: new_vote_record })
-        run_timer(5, cycle)
+        run_timer(10, cycle)
     },
     submit_vote({ client, socket, game_vars, game_id }) {
-        const { turn, votes_status } = game_vars
+        console.log(`vote submited from ${client.idenity.user_id}`);
+        const {  votes_status } = game_vars
+        console.log({votes_status});
+        let turn=votes_status.length-1
+        console.log({turn});
         let new_vote_status = [...votes_status]
         new_vote_status[turn].users.push(client.idenity.user_id)
         game_vars.edit_event("edit", "votes_status", new_vote_status)
         socket.to(game_id).emit("vote", { data: new_vote_status[turn] })
+        console.log({votes_status});
     },
 
 
@@ -49,8 +59,9 @@ const vote = {
     },
 
     count_exit_vote({ game_vars, users, socket, game_id }) {
-        const { vote_status } = game_vars
-        let user_to_exit = vote_status.sort((a, b) => { b.users.length - a.users.length })[0]
+        const { votes_status } = game_vars
+        let user_to_exit = votes_status.sort((a, b) => { b.users.length - a.users.length })
+        user_to_exit=user_to_exit[0]
         //todo count exit vote
         if (user_to_exit.users.length) {
             const { user_id } = user_to_exit

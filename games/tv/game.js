@@ -23,7 +23,7 @@ const Game = class {
 
     mainCycle() {
         const next_event = this.game_vars.next_event
-        console.log({ next_event });
+        // console.log({ next_event });
         this[next_event]()
     }
 
@@ -98,6 +98,7 @@ const Game = class {
                 break
             }
             case ("vote"): {
+                console.log("EMIT VOTE");
                 vote.submit_vote({
                     client,
                     socket: this.socket,
@@ -205,7 +206,6 @@ const Game = class {
         let user_data = await befor_start.players_list_generate({ users: this.users })
         const { game_id, game_vars } = this
         const { time } = game_vars
-        console.log("READY TO GAME");
         start.create_live_room({
             game_id: this.game_id,
             game_vars: this.game_vars,
@@ -238,7 +238,6 @@ const Game = class {
         let cur_turn = turn
         let players_comp_list = this.game_vars.users_comp_list
         let clean_users = players_comp_list.map(user => {
-            console.log({ user });
             const { user_id, user_name, user_image } = user
             return {
                 user_name, user_id, user_image
@@ -281,7 +280,6 @@ const Game = class {
         this.game_vars.edit_event("edit", "queue", queue)
         this.game_vars.edit_event("edit", "next_event", "next_player_speech")
         this.socket.to(game_id).emit("in_game_turn_speech", { data: { queue, can_take_challenge,timer } })
-        console.log("START SPEECH");
         this.mainCycle()
     }
 
@@ -323,13 +321,13 @@ const Game = class {
         this.socket.to(game_id).emit("in_game_turn_speech", { data: { queue: new_queue, can_take_challenge, timer:time } })
         //set timer
         const contnue_func = () => { this.mainCycle(); }
-        console.log("TIME :", time);
         start.set_timer_to_contnue_speech_queue({
             func: contnue_func,
             game_vars: this.game_vars,
             time,
             socket: this.socket,
-            users: this.users
+            users: this.users,
+            player_to_set_timer:user.user_id
         })
     }
 
@@ -343,8 +341,8 @@ const Game = class {
         this.mainCycle()
     }
 
-    pre_vote() {
-        vote.start_vote({ game_vars: this.game_vars })
+   async pre_vote() {
+        await vote.start_vote({ game_vars: this.game_vars })
         const { game_id } = this
         this.socket.to(game_id).emit("game_event", { data: { game_event: "vote" } })
         this.mainCycle()

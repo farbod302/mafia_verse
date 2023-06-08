@@ -1,5 +1,5 @@
 const static_vars={
-    player_count:1,
+    player_count:2,
     rols:[
         "citizen",
         "citizen",
@@ -13,8 +13,8 @@ const static_vars={
         "hostage_taker",
     ],
     speech_time:{
-        introduction:3,
-        turn:3,
+        introduction:10,
+        turn:10,
         challenge:15,
         defence:30
     },

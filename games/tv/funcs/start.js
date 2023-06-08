@@ -6,7 +6,6 @@ const { encrypt } = require("../../../helper/helper")
 const start = {
 
     async create_live_room({ game_id, game_vars, socket, users }) {
-        console.log("call");
         // await Voice.start_room(game_id)
         for (let user of users) {
             const { user_id, socket_id } = user
@@ -67,22 +66,23 @@ const start = {
 
     move_speech_queue({ game_vars }) {
         const { turn, queue } = game_vars
-        console.log({ turn });
         let new_queue = [...queue].map((user, index) => {
             return { ...user, pass: index < turn ? true : false }
         })
-        console.log({ new_queue });
         game_vars.edit_event("edit", "queue", new_queue)
     },
 
-    set_timer_to_contnue_speech_queue({ func, game_vars, time, socket, users }) {
-        const { queue, player_status } = game_vars
-        let speeching_user = queue.find(user => !user.pass)
-        const { socket_id } = users.find(user => speeching_user.user_id === user.user_id)
+    set_timer_to_contnue_speech_queue({ func, game_vars, time, socket, users,player_to_set_timer }) {
         const timer_func = () => {
-            let s_player = player_status.find(player => player.user_id === speeching_user.user_id)
-            console.log({ s_player: s_player.user_status });
+            const {  player_status } = game_vars
+            let s_player=player_status.find(player => player.user_id === player_to_set_timer)
+            
             if (s_player.user_status.is_talking) {
+                console.log("Force next player");
+                let user=befor_start.pick_player_from_user_id({users,user_id:s_player.user_id})
+                const {socket_id}=user
+                console.log({socket_id});
+                console.log("speech_time_up");
                 socket.to(socket_id).emit("speech_time_up")
                 func()
             }
