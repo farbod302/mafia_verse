@@ -81,8 +81,6 @@ const start = {
                 console.log("Force next player");
                 let user=befor_start.pick_player_from_user_id({users,user_id:s_player.user_id})
                 const {socket_id}=user
-                console.log({socket_id});
-                console.log("speech_time_up");
                 socket.to(socket_id).emit("speech_time_up")
                 func()
             }

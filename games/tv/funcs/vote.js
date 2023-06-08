@@ -25,15 +25,15 @@ const vote = {
     },
     submit_vote({ client, socket, game_vars, game_id }) {
         console.log(`vote submited from ${client.idenity.user_id}`);
-        const {  votes_status } = game_vars
-        console.log({votes_status});
-        let turn=votes_status.length-1
-        console.log({turn});
+        const { votes_status } = game_vars
+        console.log({ votes_status });
+        let turn = votes_status.length - 1
+        console.log({ turn });
         let new_vote_status = [...votes_status]
         new_vote_status[turn].users.push(client.idenity.user_id)
         game_vars.edit_event("edit", "votes_status", new_vote_status)
         socket.to(game_id).emit("vote", { data: new_vote_status[turn] })
-        console.log({votes_status});
+        console.log({ votes_status });
     },
 
 
@@ -50,8 +50,9 @@ const vote = {
             game_vars.edit_event("edit", "cur_event", "defence")
             game_vars.edit_event("edit", "vote_type", "defence")
             game_vars.edit_event("edit", "next_event", "start_speech")
+            defenders_queue.forEach(user => game_vars.edit_event("push", "defence_history", user.user_id))
         }
-        else{
+        else {
             game_vars.edit_event("edit", "next_event", "start_night")
 
         }
@@ -59,11 +60,32 @@ const vote = {
     },
 
     count_exit_vote({ game_vars, users, socket, game_id }) {
+        game_vars.edit_event("edit", "next_event", "start_night")
         const { votes_status } = game_vars
         let user_to_exit = votes_status.sort((a, b) => { b.users.length - a.users.length })
-        user_to_exit=user_to_exit[0]
+        user_to_exit = user_to_exit[0]
+        let exit_vote_count = user_to_exit.length
+        if (exit_vote_count === 0) return
         //todo count exit vote
-        if (user_to_exit.users.length) {
+        let users_with_same_vote = votes_status.filter(user => user.users.length === exit_vote_count)
+        user_to_exit = null
+        if (users_with_same_vote.length === 1) {
+            user_to_exit = users_with_same_vote[0]
+        }
+        else {
+            let { defence_history } = game_vars
+            let users_with_def_history = users_with_same_vote.filter(user => {
+                return defence_history.includes(user.user_id)
+            })
+            if (!users_with_def_history.length) return
+            if (users_with_def_history.length === 1) user_to_exit = users_with_def_history[0]
+            if (users_with_def_history.length > 1) {
+                let rand = Math.floor(Math.random() * users_with_def_history.length)
+                user_to_exit = users_with_def_history[rand]
+            }
+
+        }
+        if (user_to_exit) {
             const { user_id } = user_to_exit
             let index = users.findIndex(user => user.user_id === user_id)
             start.edit_game_action({
@@ -73,7 +95,7 @@ const vote = {
                 new_value: false,
                 game_vars
             })
-            game_vars.edit_event("push","dead_list",user_id)
+            game_vars.edit_event("push", "dead_list", user_id)
             game_vars.edit_event("edit", "report_data",
                 {
                     user: user_id,
@@ -90,7 +112,6 @@ const vote = {
         }
         game_vars.edit_event("edit", "vote_type", "pre_vote")
         game_vars.edit_event("edit", "custom_queue", [])
-        game_vars.edit_event("edit", "next_event", "start_night")
 
     },
 

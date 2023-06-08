@@ -182,7 +182,32 @@ const Game = class {
                     socket: this.socket,
                     idenity: client.idenity
                 })
+                break
             }
+
+            case("mafia_decsion"):{
+                const {shot}=data
+                let decision=shot ? "mafia_shot":"use_nato"
+                this.game_vars.edit_event("edit","next_event",decision)
+                this.mainCycle()
+                break
+            }
+            case("mafia_shot"):{
+                const { targets } = data
+                const { day } = this.game_vars
+                let cur_night_events = this.db.getOne("night_reports", night, day)
+                let prv_events = [...cur_night_events.events]
+                targets.forEach(target => {
+                    prv_events.push({
+                        act: "godfather",
+                        target,
+                    })
+                })
+                cur_night_events.events = prv_events
+                this.db.replaceOne("night_reports", night, day, cur_night_events)
+            }
+
+            
         }
     }
 
@@ -396,21 +421,59 @@ const Game = class {
             socket: this.socket
         })
         let mainCycle = () => { this.mainCycle() }
-        this.game_vars.edit_event("edit", "next_event", "mafia_shot")
+        this.game_vars.edit_event("edit", "next_event", "mafia_speech")
         run_timer(20, mainCycle)
     }
 
-    mafia_shot() {
-        night.mafia_shot({
+    async mafia_speech() {
+       await night.mafia_speech({
             game_vars: this.game_vars,
             users: this.users,
             socket: this.socket
         })
-        this.game_vars.edit_event("edit", "next_event", "other_acts")
-        let mainCycle = () => { this.mainCycle() }
-        run_timer(30, mainCycle)
+        this.game_vars.edit_event("edit", "next_event", "check_mafia_decision")
+        this.mainCycle()
+
+      
+        
 
     }
+
+     check_mafia_decision(){
+        night.check_mafia_decision({
+            game_vars:this.game_vars,
+            users:this.users,
+            socket:this.socket
+        })
+        const timer_func=()=>{
+            const {next_event}=this.game_vars
+            if(next_event === check_mafia_decision){
+                this.game_vars.edit_event("edit","next_event","mafia_shot")
+                this.mainCycle()
+            }
+        }
+
+        run_timer(7,timer_func)
+    }
+
+    mafia_shot(){
+        night.mafia_shot({
+            game_vars:this.game_vars,
+            socket:this.socket
+        })
+    }
+
+
+    use_nato(){
+
+        night.use_nato({
+            game_vars:this.game_vars,
+            users:this.users,
+            socket:this.socket
+        })
+    }
+
+
     other_acts() {
         const { day } = this.game_vars
         let records = this.db.getOne("night_records", "night", day)

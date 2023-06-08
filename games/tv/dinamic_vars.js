@@ -18,7 +18,8 @@ const dinamic_vars = {
     custom_queue:[],
     votes_status:[],
     guns_status:[],
-    rols:[],
+    defence_history:[],
+    defence:[],
     report_data:{},
     nigth_reports:[],
     edit_event(op, event, value, from) {
@@ -40,6 +41,8 @@ const dinamic_vars = {
     real_gun_used: false,
     doctor_self_save: false,
     nato_act: false,
+    mafia_speak: false,
+    user_to_shot:null,
     users_gurd_check:[],
     pick_event(event){
         return this[event]

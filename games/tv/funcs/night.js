@@ -1,6 +1,7 @@
 const { uid } = require("uid")
 const start = require("./start")
 const befor_start = require("./before_start")
+const { delay } = require("../../../helper/helper")
 
 const night = {
 
@@ -44,29 +45,70 @@ const night = {
         }
     },
 
-    mafia_shot({ game_vars, users, socket }) {
+    async mafia_speech({ game_vars, users, socket }) {
         const { mafia_list, dead_list } = game_vars
+        let users_can_cop = ["godfather", "nato"]
+
+        let speech_list = mafia_list.filter(mafia =>
+            users_can_cop.includes(mafia.role) &&
+            dead_list.includes(mafia.user_id))
+        if (speech_list.length === 2) {
+            await this.generate_room_for_mafia({ game_vars, users, socket })
+            game_vars.edit_event("edit", "mafia_speak", true)
+            await delay(14)
+        }
+        game_vars.edit_event("next_event", "check_mafia_decision")
+
+
+
+    },
+
+    check_mafia_decision({ game_vars, users, socket }) {
+
 
         let act_sort = ["godfather", "nato", "hostage_taker"]
         let mafia_list_in_order = act_sort.map(act => mafia_list.find(mafia => mafia.role === act))
         //remove after debug
         mafia_list_in_order = mafia_list_in_order.filter(e => e)
         //
-        let shoot_permision = mafia_list_in_order.filter(mafia => dead_list.includes(mafia.user_id))
+        let shoot_permision = mafia_list_in_order.filter(mafia => !dead_list.includes(mafia.user_id))
         let nato = mafia_list.find(mafia => mafia.role === "nato")
-        let can_use_nato = nato && !dead_list.includes(nato.user_id) ? true : false
-        let user_for_create_room = 0
-        let users_can_cop = ["godfather", "nato"]
-        shoot_permision.forEach(mafia => { if (users_can_cop.includes(mafia.role)) user_for_create_room++ })
-        if (user_for_create_room === 2) {
-            this.generate_room_for_mafia({ game_vars, users, socket })
-        }
+        const { nato_act } = game_vars
+        let can_use_nato = nato && !dead_list.includes(nato.user_id) && !nato_act ? true : false
+
         const { user_id } = shoot_permision[0]
-        let mafia_shot_player = start.pick_player_from_user_id({ users, user_id })
-        let list_of_users_can_targeted = this.pick_user_for_act({ game_vars, act: "mafia", user_id })
-        socket.to(mafia_shot_player.socket_id).emit("use_ability", {
-            data: { max_count: 1, list_of_users_can_targeted, can_act: true, msg: "", can_use_nato }
+        let user_to_emit = befor_start.pick_player_from_user_id({ users, user_id })
+        const { socket_id } = user_to_emit
+        game_vars.edit_event("edit","user_to_shot",user_to_emit)
+        if (can_use_nato) {
+            socket.to(socket_id).emit("mafia_decsion", { nato_availabel: true, timer: 7 })
+        }
+        else {
+            socket.to(socket_id).emit("mafia_shot", {
+                timer: 10,
+                max: 1,
+                list_of_users_can_targeted: this.pick_user_for_act({ game_vars, act: "mafia", user_id })
+            })
+        }
+
+
+    },
+
+    mafia_shot({ game_vars, socket }) {
+        let {socket_id,user_id}=game_vars.user_to_shot
+        socket.to(socket_id).emit("mafia_shot", {
+            timer: 10,
+            max: 1,
+            list_of_users_can_targeted: this.pick_user_for_act({ game_vars, act: "mafia", user_id })
         })
+    },
+
+    use_nato({game_vars,users,socket}){
+        const {carts}=game_vars
+        let nato=carts.find(cart=>cart.name === "nato")
+        const {user_id}=nato
+        let list_of_users_can_targeted=this.pick_user_for_act({game_vars,act:"nato",user_id})
+        this.emit_to_act({user_id,list_of_users_can_targeted,users,socket})
     },
 
     other_acts({ game_vars, users, socket, records }) {
@@ -257,9 +299,9 @@ const night = {
         })
         let mafia_remain = live_users_with_role.filter(user => mafia_rols.includes(user.role))
         let city = live_users_with_role.filter(user => !mafia_rols.includes(user.role))
-        if(!mafia_remain.length)console.log("City Win");
-        if(city.length <= mafia_remain.length)console.log("Mafia Win")
-        if(live_users.length === 3)console.log("Chaos begin");
+        if (!mafia_remain.length) console.log("City Win");
+        if (city.length <= mafia_remain.length) console.log("Mafia Win")
+        if (live_users.length === 3) console.log("Chaos begin");
     }
 
 
