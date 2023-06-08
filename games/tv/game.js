@@ -45,7 +45,6 @@ const Game = class {
     }
 
     re_connect({ client }) {
-
         const data = reconnect({
             game_vars: this.game_vars,
             users: this.users,
@@ -467,7 +466,7 @@ const Game = class {
         })
         const timer_func = () => {
             const { next_event } = this.game_vars
-            if (next_event === check_mafia_decision) {
+            if (next_event === "check_mafia_decision") {
                 this.game_vars.edit_event("edit", "next_event", "mafia_shot")
                 this.mainCycle()
             }

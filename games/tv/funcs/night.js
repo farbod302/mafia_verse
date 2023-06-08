@@ -51,7 +51,7 @@ const night = {
 
         let speech_list = mafia_list.filter(mafia =>
             users_can_cop.includes(mafia.role) &&
-            dead_list.includes(mafia.user_id))
+            !dead_list.includes(mafia.user_id))
         if (speech_list.length === 2) {
             await this.generate_room_for_mafia({ game_vars, users, socket })
             game_vars.edit_event("edit", "mafia_speak", true)
@@ -65,7 +65,7 @@ const night = {
 
     check_mafia_decision({ game_vars, users, socket }) {
 
-        const {mafia_list}=game_vars
+        const {mafia_list,dead_list}=game_vars
         console.log({mafia_list});
         let act_sort = ["godfather", "nato", "hostage_taker"]
         let mafia_list_in_order = act_sort.map(act => mafia_list.find(mafia => mafia.role === act))
@@ -172,8 +172,8 @@ const night = {
                 return live_users
             }
             case ("mafia"): {
-                const { mafia } = game_vars
-                let mafia_ids = mafia.map(user => user.user_id)
+                const { mafia_list } = game_vars
+                let mafia_ids = mafia_list.map(user => user.user_id)
                 let live_users = start.pick_live_users({ game_vars })
                 live_users = live_users.filter(user => !mafia_ids.includes(user.user_id))
                 return live_users

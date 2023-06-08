@@ -115,7 +115,7 @@ const befor_start = {
                
             }
         }
-        run_timer(4,random_pick_func)
+        run_timer(10,random_pick_func)
     },
 
    pick_player_from_user_id({users,user_id}){
