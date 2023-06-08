@@ -350,6 +350,7 @@ const Game = class {
         //edit speech queue
         start.move_speech_queue({ game_vars: this.game_vars })
         let new_queue = this.game_vars.queue
+        console.log({new_queue});
         let time = static_vars.speech_time[speech_type]
         this.socket.to(game_id).emit("in_game_turn_speech", { data: { queue: new_queue, can_take_challenge, timer: time } })
         //set timer
@@ -441,7 +442,7 @@ const Game = class {
         })
         let mainCycle = () => { this.mainCycle() }
         this.game_vars.edit_event("edit", "next_event", "mafia_speech")
-        run_timer(20, mainCycle)
+        run_timer(5, mainCycle)
     }
 
     async mafia_speech() {

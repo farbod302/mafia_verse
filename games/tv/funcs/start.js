@@ -121,7 +121,8 @@ const start = {
         game_vars.edit_event("new_value", "mafia_list", mafia)
         game_vars.edit_event("edit", "speech_type", "turn")
         game_vars.edit_event("edit", "reval", true)
-        game_vars.edit_event("edit", "next_event", "start_speech")
+        // game_vars.edit_event("edit", "next_event", "start_speech")
+        game_vars.edit_event("edit", "next_event", "start_night")
         game_vars.edit_event("edit", "can_take_challenge", true)
     },
 
