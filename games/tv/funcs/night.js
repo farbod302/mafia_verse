@@ -65,7 +65,7 @@ const night = {
 
     check_mafia_decision({ game_vars, users, socket }) {
 
-
+        const {mafia_list}=game_vars
         let act_sort = ["godfather", "nato", "hostage_taker"]
         let mafia_list_in_order = act_sort.map(act => mafia_list.find(mafia => mafia.role === act))
         //remove after debug

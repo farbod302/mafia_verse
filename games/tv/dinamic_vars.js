@@ -22,6 +22,7 @@ const dinamic_vars = {
     defence:[],
     report_data:{},
     nigth_reports:[],
+    rols:[],
     edit_event(op, event, value, from) {
         switch (op) {
             case ("edit"): {

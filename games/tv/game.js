@@ -498,6 +498,19 @@ const Game = class {
         })
     }
 
+
+    chaos(){
+        let live_users=start.pick_live_users({game_vars:this.game_vars})
+        live_users.forEach(user=>{
+            const {socket_id}=user
+            this.socket.to(socket_id).emit("start_speech")
+        })
+        this.game_vars.edit_event("edit","next_event","chaos_result_first_phase")
+        run_timer(30,()=>{this.mainCycle()})
+    }
+
+    
+
 }
 
 module.exports = Game
