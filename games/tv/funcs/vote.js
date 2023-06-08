@@ -60,17 +60,18 @@ const vote = {
     },
 
     count_exit_vote({ game_vars, users, socket, game_id }) {
-        game_vars.edit_event("edit", "next_event", "start_night")
         const { votes_status } = game_vars
         let user_to_exit = votes_status.sort((a, b) => { b.users.length - a.users.length })
+        console.log({user_to_exit});
         user_to_exit = user_to_exit[0]
-        let exit_vote_count = user_to_exit.length
+        let exit_vote_count = user_to_exit.users.length
         if (exit_vote_count === 0) return
         //todo count exit vote
         let users_with_same_vote = votes_status.filter(user => user.users.length === exit_vote_count)
         user_to_exit = null
         if (users_with_same_vote.length === 1) {
             user_to_exit = users_with_same_vote[0]
+            console.log({user_to_exit});
         }
         else {
             let { defence_history } = game_vars
@@ -112,6 +113,8 @@ const vote = {
         }
         game_vars.edit_event("edit", "vote_type", "pre_vote")
         game_vars.edit_event("edit", "custom_queue", [])
+        return user_to_exit?.user_id || null
+
 
     },
 

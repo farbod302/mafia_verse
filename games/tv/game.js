@@ -23,7 +23,7 @@ const Game = class {
 
     mainCycle() {
         const next_event = this.game_vars.next_event
-        // console.log({ next_event });
+        console.log({ next_event });
         this[next_event]()
     }
 
@@ -87,7 +87,7 @@ const Game = class {
                 let connected_users_length = this.game_vars.join_status_second_phase.length
                 if (connected_users_length === static_vars.player_count) {
                     this.go_live()
-                    this.game_vars.edit_event("edit","game_go_live",true)
+                    this.game_vars.edit_event("edit", "game_go_live", true)
                 }
 
                 break
@@ -185,14 +185,14 @@ const Game = class {
                 break
             }
 
-            case("mafia_decsion"):{
-                const {shot}=data
-                let decision=shot ? "mafia_shot":"use_nato"
-                this.game_vars.edit_event("edit","next_event",decision)
+            case ("mafia_decsion"): {
+                const { shot } = data
+                let decision = shot ? "mafia_shot" : "use_nato"
+                this.game_vars.edit_event("edit", "next_event", decision)
                 this.mainCycle()
                 break
             }
-            case("mafia_shot"):{
+            case ("mafia_shot"): {
                 const { targets } = data
                 const { day } = this.game_vars
                 let cur_night_events = this.db.getOne("night_reports", night, day)
@@ -207,7 +207,7 @@ const Game = class {
                 this.db.replaceOne("night_reports", night, day, cur_night_events)
             }
 
-            
+
         }
     }
 
@@ -280,14 +280,14 @@ const Game = class {
     }
 
     wait_to_join_second_phase() {
-        const func=()=>{
-            const {game_go_live}=this.game_vars
-            if(!game_go_live){
+        const func = () => {
+            const { game_go_live } = this.game_vars
+            if (!game_go_live) {
                 this.go_live()
                 //todo :emit dc users
             }
         }
-        run_timer(20,func)
+        run_timer(20, func)
     }
 
 
@@ -304,7 +304,7 @@ const Game = class {
         this.game_vars.edit_event("edit", "turn", -1)
         this.game_vars.edit_event("edit", "queue", queue)
         this.game_vars.edit_event("edit", "next_event", "next_player_speech")
-        this.socket.to(game_id).emit("in_game_turn_speech", { data: { queue, can_take_challenge,timer } })
+        this.socket.to(game_id).emit("in_game_turn_speech", { data: { queue, can_take_challenge, timer } })
         this.mainCycle()
     }
 
@@ -315,10 +315,18 @@ const Game = class {
         const { queue, turn, can_take_challenge, speech_type, reval } = this.game_vars
         if (queue.length === turn) {
             //end speech
-            let next_event = !reval ? "mafia_reval" : "pre_vote"
-            this.game_vars.edit_event("edit", "next_event", next_event, "next_player_speech")
-            this.mainCycle()
-            return
+            if (speech_type === "final_words") {
+                this.game_vars.edit_event("edit", "next_event", "start_night")
+                this.game_vars.edit_event("edit", "vote_type","pre_vote")
+                this.mainCycle()
+                return
+            }
+            else{
+                let next_event = !reval ? "mafia_reval" : "pre_vote"
+                this.game_vars.edit_event("edit", "next_event", next_event, "next_player_speech")
+                this.mainCycle()
+                return
+            }
         }
         const { game_id } = this
         //emit to player to speech
@@ -343,17 +351,17 @@ const Game = class {
         start.move_speech_queue({ game_vars: this.game_vars })
         let new_queue = this.game_vars.queue
         let time = static_vars.speech_time[speech_type]
-        this.socket.to(game_id).emit("in_game_turn_speech", { data: { queue: new_queue, can_take_challenge, timer:time } })
+        this.socket.to(game_id).emit("in_game_turn_speech", { data: { queue: new_queue, can_take_challenge, timer: time } })
         //set timer
         const contnue_func = () => { this.mainCycle(); }
-        start.set_timer_to_contnue_speech_queue({
-            func: contnue_func,
-            game_vars: this.game_vars,
-            time,
-            socket: this.socket,
-            users: this.users,
-            player_to_set_timer:user.user_id
-        })
+        // start.set_timer_to_contnue_speech_queue({
+        //     func: contnue_func,
+        //     game_vars: this.game_vars,
+        //     time,
+        //     socket: this.socket,
+        //     users: this.users,
+        //     player_to_set_timer:user.user_id
+        // })
     }
 
     async mafia_reval() {
@@ -366,7 +374,7 @@ const Game = class {
         this.mainCycle()
     }
 
-   async pre_vote() {
+    async pre_vote() {
         await vote.start_vote({ game_vars: this.game_vars })
         const { game_id } = this
         this.socket.to(game_id).emit("game_event", { data: { game_event: "vote" } })
@@ -400,7 +408,18 @@ const Game = class {
 
     count_exit_vote() {
         const { game_id, socket } = this
-        vote.count_exit_vote({ game_vars: this.game_vars, game_id, socket })
+        let user_to_exit = vote.count_exit_vote({ game_vars: this.game_vars, game_id, socket, users: this.users })
+        if (user_to_exit) {
+            let user_to_speech = befor_start.pick_player_from_user_id({ users: this.users, user_id: user_to_exit })
+            let queue = [user_to_speech]
+            this.game_vars.edit_event("edit", "next_event", "start_speech")
+            this.game_vars.edit_event("edit", "custom_queue", queue)
+            this.game_vars.edit_event("edit", "speech_type", "final_words")
+            this.game_vars.edit_event("edit", "turn", -1)
+        }
+        else {
+            game_vars.edit_event("edit", "next_event", "start_night")
+        }
         this.mainCycle()
     }
 
@@ -426,7 +445,7 @@ const Game = class {
     }
 
     async mafia_speech() {
-       await night.mafia_speech({
+        await night.mafia_speech({
             game_vars: this.game_vars,
             users: this.users,
             socket: this.socket
@@ -434,42 +453,42 @@ const Game = class {
         this.game_vars.edit_event("edit", "next_event", "check_mafia_decision")
         this.mainCycle()
 
-      
-        
+
+
 
     }
 
-     check_mafia_decision(){
+    check_mafia_decision() {
         night.check_mafia_decision({
-            game_vars:this.game_vars,
-            users:this.users,
-            socket:this.socket
+            game_vars: this.game_vars,
+            users: this.users,
+            socket: this.socket
         })
-        const timer_func=()=>{
-            const {next_event}=this.game_vars
-            if(next_event === check_mafia_decision){
-                this.game_vars.edit_event("edit","next_event","mafia_shot")
+        const timer_func = () => {
+            const { next_event } = this.game_vars
+            if (next_event === check_mafia_decision) {
+                this.game_vars.edit_event("edit", "next_event", "mafia_shot")
                 this.mainCycle()
             }
         }
 
-        run_timer(7,timer_func)
+        run_timer(7, timer_func)
     }
 
-    mafia_shot(){
+    mafia_shot() {
         night.mafia_shot({
-            game_vars:this.game_vars,
-            socket:this.socket
+            game_vars: this.game_vars,
+            socket: this.socket
         })
     }
 
 
-    use_nato(){
+    use_nato() {
 
         night.use_nato({
-            game_vars:this.game_vars,
-            users:this.users,
-            socket:this.socket
+            game_vars: this.game_vars,
+            users: this.users,
+            socket: this.socket
         })
     }
 
@@ -499,17 +518,17 @@ const Game = class {
     }
 
 
-    chaos(){
-        let live_users=start.pick_live_users({game_vars:this.game_vars})
-        live_users.forEach(user=>{
-            const {socket_id}=user
+    chaos() {
+        let live_users = start.pick_live_users({ game_vars: this.game_vars })
+        live_users.forEach(user => {
+            const { socket_id } = user
             this.socket.to(socket_id).emit("start_speech")
         })
-        this.game_vars.edit_event("edit","next_event","chaos_result_first_phase")
-        run_timer(30,()=>{this.mainCycle()})
+        this.game_vars.edit_event("edit", "next_event", "chaos_result_first_phase")
+        run_timer(30, () => { this.mainCycle() })
     }
 
-    
+
 
 }
 

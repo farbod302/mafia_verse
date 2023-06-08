@@ -68,6 +68,7 @@ const night = {
         const {mafia_list}=game_vars
         let act_sort = ["godfather", "nato", "hostage_taker"]
         let mafia_list_in_order = act_sort.map(act => mafia_list.find(mafia => mafia.role === act))
+        console.log({mafia_list_in_order});
         //remove after debug
         mafia_list_in_order = mafia_list_in_order.filter(e => e)
         //

@@ -64,6 +64,7 @@ const befor_start = {
             carts[i] = carts[j];
             carts[j] = temp;
         }
+        console.log({carts});
         return carts
     },
 
