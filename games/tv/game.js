@@ -328,17 +328,16 @@ const Game = class {
             }
         }
         // emit current_speech
+        const { game_id } = this
+
         let time = static_vars.speech_time[speech_type]
-
         let cur_speech = queue[turn]
-
         this.socket.to(game_id).emit("current_speech", {
             current: cur_speech.user_id,
             timer: time,
             has_next: turn === queue.length - 1 ? false : true
         })
 
-        const { game_id } = this
         //emit to player to speech
         let user = queue[turn].user_id
         user = befor_start.pick_player_from_user_id({ users: this.users, user_id: user })
