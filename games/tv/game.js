@@ -316,17 +316,28 @@ const Game = class {
             //end speech
             if (speech_type === "final_words") {
                 this.game_vars.edit_event("edit", "next_event", "start_night")
-                this.game_vars.edit_event("edit", "vote_type","pre_vote")
+                this.game_vars.edit_event("edit", "vote_type", "pre_vote")
                 this.mainCycle()
                 return
             }
-            else{
+            else {
                 let next_event = !reval ? "mafia_reval" : "pre_vote"
                 this.game_vars.edit_event("edit", "next_event", next_event, "next_player_speech")
                 this.mainCycle()
                 return
             }
         }
+        // emit current_speech
+        let time = static_vars.speech_time[speech_type]
+
+        let cur_speech = queue[turn]
+
+        this.socket.to(game_id).emit("current_speech", {
+            current: cur_speech.user_id,
+            timer: time,
+            has_next: turn === queue.length - 1 ? false : true
+        })
+
         const { game_id } = this
         //emit to player to speech
         let user = queue[turn].user_id
@@ -349,8 +360,7 @@ const Game = class {
         //edit speech queue
         start.move_speech_queue({ game_vars: this.game_vars })
         let new_queue = this.game_vars.queue
-        console.log({new_queue});
-        let time = static_vars.speech_time[speech_type]
+        console.log({ new_queue });
         this.socket.to(game_id).emit("in_game_turn_speech", { data: { queue: new_queue, can_take_challenge, timer: time } })
         //set timer
         const contnue_func = () => { this.mainCycle(); }
