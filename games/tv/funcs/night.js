@@ -280,6 +280,16 @@ const night = {
                 }
             })
         }
+
+        const nato_act = records.find(act => act.act === "nato")
+        if(nato_act){
+            const {user,role}=nato_act.targets[0]
+            let user_true_role=carts.find(cart=>cart.user_id === user)
+            user_true_role=user_true_role.role
+            if(role === user_true_role)abs_deth=user
+        }
+
+
         let user_to_kill = abs_deth || deth
 
         //todo : tell night over

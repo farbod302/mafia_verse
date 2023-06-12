@@ -418,7 +418,6 @@ const Game = class {
                 else {
                     this.game_vars.edit_event("edit", "custom_queue", [])
                     this.game_vars.edit_event("speech")
-
                 }
                 this.mainCycle()
 
