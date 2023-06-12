@@ -65,11 +65,11 @@ const night = {
 
     check_mafia_decision({ game_vars, users, socket }) {
 
-        const {mafia_list,dead_list}=game_vars
-        console.log({mafia_list});
+        const { mafia_list, dead_list } = game_vars
+        console.log({ mafia_list });
         let act_sort = ["godfather", "nato", "hostage_taker"]
         let mafia_list_in_order = act_sort.map(act => mafia_list.find(mafia => mafia.role === act))
-        console.log({mafia_list_in_order});
+        console.log({ mafia_list_in_order });
         //remove after debug
         mafia_list_in_order = mafia_list_in_order.filter(e => e)
         //
@@ -81,7 +81,7 @@ const night = {
         const { user_id } = shoot_permision[0]
         let user_to_emit = befor_start.pick_player_from_user_id({ users, user_id })
         const { socket_id } = user_to_emit
-        game_vars.edit_event("edit","user_to_shot",user_to_emit)
+        game_vars.edit_event("edit", "user_to_shot", user_to_emit)
         if (can_use_nato) {
             socket.to(socket_id).emit("mafia_decsion", { nato_availabel: true, timer: 7 })
         }
@@ -97,7 +97,7 @@ const night = {
     },
 
     mafia_shot({ game_vars, socket }) {
-        let {socket_id,user_id}=game_vars.user_to_shot
+        let { socket_id, user_id } = game_vars.user_to_shot
         socket.to(socket_id).emit("mafia_shot", {
             timer: 10,
             max: 1,
@@ -105,12 +105,12 @@ const night = {
         })
     },
 
-    use_nato({game_vars,users,socket}){
-        const {carts}=game_vars
-        let nato=carts.find(cart=>cart.name === "nato")
-        const {user_id}=nato
-        let list_of_users_can_targeted=this.pick_user_for_act({game_vars,act:"nato",user_id})
-        this.emit_to_act({user_id,list_of_users_can_targeted,users,socket})
+    use_nato({ game_vars, users, socket }) {
+        const { carts } = game_vars
+        let nato = carts.find(cart => cart.name === "nato")
+        const { user_id } = nato
+        let list_of_users_can_targeted = this.pick_user_for_act({ game_vars, act: "nato", user_id })
+        this.emit_to_act({ user_id, list_of_users_can_targeted, users, socket })
     },
 
     other_acts({ game_vars, users, socket, records }) {
@@ -195,7 +195,7 @@ const night = {
     },
 
 
-    night_act_handler({ user_id, game_vars, act, targets, socket, idenity }) {
+    night_act_handler({ user_id, game_vars, act, targets, socket, idenity, users }) {
         switch (act) {
             case ("doctor"): {
                 if (targets.includes(user_id)) { game_vars.edit_event("edit", "doctor_self_save", true) }
@@ -208,20 +208,36 @@ const night = {
                 let status = mafia_acts.includes(target.name)
                 socket.to(idenity.socket_id).emit("check_result", { data: { mafia: status } })
                 game_vars.edit_event("push", "users_gurd_check", user_to_check)
+                return
             }
             case ("nato"): {
                 game_vars.edit_event("edit", "nato_act", true)
+                return
+
             }
             case ("rifleman"): {
                 game_vars.edit_event("edit", "guns_status", targets)
                 let real_gun = targets.find(gun => gun.is_real)
                 if (real_gun) game_vars.edit_event("edit", "real_gun_used", true)
+                targets.forEach(target => {
+                    let user = befor_start.pick_player_from_user_id({ users, user_id: target })
+                    const { socket_id } = user
+                    socket.to(socket_id).emit("report_gun")
+                })
+                return
+
+            }
+
+
+            case ("commando"): {
+                game_vars.edit_event("edit", "comondo_gun_used", true)
+                return
             }
         }
     },
 
 
-    night_results({ game_vars, records, socket, users, game_id }) {
+    async night_results({ game_vars, records, users }) {
         const { carts } = game_vars
         let mafia_shot = records.find(act => act.act === "godfather")
         let mafia_target = mafia_shot.targets[0]
@@ -240,11 +256,14 @@ const night = {
                 if (!mafia_rols.includes(user_targeted_by_comondo.name)) {
                     let comondo = carts.find(cart => cart.name === "commando")
                     abs_deth = comondo.user_id
-                    mafia_target = null
+                    deth = null
                 }
                 else {
-                    if (user_targeted_by_comondo.name === "godfather") mafia_target = null
-                    else mafia_target = user_targeted_by_comondo.user_id
+                    if (user_targeted_by_comondo.name === "godfather") deth = null
+                    else {
+                        deth = user_targeted_by_comondo.user_id
+                        game_vars.edit_event("edit", "comondo_true_shot", true)
+                    }
                 }
             }
 
@@ -253,11 +272,16 @@ const night = {
         const doctor_save = records.find(act => act.act === "commando")
         if (doctor_save) {
             let user_saved = doctor_save.targets[0]
-            if (user_saved === mafia_shot) mafia_shot = null
+            if (user_saved === deth) {
+                deth = null
+                game_vars.edit_event("edit", "comondo_true_shot", false)
+            }
         }
-        let user_to_kill = abs_deth || mafia_shot
-        if (user_to_kill) {
+        let user_to_kill = abs_deth || deth
 
+        //todo : tell night over
+        await delay(5)
+        if (user_to_kill) {
             let index = users.findIndex(user => user.user_id === user_to_kill)
             start.edit_game_action({
                 index,
@@ -267,22 +291,32 @@ const night = {
                 game_vars
             })
             game_vars.edit_event("push", "dead_list", user_to_kill)
+
+
             game_vars.edit_event("edit", "report_data",
                 {
-                    user: user_to_kill,
-                    event: "exit_vote",
-                    msg: "دیشب یک نفر از بازی خداحافظی کرد"
+                    user_id: user_to_kill,
+                    event: "night_result",
+                    msg: !game_event.comondo_true_shot ?
+                        "دیشب یک نفر از بازی خداحافظی کرد" :
+                        "آفرین به نکاور این شهر.از بازی یک نفر خارج شد"
                 })
-            start.generate_report({
-                game_vars,
-                report_type: "night_report",
-                socket,
-                game_id
-            })
-
-
         }
+        else {
+            game_vars.edit_event("edit", "report_data",
+                {
+                    user_id: null,
+                    event: "night_result",
+                    msg: "دیشب هیچ کس بازی را ترک نکرد"
+                })
+        }
+        let next_event = this.check_next_day({ game_vars })
+        if (next_event === 4) {
+            game_vars.edit_event("edit", "next_event", "next_day")
 
+        } else {
+            //end game
+        }
 
     },
 
@@ -301,10 +335,28 @@ const night = {
         })
         let mafia_remain = live_users_with_role.filter(user => mafia_rols.includes(user.role))
         let city = live_users_with_role.filter(user => !mafia_rols.includes(user.role))
-        if (!mafia_remain.length) console.log("City Win");
-        if (city.length <= mafia_remain.length) console.log("Mafia Win")
-        if (live_users.length === 3) console.log("Chaos begin");
+        if (!mafia_remain.length) return 1
+        if (city.length <= mafia_remain.length) return 2
+        if (live_users.length === 3) return 3
+        return 4
+    },
+
+
+    async next_daya({ game_vars, socket, game_id }) {
+        game_vars.edit_event("edit", "day", "plus")
+        game_vars.edit_event("edit", "time", "day")
+        socket.to(game_id).emit("game_event", { data: { game_event: "day" } })
+        await delay(5)
+        start.generate_report({
+            game_vars,
+            report_type: "night_report",
+            socket,
+            game_id
+        })
+        game_vars.edit_event("edit","custom_queue",[])
+        game_vars.edit_event("edit","next_event","check_for_inquiry")
     }
+
 
 
 

@@ -23,6 +23,7 @@ const dinamic_vars = {
     report_data:{},
     nigth_reports:[],
     rols:[],
+    comondo_true_shot:false,
     edit_event(op, event, value, from) {
         switch (op) {
             case ("edit"): {
@@ -43,10 +44,9 @@ const dinamic_vars = {
     doctor_self_save: false,
     nato_act: false,
     mafia_speak: false,
+    comondo_gun_used:false,
     user_to_shot:null,
     users_gurd_check:[],
-    pick_event(event){
-        return this[event]
-    }
+    inquiry_used:0
 }
 module.exports = dinamic_vars

@@ -148,6 +148,20 @@ const start = {
 
         socket.to(game_id).emit("report", { data: raw_reports })
         game_vars.edit_event("edit", "report_data", {})
+    },
+
+
+    inquiry({game_vars}){
+        const {dead_list,carts}=game_vars
+        let mafia_rols=["nato","godfather","hostage_taker"]
+        let mafia_death=dead_list.filter(dead=>{
+            let role=carts.find(cart=>cart.user_id === dead.user_id)
+            if(mafia_rols.includes(role.name))return true
+            return false
+        })
+
+        return `از بازی ${mafia_death.length} مافیا و ${dead_list.length - mafia_death.length} شهروند از بازی خارج شده`
+
     }
 
 
