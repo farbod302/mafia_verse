@@ -1,5 +1,6 @@
 const { delay } = require("../../../helper/helper")
 const run_timer = require("../../../helper/timer")
+const befor_start = require("./before_start")
 const start = require("./start")
 
 const vote = {
@@ -15,12 +16,20 @@ const vote = {
         game_vars.edit_event("edit", "next_event", "next_player_vote_time")
 
     },
-    next_player_vote_turn({ game_vars, socket, game_id, cycle }) {
+    next_player_vote_turn({ game_vars, socket, game_id, cycle, users }) {
         console.log("VOTE ADD");
-        const { queue, turn, vote_type } = game_vars
+        const { queue, turn, vote_type, custom_queue } = game_vars
         let new_vote_record = { user_id: queue[turn].user_id, users: [], vote_type }
         game_vars.edit_event("push", "votes_status", new_vote_record)
         socket.to(game_id).emit("vote", { data: new_vote_record })
+        // vote to player
+        let cur_player = queue[true]
+        let users_to_prevent_vote = [cur_player.user_id]
+        if (custom_queue.length && custom_queue.length < 3) {
+            custom_queue.forEach(user=>users_to_prevent_vote.push(user.user_id))
+        }
+        let user_to_vote=users.filter(user=>!users_to_prevent_vote.includes(user.user_id))
+        user_to_vote.forEach(user=>socket.to(user.socket_id).emit("vote_to_player",{data:{user:cur_player}}))
         run_timer(10, cycle)
     },
     submit_vote({ client, socket, game_vars, game_id }) {
@@ -62,7 +71,7 @@ const vote = {
     count_exit_vote({ game_vars, users, socket, game_id }) {
         const { votes_status } = game_vars
         let user_to_exit = votes_status.sort((a, b) => { b.users.length - a.users.length })
-        console.log({user_to_exit});
+        console.log({ user_to_exit });
         user_to_exit = user_to_exit[0]
         let exit_vote_count = user_to_exit.users.length
         if (exit_vote_count === 0) return
@@ -71,7 +80,7 @@ const vote = {
         user_to_exit = null
         if (users_with_same_vote.length === 1) {
             user_to_exit = users_with_same_vote[0]
-            console.log({user_to_exit});
+            console.log({ user_to_exit });
         }
         else {
             let { defence_history } = game_vars
@@ -88,27 +97,43 @@ const vote = {
         }
         if (user_to_exit) {
             const { user_id } = user_to_exit
-            let index = users.findIndex(user => user.user_id === user_id)
-            start.edit_game_action({
-                index,
-                prime_event: "user_status",
-                second_event: "is_aliave",
-                new_value: false,
-                game_vars
-            })
-            game_vars.edit_event("push", "dead_list", user_id)
-            game_vars.edit_event("edit", "report_data",
-                {
-                    user: user_id,
-                    event: "exit_vote",
-                    msg: "از بازی یک نفر با رای بازیکنان خارج شد "
+            //check if guard
+            const { carts } = game_vars
+            let guard = carts.findIndex(cart => cart.name === "guard")
+            if (carts[guard].user_id === user_id) {
+                let new_carts = [...carts]
+                new_carts[guard].name === "citizen"
+                game_vars.edit_event("edit", "carts", new_carts)
+                let comp_user = befor_start.pick_player_from_user_id({ users, user_id })
+                game_vars.edit_event("edit", "report_data",
+                    {
+                        user: user_id,
+                        event: "exit_vote",
+                        msg: `از بازی کسی خارج نشد.بازیکن شماره ${comp_user.index} با نقش شهروندی به بازی ادامه خواهد داد و قابل ناتوئی نیست.`
+                    })
+            } else {
+                let index = users.findIndex(user => user.user_id === user_id)
+                start.edit_game_action({
+                    index,
+                    prime_event: "user_status",
+                    second_event: "is_aliave",
+                    new_value: false,
+                    game_vars
                 })
-            start.generate_report({
-                game_vars,
-                report_type: "vote_report",
-                socket,
-                game_id
-            })
+                game_vars.edit_event("push", "dead_list", user_id)
+                game_vars.edit_event("edit", "report_data",
+                    {
+                        user: user_id,
+                        event: "exit_vote",
+                        msg: "از بازی یک نفر با رای بازیکنان خارج شد "
+                    })
+                start.generate_report({
+                    game_vars,
+                    report_type: "vote_report",
+                    socket,
+                    game_id
+                })
+            }
 
         }
         game_vars.edit_event("edit", "vote_type", "pre_vote")

@@ -38,6 +38,7 @@ const night = {
         const { carts } = game_vars
         for (let act of users_to_act) {
             let user_id = carts.find(cart => cart.name === act)
+            if (!user_id) return
             let list_of_users_can_targeted = this.pick_user_for_act({ game_vars, act, user_id })
             this.emit_to_act({
                 user_id, list_of_users_can_targeted, users, socket, can_act: true, msg: ""
@@ -55,8 +56,8 @@ const night = {
         if (speech_list.length === 2) {
             await this.generate_room_for_mafia({ game_vars, users, socket })
             game_vars.edit_event("edit", "mafia_speak", true)
-            await delay(14)
         }
+        await delay(14)
         game_vars.edit_event("next_event", "check_mafia_decision")
 
 
@@ -105,12 +106,13 @@ const night = {
         })
     },
 
-    use_nato({ game_vars, users, socket }) {
+    use_nato({ game_vars, users, socket, game_id }) {
         const { carts } = game_vars
         let nato = carts.find(cart => cart.name === "nato")
         const { user_id } = nato
         let list_of_users_can_targeted = this.pick_user_for_act({ game_vars, act: "nato", user_id })
         this.emit_to_act({ user_id, list_of_users_can_targeted, users, socket })
+        socket.to(game_id).emit("mafia_use_nato")
     },
 
     other_acts({ game_vars, users, socket, records }) {
@@ -269,13 +271,14 @@ const night = {
 
         }
         //check doctor act
-        const doctor_save = records.find(act => act.act === "commando")
+        const doctor_save = records.find(act => act.act === "doctor")
         if (doctor_save) {
-            let user_saved = doctor_save.targets[0]
-            if (user_saved === deth) {
-                deth = null
-                game_vars.edit_event("edit", "comondo_true_shot", false)
-            }
+            doctor_save.targets.forEach(save => {
+                if (save === deth) {
+                    deth = null
+                    game_vars.edit_event("edit", "comondo_true_shot", false)
+                }
+            })
         }
         let user_to_kill = abs_deth || deth
 
@@ -353,8 +356,8 @@ const night = {
             socket,
             game_id
         })
-        game_vars.edit_event("edit","custom_queue",[])
-        game_vars.edit_event("edit","next_event","check_for_inquiry")
+        game_vars.edit_event("edit", "custom_queue", [])
+        game_vars.edit_event("edit", "next_event", "check_for_inquiry")
     }
 
 

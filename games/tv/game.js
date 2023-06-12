@@ -433,6 +433,7 @@ const Game = class {
                 game_vars: this.game_vars,
                 socket: this.socket,
                 game_id: this.game_id,
+                users:this.users,
                 cycle,
             })
         }
@@ -497,10 +498,6 @@ const Game = class {
         })
         this.game_vars.edit_event("edit", "next_event", "check_mafia_decision")
         this.mainCycle()
-
-
-
-
     }
 
     check_mafia_decision() {
@@ -517,7 +514,7 @@ const Game = class {
             }
         }
 
-        run_timer(7, timer_func)
+        run_timer(6, timer_func)
     }
 
     mafia_shot() {
@@ -533,7 +530,8 @@ const Game = class {
         night.use_nato({
             game_vars: this.game_vars,
             users: this.users,
-            socket: this.socket
+            socket: this.socket,
+            game_id:this.game_id
         })
     }
 
