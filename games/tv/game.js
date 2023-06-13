@@ -337,8 +337,8 @@ const Game = class {
             timer: time,
             has_next: turn === queue.length - 1 ? false : true
         })
-        if(turn === queue.length - 1){
-        this.socket.to(game_id).emit("current_speech_end")
+        if (turn === queue.length - 1) {
+            this.socket.to(game_id).emit("current_speech_end")
         }
 
         //emit to player to speech
@@ -434,7 +434,7 @@ const Game = class {
                 game_vars: this.game_vars,
                 socket: this.socket,
                 game_id: this.game_id,
-                users:this.users,
+                users: this.users,
                 cycle,
             })
         }
@@ -532,7 +532,7 @@ const Game = class {
             game_vars: this.game_vars,
             users: this.users,
             socket: this.socket,
-            game_id:this.game_id
+            game_id: this.game_id
         })
     }
 
