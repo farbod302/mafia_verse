@@ -337,6 +337,9 @@ const Game = class {
             timer: time,
             has_next: turn === queue.length - 1 ? false : true
         })
+        if(turn === queue.length - 1){
+        this.socket.to(game_id).emit("current_speech_end")
+        }
 
         //emit to player to speech
         let user = queue[turn].user_id
