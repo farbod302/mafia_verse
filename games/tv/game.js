@@ -52,7 +52,6 @@ const Game = class {
             game_id: this.game_id
         })
         this.socket.to(client.id).emit("game_history", { data })
-
     }
 
     async player_action({ op, data, client }) {
