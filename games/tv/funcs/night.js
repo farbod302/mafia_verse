@@ -37,8 +37,9 @@ const night = {
         const users_to_act = ["hostage_taker", "guard"]
         const { carts } = game_vars
         for (let act of users_to_act) {
-            let user_id = carts.find(cart => cart.name === act)
-            if (!user_id) return
+            let user = carts.find(cart => cart.name === act)
+            if (!user) return
+            const {user_id}=user
             let list_of_users_can_targeted = this.pick_user_for_act({ game_vars, act, user_id })
             this.emit_to_act({
                 user_id, list_of_users_can_targeted, users, socket, can_act: true, msg: ""
