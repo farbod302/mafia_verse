@@ -315,7 +315,6 @@ const Game = class {
         const { queue, turn, can_take_challenge, speech_type, reval } = this.game_vars
         if (queue.length === turn) {
             this.socket.to(game_id).emit("current_speech_end")
-            console.log("eeeeeeeeeeeeeeeeeeeend");
             //end speech
             if (speech_type === "final_words") {
                 this.game_vars.edit_event("edit", "next_event", "start_night")

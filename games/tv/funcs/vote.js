@@ -23,7 +23,7 @@ const vote = {
         game_vars.edit_event("push", "votes_status", new_vote_record)
         socket.to(game_id).emit("vote", { data: new_vote_record })
         // vote to player
-        let cur_player = queue[true]
+        let cur_player = queue[turn]
         let users_to_prevent_vote = [cur_player.user_id]
         if (custom_queue.length && custom_queue.length < 3) {
             custom_queue.forEach(user=>users_to_prevent_vote.push(user.user_id))
