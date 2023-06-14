@@ -50,7 +50,6 @@ const night = {
     async mafia_speech({ game_vars, users, socket }) {
         const { mafia_list, dead_list } = game_vars
         let users_can_cop = ["godfather", "nato"]
-
         let speech_list = mafia_list.filter(mafia =>
             users_can_cop.includes(mafia.role) &&
             !dead_list.includes(mafia.user_id))
@@ -60,9 +59,6 @@ const night = {
         }
         await delay(14)
         game_vars.edit_event("next_event", "check_mafia_decision")
-
-
-
     },
 
     check_mafia_decision({ game_vars, users, socket }) {

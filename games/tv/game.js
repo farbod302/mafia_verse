@@ -311,8 +311,11 @@ const Game = class {
     next_player_speech() {
 
         this.game_vars.edit_event("edit", "turn", "plus")
+        const { game_id } = this
         const { queue, turn, can_take_challenge, speech_type, reval } = this.game_vars
         if (queue.length === turn) {
+            this.socket.to(game_id).emit("current_speech_end")
+            console.log("eeeeeeeeeeeeeeeeeeeend");
             //end speech
             if (speech_type === "final_words") {
                 this.game_vars.edit_event("edit", "next_event", "start_night")
@@ -328,7 +331,6 @@ const Game = class {
             }
         }
         // emit current_speech
-        const { game_id } = this
 
         let time = static_vars.speech_time[speech_type]
         let cur_speech = queue[turn]
@@ -337,9 +339,7 @@ const Game = class {
             timer: time,
             has_next: turn === queue.length - 1 ? false : true
         })
-        if (turn === queue.length - 1) {
-            this.socket.to(game_id).emit("current_speech_end")
-        }
+        
 
         //emit to player to speech
         let user = queue[turn].user_id
