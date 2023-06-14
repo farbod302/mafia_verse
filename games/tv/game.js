@@ -184,7 +184,7 @@ const Game = class {
                 break
             }
 
-            case ("mafia_decsion"): {
+            case ("mafia_decision"): {
                 const { shot } = data
                 let decision = shot ? "mafia_shot" : "use_nato"
                 this.game_vars.edit_event("edit", "next_event", decision)

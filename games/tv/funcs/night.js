@@ -81,7 +81,7 @@ const night = {
         const { socket_id } = user_to_emit
         game_vars.edit_event("edit", "user_to_shot", user_to_emit)
         if (can_use_nato) {
-            socket.to(socket_id).emit("mafia_decsion", { nato_availabel: true, timer: 7 })
+            socket.to(socket_id).emit("mafia_decision", { nato_availabel: true, timer: 7 })
         }
         else {
             socket.to(socket_id).emit("mafia_shot", {
