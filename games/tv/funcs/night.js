@@ -38,7 +38,7 @@ const night = {
         const { carts } = game_vars
         for (let act of users_to_act) {
             let user = carts.find(cart => cart.name === act)
-            if (!user) return
+            if (!user.user_id) return
             const {user_id}=user
             let list_of_users_can_targeted = this.pick_user_for_act({ game_vars, act, user_id })
             this.emit_to_act({
@@ -64,10 +64,8 @@ const night = {
     check_mafia_decision({ game_vars, users, socket }) {
 
         const { mafia_list, dead_list } = game_vars
-        console.log({ mafia_list });
         let act_sort = ["godfather", "nato", "hostage_taker"]
         let mafia_list_in_order = act_sort.map(act => mafia_list.find(mafia => mafia.role === act))
-        console.log({ mafia_list_in_order });
         //remove after debug
         mafia_list_in_order = mafia_list_in_order.filter(e => e)
         //
@@ -161,6 +159,7 @@ const night = {
     },
 
     pick_user_for_act({ game_vars, act, user_id }) {
+        console.log({game_vars, act, user_id});
         switch (act) {
             case ("doctor"): {
                 let live_users = start.pick_live_users({ game_vars })
@@ -170,13 +169,13 @@ const night = {
                 }
                 return live_users
             }
-            case ("mafia"): {
-                const { mafia_list } = game_vars
-                let mafia_ids = mafia_list.map(user => user.user_id)
-                let live_users = start.pick_live_users({ game_vars })
-                live_users = live_users.filter(user => !mafia_ids.includes(user.user_id))
-                return live_users
-            }
+            // case ("mafia"): {
+            //     const { mafia_list } = game_vars
+            //     let mafia_ids = mafia_list.map(user => user.user_id)
+            //     let live_users = start.pick_live_users({ game_vars })
+            //     live_users = live_users.filter(user => !mafia_ids.includes(user.user_id))
+            //     return live_users
+            // }
 
             case ("detective"): {
                 const { users_gurd_check } = game_vars
@@ -188,6 +187,7 @@ const night = {
             default: {
                 let live_users = start.pick_live_users({ game_vars })
                 live_users = live_users.filter(user => user.user_id !== user_id)
+                console.log({user_to_select:live_users});
                 return live_users
             }
         }
