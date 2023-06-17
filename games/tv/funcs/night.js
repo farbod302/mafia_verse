@@ -23,12 +23,12 @@ const night = {
         game_vars.edit_event("edit", "guns_status", [])
     },
 
-    emit_to_act({ user_id, availabel_users, users, socket,can_act }) {
+    emit_to_act({ user_id, availabel_users, users, socket,can_act,msg }) {
         let selected_user = befor_start.pick_player_from_user_id({ users, user_id })
         if (!selected_user) return
         //check alive
         const { socket_id } = selected_user
-        socket.to(socket_id).emit("use_ability", { data: { max_count: 1, availabel_users ,can_act} })
+        socket.to(socket_id).emit("use_ability", { data: { max_count: 1, availabel_users ,can_act,msg:msg||""} })
         //todo add max count 
 
     },
