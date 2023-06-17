@@ -23,12 +23,12 @@ const night = {
         game_vars.edit_event("edit", "guns_status", [])
     },
 
-    emit_to_act({ user_id, list_of_users_can_targeted, users, socket }) {
+    emit_to_act({ user_id, availabel_users, users, socket }) {
         let selected_user = befor_start.pick_player_from_user_id({ users, user_id })
         if (!selected_user) return
         //check alive
         const { socket_id } = selected_user
-        socket.to(socket_id).emit("use_ability", { data: { max_count: 1, list_of_users_can_targeted } })
+        socket.to(socket_id).emit("use_ability", { data: { max_count: 1, availabel_users } })
         //todo add max count 
 
     },
@@ -40,9 +40,9 @@ const night = {
             let user = carts.find(cart => cart.name === act)
             if (!user.user_id) return
             const {user_id}=user
-            let list_of_users_can_targeted = this.pick_user_for_act({ game_vars, act, user_id })
+            let availabel_users = this.pick_user_for_act({ game_vars, act, user_id })
             this.emit_to_act({
-                user_id, list_of_users_can_targeted, users, socket, can_act: true, msg: ""
+                user_id, availabel_users, users, socket, can_act: true, msg: ""
             })
         }
     },
@@ -85,7 +85,7 @@ const night = {
             socket.to(socket_id).emit("mafia_shot", {
                 timer: 10,
                 max: 1,
-                list_of_users_can_targeted: this.pick_user_for_act({ game_vars, act: "mafia", user_id })
+                availabel_users: this.pick_user_for_act({ game_vars, act: "mafia", user_id })
             })
         }
 
@@ -97,7 +97,7 @@ const night = {
         socket.to(socket_id).emit("mafia_shot", {
             timer: 10,
             max: 1,
-            list_of_users_can_targeted: this.pick_user_for_act({ game_vars, act: "mafia", user_id })
+            availabel_users: this.pick_user_for_act({ game_vars, act: "mafia", user_id })
         })
     },
 
@@ -105,8 +105,8 @@ const night = {
         const { carts } = game_vars
         let nato = carts.find(cart => cart.name === "nato")
         const { user_id } = nato
-        let list_of_users_can_targeted = this.pick_user_for_act({ game_vars, act: "nato", user_id })
-        this.emit_to_act({ user_id, list_of_users_can_targeted, users, socket })
+        let availabel_users = this.pick_user_for_act({ game_vars, act: "nato", user_id })
+        this.emit_to_act({ user_id, availabel_users, users, socket })
         socket.to(game_id).emit("mafia_use_nato")
     },
 
@@ -118,8 +118,8 @@ const night = {
         for (let act of users_remain) {
             let { can_act, msg } = this.check_act({ records, act })
             let { user_id } = carts
-            let list_of_users_can_targeted = this.pick_user_for_act({ game_vars, act: act.name, user_id })
-            this.emit_to_act({ user_id, list_of_users_can_targeted, users, socket, can_act, msg })
+            let availabel_users = this.pick_user_for_act({ game_vars, act: act.name, user_id })
+            this.emit_to_act({ user_id, availabel_users, users, socket, can_act, msg })
         }
     },
 
