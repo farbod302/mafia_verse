@@ -159,7 +159,6 @@ const night = {
     },
 
     pick_user_for_act({ game_vars, act, user_id }) {
-        console.log({game_vars, act, user_id});
         switch (act) {
             case ("doctor"): {
                 let live_users = start.pick_live_users({ game_vars })
@@ -167,7 +166,7 @@ const night = {
                 if (doctor_self_save) {
                     live_users = live_users.filter(user => user.user_id !== user_id)
                 }
-                return live_users
+                return live_users.map(user=>user.user_id)
             }
             // case ("mafia"): {
             //     const { mafia_list } = game_vars
@@ -181,14 +180,14 @@ const night = {
                 const { users_gurd_check } = game_vars
                 let live_users = start.pick_live_users({ game_vars })
                 live_users = live_users.filter(user => user.user_id !== user_id && !users_gurd_check.includes(user.user_id))
-                return live_users
+                return live_users.map(user=>user.user_id)
             }
 
             default: {
                 let live_users = start.pick_live_users({ game_vars })
                 live_users = live_users.filter(user => user.user_id !== user_id)
                 console.log({user_to_select:live_users});
-                return live_users
+                return live_users.map(user=>user.user_id)
             }
         }
     },
