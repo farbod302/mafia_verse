@@ -28,7 +28,7 @@ const night = {
         if (!selected_user) return
         //check alive
         const { socket_id } = selected_user
-        socket.to(socket_id).emit("use_ability", { data: { max_count: 1, availabel_users ,can_act,msg:msg||"",time:20} })
+        socket.to(socket_id).emit("use_ability", { data: { max_count: 1, availabel_users ,can_act,msg:msg||"",timer:10} })
         //todo add max count 
 
     },
