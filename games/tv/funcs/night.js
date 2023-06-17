@@ -23,12 +23,12 @@ const night = {
         game_vars.edit_event("edit", "guns_status", [])
     },
 
-    emit_to_act({ user_id, availabel_users, users, socket }) {
+    emit_to_act({ user_id, availabel_users, users, socket,can_act }) {
         let selected_user = befor_start.pick_player_from_user_id({ users, user_id })
         if (!selected_user) return
         //check alive
         const { socket_id } = selected_user
-        socket.to(socket_id).emit("use_ability", { data: { max_count: 1, availabel_users } })
+        socket.to(socket_id).emit("use_ability", { data: { max_count: 1, availabel_users ,can_act} })
         //todo add max count 
 
     },
@@ -106,7 +106,7 @@ const night = {
         let nato = carts.find(cart => cart.name === "nato")
         const { user_id } = nato
         let availabel_users = this.pick_user_for_act({ game_vars, act: "nato", user_id })
-        this.emit_to_act({ user_id, availabel_users, users, socket })
+        this.emit_to_act({ user_id, availabel_users, users, socket,can_act:true })
         socket.to(game_id).emit("mafia_use_nato")
     },
 
