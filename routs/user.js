@@ -1,6 +1,7 @@
 const express = require("express")
 const User = require("../db/user")
 const reject = require("../helper/reject_handler")
+const Channel = require("../db/channel")
 const router = express.Router()
 
 //fetach data
@@ -117,6 +118,18 @@ router.post("/items_list", (req, res) => {
 
 })
 
+
+//chanel
+
+router.post("/request_join_channnel",async (req,res)=>{
+    if(!req.body.user)return reject(2,res)
+    const {uid}=req.body.user
+    const {channel_id}=user.body
+    let is_requested=await Channel.findOne({join_req:uid,id:channel_id})
+    if(is_requested)return reject(11,res)
+    await Channel.findOneAndUpdate({id:channel_id},{$push:{join_req:uid}})
+    res.json({status:true,msg:"درخواست شما ثبت شد",data:{}})
+})
 
 
 

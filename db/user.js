@@ -7,6 +7,7 @@ const user = mongoose.Schema({
     idenity: Object,
     avatar: Object,
     uid: String,
+    own_channel:{type:Boolean,default:false},
     gold: { type: Number, default: 10 },
     friend_limit: { type: Number, default: 20 },
     points: {

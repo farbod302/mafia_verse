@@ -47,7 +47,6 @@ router.post("/", async (req, res) => {
 
 
 router.post("/sign_up", async (req, res) => {
-    console.log(req.body);
     const { device_id, phone, name, userName } = req.body
     let is_user_name_uniq = await User.findOne({ "idenity.userName": userName })
     console.log(is_user_name_uniq);
