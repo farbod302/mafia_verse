@@ -29,7 +29,7 @@ router.post("/create_channel_with_token",async (req,res)=>{
     let {uid:user_id}=req.body.user
     const {name}=req.body
     const id=uid(6)
-    let new_channel={id,creator:user_id,name}
+    let new_channel={id,creator:user_id,name,mod:[user_id]}
     let is_token_valid=await ChannelToken.findOne({token:channel_token,used:false,user:user_id})
     if(!is_token_valid)return reject(9,res)
     create_channel(new_channel)
@@ -50,16 +50,30 @@ router.post("/can_create_channel",async (req,res)=>{
 })
 
 
-router.post("/create_channel_by_user",async (req,res)=>{
+router.post("/create_channel_by_reg_user",async (req,res)=>{
     if(!req.body.user)return reject(2,res)
     const {uid}=req.body
     let user=await User.findOne({uid})
     const {own_channel,ranking}=user
     if(own_channel || ranking < 10000)return reject(10,res)
     const {name}=req.body
-    let new_channel={name,creator:uid,id:uid(5)}
+    let new_channel={name,creator:uid,id:uid(5),mod:[uid]}
     create_channel(new_channel)
     res.json({status:true,data:{},msg:""})
+})
+
+router.post("/join_requests",async (req,res)=>{
+    if(!req.body.user)return reject(2,res)
+    const {uid}=req.body.user
+    const {channel_id}=req.body
+    let channel=await Channel.findOne({id:channel_id,mod:uid})
+    if(!channel)return reject(12,res)
+    res.json({
+        status:true,
+        msg:"",
+        data:{join_req:channel.join_req}
+    })
+
 })
 
 

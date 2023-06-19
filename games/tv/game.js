@@ -160,14 +160,15 @@ const Game = class {
                 break
             }
 
-            case ("target_ability"): {
-                const { character, targets } = data
+            case ("night_act"): {
+                const { role, users } = data
                 const { day } = this.game_vars
-                let cur_night_events = this.db.getOne("night_reports", night, day)
+                let cur_night_events = this.db.getOne("night_records", "night", day)
+                console.log({cur_night_events});
                 let prv_events = [...cur_night_events.events]
-                targets.forEach(target => {
+                users.forEach(target => {
                     prv_events.push({
-                        act: character,
+                        act: role,
                         target,
                     })
                 })
@@ -176,10 +177,11 @@ const Game = class {
                 night.night_act_handler({
                     user_id: client.idenity.user_id,
                     game_vars: this.game_vars,
-                    act: character,
+                    act: role,
                     socket: this.socket,
                     idenity: client.idenity,
-                    users: this.users
+                    users: this.users,
+                    targets:users
                 })
                 break
             }
@@ -338,7 +340,7 @@ const Game = class {
             timer: time,
             has_next: turn === queue.length - 1 ? false : true
         })
-        
+
 
         //emit to player to speech
         let user = queue[turn].user_id
@@ -476,7 +478,8 @@ const Game = class {
             game_id: this.game_id
         })
         const { day } = this.game_vars
-        this.db.add_data("night_report", { night: day, events: [] })
+        this.db.add_data("night_records", { night: day, events: [] })
+        console.log({add:this.db.getAll("night_records")});
         this.mainCycle()
     }
     guard_and_hostage_taker_act() {
@@ -518,26 +521,34 @@ const Game = class {
     }
 
     mafia_shot() {
+        console.log("MAFIA SHOT RUN");
         night.mafia_shot({
             game_vars: this.game_vars,
             socket: this.socket
         })
+        this.game_vars.edit_event("edit", "next_event", "other_acts")
+        const timer_func = () => { this.mainCycle() }
+        run_timer(10, timer_func)
+
+
     }
 
 
     use_nato() {
-
         night.use_nato({
             game_vars: this.game_vars,
             users: this.users,
             socket: this.socket,
             game_id: this.game_id
         })
+        const timer_func = () => { this.mainCycle() }
+        run_timer(10, timer_func)
     }
 
 
     other_acts() {
         const { day } = this.game_vars
+        console.log({records:this.db.getAll("night_records")});
         let records = this.db.getOne("night_records", "night", day)
         night.other_acts({
             game_vars: this.game_vars,

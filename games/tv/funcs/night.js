@@ -41,6 +41,7 @@ const night = {
             if (!user.user_id) return
             const {user_id}=user
             let availabel_users = this.pick_user_for_act({ game_vars, act, user_id })
+            console.log({availabel_users});
             this.emit_to_act({
                 user_id, availabel_users, users, socket, can_act: true, msg: ""
             })
@@ -53,8 +54,9 @@ const night = {
         let speech_list = mafia_list.filter(mafia =>
             users_can_cop.includes(mafia.role) &&
             !dead_list.includes(mafia.user_id))
+            console.log({speech_list});
         if (speech_list.length === 2) {
-            await this.generate_room_for_mafia({ game_vars, users, socket })
+            // await this.generate_room_for_mafia({ game_vars, users, socket })
             game_vars.edit_event("edit", "mafia_speak", true)
         }
         await delay(14)
@@ -81,13 +83,13 @@ const night = {
         if (can_use_nato) {
             socket.to(socket_id).emit("mafia_decision", { nato_availabel: true, timer: 7 })
         }
-        else {
-            socket.to(socket_id).emit("mafia_shot", {
-                timer: 10,
-                max: 1,
-                availabel_users: this.pick_user_for_act({ game_vars, act: "mafia", user_id })
-            })
-        }
+        // else {
+        //     socket.to(socket_id).emit("mafia_shot", {
+        //         timer: 10,
+        //         max: 1,
+        //         availabel_users: this.pick_user_for_act({ game_vars, act: "mafia", user_id })
+        //     })
+        // }
 
 
     },
@@ -116,21 +118,22 @@ const night = {
         let users_remain = carts.filter(cart => !acts_used.includes(cart.name))
 
         for (let act of users_remain) {
-            let { can_act, msg } = this.check_act({ records, act })
-            let { user_id } = carts
-            let availabel_users = this.pick_user_for_act({ game_vars, act: act.name, user_id })
+            let { can_act, msg } = this.check_act({ records, act,game_vars })
+            let { user_id,name } = act
+            let availabel_users = this.pick_user_for_act({ game_vars, act: name, user_id })
             this.emit_to_act({ user_id, availabel_users, users, socket, can_act, msg })
         }
     },
 
     check_act({ records, act, game_vars }) {
         const { name, user_id } = act
-        let hostage_taker_act = records.find(each_act => each_act.act === "hostage_taker")
-        hostage_taker_act = hostage_taker_act.targets || []
+        let hostage_taker_act = records.events.find(each_act => each_act.act === "hostage_taker")
+        hostage_taker_act = hostage_taker_act?.targets || []
+        console.log({name});
         switch (name) {
             case ("commando"): {
-                let mafia_shot = records.find(each_act => each_act.act === "mafia_shot")
-                mafia_shot = mafia_shot.targets || []
+                let mafia_shot = records.events.find(each_act => each_act.act === "mafia_shot")
+                mafia_shot = mafia_shot?.targets || []
                 //check _shot
                 let can_act = false
                 let msg = "شما نمی توانید امشب از توانایی خود استفاده کنید"
@@ -186,7 +189,6 @@ const night = {
             default: {
                 let live_users = start.pick_live_users({ game_vars })
                 live_users = live_users.filter(user => user.user_id !== user_id)
-                console.log({user_to_select:live_users});
                 return live_users.map(user=>user.user_id)
             }
         }
