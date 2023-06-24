@@ -173,7 +173,7 @@ const Game = class {
                     })
                 })
                 cur_night_events.events = prv_events
-                this.db.replaceOne("night_reports", night, day, cur_night_events)
+                this.db.replaceOne("night_records", "night", day, cur_night_events)
                 night.night_act_handler({
                     user_id: client.idenity.user_id,
                     game_vars: this.game_vars,
@@ -194,18 +194,18 @@ const Game = class {
                 break
             }
             case ("mafia_shot"): {
-                const { targets } = data
+                const { users } = data
                 const { day } = this.game_vars
-                let cur_night_events = this.db.getOne("night_reports", night, day)
+                let cur_night_events = this.db.getOne("night_records", "night", day)
                 let prv_events = [...cur_night_events.events]
-                targets.forEach(target => {
+                users.forEach(target => {
                     prv_events.push({
                         act: "godfather",
                         target,
                     })
                 })
                 cur_night_events.events = prv_events
-                this.db.replaceOne("night_reports", night, day, cur_night_events)
+                this.db.replaceOne("night_records", "night", day, cur_night_events)
             }
 
 
@@ -517,7 +517,7 @@ const Game = class {
             }
         }
 
-        run_timer(6, timer_func)
+        run_timer(3, timer_func)
     }
 
     mafia_shot() {
@@ -556,9 +556,9 @@ const Game = class {
             socket: this.socket,
             records
         })
-        this.game_vars.edit_event("edit", "next_event", "night_result")
+        this.game_vars.edit_event("edit", "next_event", "night_results")
         let mainCycle = () => { this.mainCycle() }
-        run_timer(40, mainCycle)
+        run_timer(20, mainCycle)
     }
 
     night_results() {
