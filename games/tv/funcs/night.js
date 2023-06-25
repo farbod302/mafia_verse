@@ -209,8 +209,8 @@ const night = {
                 let user_to_check = targets[0].user_id
                 let target = game_vars.carts.find(cart => cart.user_id === user_to_check)
                 let status = mafia_acts.includes(target.name)
-                socket.to(idenity.socket_id).emit("check_result", { data: { mafia: status } })
-                game_vars.edit_event("push", "users_gurd_check", user_to_check)
+                socket.to(idenity.socket_id).emit("detective_inquiry", { data: { inquiry: status,user_id:user_to_check } })
+                game_vars.edit_event("push", "users_detective_check", user_to_check)
                 return
             }
             case ("nato"): {
