@@ -169,7 +169,8 @@ const Game = class {
                 users.forEach(target => {
                     prv_events.push({
                         act: role,
-                        target,
+                        target:target.user_id,
+                        info:target.act
                     })
                 })
                 cur_night_events.events = prv_events
