@@ -397,7 +397,7 @@ const Game = class {
 
 
     async check_for_inquiry() {
-        this.game_event.edit_event("edit", "custop_queue", ["inquiry"])
+        this.game_event.edit_event("edit", "custom_queue", ["inquiry"])
         this.game_event.edit_event("edit", "vote_type", "inquiry")
         await vote.start_vote({ game_vars: this.game_vars })
         const { game_id } = this
