@@ -304,7 +304,6 @@ const Game = class {
             users: custom_queue.length ? custom_queue : null
         })
         let timer = static_vars.speech_time[speech_type]
-
         this.game_vars.edit_event("edit", "turn", -1)
         this.game_vars.edit_event("edit", "queue", queue)
         this.game_vars.edit_event("edit", "next_event", "next_player_speech")
@@ -347,6 +346,20 @@ const Game = class {
 
         //emit to player to speech
         let user = queue[turn].user_id
+        const user_speech_type=queue[turn].speech_status
+        //emit challenge status
+        if(user_speech_type !== "introduction" || !can_take_challenge){
+            this.socket.to(game_id).emit("users_cahllenge_status",{data:queue.map(q=>{ return {
+                user_id:q.user_id,
+                status:false
+            }})})
+        }
+        else{
+            this.socket.to(game_id).emit("users_cahllenge_status",{data:queue.map(q=>{ return {
+                user_id:q.user_id,
+                status:!q.challenge_used
+            }})})
+        }
         user = befor_start.pick_player_from_user_id({ users: this.users, user_id: user })
         let other_users = befor_start.pick_other_player_from_user_id({ users: this.users, user_id: user.user_id })
         const { socket_id } = user
@@ -366,7 +379,6 @@ const Game = class {
         //edit speech queue
         start.move_speech_queue({ game_vars: this.game_vars })
         let new_queue = this.game_vars.queue
-        console.log({ new_queue });
         this.socket.to(game_id).emit("in_game_turn_speech", { data: { queue: new_queue, can_take_challenge, timer: time } })
         //set timer
         const contnue_func = () => { this.mainCycle(); }
