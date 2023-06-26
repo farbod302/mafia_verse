@@ -96,9 +96,7 @@ const start = {
         let current_user=queue[turn]
         let user_in_queue_index = prv_queue.findIndex(user => user.user_id === current_user.user_id)
         prv_queue[user_in_queue_index].challenge_used = true
-        prv_queue.splice(speeching_user_index, 0, challenge_user)
-        console.log({prv_queue});
-
+        prv_queue.splice(speeching_user_index, 0, {...challenge_user,speech_status:"challenge"})
         game_vars.edit_event("edit", "queue", prv_queue)
         socket.to(challenge_user.socket_id).emit("accept_challenge")
     },

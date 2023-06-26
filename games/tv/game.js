@@ -296,6 +296,7 @@ const Game = class {
 
     start_speech() {
         let { speech_type, can_take_challenge, custom_queue } = this.game_vars
+        console.log({can_take_challenge});
         const { game_id } = this
         let queue = start.generate_queue({
             type: speech_type,
