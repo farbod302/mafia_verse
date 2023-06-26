@@ -354,7 +354,7 @@ const Game = class {
                 status:false
             }})})
         }
-        else{
+        else{ 
             this.socket.to(game_id).emit("users_cahllenge_status",{data:queue.map(q=>{ return {
                 user_id:q.user_id,
                 status:!q.challenge_used
