@@ -132,6 +132,7 @@ const Game = class {
 
             case ("accept_challenge"): {
                 const { user_id } = data
+                console.log({data});
                 const { game_id } = this
                 let index = this.users.findIndex(user => user.user_id === user_id)
                 start.accept_cahllenge({
