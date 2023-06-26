@@ -47,30 +47,22 @@ router.post("/", async (req, res) => {
 
 
 router.post("/sign_up", async (req, res) => {
-    const { device_id, phone, name, userName } = req.body
-    let is_user_name_uniq = await User.findOne({ "idenity.userName": userName })
-    console.log(is_user_name_uniq);
+    const { phone, name } = req.body
+    let is_user_name_uniq = await User.findOne({ "idenity.name": name })
     if (is_user_name_uniq) {
         res.json({
             status: false,
             msg: "نام کاربری تکراری است",
-            data: {
-                userName: false
-            }
+            data: {}
         })
         return
     }
-    let is_exist = await User.findOne({
-        device_id,
-        status: "gust"
-    })
-    if (!is_exist) return reject(3, res)
+    
     if (!Helper.valideate_phone(phone)) return reject(0, res)
     let code = RegistSmsHandler.send_sms(phone)
-    console.log(code);
-    new TempSms({ device_id, phone, name, userName, code }).save()
+    new TempSms({  phone, name, code }).save()
     res.json({
-        status: "true",
+        status: true,
         msg: "کد تایید ارسال شد",
         data: {}
     })
@@ -81,24 +73,35 @@ router.post("/sign_up_confirm_phone", async (req, res) => {
     const { code, phone } = req.body
     let temp = await TempSms.findOne({ code: code, phone: phone, used: false })
     if (!temp) return reject(1, res)
-    const { name, userName, device_id } = temp
-    await User.findOneAndUpdate({ device_id }, { $set: { idenity: { name, phone, userName }, status: "registed" } })
+    const { name } = temp
+
+    let player_uid = uid(4)
+    const new_player = {
+        idenity: {
+            name: name,
+            phone: phone
+        },
+        uid: player_uid,
+        avatar: default_avatar
+    }
+    new User(new_player).save()
+
     res.json({
         status: true,
         msg: "ثبت نام با موفقیت انجام شد",
-        data: {}
+        data: { token: Jwt.sign({ uid: player_uid })}
     })
     await TempSms.findOneAndUpdate({ code: code, phone: phone }, { $set: { used: true } })
 })
 
 router.post("/log_in", async (req, res) => {
-    const { phone, userName } = req.body
-    let is_exist = await User.findOne(userName ? { "idenity.userName": userName } : { phone })
+    const { phone, name } = req.body
+    let is_exist = await User.findOne(name ? { "idenity.name": name } : { phone })
     if (!is_exist) return reject(4, res)
     if (!Helper.valideate_phone(phone)) return reject(0, res)
     RegistSmsHandler.send_sms(phone)
     res.json({
-        status: "true",
+        status: true,
         msg: "کد تایید ارسال شد",
         data: {}
     })
@@ -106,19 +109,18 @@ router.post("/log_in", async (req, res) => {
 
 router.post("/log_in_confirm_phone", async (req, res) => {
 
-    const { code, phone, device_id } = req.body
+    const { code, phone } = req.body
     let is_exist = RegistSmsHandler.check_code({ phone, code })
     if (!is_exist) return reject(1, res)
     is_exist = await User.findOne({ "idenity.phone": phone })
     if (!is_exist) return reject(4, res)
     const { uid: user_id } = is_exist
-    let token = Jwt.sign({ uid: user_id ,device_id})
+    let token = Jwt.sign({ uid: user_id })
     res.json({
         status: true,
         msg: "",
         data: { token }
     })
-    await User.findOneAndUpdate({ "idenity.phone": phone }, { $set: { device_id } })
 
 
 })
