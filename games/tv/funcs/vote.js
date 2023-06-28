@@ -26,10 +26,10 @@ const vote = {
         let cur_player = queue[turn]
         let users_to_prevent_vote = [cur_player.user_id]
         if (custom_queue.length && custom_queue.length < 3) {
-            custom_queue.forEach(user=>users_to_prevent_vote.push(user.user_id))
+            custom_queue.forEach(user => users_to_prevent_vote.push(user.user_id))
         }
-        let user_to_vote=users.filter(user=>!users_to_prevent_vote.includes(user.user_id))
-        user_to_vote.forEach(user=>socket.to(user.socket_id).emit("vote_to_player",{data:{user:cur_player}}))
+        let user_to_vote = users.filter(user => !users_to_prevent_vote.includes(user.user_id))
+        user_to_vote.forEach(user => socket.to(user.socket_id).emit("vote_to_player", { data: { user: cur_player } }))
         run_timer(10, cycle)
     },
     submit_vote({ client, socket, game_vars, game_id }) {
@@ -53,13 +53,59 @@ const vote = {
         let defender_ids = users_to_defence.map(user => user.user_id)
         let defenders_queue = users.filter(user => defender_ids.includes(user.user_id))
         if (defenders_queue.length) {
+            defenders_queue.forEach(user => game_vars.edit_event("push", "defence_history", user.user_id))
             game_vars.edit_event("edit", "can_take_challenge", false)
-            game_vars.edit_event("edit", "custom_queue", defenders_queue)
             game_vars.edit_event("edit", "turn", -1)
             game_vars.edit_event("edit", "cur_event", "defence")
             game_vars.edit_event("edit", "vote_type", "defence")
-            game_vars.edit_event("edit", "next_event", "start_speech")
-            defenders_queue.forEach(user => game_vars.edit_event("push", "defence_history", user.user_id))
+            if (defenders_queue.length === 3) {
+                game_vars.edit_event("edit", "custom_queue", defenders_queue)
+                game_vars.edit_event("edit", "next_event", "start_speech")
+                return
+            }
+            else {
+                game_vars.edit_event("edit", "defenders", defenders_queue)
+                let target_cover_queue = []
+                if (defenders_queue.length === 1) {
+                    target_cover_queue = [
+                        {
+                            user_id: defenders_queue[0].user_id,
+                            chose: "target",
+                            selected_user:null
+                        },
+                        {
+                            user_id: defenders_queue[0].user_id,
+                            chose: "cover",
+                            selected_user:null
+
+                        }
+
+                    ]
+                }
+                if (defenders_queue.length === 2) {
+                    target_cover_queue = [
+                        {
+                            user_id: defenders_queue[0].user_id,
+                            chose: "about",
+                            selected_user:null
+
+                        },
+                        {
+                            user_id: defenders_queue[1].user_id,
+                            chose: "about",
+                            selected_user:null
+
+                        },
+
+                    ]
+                }
+                this.game_vars.edit_event("edit", "target_cover_queue", target_cover_queue)
+                game_vars.edit_event("edit", "next_event", "enable_target_cover")
+                game_vars.edit_event("edit", "turn", -1)
+
+            }
+
+
         }
         else {
             game_vars.edit_event("edit", "next_event", "start_night")
@@ -68,6 +114,7 @@ const vote = {
 
     },
 
+    
     count_exit_vote({ game_vars, users, socket, game_id }) {
         const { votes_status } = game_vars
         let user_to_exit = votes_status.sort((a, b) => { b.users.length - a.users.length })

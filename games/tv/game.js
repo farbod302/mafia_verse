@@ -6,6 +6,7 @@ const befor_start = require("./funcs/before_start")
 const night = require("./funcs/night")
 const reconnect = require("./funcs/reconnect")
 const start = require("./funcs/start")
+const targetCover = require("./funcs/target_cover")
 const vote = require("./funcs/vote")
 const static_vars = require("./static_vars")
 
@@ -132,7 +133,7 @@ const Game = class {
 
             case ("accept_challenge"): {
                 const { user_id } = data
-                console.log({data});
+                console.log({ data });
                 const { game_id } = this
                 let index = this.users.findIndex(user => user.user_id === user_id)
                 start.accept_cahllenge({
@@ -165,13 +166,13 @@ const Game = class {
                 const { role, users } = data
                 const { day } = this.game_vars
                 let cur_night_events = this.db.getOne("night_records", "night", day)
-                console.log({cur_night_events});
+                console.log({ cur_night_events });
                 let prv_events = [...cur_night_events.events]
                 users.forEach(target => {
                     prv_events.push({
                         act: role,
-                        target:target.user_id,
-                        info:target.act
+                        target: target.user_id,
+                        info: target.act
                     })
                 })
                 cur_night_events.events = prv_events
@@ -183,7 +184,7 @@ const Game = class {
                     socket: this.socket,
                     idenity: client.idenity,
                     users: this.users,
-                    targets:users
+                    targets: users
                 })
                 break
             }
@@ -296,7 +297,7 @@ const Game = class {
 
     start_speech() {
         let { speech_type, can_take_challenge, custom_queue } = this.game_vars
-        console.log({can_take_challenge});
+        console.log({ can_take_challenge });
         const { game_id } = this
         let queue = start.generate_queue({
             type: speech_type,
@@ -346,19 +347,27 @@ const Game = class {
 
         //emit to player to speech
         let user = queue[turn].user_id
-        const user_speech_type=queue[turn].speech_status
+        const user_speech_type = queue[turn].speech_status
         //emit challenge status
-        if(user_speech_type !== "introduction" || !can_take_challenge){
-            this.socket.to(game_id).emit("users_cahllenge_status",{data:queue.map(q=>{ return {
-                user_id:q.user_id,
-                status:false
-            }})})
+        if (user_speech_type !== "introduction" || !can_take_challenge) {
+            this.socket.to(game_id).emit("users_cahllenge_status", {
+                data: queue.map(q => {
+                    return {
+                        user_id: q.user_id,
+                        status: false
+                    }
+                })
+            })
         }
-        else{ 
-            this.socket.to(game_id).emit("users_cahllenge_status",{data:queue.map(q=>{ return {
-                user_id:q.user_id,
-                status:!q.challenge_used
-            }})})
+        else {
+            this.socket.to(game_id).emit("users_cahllenge_status", {
+                data: queue.map(q => {
+                    return {
+                        user_id: q.user_id,
+                        status: !q.challenge_used
+                    }
+                })
+            })
         }
         user = befor_start.pick_player_from_user_id({ users: this.users, user_id: user })
         let other_users = befor_start.pick_other_player_from_user_id({ users: this.users, user_id: user.user_id })
@@ -486,6 +495,14 @@ const Game = class {
 
     }
 
+    enable_target_cover() {
+        targetCover.enable_target_cover({ game_vars: this.game_vars, users: this.users, socket: this.socket })
+    }
+
+    next_target_cover(){
+        
+    }
+
     start_night() {
         night.start_night({
             game_vars: this.game_vars,
@@ -494,7 +511,7 @@ const Game = class {
         })
         const { day } = this.game_vars
         this.db.add_data("night_records", { night: day, events: [] })
-        console.log({add:this.db.getAll("night_records")});
+        console.log({ add: this.db.getAll("night_records") });
         this.mainCycle()
     }
     guard_and_hostage_taker_act() {
@@ -563,7 +580,7 @@ const Game = class {
 
     other_acts() {
         const { day } = this.game_vars
-        console.log({records:this.db.getAll("night_records")});
+        console.log({ records: this.db.getAll("night_records") });
         let records = this.db.getOne("night_records", "night", day)
         night.other_acts({
             game_vars: this.game_vars,

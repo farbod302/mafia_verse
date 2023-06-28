@@ -19,10 +19,11 @@ const dinamic_vars = {
     votes_status:[],
     guns_status:[],
     defence_history:[],
-    defence:[],
+    defenders:[],
     report_data:{},
     nigth_reports:[],
     rols:[],
+    target_cover_queue:[],
     comondo_true_shot:false,
     edit_event(op, event, value, from) {
         switch (op) {
