@@ -92,11 +92,18 @@ const start = {
         const { queue ,turn} = game_vars
         let speeching_user_index = turn+1
         let challenge_user = befor_start.pick_player_from_user_id({ users, user_id })
+        let user_to_add_queue={
+            user_id:challenge_user.user_id,
+            user_index:challenge_user.id,
+            speech_status:"challenge",
+            pass:false,
+            challenge_used:true
+        }
         let prv_queue = [...game_vars.queue]
         let current_user=queue[turn]
         let user_in_queue_index = prv_queue.findIndex(user => user.user_id === current_user.user_id)
         prv_queue[user_in_queue_index].challenge_used = true
-        prv_queue.splice(speeching_user_index, 0, {...challenge_user,speech_status:"challenge"})
+        prv_queue.splice(speeching_user_index, 0, user_to_add_queue)
         game_vars.edit_event("edit", "queue", prv_queue)
         socket.to(challenge_user.socket_id).emit("accept_challenge")
     },

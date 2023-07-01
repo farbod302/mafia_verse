@@ -376,7 +376,7 @@ const Game = class {
         other_users.forEach(u => { this.socket.to(u.socket_id).emit("game_event", { data: { game_event: "action" } }) })
         // edit game action
         start.edit_game_action({
-            index: turn,
+            index: queue[turn].user_index,
             prime_event: "user_status",
             second_event: "is_talking",
             new_value: true,
@@ -384,6 +384,7 @@ const Game = class {
             edit_others: true
         })
         let status_list = this.game_vars.player_status
+        console.log({queue});
         this.socket.to(game_id).emit("game_action", { data: status_list })
         //edit speech queue
         start.move_speech_queue({ game_vars: this.game_vars })
