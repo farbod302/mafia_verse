@@ -350,7 +350,7 @@ const Game = class {
         const user_speech_type = queue[turn].speech_status
         //emit challenge status
         if (user_speech_type !== "introduction" || !can_take_challenge) {
-            this.socket.to(game_id).emit("users_cahllenge_status", {
+            this.socket.to(game_id).emit("user_challenge_status", {
                 data: queue.map(q => {
                     return {
                         user_id: q.user_id,
@@ -360,7 +360,7 @@ const Game = class {
             })
         }
         else {
-            this.socket.to(game_id).emit("users_cahllenge_status", {
+            this.socket.to(game_id).emit("user_challenge_status", {
                 data: queue.map(q => {
                     return {
                         user_id: q.user_id,

@@ -7,7 +7,7 @@ const targetCover = {
             return
         }
         this.game_vars.edit_event("edit","next_event","next_target_cover")
-
+        socket.to(game_id).emit("game_event",{data:"tag"})
     },
 
     next_target_cover({game_vars,users}){

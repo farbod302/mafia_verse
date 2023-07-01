@@ -4,6 +4,7 @@ const client = new TrezSmsClient("farbod302", "eefabass");
 const Helper = {
     valideate_phone(phone) {
         phone = phone.toString()
+        console.log({phone});
         return phone.length === 11 && phone.startsWith("09")
     },
     generate_random_num() {

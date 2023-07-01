@@ -48,15 +48,16 @@ router.post("/", async (req, res) => {
 
 
 router.post("/check", async (req, res) => {
+    console.log(req.body);
     const { phone } = req.body
     if (!Helper.valideate_phone(phone)) return reject(0, res)
     let is_exist = await User.findOne({ "idenity.phone": phone })
-    res.json({ data: { is_exist: is_exist ? true : false } })
+    res.json({ data: { is_exist: is_exist ? true : false,status:true } })
 })
 
 router.post("/sign_up", async (req, res) => {
     const { phone, name } = req.body
-    let is_user_name_uniq = await User.findOne({ "idenity.name": name })
+    let is_user_name_uniq = await User.findOne({$or:[{ "idenity.name": name},{"idenity.phone": phone}] })
     if (is_user_name_uniq) {
         res.json({
             status: false,
@@ -68,6 +69,7 @@ router.post("/sign_up", async (req, res) => {
 
     if (!Helper.valideate_phone(phone)) return reject(0, res)
     let code = RegistSmsHandler.send_sms(phone)
+    console.log({code});
     new TempSms({ phone, name, code }).save()
     res.json({
         status: true,
