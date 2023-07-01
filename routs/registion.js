@@ -106,10 +106,11 @@ router.post("/sign_up_confirm_phone", async (req, res) => {
 
 router.post("/log_in", async (req, res) => {
     const { phone, name } = req.body
-    let is_exist = await User.findOne(name ? { "idenity.name": name } : { phone })
+    let is_exist = await User.findOne(name ? { "idenity.name": name } : { "idenity.phone":phone })
     if (!is_exist) return reject(4, res)
     if (!Helper.valideate_phone(phone)) return reject(0, res)
-    RegistSmsHandler.send_sms(phone)
+   let code= RegistSmsHandler.send_sms(phone)
+   console.log(code);
     res.json({
         status: true,
         msg: "کد تایید ارسال شد",
