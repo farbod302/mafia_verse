@@ -330,6 +330,7 @@ const Game = class {
             else {
                 let next_event = !reval ? "mafia_reval" : "pre_vote"
                 this.game_vars.edit_event("edit", "next_event", next_event, "next_player_speech")
+                this.game_vars.edit_event("edit", "speech_type", "turn", "next_player_speech")
                 this.mainCycle()
                 return
             }
@@ -349,7 +350,8 @@ const Game = class {
         let user = queue[turn].user_id
         const user_speech_type = queue[turn].speech_status
         //emit challenge status
-        if (user_speech_type !== "introduction" || !can_take_challenge) {
+        console.log({user_speech_type,can_take_challenge});
+        if (user_speech_type !== "turn" || !can_take_challenge) {
             this.socket.to(game_id).emit("users_challenge_status", {
                 data: queue.map(q => {
                     return {
@@ -362,6 +364,10 @@ const Game = class {
         else {
             this.socket.to(game_id).emit("users_challenge_status", {
                 data: queue.map(q => {
+                    console.log({
+                        user_id: q.user_id,
+                        status: !q.challenge_used
+                    });
                     return {
                         user_id: q.user_id,
                         status: !q.challenge_used

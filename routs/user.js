@@ -9,12 +9,12 @@ router.post("/land_screen_data", async (req, res) => {
     const { uid } = req.body.user
     let user = await User.findOne({ uid })
     if (!user) return reject(5, res)
-    const { gold, chanel_id, idenity, status } = user
-    const { userName } = idenity
+    const { gold, chanel_id, idenity } = user
+    const { name } = idenity
     res.json({
         status: true,
         msg: "",
-        data: { gold, chanel_id, userName: status == "gust" ? "کاربر مهمان" : userName }
+        data: { gold, chanel_id, name  }
     })
 })
 

@@ -27,6 +27,7 @@ const user = mongoose.Schema({
     friend_list_req: { type: Array, default: [] },
     following: { type: Array, default: [] },
     chanels: { type: Array, default: [] },
+    cart: { type: Array, default: [] },
     status: { type: String, default: "gust" },
     device_id: String,
     cur_game: { type: String, default: "" }
