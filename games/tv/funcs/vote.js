@@ -21,7 +21,7 @@ const vote = {
         const { queue, turn, vote_type, custom_queue } = game_vars
         let new_vote_record = { user_id: queue[turn].user_id, users: [], vote_type }
         game_vars.edit_event("push", "votes_status", new_vote_record)
-        socket.to(game_id).emit("vote", { data: new_vote_record })
+        socket.to(game_id).emit("vote", { data: new_vote_record,timer:5 })
         // vote to player
         let cur_player = queue[turn]
         let users_to_prevent_vote = [cur_player.user_id]
