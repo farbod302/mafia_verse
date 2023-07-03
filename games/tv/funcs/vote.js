@@ -41,7 +41,7 @@ const vote = {
         let new_vote_status = [...votes_status]
         new_vote_status[turn].users.push(client.idenity.user_id)
         game_vars.edit_event("edit", "votes_status", new_vote_status)
-        socket.to(game_id).emit("vote", { data: new_vote_status[turn] })
+        // socket.to(game_id).emit("vote", { data: new_vote_status[turn] })
         console.log({ votes_status });
     },
 

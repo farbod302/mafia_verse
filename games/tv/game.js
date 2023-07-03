@@ -350,30 +350,28 @@ const Game = class {
         let user = queue[turn].user_id
         const user_speech_type = queue[turn].speech_status
         //emit challenge status
-        console.log({user_speech_type,can_take_challenge});
         if (user_speech_type !== "turn" || !can_take_challenge) {
-            this.socket.to(game_id).emit("users_challenge_status", {
-                data: queue.map(q => {
-                    return {
-                        user_id: q.user_id,
-                        status: false
-                    }
-                })
+            let status_list = this.users.map(user => {
+                return {
+                    user_id: user.user_id,
+                    status: false
+                }
             })
+            this.socket.to(game_id).emit("users_challenge_status", { data: status_list })
         }
         else {
-            this.socket.to(game_id).emit("users_challenge_status", {
-                data: queue.map(q => {
-                    console.log({
-                        user_id: q.user_id,
-                        status: !q.challenge_used
-                    });
-                    return {
-                        user_id: q.user_id,
-                        status: !q.challenge_used
-                    }
-                })
+
+            let status_list = this.users.map(user => {
+                const { user_id } = user
+                let user_in_queue = queue.filter(u => u.user_id === user_id)
+                return {
+                    user_id,
+                    status: user_in_queue.length === 1
+                }
             })
+            this.socket.to(game_id).emit("users_challenge_status", { data: status_list })
+
+
         }
         user = befor_start.pick_player_from_user_id({ users: this.users, user_id: user })
         let other_users = befor_start.pick_other_player_from_user_id({ users: this.users, user_id: user.user_id })
@@ -390,7 +388,7 @@ const Game = class {
             edit_others: true
         })
         let status_list = this.game_vars.player_status
-        console.log({queue});
+        console.log({ queue });
         this.socket.to(game_id).emit("game_action", { data: status_list })
         //edit speech queue
         start.move_speech_queue({ game_vars: this.game_vars })
@@ -506,8 +504,8 @@ const Game = class {
         targetCover.enable_target_cover({ game_vars: this.game_vars, users: this.users, socket: this.socket })
     }
 
-    next_target_cover(){
-        
+    next_target_cover() {
+
     }
 
     start_night() {
