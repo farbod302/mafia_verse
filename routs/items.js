@@ -1,12 +1,36 @@
 const express = require("express")
 const router = express.Router()
 const Items = require("../db/item")
+const User = require("../db/user")
+const reject = require("../helper/reject_handler")
 
 
 
 router.get("/items_list", async (req, res) => {
-    const items = await Items.find()
+    const items = await Items.find({ active: true })
     res.json({ items })
+})
+
+
+router.post("/items_list", async (req, res) => {
+    const user = req.body.user
+    if (!user) return reject(0, res)
+    const items = await Items.find({ active: true })
+    let s_user = await User.findOne({ uid: user.uid })
+    const { items: user_items } = s_user
+    let items_to_res = items.map(item => {
+        return {
+            ...item,
+            active_for_user: !user_items.includes(item._id)
+        }
+    })
+
+    res.json({
+        status: true,
+        msg: "",
+        data: { items: items_to_res }
+    })
+
 })
 
 
@@ -29,7 +53,28 @@ router.get("/same_items/:id", async (req, res) => {
     }
     res.json({ items: same_items.slice(0, 3) })
 })
-    
+
+
+
+router.post("/buy", async (req, res) => {
+    const user = req.body.user
+    if (!user) return reject(1, res)
+    const s_user = await User.findOne({ uid: user.uid })
+    const { gold } = s_user
+    const { item } = req.body
+    let s_item = await Items.findById(item)
+    if (gold < s_item.price) return reject(13, res)
+    await User.findOneAndUpdate({ uid: s_user.uid }, {
+        $inc: { gold: s_item.price * -1 },
+        $push: { items: item }
+    })
+    res.json({
+        status:true,
+        msg:"",
+        data:{}
+    })
+})
+
 
 
 module.exports = router

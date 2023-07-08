@@ -114,7 +114,18 @@ router.post("/follow_list", async (req, res) => {
 })
 //items
 
-router.post("/items_list", (req, res) => {
+router.post("/items_list", async (req, res) => {
+
+    const user = req.body.user
+    if (!user) return reject(1, res)
+    const s_user = await User.findOne({ uid: user.uid })
+    const { items: user_items } = s_user
+    const items_list = await Item.find({ _id: { $in: user_items } })
+    res.json({
+        status: true,
+        msg: "",
+        data: { items: items_list }
+    })
 
 })
 
@@ -183,13 +194,13 @@ router.post("/shop_finalize", async (req, res) => {
         {
             $inc: { gold: selected_item_price * -1 },
             $set: { cart: [] },
-            $push: { items: {$each:s_user.cart} }
+            $push: { items: { $each: s_user.cart } }
         }
     )
     res.json({
-        status:true,
-        msg:"خرید انجام شد",
-        data:{}
+        status: true,
+        msg: "خرید انجام شد",
+        data: {}
     })
 })
 
