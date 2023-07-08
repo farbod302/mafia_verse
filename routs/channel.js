@@ -50,7 +50,7 @@ router.post("/can_create_channel",async (req,res)=>{
 })
 
 
-router.post("/create_channel_by_reg_user",async (req,res)=>{
+router.post("/create_channel_by_user",async (req,res)=>{
     if(!req.body.user)return reject(2,res)
     const {uid}=req.body
     let user=await User.findOne({uid})
