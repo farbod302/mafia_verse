@@ -1,24 +1,27 @@
 const targetCover = {
-    enable_target_cover({ game_event, users, socket }) {
-        const { game_id, turn, target_cover_queue ,defenders} = game_event
-        if(!target_cover_queue.length){
-            this.game_vars.edit_event("edit","custom_queue",defenders)
-            this.game_vars.edit_event("edit","next_event","start_speech")
-            return
+    enable_target_cover({ game_vars, users, socket }) {
+        const { queue } = game_vars
+        let target_cover_queue = []
+        if (queue.length === 1) target_cover_queue = [
+            { user_id: queue[0].user_id, type: "target_cover", users_select: [], users_select_length: 2, permission: null, comp: false }
+        ]
+        else {
+            target_cover_queue = queue.map(user => {
+                return { user_id: user.user_id, type: "about", users_select: [], users_select_length: 1, permission: null, comp: false }
+            })
         }
-        this.game_vars.edit_event("edit","next_event","next_target_cover")
-        socket.to(game_id).emit("game_event",{data:"tag"})
+        game_vars.edit_event("edit", "target_cover_queue", target_cover_queue)
     },
 
-    next_target_cover({game_vars,users}){
-        game_vars.edit_event("edit","turn","plus")
-        const {target_cover_queue,turn}=game_vars
-        if(turn === target_cover_queue.length){
+    next_target_cover({ game_vars, users }) {
+        game_vars.edit_event("edit", "turn", "plus")
+        const { target_cover_queue, turn } = game_vars
+        if (turn === target_cover_queue.length) {
             console.log("END");
         }
-        
-        
+
+
     }
 }
 
-module.exports=targetCover
+module.exports = targetCover

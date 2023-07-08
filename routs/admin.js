@@ -44,14 +44,18 @@ router.post("/upload", upload.array("file"), (req, res) => {
 
 
 router.post("/add_item", check_admin, (req, res) => {
-    const { name, file, image, price, categorys, type } = req.body
+    const { name, file, image, price, categorys, type, active } = req.body
     const new_item = {
-        name, file, image, price, categorys, type
+        name, file, image, price, categorys, type, active
     }
     let item_id = uuid(5)
     new_item.id = item_id
     new Item(new_item).save()
-
+    res.json({
+        status: true,
+        msg: "آیتم با موفقیت اضافه شد",
+        data: {}
+    })
 
 })
 
@@ -65,4 +69,6 @@ router.post("/log_in", (req, res) => {
     })
 })
 
-module.exports = router
+
+
+module.exports = router 

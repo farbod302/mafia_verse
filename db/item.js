@@ -8,8 +8,10 @@ const item = mongoose.Schema({
     price:Number,
     image:String,
     file:String,
-    catrgorys:Array,
-    type:String
+    categorys:Array,
+    type:String,
+    rel_items:Array,
+    active:Boolean
 
 })
 

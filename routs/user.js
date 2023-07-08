@@ -3,18 +3,18 @@ const User = require("../db/user")
 const reject = require("../helper/reject_handler")
 const Channel = require("../db/channel")
 const router = express.Router()
-
+const Item = require("../db/item")
 //fetach data
 router.post("/land_screen_data", async (req, res) => {
     const { uid } = req.body.user
     let user = await User.findOne({ uid })
     if (!user) return reject(5, res)
-    const { gold, chanel_id, idenity } = user
+    const { gold, chanel_id, idenity, cart } = user
     const { name } = idenity
     res.json({
         status: true,
         msg: "",
-        data: { gold, chanel_id, name  }
+        data: { gold, chanel_id, name, cart: cart.length }
     })
 })
 
@@ -121,16 +121,76 @@ router.post("/items_list", (req, res) => {
 
 //chanel
 
-router.post("/request_join_channnel",async (req,res)=>{
-    if(!req.body.user)return reject(2,res)
-    const {uid}=req.body.user
-    const {channel_id}=user.body
-    let is_requested=await Channel.findOne({join_req:uid,id:channel_id})
-    if(is_requested)return reject(11,res)
-    await Channel.findOneAndUpdate({id:channel_id},{$push:{join_req:uid}})
-    res.json({status:true,msg:"درخواست شما ثبت شد",data:{}})
+router.post("/request_join_channnel", async (req, res) => {
+    if (!req.body.user) return reject(2, res)
+    const { uid } = req.body.user
+    const { channel_id } = user.body
+    let is_requested = await Channel.findOne({ join_req: uid, id: channel_id })
+    if (is_requested) return reject(11, res)
+    await Channel.findOneAndUpdate({ id: channel_id }, { $push: { join_req: uid } })
+    res.json({ status: true, msg: "درخواست شما ثبت شد", data: {} })
 })
 
 
+router.post("/add_to_cart", async (req, res) => {
+    const user = req.body.user
+    if (!user) return reject(13, res)
+    const { uid } = user
+    const { item } = req.body
+    const user_items = await User.findOne({ uid })
+    const { items, cart } = user_items
+    if (items.concat(cart).includes(item)) return reject(14, res)
+    await User.findOneAndUpdate({ uid }, { $push: { cart: item } })
+    res.json({
+        status: true,
+        msg: "کالا به سبد خرید اضافه شد"
+    })
+})
+
+router.post("/remove_from_cart", async (req, res) => {
+    const { item, user } = req.body
+    const { uid } = user
+    await User.findOneAndUpdate({ uid }, { $pull: { cart: item } })
+    res.json({
+        status: true,
+        msg: "کالا از سبد خرید حذف شد"
+    })
+})
+
+router.post("/user_cart", async (req, res) => {
+    const user = req.body.user
+    const { uid } = user
+    const s_user = await User.findOne({ uid }, { cart: 1 })
+    const selected_items = await Item.find({ _id: { $in: s_user.cart } })
+    let selected_item_price = selected_items.reduce((a, b) => { return a + b.price }, 0)
+    res.json({
+        status: true,
+        mag: "",
+        data: { cart: selected_items, price: selected_item_price }
+    })
+})
+
+
+router.post("/shop_finalize", async (req, res) => {
+    const user = req.body.user
+    const { uid } = user
+    const s_user = await User.findOne({ uid }, { cart: 1 })
+    const selected_items = await Item.find({ _id: { $in: s_user.cart } })
+    let selected_item_price = selected_items.reduce((a, b) => { return a + b.price }, 0)
+    const user_balance = s_user.gold
+    if (user_balance < selected_item_price) return reject(15, res)
+    await User.findOneAndUpdate({ uid },
+        {
+            $inc: { gold: selected_item_price * -1 },
+            $set: { cart: [] },
+            $push: { items: {$each:s_user.cart} }
+        }
+    )
+    res.json({
+        status:true,
+        msg:"خرید انجام شد",
+        data:{}
+    })
+})
 
 module.exports = router

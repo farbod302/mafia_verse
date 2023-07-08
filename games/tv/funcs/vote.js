@@ -2,6 +2,7 @@ const { delay } = require("../../../helper/helper")
 const run_timer = require("../../../helper/timer")
 const befor_start = require("./before_start")
 const start = require("./start")
+const targetCover = require("./target_cover")
 
 const vote = {
     async start_vote({ game_vars }) {
@@ -21,7 +22,7 @@ const vote = {
         const { queue, turn, vote_type, custom_queue } = game_vars
         let new_vote_record = { user_id: queue[turn].user_id, users: [], vote_type }
         game_vars.edit_event("push", "votes_status", new_vote_record)
-        socket.to(game_id).emit("vote", { data: new_vote_record,timer:5 })
+        socket.to(game_id).emit("vote", { data: new_vote_record, timer: 5 })
         // vote to player
         let cur_player = queue[turn]
         let users_to_prevent_vote = [cur_player.user_id]
@@ -58,48 +59,13 @@ const vote = {
             game_vars.edit_event("edit", "turn", -1)
             game_vars.edit_event("edit", "cur_event", "defence")
             game_vars.edit_event("edit", "vote_type", "defence")
-            if (defenders_queue.length === 3) {
+            if (defenders_queue.length >= 3) {
                 game_vars.edit_event("edit", "custom_queue", defenders_queue)
                 game_vars.edit_event("edit", "next_event", "start_speech")
                 return
             }
             else {
-                game_vars.edit_event("edit", "defenders", defenders_queue)
-                let target_cover_queue = []
-                if (defenders_queue.length === 1) {
-                    target_cover_queue = [
-                        {
-                            user_id: defenders_queue[0].user_id,
-                            chose: "target",
-                            selected_user:null
-                        },
-                        {
-                            user_id: defenders_queue[0].user_id,
-                            chose: "cover",
-                            selected_user:null
-
-                        }
-
-                    ]
-                }
-                if (defenders_queue.length === 2) {
-                    target_cover_queue = [
-                        {
-                            user_id: defenders_queue[0].user_id,
-                            chose: "about",
-                            selected_user:null
-
-                        },
-                        {
-                            user_id: defenders_queue[1].user_id,
-                            chose: "about",
-                            selected_user:null
-
-                        },
-
-                    ]
-                }
-                this.game_vars.edit_event("edit", "target_cover_queue", target_cover_queue)
+                game_vars.edit_event("edit", "queue", defenders_queue)
                 game_vars.edit_event("edit", "next_event", "enable_target_cover")
                 game_vars.edit_event("edit", "turn", -1)
 
@@ -114,7 +80,7 @@ const vote = {
 
     },
 
-    
+  
     count_exit_vote({ game_vars, users, socket, game_id }) {
         const { votes_status } = game_vars
         let user_to_exit = votes_status.sort((a, b) => { b.users.length - a.users.length })

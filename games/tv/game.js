@@ -209,6 +209,35 @@ const Game = class {
                 })
                 cur_night_events.events = prv_events
                 this.db.replaceOne("night_records", "night", day, cur_night_events)
+                break
+            }
+            //hhhere
+            case ("using_speech_options"): {
+                const { using_option } = data
+                const { game_id } = this
+                const { target_cover_queue } = this.game_vars
+                let turn = target_cover_queue.findIndex(q => !q.comp)
+                let new_target_cover_queue = [...target_cover_queue]
+                new_target_cover_queue[turn].permission = using_option
+                this.game_vars.edit_event("edit", "target_cover_queue", new_target_cover_queue)
+                if (using_option) {
+                    this.socket.to(game_id).emit("user_request_speech_options", { requested_id: client.idenity.user_id })
+                }
+                this.mainCycle()
+                break
+            }
+
+            case("select_volunteer"):{
+                const {user_id}=data
+                const { target_cover_queue } = this.game_vars
+                let turn = target_cover_queue.findIndex(q => !q.comp)
+                let new_target_cover_queue = [...target_cover_queue]
+                new_target_cover_queue[turn].users_select.push(user_id)
+                if(new_target_cover_queue[turn].users_select === new_target_cover_queue[turn].users_select_length){
+                    new_target_cover_queue[turn].comp=true
+                }
+                this.game_vars.edit_event("edit","target_cover_queue",new_target_cover_queue)
+                this.mainCycle()
             }
 
 
@@ -474,6 +503,72 @@ const Game = class {
         vote.arange_defence({ game_vars: this.game_vars, users: this.users })
         this.mainCycle()
     }
+
+    enable_target_cover() {
+        targetCover.enable_target_cover({ game_vars: this.game_vars, user: this.users })
+        this.game_vars.edit_event("edit", "next_event", "next_player_target_cover")
+        this.mainCycle()
+    }
+
+    next_player_target_cover() {
+        const { game_id } = this
+        const { target_cover_queue } = this.game_vars
+        let turn = target_cover_queue.findIndex(q => !q.comp)
+        if (turn === -1) {
+            //end target cover
+        }
+        const { user_id } = target_cover_queue[turn]
+        let user = befor_start.pick_player_from_user_id({ users: this.users, user_id })
+        if (target_cover_queue[turn].permission === null) {
+            this.socket.to(user.socket_id).emit("using_speech_options", {
+                data:
+                    { msg: `آیا درخواست ${target_cover_queue.length === 1 ? "تارگت کاور" : "درباره"} دارید؟`, timer: 7 }
+            })
+            //set timer to move
+            return
+        }
+        if (target_cover_queue[turn].permission === false) {
+            let new_target_cover_queue = [...target_cover_queue]
+            new_target_cover_queue[turn].comp = true
+            this.mainCycle()
+            return
+        }
+        if (target_cover_queue[turn].permission === true) {
+            let selectd_q = { ...target_cover_queue[turn] }
+            let choose_type = null
+            if (selectd_q.users_select_length === 1) choose_type = "about"
+            if (selectd_q.users_select_length === 2 && selectd_q.users_select.length === 0) choose_type = "target"
+            if (selectd_q.users_select_length === 2 && selectd_q.users_select.length === 1) choose_type = "cover"
+            const translate = () => {
+                switch (choose_type) {
+                    case ("target"): return "تارگت"
+                    case ("cover"): return "کاور"
+                    case ("about"): return "درباره"
+                }
+            }
+
+            this.socket.to(user.socket_id).emit("speech_option_msg",
+                {
+                    data: {
+                        msg: `از بین بازیکنان یک نفر را برای ${translate()} انتخاب کنید`, timer: 10
+                    }
+                })
+
+            this.socket.to(user.socket_id).emit("grant_permission", { data: { grant: true } })
+
+            this.socket.to(game_id).emit("request_speech_options", {
+                data: {
+                    requested_id: user.user_id,
+                    option: choose_type,
+                    timer: 7
+                }
+            })
+            this.socket.to(game_id).emit("game_event", { data: { game_event: "target_cover_about" } })
+            
+        }
+
+    }
+
 
     count_exit_vote() {
         const { game_id, socket } = this
