@@ -72,15 +72,15 @@ const start = {
         game_vars.edit_event("edit", "queue", new_queue)
     },
 
-    set_timer_to_contnue_speech_queue({ func, game_vars, time, socket, users,player_to_set_timer }) {
+    set_timer_to_contnue_speech_queue({ func, game_vars, time, socket, users, player_to_set_timer }) {
         const timer_func = () => {
-            const {  player_status } = game_vars
-            let s_player=player_status.find(player => player.user_id === player_to_set_timer)
-            
+            const { player_status } = game_vars
+            let s_player = player_status.find(player => player.user_id === player_to_set_timer)
+
             if (s_player.user_status.is_talking) {
                 console.log("Force next player");
-                let user=befor_start.pick_player_from_user_id({users,user_id:s_player.user_id})
-                const {socket_id}=user
+                let user = befor_start.pick_player_from_user_id({ users, user_id: s_player.user_id })
+                const { socket_id } = user
                 socket.to(socket_id).emit("speech_time_up")
                 func()
             }
@@ -89,18 +89,18 @@ const start = {
     },
 
     accept_cahllenge({ game_vars, user_id, users, socket }) {
-        const { queue ,turn} = game_vars
-        let speeching_user_index = turn+1
+        const { queue, turn } = game_vars
+        let speeching_user_index = turn + 1
         let challenge_user = befor_start.pick_player_from_user_id({ users, user_id })
-        let user_to_add_queue={
-            user_id:challenge_user.user_id,
-            user_index:challenge_user.id,
-            speech_status:"challenge",
-            pass:false,
-            challenge_used:true
+        let user_to_add_queue = {
+            user_id: challenge_user.user_id,
+            user_index: challenge_user.id,
+            speech_status: "challenge",
+            pass: false,
+            challenge_used: true
         }
         let prv_queue = [...game_vars.queue]
-        let current_user=queue[turn]
+        let current_user = queue[turn]
         let user_in_queue_index = prv_queue.findIndex(user => user.user_id === current_user.user_id)
         prv_queue[user_in_queue_index].challenge_used = true
         prv_queue.splice(speeching_user_index, 0, user_to_add_queue)
@@ -122,7 +122,7 @@ const start = {
                 user_id: user.user_id
             }
         })
-        console.log({clean_mafia_detile});
+        console.log({ clean_mafia_detile });
         game_vars.edit_event("new_value", "mafia_list", clean_mafia_detile)
         mafia.forEach(user => {
             socket.to(user.socket_id).emit("mafia_visitation", { data: { mafia: encrypt(JSON.stringify(clean_mafia_detile)) } })
@@ -159,18 +159,45 @@ const start = {
     },
 
 
-    inquiry({game_vars}){
-        const {dead_list,carts}=game_vars
-        let mafia_rols=["nato","godfather","hostage_taker"]
-        let mafia_death=dead_list.filter(dead=>{
-            let role=carts.find(cart=>cart.user_id === dead.user_id)
-            if(mafia_rols.includes(role.name))return true
+    inquiry({ game_vars }) {
+        const { dead_list, carts } = game_vars
+        let mafia_rols = ["nato", "godfather", "hostage_taker"]
+        let mafia_death = dead_list.filter(dead => {
+            let role = carts.find(cart => cart.user_id === dead.user_id)
+            if (mafia_rols.includes(role.name)) return true
             return false
         })
 
         return `از بازی ${mafia_death.length} مافیا و ${dead_list.length - mafia_death.length} شهروند از بازی خارج شده`
 
+    },
+
+
+    use_gun({ game_vars, user_shot, user_resive_shot, socket, game_id,users }) {
+
+        const { gun_status } = game_vars
+        let selected_gun = gun_status.find(g => g.user === user_shot)
+        const { gun_type } = selected_gun
+        socket.to(game_id).emit("used_gun", {
+            data: {
+                from_user: user_shot,
+                to_user: user_resive_shot,
+                kind: gun_type
+            }
+        })
+        if (gun_type === "fighter") {
+            game_vars.edit_event("push", "dead_list", user_resive_shot)
+            const { turn } = game_vars
+            let prv_queue = [...game_vars.queue]
+            let user_to_add_queue = befor_start.pick_player_from_user_id({users,user_id:user_resive_shot})
+            user_to_add_queue.speech_type = "challenge"
+            user_to_add_queue.can_take_challenge = false
+            prv_queue.splice(turn, user_to_add_queue, 0)
+            game_vars.edit_event(edit, "queue", prv_queue)
+        }
+
     }
+
 
 
 }

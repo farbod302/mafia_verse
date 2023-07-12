@@ -227,17 +227,37 @@ const Game = class {
                 break
             }
 
-            case("select_volunteer"):{
-                const {user_id}=data
+            case ("select_volunteer"): {
+                const { user_id } = data
                 const { target_cover_queue } = this.game_vars
                 let turn = target_cover_queue.findIndex(q => !q.comp)
                 let new_target_cover_queue = [...target_cover_queue]
                 new_target_cover_queue[turn].users_select.push(user_id)
-                if(new_target_cover_queue[turn].users_select === new_target_cover_queue[turn].users_select_length){
-                    new_target_cover_queue[turn].comp=true
+                if (new_target_cover_queue[turn].users_select === new_target_cover_queue[turn].users_select_length) {
+                    new_target_cover_queue[turn].comp = true
                 }
-                this.game_vars.edit_event("edit","target_cover_queue",new_target_cover_queue)
+                this.game_vars.edit_event("edit", "target_cover_queue", new_target_cover_queue)
                 this.mainCycle()
+                break
+            }
+
+            case ("rifle_gun_shot"): {
+                const { user_id } = data
+                start.use_gun({
+                    game_vars: this.game_vars,
+                    user_shot: client.idenity.user_id,
+                    user_resive_shot: user_id,
+                    game_id: this.game_id,
+                    users: this.users
+                })
+
+            }
+
+            case ("day_using_gun"): {
+                const { user_id } = data
+                const { game_id } = this
+                this.socket.to(game_id).emit("day_using_gun", { data: { user_id } })
+                break
             }
 
 
@@ -564,7 +584,7 @@ const Game = class {
                 }
             })
             this.socket.to(game_id).emit("game_event", { data: { game_event: "target_cover_about" } })
-            
+
         }
 
     }

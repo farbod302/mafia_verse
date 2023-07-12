@@ -23,13 +23,13 @@ const night = {
         game_vars.edit_event("edit", "guns_status", [])
     },
 
-    emit_to_act({ user_id, availabel_users, users, socket,can_act,msg }) {
+    emit_to_act({ user_id, availabel_users, users, socket, can_act, msg }) {
         let selected_user = befor_start.pick_player_from_user_id({ users, user_id })
         if (!selected_user) return
         //check alive
         const { socket_id } = selected_user
-        console.log({can_act,msg});
-        socket.to(socket_id).emit("use_ability", { data: { max_count: 1, availabel_users ,can_act,msg:msg||"",timer:10} })
+        console.log({ can_act, msg });
+        socket.to(socket_id).emit("use_ability", { data: { max_count: 1, availabel_users, can_act, msg: msg || "", timer: 10 } })
         //todo add max count 
 
     },
@@ -40,9 +40,9 @@ const night = {
         for (let act of users_to_act) {
             let user = carts.find(cart => cart.name === act)
             if (!user.user_id) return
-            const {user_id}=user
+            const { user_id } = user
             let availabel_users = this.pick_user_for_act({ game_vars, act, user_id })
-            console.log({availabel_users});
+            console.log({ availabel_users });
             this.emit_to_act({
                 user_id, availabel_users, users, socket, can_act: true, msg: ""
             })
@@ -55,7 +55,7 @@ const night = {
         let speech_list = mafia_list.filter(mafia =>
             users_can_cop.includes(mafia.role) &&
             !dead_list.includes(mafia.user_id))
-            console.log({speech_list});
+        console.log({ speech_list });
         if (speech_list.length === 2) {
             // await this.generate_room_for_mafia({ game_vars, users, socket })
             game_vars.edit_event("edit", "mafia_speak", true)
@@ -97,7 +97,7 @@ const night = {
 
     mafia_shot({ game_vars, socket }) {
         let { socket_id, user_id } = game_vars.user_to_shot
-        console.log({ socket_id, user_id , availabel_users: this.pick_user_for_act({ game_vars, act: "mafia", user_id })});
+        console.log({ socket_id, user_id, availabel_users: this.pick_user_for_act({ game_vars, act: "mafia", user_id }) });
         socket.to(socket_id).emit("mafia_shot", {
             timer: 10,
             max: 1,
@@ -110,18 +110,18 @@ const night = {
         let nato = carts.find(cart => cart.name === "nato")
         const { user_id } = nato
         let availabel_users = this.pick_user_for_act({ game_vars, act: "nato", user_id })
-        this.emit_to_act({ user_id, availabel_users, users, socket,can_act:true })
+        this.emit_to_act({ user_id, availabel_users, users, socket, can_act: true })
         socket.to(game_id).emit("mafia_use_nato")
     },
 
     other_acts({ game_vars, users, socket, records }) {
-        let acts_used = ["gurd", "nato", "godfather", "hostage_taker","citizen"]
+        let acts_used = ["gurd", "nato", "godfather", "hostage_taker", "citizen"]
         const { carts } = game_vars
         let users_remain = carts.filter(cart => !acts_used.includes(cart.name))
 
         for (let act of users_remain) {
-            let { can_act, msg } = this.check_act({ records, act,game_vars })
-            let { user_id,name } = act
+            let { can_act, msg } = this.check_act({ records, act, game_vars })
+            let { user_id, name } = act
             let availabel_users = this.pick_user_for_act({ game_vars, act: name, user_id })
             this.emit_to_act({ user_id, availabel_users, users, socket, can_act, msg })
         }
@@ -129,10 +129,10 @@ const night = {
 
     check_act({ records, act, game_vars }) {
         const { name, user_id } = act
-        console.log({records:records.events});
+        console.log({ records: records.events });
         let hostage_taker_act = records.events.filter(each_act => each_act.act === "hostage_taker")
-        hostage_taker_act=hostage_taker_act.map(target=>target.target)
-        console.log({hostage_taker_act});
+        hostage_taker_act = hostage_taker_act.map(target => target.target)
+        console.log({ hostage_taker_act });
         switch (name) {
             case ("commando"): {
                 let mafia_shot = records.events.find(each_act => each_act.act === "mafia_shot")
@@ -172,7 +172,7 @@ const night = {
                 if (doctor_self_save) {
                     live_users = live_users.filter(user => user.user_id !== user_id)
                 }
-                return live_users.map(user=>user.user_id)
+                return live_users.map(user => user.user_id)
             }
             // case ("mafia"): {
             //     const { mafia_list } = game_vars
@@ -186,13 +186,13 @@ const night = {
                 const { users_gurd_check } = game_vars
                 let live_users = start.pick_live_users({ game_vars })
                 live_users = live_users.filter(user => user.user_id !== user_id && !users_gurd_check.includes(user.user_id))
-                return live_users.map(user=>user.user_id)
+                return live_users.map(user => user.user_id)
             }
 
             default: {
                 let live_users = start.pick_live_users({ game_vars })
                 live_users = live_users.filter(user => user.user_id !== user_id)
-                return live_users.map(user=>user.user_id)
+                return live_users.map(user => user.user_id)
             }
         }
     },
@@ -209,7 +209,7 @@ const night = {
                 let user_to_check = targets[0].user_id
                 let target = game_vars.carts.find(cart => cart.user_id === user_to_check)
                 let status = mafia_acts.includes(target.name)
-                socket.to(idenity.socket_id).emit("detective_inquiry", { data: { inquiry: status,user_id:user_to_check } })
+                socket.to(idenity.socket_id).emit("detective_inquiry", { data: { inquiry: status, user_id: user_to_check } })
                 game_vars.edit_event("push", "users_detective_check", user_to_check)
                 return
             }
@@ -220,12 +220,13 @@ const night = {
             }
             case ("rifleman"): {
                 game_vars.edit_event("edit", "guns_status", targets)
-                let real_gun = targets.find(gun => gun.is_real)
+                let real_gun = targets.find(gun => gun.act === "fighter")
                 if (real_gun) game_vars.edit_event("edit", "real_gun_used", true)
                 targets.forEach(target => {
-                    let user = befor_start.pick_player_from_user_id({ users, user_id: target })
+                    let user = befor_start.pick_player_from_user_id({ users, user_id: target.user_id })
                     const { socket_id } = user
                     socket.to(socket_id).emit("report_gun")
+                    game_vars.edit_event("push", "gun_status", { user: target.user_id, gun_type: gun.act, used: false })
                 })
                 return
 
@@ -283,11 +284,11 @@ const night = {
         }
 
         const nato_act = records.find(act => act.act === "nato")
-        if(nato_act){
-            const {user,role}=nato_act.targets[0]
-            let user_true_role=carts.find(cart=>cart.user_id === user)
-            user_true_role=user_true_role.role
-            if(role === user_true_role)abs_deth=user
+        if (nato_act) {
+            const { user, role } = nato_act.targets[0]
+            let user_true_role = carts.find(cart => cart.user_id === user)
+            user_true_role = user_true_role.role
+            if (role === user_true_role) abs_deth = user
         }
 
 
