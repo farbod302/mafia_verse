@@ -17,7 +17,6 @@ const targetCover = {
         game_vars.edit_event("edit", "turn", "plus")
         const { target_cover_queue, turn } = game_vars
         if (turn === target_cover_queue.length) {
-            console.log("END");
         }
 
 

@@ -21,6 +21,7 @@ const game_handler = {
            socket.to(party).emit("game_found", { game_id })
         }
         users.forEach(user => {
+            console.log({game_id});
            socket.sockets.sockets.get(user.socket_id).join(game_id);
         })
         db.removeOne("games_queue","game_id",game_id)

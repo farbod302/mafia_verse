@@ -6,7 +6,6 @@ const targetCover = require("./target_cover")
 
 const vote = {
     async start_vote({ game_vars }) {
-        game_vars.edit_event("edit", "votes_status", [])
 
         await delay(3)
         game_vars.edit_event("edit", "vote_status", [])

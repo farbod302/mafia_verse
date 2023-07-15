@@ -28,7 +28,6 @@ const night = {
         if (!selected_user) return
         //check alive
         const { socket_id } = selected_user
-        console.log({ can_act, msg });
         socket.to(socket_id).emit("use_ability", { data: { max_count: 1, availabel_users, can_act, msg: msg || "", timer: 10 } })
         //todo add max count 
 
@@ -42,7 +41,6 @@ const night = {
             if (!user.user_id) return
             const { user_id } = user
             let availabel_users = this.pick_user_for_act({ game_vars, act, user_id })
-            console.log({ availabel_users });
             this.emit_to_act({
                 user_id, availabel_users, users, socket, can_act: true, msg: ""
             })
@@ -55,7 +53,6 @@ const night = {
         let speech_list = mafia_list.filter(mafia =>
             users_can_cop.includes(mafia.role) &&
             !dead_list.includes(mafia.user_id))
-        console.log({ speech_list });
         if (speech_list.length === 2) {
             // await this.generate_room_for_mafia({ game_vars, users, socket })
             game_vars.edit_event("edit", "mafia_speak", true)
@@ -97,7 +94,6 @@ const night = {
 
     mafia_shot({ game_vars, socket }) {
         let { socket_id, user_id } = game_vars.user_to_shot
-        console.log({ socket_id, user_id, availabel_users: this.pick_user_for_act({ game_vars, act: "mafia", user_id }) });
         socket.to(socket_id).emit("mafia_shot", {
             timer: 10,
             max: 1,
@@ -127,20 +123,21 @@ const night = {
         }
     },
 
+
     check_act({ records, act, game_vars }) {
         const { name, user_id } = act
-        console.log({ records: records.events });
         let hostage_taker_act = records.events.filter(each_act => each_act.act === "hostage_taker")
         hostage_taker_act = hostage_taker_act.map(target => target.target)
-        console.log({ hostage_taker_act });
         switch (name) {
             case ("commando"): {
+                console.log(records.events);
                 let mafia_shot = records.events.find(each_act => each_act.act === "mafia_shot")
-                mafia_shot = mafia_shot?.targets || []
+                mafia_shot = mafia_shot?.target || null
                 //check _shot
                 let can_act = false
                 let msg = "شما نمی توانید امشب از توانایی خود استفاده کنید"
-                let is_targeted = mafia_shot.includes(user_id)
+                let is_targeted = mafia_shot === user_id
+                console.log({ mafia_shot, user_id });
                 if (is_targeted) { can_act = true; msg = "" }
                 if (hostage_taker_act.includes(user_id) && is_targeted) {
                     can_act = false;
@@ -243,58 +240,61 @@ const night = {
 
     async night_results({ game_vars, records, users }) {
         const { carts } = game_vars
-        let mafia_shot = records.find(act => act.act === "godfather")
-        let mafia_target = mafia_shot.targets[0]
+        let mafia_shot = records.find(act => act.act === "mafia_shot")
+        let mafia_target = mafia_shot.target || null
         let deth = null
         let abs_deth = null
         if (mafia_target) {
-            deth = mafia_target
-        }
-        //check comondo act
-        const comondo_act = records.find(act => act.act === "commando")
-        if (comondo_act) {
-            const comondo_shot = comondo_act.targets[0]
-            if (comondo_shot) {
-                let user_targeted_by_comondo = carts.find(cart => cart.user_id === comondo_shot)
-                let mafia_rols = ["godfather", "nato", "hostage_taker"]
-                if (!mafia_rols.includes(user_targeted_by_comondo.name)) {
-                    let comondo = carts.find(cart => cart.name === "commando")
-                    abs_deth = comondo.user_id
-                    deth = null
-                }
-                else {
-                    if (user_targeted_by_comondo.name === "godfather") deth = null
+            if (mafia_target) {
+                deth = mafia_target
+            }
+            //check comondo act
+            const comondo_act = records.find(act => act.act === "commando")
+            if (comondo_act) {
+                const comondo_shot = comondo_act.targets[0]
+                if (comondo_shot) {
+                    let user_targeted_by_comondo = carts.find(cart => cart.user_id === comondo_shot)
+                    let mafia_rols = ["godfather", "nato", "hostage_taker"]
+                    if (!mafia_rols.includes(user_targeted_by_comondo.name)) {
+                        let comondo = carts.find(cart => cart.name === "commando")
+                        abs_deth = comondo.user_id
+                        deth = null
+                    }
                     else {
-                        deth = user_targeted_by_comondo.user_id
-                        game_vars.edit_event("edit", "comondo_true_shot", true)
+                        if (user_targeted_by_comondo.name === "godfather") deth = null
+                        else {
+                            deth = user_targeted_by_comondo.user_id
+                            game_vars.edit_event("edit", "comondo_true_shot", true)
+                        }
                     }
                 }
+
+            }
+            //check doctor act
+            const doctor_save = records.filter(act => act.act === "doctor")
+            if (doctor_save.length) {
+                doctor_save.forEach(save => {
+                    if (save.target === deth) {
+                        deth = null
+                        game_vars.edit_event("edit", "comondo_true_shot", false)
+                    }
+                })
+            }
+        }
+        else {
+            const nato_act = records.find(act => act.act === "nato")
+            if (nato_act) {
+                const { user, role } = nato_act.targets[0]
+                let user_true_role = carts.find(cart => cart.user_id === user)
+                user_true_role = user_true_role.role
+                if (role === user_true_role) abs_deth = user
             }
 
         }
-        //check doctor act
-        const doctor_save = records.find(act => act.act === "doctor")
-        if (doctor_save) {
-            doctor_save.targets.forEach(save => {
-                if (save === deth) {
-                    deth = null
-                    game_vars.edit_event("edit", "comondo_true_shot", false)
-                }
-            })
-        }
-
-        const nato_act = records.find(act => act.act === "nato")
-        if (nato_act) {
-            const { user, role } = nato_act.targets[0]
-            let user_true_role = carts.find(cart => cart.user_id === user)
-            user_true_role = user_true_role.role
-            if (role === user_true_role) abs_deth = user
-        }
-
-
         let user_to_kill = abs_deth || deth
-
+        console.log({abs_deth,deth});
         //todo : tell night over
+
         await delay(5)
         if (user_to_kill) {
             let index = users.findIndex(user => user.user_id === user_to_kill)
@@ -306,13 +306,16 @@ const night = {
                 game_vars
             })
             game_vars.edit_event("push", "dead_list", user_to_kill)
-
-
+            let prv_player_status=[...game_vars.player_status]
+            let user_index=prv_player_status.findIndex(u=>u.user_id === user_to_kill)
+            prv_player_status[user_index].user_status.is_alive=false
+            game_vars.edit_event("edit","player_status",prv_player_status)
+            console.log({prv_player_status});
             game_vars.edit_event("edit", "report_data",
                 {
                     user_id: user_to_kill,
                     event: "night_result",
-                    msg: !game_event.comondo_true_shot ?
+                    msg: !game_vars.comondo_true_shot ?
                         "دیشب یک نفر از بازی خداحافظی کرد" :
                         "آفرین به نکاور این شهر.از بازی یک نفر خارج شد"
                 })
@@ -338,6 +341,7 @@ const night = {
 
     check_next_day({ game_vars }) {
         let live_users = start.pick_live_users({ game_vars })
+        console.log({live_users});
         const { carts } = game_vars
         let mafia_rols = ["godfather", "nato", "hostage_taker"]
         let live_users_with_role = live_users.map(user => {
@@ -352,7 +356,7 @@ const night = {
         let city = live_users_with_role.filter(user => !mafia_rols.includes(user.role))
         if (!mafia_remain.length) return 1
         if (city.length <= mafia_remain.length) return 2
-        if (live_users.length === 3) return 3
+        // if (live_users.length === 3) return 3
         return 4
     },
 
@@ -364,12 +368,11 @@ const night = {
         await delay(5)
         start.generate_report({
             game_vars,
-            report_type: "night_report",
+            report_type: "day_report",
             socket,
             game_id
         })
         game_vars.edit_event("edit", "custom_queue", [])
-        game_vars.edit_event("edit", "next_event", "check_for_inquiry")
     }
 
 

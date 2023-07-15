@@ -30,7 +30,6 @@ const befor_start = {
                 user_anim: `files/test1.json`,
             }
         })
-        console.log({player_clean_list});
         return player_clean_list
     },
 

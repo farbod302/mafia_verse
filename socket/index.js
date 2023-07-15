@@ -15,20 +15,20 @@ const SocketProvider = class {
             client.on("find_match", (senario) => { find_match.find_robot_game({ senario, client, db: this.db, socket: this.io }) })
             client.on("leave_find", () => { find_match.leave_find({ client, db: this.db, socket: this.io }) })
             client.on("game_handle", ({ op, data }) => {
-                console.log({op,data});
                 let game_id = client.game_id
                 let user_game = null
                 if (game_id) { user_game = this.db.getOne("games", "game_id", game_id) }
                 else {
                     const games = this.db.getAll("games")
                     user_game = games.find(game => {
-                        let ids = game.users.map(user => user.device_id)
-                        if (ids.includes(client.idenity.device_id)) {
+                        let ids = game.users.map(user => user.user_id)
+                        if (ids.includes(client.idenity.user_id)) {
                             client.game_id = game.game_id
                             return true
                         }
                     })
                 }
+                // console.log({user_game:user_game.game_id,op,data,client:client.idenity});
                 if (!user_game) return
                 user_game.game_class.player_action({op, data, client})
             })

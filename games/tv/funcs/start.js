@@ -78,7 +78,6 @@ const start = {
             let s_player = player_status.find(player => player.user_id === player_to_set_timer)
 
             if (s_player.user_status.is_talking) {
-                console.log("Force next player");
                 let user = befor_start.pick_player_from_user_id({ users, user_id: s_player.user_id })
                 const { socket_id } = user
                 socket.to(socket_id).emit("speech_time_up")
@@ -122,7 +121,6 @@ const start = {
                 user_id: user.user_id
             }
         })
-        console.log({ clean_mafia_detile });
         game_vars.edit_event("new_value", "mafia_list", clean_mafia_detile)
         mafia.forEach(user => {
             socket.to(user.socket_id).emit("mafia_visitation", { data: { mafia: encrypt(JSON.stringify(clean_mafia_detile)) } })

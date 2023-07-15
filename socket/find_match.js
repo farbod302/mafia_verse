@@ -22,7 +22,6 @@ const find_match = {
         let seleced_game = games[senario]
         let game_players_count = seleced_game.static_vars.player_count
         let available_games = db.filterModel("games_queue", "senario", senario)
-        console.log({available_games});
         let choosen_game = available_games.find(e => e.remain >= party_players_count)
         if (!choosen_game) {
             console.log("game created");

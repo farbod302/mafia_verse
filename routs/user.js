@@ -129,6 +129,16 @@ router.post("/items_list", async (req, res) => {
 
 })
 
+router.post("/profile",async (req,res)=>{
+    const user = req.body.user
+    if (!user) return reject(1, res)
+    const s_user = await User.findOne({ uid: user.uid })
+    res.json({
+        status:true,
+        data:s_user
+    })
+})
+
 
 //chanel
 

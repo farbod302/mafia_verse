@@ -16,7 +16,7 @@ const Game = class {
         this.game_id = game_id
         this.users = users
         this.db = new TempDb()
-        this.game_vars = { ...dinamic_vars }
+        this.game_vars = new dinamic_vars()
         this.game_handlers = game_handlers
         this.mainCycle()
     }
@@ -24,12 +24,10 @@ const Game = class {
 
     mainCycle() {
         const next_event = this.game_vars.next_event
-        console.log({ next_event });
         this[next_event]()
     }
 
     submit_user_disconnect({ client }) {
-        console.log(`${client.idenity.user_id} Disconnectet from game`);
         const { user_id } = client.idenity
         let index = this.users.findIndex(user => user.user_id === user_id)
         start.edit_game_action({
@@ -59,6 +57,7 @@ const Game = class {
         let user_call_idenity = client.idenity
         switch (op) {
             case ("ready_to_choose"): {
+                console.log({ game_vars: this.game_vars });
                 this.game_vars.edit_event("push", "join_status", user_call_idenity)
                 let connected_users_length = this.game_vars.join_status.length
                 if (connected_users_length == static_vars.player_count) {
@@ -97,7 +96,6 @@ const Game = class {
                 break
             }
             case ("vote"): {
-                console.log("EMIT VOTE");
                 vote.submit_vote({
                     client,
                     socket: this.socket,
@@ -108,6 +106,7 @@ const Game = class {
             }
 
             case ("user_action"): {
+
                 const { action } = data
                 const { user_id } = client.idenity
                 const { game_id } = this
@@ -121,6 +120,7 @@ const Game = class {
                 })
                 const { player_status } = this.game_vars
                 this.socket.to(game_id).emit("game_action", { data: player_status })
+
                 start.edit_game_action({
                     index,
                     prime_event: "user_action",
@@ -133,7 +133,6 @@ const Game = class {
 
             case ("accept_challenge"): {
                 const { user_id } = data
-                console.log({ data });
                 const { game_id } = this
                 let index = this.users.findIndex(user => user.user_id === user_id)
                 start.accept_cahllenge({
@@ -151,6 +150,7 @@ const Game = class {
                 })
                 const { player_status } = this.game_vars
                 this.socket.to(game_id).emit("game_action", { data: player_status })
+
                 start.edit_game_action({
                     index,
                     prime_event: "user_action",
@@ -166,7 +166,6 @@ const Game = class {
                 const { role, users } = data
                 const { day } = this.game_vars
                 let cur_night_events = this.db.getOne("night_records", "night", day)
-                console.log({ cur_night_events });
                 let prv_events = [...cur_night_events.events]
                 users.forEach(target => {
                     prv_events.push({
@@ -199,12 +198,13 @@ const Game = class {
             case ("mafia_shot"): {
                 const { users } = data
                 const { day } = this.game_vars
+                console.log({users});
                 let cur_night_events = this.db.getOne("night_records", "night", day)
                 let prv_events = [...cur_night_events.events]
                 users.forEach(target => {
                     prv_events.push({
-                        act: "godfather",
-                        target,
+                        act: "mafia_shot",
+                        target:target.user_id,
                     })
                 })
                 cur_night_events.events = prv_events
@@ -296,6 +296,7 @@ const Game = class {
         await Helper.delay(3)
         let status_list = game_vars.player_status
         this.socket.to(game_id).emit("game_action", { data: status_list })
+
         this.game_vars.edit_event("edit", "next_event", "start_speech")
         this.mainCycle()
     }
@@ -346,7 +347,6 @@ const Game = class {
 
     start_speech() {
         let { speech_type, can_take_challenge, custom_queue } = this.game_vars
-        console.log({ can_take_challenge });
         const { game_id } = this
         let queue = start.generate_queue({
             type: speech_type,
@@ -437,7 +437,6 @@ const Game = class {
             edit_others: true
         })
         let status_list = this.game_vars.player_status
-        console.log({ queue });
         this.socket.to(game_id).emit("game_action", { data: status_list })
         //edit speech queue
         start.move_speech_queue({ game_vars: this.game_vars })
@@ -445,14 +444,14 @@ const Game = class {
         this.socket.to(game_id).emit("in_game_turn_speech", { data: { queue: new_queue, can_take_challenge, timer: time } })
         //set timer
         const contnue_func = () => { this.mainCycle(); }
-        // start.set_timer_to_contnue_speech_queue({
-        //     func: contnue_func,
-        //     game_vars: this.game_vars,
-        //     time,
-        //     socket: this.socket,
-        //     users: this.users,
-        //     player_to_set_timer:user.user_id
-        // })
+        start.set_timer_to_contnue_speech_queue({
+            func: contnue_func,
+            game_vars: this.game_vars,
+            time,
+            socket: this.socket,
+            users: this.users,
+            player_to_set_timer:user.user_id
+        })
     }
 
     async mafia_reval() {
@@ -631,7 +630,6 @@ const Game = class {
         })
         const { day } = this.game_vars
         this.db.add_data("night_records", { night: day, events: [] })
-        console.log({ add: this.db.getAll("night_records") });
         this.mainCycle()
     }
     guard_and_hostage_taker_act() {
@@ -673,7 +671,6 @@ const Game = class {
     }
 
     mafia_shot() {
-        console.log("MAFIA SHOT RUN");
         night.mafia_shot({
             game_vars: this.game_vars,
             socket: this.socket
@@ -700,7 +697,6 @@ const Game = class {
 
     other_acts() {
         const { day } = this.game_vars
-        console.log({ records: this.db.getAll("night_records") });
         let records = this.db.getOne("night_records", "night", day)
         night.other_acts({
             game_vars: this.game_vars,
@@ -713,27 +709,29 @@ const Game = class {
         run_timer(20, mainCycle)
     }
 
-    night_results() {
+    async night_results() {
         const { day } = this.game_vars
-        const night_records = this.db.getOne("night_records", "nigth", day)
+        const night_records = this.db.getOne("night_records", "night", day)
         night.night_results({
             game_vars: this.game_vars,
-            night_records: night_records.events,
+            records: night_records.events,
             users: this.users
         })
+        await Helper.delay(3)
+        this.mainCycle()
+
     }
 
 
     async next_day() {
-        start.generate_report({
-            game_vars: this.game_vars,
-            report_type: "day_report",
-            socket: this.socket,
-            game_id: this.game_id
-        })
+       await night.next_daya({
+        game_vars:this.game_vars,
+        socket:this.socket,
+        game_id:this.game_id
+       })
         await Helper.delay(5)
         const { inquiry_used, guns_status } = this.game_vars
-        if (inquiry_used === 2) this.game_vars.edit_event("edit", "next_event", "check_for_inquiry")
+        if (inquiry_used < 2) this.game_vars.edit_event("edit", "next_event", "check_for_inquiry")
         else {
             this.game_vars.edit_event("edit", "custom_queue", [])
             this.game_vars.edit_event("edit", "next_event", "start_speech")
@@ -742,6 +740,8 @@ const Game = class {
             const user_to_emit = start.pick_player_from_user_id({ users: this.users, user_id: gun.user_id })
             this.socket.to(user_to_emit.socket_id).emit("gun_status", { data: { gun_enable: true } })
         })
+        await Helper.delay(5)
+        this.mainCycle()
     }
 
 
