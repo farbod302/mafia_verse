@@ -7,7 +7,7 @@ const user = mongoose.Schema({
     idenity: Object,
     avatar: Object,
     uid: String,
-    own_channel:{type:Boolean,default:false},
+    own_channel: { type: Boolean, default: false },
     gold: { type: Number, default: 10 },
     friend_limit: { type: Number, default: 20 },
     points: {
@@ -30,7 +30,8 @@ const user = mongoose.Schema({
     cart: { type: Array, default: [] },
     status: { type: String, default: "gust" },
     device_id: String,
-    cur_game: { type: String, default: "" }
+    cur_game: { type: String, default: "" },
+    notif_token: String
 
 })
 

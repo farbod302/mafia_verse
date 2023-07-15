@@ -135,21 +135,15 @@ const start = {
 
     generate_report({ game_vars, report_type, socket, game_id }) {
 
-        let raw_reports = {
-            day_report: {},
-            vote_report: {},
-            night_report: {},
-            game_result_report: {}
-        }
+
 
         const { report_data } = game_vars
-        const { user_id, event, msg } = report_data
-        raw_reports[report_type] = {
+        const { user_id, msg } = report_data
+        raw_reports = {
             msg,
-            event,
-            user_data: {
-                user_id
-            }
+            report_type,
+            user_id,
+            timer: 7
         }
 
         socket.to(game_id).emit("report", { data: raw_reports })
@@ -171,7 +165,7 @@ const start = {
     },
 
 
-    use_gun({ game_vars, user_shot, user_resive_shot, socket, game_id,users }) {
+    use_gun({ game_vars, user_shot, user_resive_shot, socket, game_id, users }) {
 
         const { gun_status } = game_vars
         let selected_gun = gun_status.find(g => g.user === user_shot)
@@ -187,7 +181,7 @@ const start = {
             game_vars.edit_event("push", "dead_list", user_resive_shot)
             const { turn } = game_vars
             let prv_queue = [...game_vars.queue]
-            let user_to_add_queue = befor_start.pick_player_from_user_id({users,user_id:user_resive_shot})
+            let user_to_add_queue = befor_start.pick_player_from_user_id({ users, user_id: user_resive_shot })
             user_to_add_queue.speech_type = "challenge"
             user_to_add_queue.can_take_challenge = false
             prv_queue.splice(turn, user_to_add_queue, 0)

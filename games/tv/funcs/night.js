@@ -241,7 +241,7 @@ const night = {
     async night_results({ game_vars, records, users }) {
         const { carts } = game_vars
         let mafia_shot = records.find(act => act.act === "mafia_shot")
-        let mafia_target = mafia_shot.target || null
+        let mafia_target = mafia_shot?.target || null
         let deth = null
         let abs_deth = null
         if (mafia_target) {
@@ -362,6 +362,7 @@ const night = {
 
 
     async next_daya({ game_vars, socket, game_id }) {
+        console.log("NEXT DAY");
         game_vars.edit_event("edit", "day", "plus")
         game_vars.edit_event("edit", "time", "day")
         socket.to(game_id).emit("game_event", { data: { game_event: "day" } })

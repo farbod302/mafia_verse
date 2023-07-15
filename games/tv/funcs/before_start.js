@@ -58,13 +58,14 @@ const befor_start = {
 
     shuffel_carts() {
         let carts = [...static_vars.rols]
+        console.log({carts});
+        return carts
         for (var i = carts.length - 1; i > 0; i--) {
             var j = Math.floor(Math.random() * (i + 1));
             var temp = carts[i];
             carts[i] = carts[j];
             carts[j] = temp;
         }
-        console.log({carts});
         return carts
     },
 

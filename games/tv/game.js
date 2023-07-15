@@ -198,13 +198,13 @@ const Game = class {
             case ("mafia_shot"): {
                 const { users } = data
                 const { day } = this.game_vars
-                console.log({users});
+                console.log({ users });
                 let cur_night_events = this.db.getOne("night_records", "night", day)
                 let prv_events = [...cur_night_events.events]
                 users.forEach(target => {
                     prv_events.push({
                         act: "mafia_shot",
-                        target:target.user_id,
+                        target: target.user_id,
                     })
                 })
                 cur_night_events.events = prv_events
@@ -250,7 +250,7 @@ const Game = class {
                     game_id: this.game_id,
                     users: this.users
                 })
-
+                break
             }
 
             case ("day_using_gun"): {
@@ -450,7 +450,7 @@ const Game = class {
             time,
             socket: this.socket,
             users: this.users,
-            player_to_set_timer:user.user_id
+            player_to_set_timer: user.user_id
         })
     }
 
@@ -473,11 +473,12 @@ const Game = class {
 
 
     async check_for_inquiry() {
-        this.game_event.edit_event("edit", "custom_queue", ["inquiry"])
-        this.game_event.edit_event("edit", "vote_type", "inquiry")
-        await vote.start_vote({ game_vars: this.game_vars })
+        this.game_vars.edit_event("edit", "custom_queue", ["inquiry"])
+        this.game_vars.edit_event("edit", "vote_type", "inquiry")
         const { game_id } = this
-        this.socket.to(game_id).emit("game_event", { data: { game_event: "inquiry" } })
+        this.socket.to(game_id).emit("day_inquiry", { data: { timer: 5 } })
+        this.socket.to(game_id).emit("game_event", { data: { game_event: "vote" } })
+        await vote.start_vote({ game_vars: this.game_vars })
         this.mainCycle()
 
     }
@@ -485,29 +486,37 @@ const Game = class {
 
 
     next_player_vote_time() {
+        console.log("aNEXT PLAYER VOTE RUN");
         this.game_vars.edit_event("edit", "turn", "plus")
         const { turn, queue, vote_type } = this.game_vars
-        if (turn === queue.length) {
+        if (turn == queue.length) {
+            console.log({queue:queue.length,turn});
             if (vote_type === "inquiry") {
+                console.log("VOTE TYPE INQUERY");
                 let live_users = start.pick_live_users({ game_vars: this.game_vars })
                 const { votes_status } = this.game_vars
                 let users_voted = votes_status[0].users.length
-                if (users_voted > live_users.length / 2) {
+                console.log({votes_status,votes_status_1:votes_status[0]});
+                if (users_voted > (live_users.length / 2)) {
                     this.game_vars.edit_event("edit", "next_event", "inquiry")
                 }
                 else {
                     this.game_vars.edit_event("edit", "custom_queue", [])
-                    this.game_vars.edit_event("speech")
+                    this.game_vars.edit_event("edit","next_event","start_speech")
                 }
                 this.mainCycle()
+                return
 
             } else {
                 let next_event = vote_type === "pre_vote" ? "arange_defence" : "count_exit_vote"
+                console.log({nexxtttttttttttttttt:next_event});
                 this.game_vars.edit_event("edit", "next_event", next_event)
                 this.mainCycle()
+                return
             }
         } else {
             let cycle = () => { this.mainCycle() }
+            console.log("VOTE TIMER RUN");
             vote.next_player_vote_turn({
                 game_vars: this.game_vars,
                 socket: this.socket,
@@ -606,11 +615,17 @@ const Game = class {
         this.mainCycle()
     }
 
-    inquiry() {
+    async inquiry() {
         this.game_vars.edit_event("edit", "inquiry_used", "plus")
         let inquiry_res = start.inquiry({ game_vars: this.game_vars })
-        const { socket_id } = this
-        this.socket.to(socket_id).emit("inquiry_res", { data: { msg: inquiry_res } })
+        const { game_id } = this
+        console.log(" inquiry_res CALL",inquiry_res);
+        this.socket.to(game_id).emit("day_inquiry_result", { data: { msg: inquiry_res,timer:7 } })
+        await Helper.delay(5)
+        this.game_vars.edit_event("edit","custom_queue",[])
+        this.game_vars.edit_event("edit","next_event","start_speech")
+        this.game_vars.edit_event("edit","vote_type","pre_vote")
+        this.mainCycle()
 
     }
 
@@ -677,7 +692,7 @@ const Game = class {
         })
         this.game_vars.edit_event("edit", "next_event", "other_acts")
         const timer_func = () => { this.mainCycle() }
-        run_timer(10, timer_func)
+        run_timer(5, timer_func)
 
 
     }
@@ -691,7 +706,7 @@ const Game = class {
             game_id: this.game_id
         })
         const timer_func = () => { this.mainCycle() }
-        run_timer(10, timer_func)
+        run_timer(5, timer_func)
     }
 
 
@@ -706,13 +721,13 @@ const Game = class {
         })
         this.game_vars.edit_event("edit", "next_event", "night_results")
         let mainCycle = () => { this.mainCycle() }
-        run_timer(20, mainCycle)
+        run_timer(5, mainCycle)
     }
 
     async night_results() {
         const { day } = this.game_vars
         const night_records = this.db.getOne("night_records", "night", day)
-        night.night_results({
+        await night.night_results({
             game_vars: this.game_vars,
             records: night_records.events,
             users: this.users
@@ -724,11 +739,11 @@ const Game = class {
 
 
     async next_day() {
-       await night.next_daya({
-        game_vars:this.game_vars,
-        socket:this.socket,
-        game_id:this.game_id
-       })
+        await night.next_daya({
+            game_vars: this.game_vars,
+            socket: this.socket,
+            game_id: this.game_id
+        })
         await Helper.delay(5)
         const { inquiry_used, guns_status } = this.game_vars
         if (inquiry_used < 2) this.game_vars.edit_event("edit", "next_event", "check_for_inquiry")

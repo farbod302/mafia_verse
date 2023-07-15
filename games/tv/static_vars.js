@@ -1,16 +1,16 @@
 const static_vars={
-    player_count:3,
+    player_count:4,
     rols:[
         "citizen",
         "citizen",
         "detective",
         "rifleman",
-        "doctor",
         "commando",
         "guard",
-        "godfather",
         "nato",
         "hostage_taker",
+        "doctor",
+        "godfather",
     ],
     speech_time:{
         introduction:10,

@@ -8,7 +8,7 @@ const vote = {
     async start_vote({ game_vars }) {
 
         await delay(3)
-        game_vars.edit_event("edit", "vote_status", [])
+        game_vars.edit_event("edit", "votes_status", [])
         const { custom_queue, vote_type } = game_vars
         let users_to_vote = vote_type !== "pre_vote" ? custom_queue : start.pick_live_users({ game_vars })
         game_vars.edit_event("edit", "queue", users_to_vote)
@@ -41,7 +41,7 @@ const vote = {
         let new_vote_status = [...votes_status]
         new_vote_status[turn].users.push(client.idenity.user_id)
         game_vars.edit_event("edit", "votes_status", new_vote_status)
-        socket.to(game_id).emit("vote", { data: new_vote_status[turn] })
+        // socket.to(game_id).emit("vote", { data: new_vote_status[turn] })
         console.log({ votes_status });
     },
 
