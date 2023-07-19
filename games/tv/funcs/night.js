@@ -20,7 +20,7 @@ const night = {
         game_vars.edit_event("edit", "time", "night")
         socket.to(game_id).emit("game_event", { data: { game_event: "night" } })
         game_vars.edit_event("edit", "next_event", "guard_and_hostage_taker_act")
-        game_vars.edit_event("edit", "guns_status", [])
+        game_vars.edit_event("edit", "gun_status", [])
     },
 
     emit_to_act({ user_id, availabel_users, users, socket, can_act, msg }) {
@@ -57,7 +57,7 @@ const night = {
             // await this.generate_room_for_mafia({ game_vars, users, socket })
             game_vars.edit_event("edit", "mafia_speak", true)
         }
-        await delay(14)
+        await delay(5)
         game_vars.edit_event("next_event", "check_mafia_decision")
     },
 
@@ -216,14 +216,15 @@ const night = {
 
             }
             case ("rifleman"): {
-                game_vars.edit_event("edit", "guns_status", targets)
+                // game_vars.edit_event("edit", "gun_status", targets)
+                console.log({targets});
                 let real_gun = targets.find(gun => gun.act === "fighter")
                 if (real_gun) game_vars.edit_event("edit", "real_gun_used", true)
                 targets.forEach(target => {
                     let user = befor_start.pick_player_from_user_id({ users, user_id: target.user_id })
                     const { socket_id } = user
                     socket.to(socket_id).emit("report_gun")
-                    game_vars.edit_event("push", "gun_status", { user: target.user_id, gun_type: gun.act, used: false })
+                    game_vars.edit_event("push", "gun_status", { user_id: target.user_id, gun_type: target.act, used: false })
                 })
                 return
 
@@ -374,6 +375,8 @@ const night = {
             game_id
         })
         game_vars.edit_event("edit", "custom_queue", [])
+        game_vars.edit_event("edit", "votes_status", [])
+        game_vars.edit_event("edit","speech_type","turn")
     }
 
 

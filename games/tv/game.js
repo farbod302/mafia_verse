@@ -260,6 +260,13 @@ const Game = class {
                 break
             }
 
+            case ("chaos_vote"): {
+                const { user_id } = data
+                this.game_vars.edit_event("push", "chaos_vots", user_id)
+                this.mainCycle()
+                break
+            }
+
 
         }
     }
@@ -368,7 +375,20 @@ const Game = class {
         const { game_id } = this
         const { queue, turn, can_take_challenge, speech_type, reval } = this.game_vars
         if (queue.length === turn) {
+            start.edit_game_action({
+                index: queue[turn-1].user_index,
+                prime_event: "user_status",
+                second_event: "is_talking",
+                new_value: false,
+                game_vars: this.game_vars,
+                edit_others: false
+            })
             this.socket.to(game_id).emit("current_speech_end")
+            if (speech_type === "chaos") {
+                this.game_vars.edit_event("edit", "next_event", "chaos_speech_second_phase")
+                this.mainCycle()
+                return
+            }
             //end speech
             if (speech_type === "final_words") {
                 this.game_vars.edit_event("edit", "next_event", "start_night")
@@ -490,26 +510,27 @@ const Game = class {
         this.game_vars.edit_event("edit", "turn", "plus")
         const { turn, queue, vote_type } = this.game_vars
         if (turn == queue.length) {
-            console.log({queue:queue.length,turn});
+            console.log({ queue: queue.length, turn });
             if (vote_type === "inquiry") {
                 console.log("VOTE TYPE INQUERY");
                 let live_users = start.pick_live_users({ game_vars: this.game_vars })
                 const { votes_status } = this.game_vars
                 let users_voted = votes_status[0].users.length
-                console.log({votes_status,votes_status_1:votes_status[0]});
+                console.log({ votes_status, votes_status_1: votes_status[0] });
                 if (users_voted > (live_users.length / 2)) {
                     this.game_vars.edit_event("edit", "next_event", "inquiry")
                 }
                 else {
                     this.game_vars.edit_event("edit", "custom_queue", [])
-                    this.game_vars.edit_event("edit","next_event","start_speech")
+                    this.game_vars.edit_event("edit", "next_event", "start_speech")
                 }
+                this.game_vars.edit_event("edit", "vote_type", "pre_vote")
                 this.mainCycle()
                 return
 
             } else {
                 let next_event = vote_type === "pre_vote" ? "arange_defence" : "count_exit_vote"
-                console.log({nexxtttttttttttttttt:next_event});
+                console.log({ nexxtttttttttttttttt: next_event });
                 this.game_vars.edit_event("edit", "next_event", next_event)
                 this.mainCycle()
                 return
@@ -619,12 +640,12 @@ const Game = class {
         this.game_vars.edit_event("edit", "inquiry_used", "plus")
         let inquiry_res = start.inquiry({ game_vars: this.game_vars })
         const { game_id } = this
-        console.log(" inquiry_res CALL",inquiry_res);
-        this.socket.to(game_id).emit("day_inquiry_result", { data: { msg: inquiry_res,timer:7 } })
+        console.log(" inquiry_res CALL", inquiry_res);
+        this.socket.to(game_id).emit("day_inquiry_result", { data: { msg: inquiry_res, timer: 7 } })
         await Helper.delay(5)
-        this.game_vars.edit_event("edit","custom_queue",[])
-        this.game_vars.edit_event("edit","next_event","start_speech")
-        this.game_vars.edit_event("edit","vote_type","pre_vote")
+        this.game_vars.edit_event("edit", "custom_queue", [])
+        this.game_vars.edit_event("edit", "next_event", "start_speech")
+        this.game_vars.edit_event("edit", "vote_type", "pre_vote")
         this.mainCycle()
 
     }
@@ -721,7 +742,7 @@ const Game = class {
         })
         this.game_vars.edit_event("edit", "next_event", "night_results")
         let mainCycle = () => { this.mainCycle() }
-        run_timer(5, mainCycle)
+        run_timer(10, mainCycle)
     }
 
     async night_results() {
@@ -745,14 +766,15 @@ const Game = class {
             game_id: this.game_id
         })
         await Helper.delay(5)
-        const { inquiry_used, guns_status } = this.game_vars
+        const { inquiry_used, gun_status } = this.game_vars
         if (inquiry_used < 2) this.game_vars.edit_event("edit", "next_event", "check_for_inquiry")
         else {
             this.game_vars.edit_event("edit", "custom_queue", [])
             this.game_vars.edit_event("edit", "next_event", "start_speech")
         }
-        guns_status.forEach(gun => {
-            const user_to_emit = start.pick_player_from_user_id({ users: this.users, user_id: gun.user_id })
+        gun_status.forEach(gun => {
+            console.log({gun});
+            const user_to_emit = befor_start.pick_player_from_user_id({ users: this.users, user_id: gun.user_id })
             this.socket.to(user_to_emit.socket_id).emit("gun_status", { data: { gun_enable: true } })
         })
         await Helper.delay(5)
@@ -761,15 +783,114 @@ const Game = class {
 
 
     chaos() {
+        const { game_id } = this
+        this.socket.to(game_id).emit("game_event", { data: { game_event: "chaos" } })
+        this.game_vars.edit_event("edit", "custom_queue", [])
+        this.game_vars.edit_event("edit", "speech_type", "chaos")
+        this.game_vars.edit_event("edit", "next_event", "start_speech")
+        this.mainCycle()
+
+    }
+
+
+    chaos_speech_second_phase() {
         let live_users = start.pick_live_users({ game_vars: this.game_vars })
+        const { game_id } = this
         live_users.forEach(user => {
             const { socket_id } = user
             this.socket.to(socket_id).emit("start_speech")
+            start.edit_game_action({
+                index: user.id,
+                prime_event: "user_status",
+                second_event: "is_talking",
+                new_value: true,
+                game_vars: this.game_vars,
+                edit_others: true
+            })
+            let status_list = this.game_vars.player_status
+            this.socket.to(game_id).emit("game_action", { data: status_list })
+            live_users.forEach(user => {
+                start.edit_game_action({
+                    index: user.id,
+                    prime_event: "user_status",
+                    second_event: "is_talking",
+                    new_value: false,
+                    game_vars: this.game_vars,
+                    edit_others: true
+                })
+            })
         })
+
+
         this.game_vars.edit_event("edit", "next_event", "chaos_result_first_phase")
         run_timer(30, () => { this.mainCycle() })
     }
 
+
+    chaos_result_first_phase() {
+        const { game_id, chaos_run_count } = this
+        if (chaos_run_count === 1) {
+            //random user
+            return
+        }
+        this.socket.to(game_id).emit("chaos_notif_vote_time")
+        this.game_vars.edit_event("edit", "next_event", "next_player_chaos_vote")
+        this.game_vars.edit_event("edit", "turn", -1)
+        this.game_vars.edit_event("edit", "chaos_run_count", "plus")
+        start.generate_queue({
+            type: "chaos",
+            game_vars: this.game_vars,
+            users: this.users
+        })
+        this.mainCycle()
+    }
+
+
+    next_player_chaos_vote() {
+        this.game_vars.edit_event("edit", "turn", "plus")
+        const { queue, turn } = this.game_vars
+        if (turn === queue.length) {
+            this.game_vars.edit_event("edit", "next_event", "chaos_result_second_phase")
+            this.mainCycle()
+            return
+            //end vote
+        }
+        const av_users = [...queue].filter((u, i) => i !== turn)
+        const { socket_id } = queue[turn]
+        this.socket.to(socket_id).emit("chaos_vote", { data: { available_users: av_users } })
+        let restart_vote = (game_vars, require_vote, mainCycle) => {
+            const { chaos_vots } = game_vars
+            if (chaos_vots < require_vote) {
+                game_vars.edit_event("edit", "next_event", "chaos_result_first_phase")
+                mainCycle()
+                
+            }
+        }
+        run_timer(7, () => { restart_vote(this.game_vars, turn + 1, () => { this.mainCycle() }) })
+
+    }
+
+    chaos_result_second_phase() {
+
+        const { chaos_vots } = this.game_vars
+        let live_users = start.pick_live_users({ game_vars: this.game_vars })
+        const selected_user = live_users.find(user => {
+            let times_user_selected = chaos_vots.filter(e => e === user.user_id)
+            if (times_user_selected.length === 2) return true
+            return false
+        })
+        if (!selected_user) {
+            game_vars.edit_event("edit", "next_event", "chaos_result_first_phase")
+            mainCycle()
+            return
+        }
+        else {
+            const { socket_id, user_id } = selected_user
+            let other_players = live_users.filter(e => e.user_id !== user_id).map(u => u.user_id)
+            this.socket.to(socket_id).emit("last_decision", { data: { available_users: other_players } })
+        }
+
+    }
 
 
 }
