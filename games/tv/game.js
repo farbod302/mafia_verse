@@ -248,7 +248,7 @@ const Game = class {
                     user_shot: client.idenity.user_id,
                     user_resive_shot: user_id,
                     game_id: this.game_id,
-                    users: this.users,
+                    users: this.game_vars.users_comp_list,
                     socket: this.socket
                 })
                 break
@@ -383,11 +383,16 @@ const Game = class {
         //check player reval
 
         if (player_reval && player_reval.turn === turn) {
+            console.log("PLAYER REVAL");
             const { user_id } = player_reval
             let player_roule = carts.find(c => c.user_id === user_id)
             const { name, id } = player_roule
-            this.socket.to(game_id).emit("player_reval", { data: { user_id, id, name } })
-            this.game_vars.edit_event("edit",)
+            this.socket.to(game_id).emit("player_show_character", { data: { user_id, id, name } })
+            this.game_vars.edit_event("edit", "player_reval", null)
+            this.game_vars.edit_event("edit", "turn", turn - 1)
+            const contnue_func = () => { this.mainCycle() }
+            run_timer(5, contnue_func)
+            return
         }
 
         if (queue.length === turn) {
@@ -802,7 +807,6 @@ const Game = class {
     chaos() {
         const { game_id } = this
         let user_status = this.game_vars.player_status
-        console.log({user_status});
         this.socket.to(game_id).emit("game_event", { data: { game_event: "chaos" } })
         this.socket.to(game_id).emit("game_action", { data: user_status })
         this.game_vars.edit_event("edit", "custom_queue", [])

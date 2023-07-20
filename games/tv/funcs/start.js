@@ -129,7 +129,7 @@ const start = {
         game_vars.edit_event("edit", "speech_type", "turn")
         game_vars.edit_event("edit", "reval", true)
         // game_vars.edit_event("edit", "next_event", "start_speech")
-        game_vars.edit_event("edit", "next_event", "chaos")
+        game_vars.edit_event("edit", "next_event", "start_night")
         game_vars.edit_event("edit", "can_take_challenge", true)
     },
 
@@ -167,7 +167,7 @@ const start = {
 
 
     use_gun({ game_vars, user_shot, user_resive_shot, socket, game_id, users }) {
-
+        console.log({ user_resive_shot, users });
         const { gun_status } = game_vars
         let selected_gun = gun_status.findIndex(g => g.user_id === user_shot)
         const { gun_type } = gun_status[selected_gun]
@@ -183,15 +183,30 @@ const start = {
             const { turn } = game_vars
             let prv_queue = [...game_vars.queue]
             let user_to_add_queue = befor_start.pick_player_from_user_id({ users, user_id: user_resive_shot })
-            user_to_add_queue.speech_type = "challenge"
-            user_to_add_queue.can_take_challenge = false
-            prv_queue.splice(turn, user_to_add_queue, 0)
+            const {user_id,index}=user_to_add_queue
+            let clean_user = {
+                speech_status: "challenge",
+                pass:false,
+                challenge_used:true,
+                user_id,
+                user_index:index
+            }
+
+            console.log({ clean_user });
+            prv_queue.splice(turn+1, 0, clean_user)
+            console.log({ prv_queue });
+            prv_queue = prv_queue.filter((e) => {
+                if (e.user_id === user_resive_shot && e.speech_status !== "challenge") return false
+                return true
+            })
+            console.log({ prv_queue });
             game_vars.edit_event("edit", "queue", prv_queue)
+            game_vars.edit_event("edit", "player_reval", { user_id: user_resive_shot, turn: game_vars.turn + 2 })
         }
 
-        let new_gun_status=[...gun_status]
-        new_gun_status[selected_gun].used=true
-        game_vars.edit_event("edit","gun_status",new_gun_status)
+        let new_gun_status = [...gun_status]
+        new_gun_status[selected_gun].used = true
+        game_vars.edit_event("edit", "gun_status", new_gun_status)
 
     }
 
