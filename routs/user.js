@@ -119,9 +119,14 @@ router.post("/items_list", async (req, res) => {
 
     const user = req.body.user
     if (!user) return reject(1, res)
-    const s_user = await User.findOne({ uid: user.uid })
-    const { items: user_items } = s_user
-    const items_list = await Item.find({ _id: { $in: user_items } })
+    const user_with_items = await User.aggregate([{ $match: { uid: user.uid } },{
+        $lookup:{
+            from:"items",
+            foreignField:"_id",
+            localField:"items",
+            as:"user_items"
+        }
+    }])
     res.json({
         status: true,
         msg: "",
@@ -161,10 +166,10 @@ router.post("/add_to_cart", async (req, res) => {
     const { item } = req.body
     const user_items = await User.findOne({ uid })
     const { items, cart } = user_items
-    let total=items.concat(cart)
-    total=total.map(e=>`${e}`)
+    let total = items.concat(cart)
+    total = total.map(e => `${e}`)
     if (total.includes(item)) return reject(14, res)
-    await User.findOneAndUpdate({ uid }, { $push: { cart:new mongoose.Types.ObjectId(item) } })
+    await User.findOneAndUpdate({ uid }, { $push: { cart: new mongoose.Types.ObjectId(item) } })
     res.json({
         status: true,
         msg: "کالا به سبد خرید اضافه شد"
@@ -174,7 +179,7 @@ router.post("/add_to_cart", async (req, res) => {
 router.post("/remove_from_cart", async (req, res) => {
     const { item, user } = req.body
     const { uid } = user
-    await User.findOneAndUpdate({ uid }, { $pull: { cart:new mongoose.Types.ObjectId(item) } })
+    await User.findOneAndUpdate({ uid }, { $pull: { cart: new mongoose.Types.ObjectId(item) } })
     res.json({
         status: true,
         msg: "کالا از سبد خرید حذف شد"
@@ -184,8 +189,17 @@ router.post("/remove_from_cart", async (req, res) => {
 router.post("/user_cart", async (req, res) => {
     const user = req.body.user
     const { uid } = user
-    const s_user = await User.findOne({ uid }, { cart: 1 })
-    const selected_items = await Item.find({ _id: { $in: s_user.cart } })
+
+    let user_with_items = await User.aggregate([{ $match: { uid } }, {
+        $lookup: {
+            from: "items",
+            localField: "cart",
+            foreignField: "_id",
+            as: "user_cart"
+        }
+    }])
+
+    let selected_items = user_with_items[0].user_cart
     let selected_item_price = selected_items.reduce((a, b) => { return a + b.price }, 0)
     res.json({
         status: true,
@@ -198,16 +212,25 @@ router.post("/user_cart", async (req, res) => {
 router.post("/shop_finalize", async (req, res) => {
     const user = req.body.user
     const { uid } = user
-    const s_user = await User.findOne({ uid }, { cart: 1 })
-    const selected_items = await Item.find({ _id: { $in: s_user.cart } })
+
+    let user_with_items = await User.aggregate([{ $match: { uid } }, {
+        $lookup: {
+            from: "items",
+            localField: "cart",
+            foreignField: "_id",
+            as: "user_cart"
+        }
+    }])
+
+    let selected_items = user_with_items[0].user_cart
     let selected_item_price = selected_items.reduce((a, b) => { return a + b.price }, 0)
-    const user_balance = s_user.gold
+    const user_balance = user_with_items[0].gold
     if (user_balance < selected_item_price) return reject(15, res)
     await User.findOneAndUpdate({ uid },
         {
             $inc: { gold: selected_item_price * -1 },
             $set: { cart: [] },
-            $push: { items:{ $each: s_user.cart } }
+            $push: { items: { $each: user_with_items[0].cart } }
         }
     )
     res.json({
