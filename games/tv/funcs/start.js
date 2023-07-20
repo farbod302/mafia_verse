@@ -169,9 +169,8 @@ const start = {
     use_gun({ game_vars, user_shot, user_resive_shot, socket, game_id, users }) {
 
         const { gun_status } = game_vars
-        console.log({gun_status,user_shot});
-        let selected_gun = gun_status.find(g => g.user_id === user_shot)
-        const { gun_type } = selected_gun
+        let selected_gun = gun_status.findIndex(g => g.user_id === user_shot)
+        const { gun_type } = gun_status[selected_gun]
         socket.to(game_id).emit("used_gun", {
             data: {
                 from_user: user_shot,
@@ -189,6 +188,10 @@ const start = {
             prv_queue.splice(turn, user_to_add_queue, 0)
             game_vars.edit_event("edit", "queue", prv_queue)
         }
+
+        let new_gun_status=[...gun_status]
+        new_gun_status[selected_gun].used=true
+        game_vars.edit_event("edit","gun_status",new_gun_status)
 
     }
 

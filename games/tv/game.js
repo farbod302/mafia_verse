@@ -366,6 +366,7 @@ const Game = class {
             users: custom_queue.length ? custom_queue : null
         })
         let timer = static_vars.speech_time[speech_type]
+        console.log({ timer, speech_type });
         this.game_vars.edit_event("edit", "turn", -1)
         this.game_vars.edit_event("edit", "queue", queue)
         this.game_vars.edit_event("edit", "next_event", "next_player_speech")
@@ -378,7 +379,17 @@ const Game = class {
 
         this.game_vars.edit_event("edit", "turn", "plus")
         const { game_id } = this
-        const { queue, turn, can_take_challenge, speech_type, reval } = this.game_vars
+        const { queue, turn, can_take_challenge, speech_type, reval, player_reval, carts } = this.game_vars
+        //check player reval
+
+        if (player_reval && player_reval.turn === turn) {
+            const { user_id } = player_reval
+            let player_roule = carts.find(c => c.user_id === user_id)
+            const { name, id } = player_roule
+            this.socket.to(game_id).emit("player_reval", { data: { user_id, id, name } })
+            this.game_vars.edit_event("edit",)
+        }
+
         if (queue.length === turn) {
             start.edit_game_action({
                 index: queue[turn - 1].user_index,
@@ -790,6 +801,8 @@ const Game = class {
 
     chaos() {
         const { game_id } = this
+        let user_status = this.game_vars.player_status
+        this.socket.to(game_id).emit("game_action", { data: user_status })
         this.socket.to(game_id).emit("game_event", { data: { game_event: "chaos" } })
         this.game_vars.edit_event("edit", "custom_queue", [])
         this.game_vars.edit_event("edit", "speech_type", "chaos")
@@ -871,7 +884,7 @@ const Game = class {
         let restart_vote = (game_vars, require_vote, mainCycle) => {
             const { chaos_vots } = game_vars
             if (chaos_vots < require_vote) {
-                game_vars.edit_event("edit", "next_event", "chaos_result_first_phase")
+                game_vars.edit_event("edit", "next_event", "chaos")
                 mainCycle()
 
             }
@@ -890,7 +903,7 @@ const Game = class {
             return false
         })
         if (!selected_user) {
-            game_vars.edit_event("edit", "next_event", "chaos_result_first_phase")
+            game_vars.edit_event("edit", "next_event", "chaos")
             mainCycle()
             return
         }

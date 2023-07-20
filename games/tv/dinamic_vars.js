@@ -37,6 +37,7 @@ const dinamic_vars = class {
         this.users_detective_check = []
         this.chaos_vots = []
         this.chaos_run_count = 0
+        this.player_reval = null
     }
     edit_event(op, event, value, from) {
         switch (op) {
