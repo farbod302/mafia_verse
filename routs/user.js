@@ -4,6 +4,7 @@ const reject = require("../helper/reject_handler")
 const Channel = require("../db/channel")
 const router = express.Router()
 const Item = require("../db/item")
+const { default: mongoose } = require("mongoose")
 //fetach data
 router.post("/land_screen_data", async (req, res) => {
     const { uid } = req.body.user
@@ -129,13 +130,13 @@ router.post("/items_list", async (req, res) => {
 
 })
 
-router.post("/profile",async (req,res)=>{
+router.post("/profile", async (req, res) => {
     const user = req.body.user
     if (!user) return reject(1, res)
     const s_user = await User.findOne({ uid: user.uid })
     res.json({
-        status:true,
-        data:s_user
+        status: true,
+        data: s_user
     })
 })
 
@@ -160,8 +161,10 @@ router.post("/add_to_cart", async (req, res) => {
     const { item } = req.body
     const user_items = await User.findOne({ uid })
     const { items, cart } = user_items
-    if (items.concat(cart).includes(item)) return reject(14, res)
-    await User.findOneAndUpdate({ uid }, { $push: { cart: item } })
+    let total=items.concat(cart)
+    total=total.map(e=>`${e}`)
+    if (total.includes(item)) return reject(14, res)
+    await User.findOneAndUpdate({ uid }, { $push: { cart:new mongoose.Types.ObjectId(item) } })
     res.json({
         status: true,
         msg: "کالا به سبد خرید اضافه شد"
@@ -171,7 +174,7 @@ router.post("/add_to_cart", async (req, res) => {
 router.post("/remove_from_cart", async (req, res) => {
     const { item, user } = req.body
     const { uid } = user
-    await User.findOneAndUpdate({ uid }, { $pull: { cart: item } })
+    await User.findOneAndUpdate({ uid }, { $pull: { cart:new mongoose.Types.ObjectId(item) } })
     res.json({
         status: true,
         msg: "کالا از سبد خرید حذف شد"
@@ -204,7 +207,7 @@ router.post("/shop_finalize", async (req, res) => {
         {
             $inc: { gold: selected_item_price * -1 },
             $set: { cart: [] },
-            $push: { items: { $each: s_user.cart } }
+            $push: { items:{ $each: s_user.cart } }
         }
     )
     res.json({

@@ -3,6 +3,7 @@ const router = express.Router()
 const Items = require("../db/item")
 const User = require("../db/user")
 const reject = require("../helper/reject_handler")
+const { default: mongoose } = require("mongoose")
 
 
 
@@ -66,7 +67,7 @@ router.post("/buy", async (req, res) => {
     if (gold < s_item.price) return reject(13, res)
     await User.findOneAndUpdate({ uid: s_user.uid }, {
         $inc: { gold: s_item.price * -1 },
-        $push: { items: item }
+        $push: { items: mongoose.Types.ObjectId(item) }
     })
     res.json({
         status:true,
