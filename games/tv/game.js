@@ -552,7 +552,6 @@ const Game = class {
 
             } else {
                 let next_event = vote_type === "pre_vote" ? "arange_defence" : "count_exit_vote"
-                console.log({ nexxtttttttttttttttt: next_event });
                 this.game_vars.edit_event("edit", "next_event", next_event)
                 this.mainCycle()
                 return
@@ -884,8 +883,9 @@ const Game = class {
             //end vote
         }
         const av_users = [...queue].filter((u, i) => i !== turn)
-        const { socket_id } = queue[turn]
-        this.socket.to(socket_id).emit("chaos_vote", { data: { available_users: av_users } })
+        const { user_id } = queue[turn]
+        let player=befor_start.pick_player_from_user_id({users:this.users,user_id})
+        this.socket.to(player.socket_id).emit("chaos_vote", { data: { available_users: av_users } })
         let restart_vote = (game_vars, require_vote, mainCycle) => {
             const { chaos_vots } = game_vars
             if (chaos_vots < require_vote) {
