@@ -16,7 +16,8 @@ const static_vars={
         introduction:10,
         turn:10,
         challenge:15,
-        defence:30
+        defence:30,
+        chaos:10
     },
     scenario:"nato"
 }

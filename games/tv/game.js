@@ -248,7 +248,8 @@ const Game = class {
                     user_shot: client.idenity.user_id,
                     user_resive_shot: user_id,
                     game_id: this.game_id,
-                    users: this.users
+                    users: this.users,
+                    socket: this.socket
                 })
                 break
             }
@@ -256,7 +257,11 @@ const Game = class {
             case ("day_using_gun"): {
                 const { user_id } = data
                 const { game_id } = this
-                this.socket.to(game_id).emit("day_using_gun", { data: { user_id } })
+                this.users.forEach(user => {
+                    const { socket_id } = user
+                    if (user.user_id !== user_id) this.socket.to(socket_id).emit("day_using_gun", { data: { user_id } })
+
+                })
                 break
             }
 
@@ -376,7 +381,7 @@ const Game = class {
         const { queue, turn, can_take_challenge, speech_type, reval } = this.game_vars
         if (queue.length === turn) {
             start.edit_game_action({
-                index: queue[turn-1].user_index,
+                index: queue[turn - 1].user_index,
                 prime_event: "user_status",
                 second_event: "is_talking",
                 new_value: false,
@@ -385,6 +390,7 @@ const Game = class {
             })
             this.socket.to(game_id).emit("current_speech_end")
             if (speech_type === "chaos") {
+                console.log("CHAOS SPEECH END");
                 this.game_vars.edit_event("edit", "next_event", "chaos_speech_second_phase")
                 this.mainCycle()
                 return
@@ -773,7 +779,7 @@ const Game = class {
             this.game_vars.edit_event("edit", "next_event", "start_speech")
         }
         gun_status.forEach(gun => {
-            console.log({gun});
+            console.log({ gun });
             const user_to_emit = befor_start.pick_player_from_user_id({ users: this.users, user_id: gun.user_id })
             this.socket.to(user_to_emit.socket_id).emit("gun_status", { data: { gun_enable: true } })
         })
@@ -794,6 +800,7 @@ const Game = class {
 
 
     chaos_speech_second_phase() {
+        console.log("CHAOS SECOND PHASE");
         let live_users = start.pick_live_users({ game_vars: this.game_vars })
         const { game_id } = this
         live_users.forEach(user => {
@@ -828,8 +835,11 @@ const Game = class {
 
 
     chaos_result_first_phase() {
-        const { game_id, chaos_run_count } = this
+        const { chaos_run_count } = this.game_vars
+        const { game_id } = this
+        console.log({ chaos_run_count });
         if (chaos_run_count === 1) {
+            console.log("RANDOMIZE CALL");
             //random user
             return
         }
@@ -863,7 +873,7 @@ const Game = class {
             if (chaos_vots < require_vote) {
                 game_vars.edit_event("edit", "next_event", "chaos_result_first_phase")
                 mainCycle()
-                
+
             }
         }
         run_timer(7, () => { restart_vote(this.game_vars, turn + 1, () => { this.mainCycle() }) })
@@ -871,7 +881,7 @@ const Game = class {
     }
 
     chaos_result_second_phase() {
-
+        console.log("CHAOS RESULT SECOND PHASE");
         const { chaos_vots } = this.game_vars
         let live_users = start.pick_live_users({ game_vars: this.game_vars })
         const selected_user = live_users.find(user => {
@@ -888,6 +898,7 @@ const Game = class {
             const { socket_id, user_id } = selected_user
             let other_players = live_users.filter(e => e.user_id !== user_id).map(u => u.user_id)
             this.socket.to(socket_id).emit("last_decision", { data: { available_users: other_players } })
+
         }
 
     }

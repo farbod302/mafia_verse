@@ -129,7 +129,7 @@ const start = {
         game_vars.edit_event("edit", "speech_type", "turn")
         game_vars.edit_event("edit", "reval", true)
         // game_vars.edit_event("edit", "next_event", "start_speech")
-        game_vars.edit_event("edit", "next_event", "start_night")
+        game_vars.edit_event("edit", "next_event", "chaos")
         game_vars.edit_event("edit", "can_take_challenge", true)
     },
 
@@ -169,7 +169,8 @@ const start = {
     use_gun({ game_vars, user_shot, user_resive_shot, socket, game_id, users }) {
 
         const { gun_status } = game_vars
-        let selected_gun = gun_status.find(g => g.user === user_shot)
+        console.log({gun_status,user_shot});
+        let selected_gun = gun_status.find(g => g.user_id === user_shot)
         const { gun_type } = selected_gun
         socket.to(game_id).emit("used_gun", {
             data: {
@@ -186,7 +187,7 @@ const start = {
             user_to_add_queue.speech_type = "challenge"
             user_to_add_queue.can_take_challenge = false
             prv_queue.splice(turn, user_to_add_queue, 0)
-            game_vars.edit_event(edit, "queue", prv_queue)
+            game_vars.edit_event("edit", "queue", prv_queue)
         }
 
     }
