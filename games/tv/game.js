@@ -803,8 +803,8 @@ const Game = class {
         const { game_id } = this
         let user_status = this.game_vars.player_status
         console.log({user_status});
-        this.socket.to(game_id).emit("game_action", { data: user_status })
         this.socket.to(game_id).emit("game_event", { data: { game_event: "chaos" } })
+        this.socket.to(game_id).emit("game_action", { data: user_status })
         this.game_vars.edit_event("edit", "custom_queue", [])
         this.game_vars.edit_event("edit", "speech_type", "chaos")
         this.game_vars.edit_event("edit", "next_event", "start_speech")
