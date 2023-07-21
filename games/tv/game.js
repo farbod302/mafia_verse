@@ -495,14 +495,14 @@ const Game = class {
         this.socket.to(game_id).emit("in_game_turn_speech", { data: { queue: new_queue, can_take_challenge, timer: time } })
         //set timer
         const contnue_func = () => { this.mainCycle(); }
-        start.set_timer_to_contnue_speech_queue({
-            func: contnue_func,
-            game_vars: this.game_vars,
-            time,
-            socket: this.socket,
-            users: this.users,
-            player_to_set_timer: user.user_id
-        })
+        // start.set_timer_to_contnue_speech_queue({
+        //     func: contnue_func,
+        //     game_vars: this.game_vars,
+        //     time,
+        //     socket: this.socket,
+        //     users: this.users,
+        //     player_to_set_timer: user.user_id
+        // })
     }
 
     async mafia_reval() {
