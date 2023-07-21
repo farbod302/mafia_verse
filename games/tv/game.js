@@ -271,14 +271,15 @@ const Game = class {
                 break
             }
 
-            case ("chaos_speech_data"): {
-                const { user_id, taking } = data
-                const {game_id}=this
-                const {chaos_speech_all_status}=this.game_vars
-                let new_speech_status=[...chaos_speech_all_status]
-                let user_index=new_speech_status.findIndex(e=>e.user_id === user_id)
-                new_speech_status[user_index].taking=taking
-                this.game_vars.edit_event("edit","chaos_speech_all_status",new_speech_status)
+            case ("chaos_user_speech"): {
+                const { user_id, talking } = data
+                console.log({ data });
+                const { game_id } = this
+                const { chaos_speech_all_status } = this.game_vars
+                let new_speech_status = [...chaos_speech_all_status]
+                let user_index = new_speech_status.findIndex(e => e.user_id === user_id)
+                new_speech_status[user_index].talking = talking
+                this.game_vars.edit_event("edit", "chaos_speech_all_status", new_speech_status)
                 this.socket.to(game_id).emit("chaos_user_speech", {
                     data: new_speech_status
                 })
@@ -843,20 +844,24 @@ const Game = class {
     chaos_speech_second_phase() {
         console.log("CHAOS SECOND PHASE");
         let live_users = start.pick_live_users({ game_vars: this.game_vars })
+        live_users = live_users.map(e => e.user_id)
+        live_users = [...this.users].filter(e => live_users.includes(e.user_id))
         const { game_id } = this
         live_users.forEach(user => {
             const { socket_id } = user
+            console.log({ user });
             this.socket.to(socket_id).emit("start_speech")
         })
         let chaos_speech_all_status = live_users.map(user => {
             return {
                 user_id: user.user_id,
-                taking: false
+                talking: false
             }
         })
         this.socket.to(game_id).emit("chaos_user_speech", {
             data: chaos_speech_all_status
         })
+        this.socket.to(game_id).emit("test_fake_data")
         this.game_vars.edit_event("new_value", "chaos_speech_all_status", chaos_speech_all_status)
 
         this.game_vars.edit_event("edit", "next_event", "chaos_result_first_phase")
@@ -914,7 +919,7 @@ const Game = class {
     chaos_result_second_phase() {
         console.log("CHAOS RESULT SECOND PHASE");
         const { chaos_vots } = this.game_vars
-        let live_users = start.pick_live_users({ game_vars: this.game_vars })
+
         const selected_user = live_users.find(user => {
             let times_user_selected = chaos_vots.filter(e => e === user.user_id)
             if (times_user_selected.length === 2) return true
