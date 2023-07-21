@@ -271,6 +271,20 @@ const Game = class {
                 break
             }
 
+            case ("chaos_speech_data"): {
+                const { user_id, taking } = data
+                const {game_id}=this
+                const {chaos_speech_all_status}=this.game_vars
+                let new_speech_status=[...chaos_speech_all_status]
+                let user_index=new_speech_status.findIndex(e=>e.user_id === user_id)
+                new_speech_status[user_index].taking=taking
+                this.game_vars.edit_event("edit","chaos_speech_all_status",new_speech_status)
+                this.socket.to(game_id).emit("chaos_user_speech", {
+                    data: new_speech_status
+                })
+                break
+            }
+
 
         }
     }
@@ -833,28 +847,17 @@ const Game = class {
         live_users.forEach(user => {
             const { socket_id } = user
             this.socket.to(socket_id).emit("start_speech")
-            start.edit_game_action({
-                index: user.id,
-                prime_event: "user_status",
-                second_event: "is_talking",
-                new_value: true,
-                game_vars: this.game_vars,
-                edit_others: true
-            })
-            let status_list = this.game_vars.player_status
-            this.socket.to(game_id).emit("game_action", { data: status_list })
-            live_users.forEach(user => {
-                start.edit_game_action({
-                    index: user.id,
-                    prime_event: "user_status",
-                    second_event: "is_talking",
-                    new_value: false,
-                    game_vars: this.game_vars,
-                    edit_others: true
-                })
-            })
         })
-
+        let chaos_speech_all_status = live_users.map(user => {
+            return {
+                user_id: user.user_id,
+                taking: false
+            }
+        })
+        this.socket.to(game_id).emit("chaos_user_speech", {
+            data: chaos_speech_all_status
+        })
+        this.game_vars.edit_event("new_value", "chaos_speech_all_status", chaos_speech_all_status)
 
         this.game_vars.edit_event("edit", "next_event", "chaos_result_first_phase")
         run_timer(30, () => { this.mainCycle() })
@@ -895,7 +898,7 @@ const Game = class {
         const av_users = [...queue].filter((u, i) => i !== turn)
         const { user_id } = queue[turn]
         let player = befor_start.pick_player_from_user_id({ users: this.users, user_id })
-        this.socket.to(player.socket_id).emit("chaos_vote", { data: { available_users: av_users.map(e=>e.user_id) } })
+        this.socket.to(player.socket_id).emit("chaos_vote", { data: { available_users: av_users.map(e => e.user_id) } })
         let restart_vote = (game_vars, require_vote, mainCycle) => {
             const { chaos_vots } = game_vars
             if (chaos_vots < require_vote) {
@@ -925,7 +928,7 @@ const Game = class {
         else {
             const { socket_id, user_id } = selected_user
             let other_players = live_users.filter(e => e.user_id !== user_id).map(u => u.user_id)
-            this.socket.to(socket_id).emit("last_decision", { data: { available_users: other_players.map(e=>e.user_id) } })
+            this.socket.to(socket_id).emit("last_decision", { data: { available_users: other_players.map(e => e.user_id) } })
 
         }
 
