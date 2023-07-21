@@ -204,6 +204,7 @@ const start = {
         let new_gun_status = [...gun_status]
         new_gun_status[selected_gun].used = true
         game_vars.edit_event("edit", "gun_status", new_gun_status)
+        
 
     }
 

@@ -119,7 +119,7 @@ router.post("/items_list", async (req, res) => {
 
     const user = req.body.user
     if (!user) return reject(1, res)
-    const user_with_items = await User.aggregate([{ $match: { uid: user.uid } },{
+    let user_with_items = await User.aggregate([{ $match: { uid: user.uid } },{
         $lookup:{
             from:"items",
             foreignField:"_id",
@@ -127,6 +127,7 @@ router.post("/items_list", async (req, res) => {
             as:"user_items"
         }
     }])
+    const items_list=user_with_items[0].user_items
     res.json({
         status: true,
         msg: "",

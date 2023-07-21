@@ -256,7 +256,6 @@ const Game = class {
 
             case ("day_using_gun"): {
                 const { user_id } = data
-                const { game_id } = this
                 this.users.forEach(user => {
                     const { socket_id } = user
                     if (user.user_id !== user_id) this.socket.to(socket_id).emit("day_using_gun", { data: { user_id } })
@@ -376,7 +375,6 @@ const Game = class {
 
 
     next_player_speech() {
-
         this.game_vars.edit_event("edit", "turn", "plus")
         const { game_id } = this
         const { queue, turn, can_take_challenge, speech_type, reval, player_reval, carts } = this.game_vars
@@ -390,7 +388,18 @@ const Game = class {
             this.socket.to(game_id).emit("player_show_character", { data: { user_id, id, name } })
             this.game_vars.edit_event("edit", "player_reval", null)
             this.game_vars.edit_event("edit", "turn", turn - 1)
-            const contnue_func = () => { this.mainCycle() }
+            const contnue_func = () => {
+                start.edit_game_action({
+                    index,
+                    prime_event: "user_status",
+                    second_event: "is_alive",
+                    new_value: false,
+                    game_vars: this.game_vars
+                })
+                const { player_status } = this.game_vars
+                this.socket.to(game_id).emit("game_action", { data: player_status })
+                this.mainCycle()
+            }
             run_timer(5, contnue_func)
             return
         }
@@ -885,8 +894,8 @@ const Game = class {
         }
         const av_users = [...queue].filter((u, i) => i !== turn)
         const { user_id } = queue[turn]
-        let player=befor_start.pick_player_from_user_id({users:this.users,user_id})
-        this.socket.to(player.socket_id).emit("chaos_vote", { data: { available_users: av_users } })
+        let player = befor_start.pick_player_from_user_id({ users: this.users, user_id })
+        this.socket.to(player.socket_id).emit("chaos_vote", { data: { available_users: av_users.map(e=>e.user_id) } })
         let restart_vote = (game_vars, require_vote, mainCycle) => {
             const { chaos_vots } = game_vars
             if (chaos_vots < require_vote) {
@@ -916,7 +925,7 @@ const Game = class {
         else {
             const { socket_id, user_id } = selected_user
             let other_players = live_users.filter(e => e.user_id !== user_id).map(u => u.user_id)
-            this.socket.to(socket_id).emit("last_decision", { data: { available_users: other_players } })
+            this.socket.to(socket_id).emit("last_decision", { data: { available_users: other_players.map(e=>e.user_id) } })
 
         }
 
