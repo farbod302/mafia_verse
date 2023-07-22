@@ -543,7 +543,7 @@ const Game = class {
         this.game_vars.edit_event("edit", "vote_type", "inquiry")
         const { game_id } = this
         this.socket.to(game_id).emit("day_inquiry", { data: { timer: 5 } })
-        this.socket.to(game_id).emit("game_event", { data: { game_event: "vote" } })
+        this.socket.to(game_id).emit("game_event", { data: { game_event: "inquiry_vote" } })
         await vote.start_vote({ game_vars: this.game_vars })
         this.mainCycle()
 
