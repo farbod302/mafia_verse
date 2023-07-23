@@ -279,6 +279,7 @@ const Game = class {
                 console.log({ data });
                 const { game_id } = this
                 const { chaos_speech_all_status } = this.game_vars
+                console.log({chaos_speech_all_statusssssssssssssssssssssssssss:chaos_speech_all_status});
                 let new_speech_status = [...chaos_speech_all_status]
                 let user_index = new_speech_status.findIndex(e => e.user_id === user_id)
                 new_speech_status[user_index].talking = talking
