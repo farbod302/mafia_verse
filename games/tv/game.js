@@ -860,7 +860,7 @@ const Game = class {
         live_users.forEach(user => {
             const { socket_id } = user
             console.log({ user });
-            this.socket.to(socket_id).emit("start_speech")
+            this.socket.to(socket_id).emit("chaos_all_speech")
         })
         let chaos_speech_all_status = live_users.map(user => {
             return {
@@ -875,7 +875,14 @@ const Game = class {
         this.game_vars.edit_event("new_value", "chaos_speech_all_status", chaos_speech_all_status)
 
         this.game_vars.edit_event("edit", "next_event", "chaos_result_first_phase")
-        run_timer(30, () => { this.mainCycle() })
+        run_timer(30, () => { 
+            live_users.forEach(user => {
+                const { socket_id } = user
+                console.log({ user });
+                this.socket.to(socket_id).emit("chaos_all_speech_end")
+            })
+            this.mainCycle() 
+        })
     }
 
 
