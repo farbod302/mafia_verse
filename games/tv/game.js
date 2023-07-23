@@ -267,6 +267,9 @@ const Game = class {
             case ("chaos_vote"): {
                 const { user_id } = data
                 this.game_vars.edit_event("push", "chaos_vots", user_id)
+                const { user_id: user_voted } = client
+                const { game_id } = this
+                this.socket.to(game_id).emit("chaos_result", { data: { from_user: user_voted, vote_to: user_id } })
                 this.mainCycle()
                 break
             }
@@ -829,7 +832,14 @@ const Game = class {
 
     async chaos() {
         const { game_id } = this
-        let user_status = this.game_vars.player_status
+        const { chaos_run_count } = this.game_vars
+        if (chaos_run_count === 2) {
+            console.log("RANDOMIZE CALL");
+            //random user
+            return
+        }
+        this.game_vars.edit_event("edit", "chaos_run_count", "plus")
+
         this.socket.to(game_id).emit("game_event", { data: { game_event: "chaos" } })
         // this.socket.to(game_id).emit("game_action", { data: user_status })
         await Helper.delay(2)
@@ -870,18 +880,11 @@ const Game = class {
 
 
     chaos_result_first_phase() {
-        const { chaos_run_count } = this.game_vars
         const { game_id } = this
-        console.log({ chaos_run_count });
-        if (chaos_run_count === 1) {
-            console.log("RANDOMIZE CALL");
-            //random user
-            return
-        }
+
         this.socket.to(game_id).emit("chaos_notif_vote_time")
         this.game_vars.edit_event("edit", "next_event", "next_player_chaos_vote")
         this.game_vars.edit_event("edit", "turn", -1)
-        this.game_vars.edit_event("edit", "chaos_run_count", "plus")
         start.generate_queue({
             type: "chaos",
             game_vars: this.game_vars,
@@ -933,8 +936,15 @@ const Game = class {
         else {
             const { socket_id, user_id } = selected_user
             let other_players = live_users.filter(e => e.user_id !== user_id).map(u => u.user_id)
+            this.game_vars.edit_event("new_value", "last_decision", null)
             this.socket.to(socket_id).emit("last_decision", { data: { available_users: other_players.map(e => e.user_id) } })
-
+            const timer_func = () => {
+                if (!this.game_vars.last_decision) {
+                    this.game_vars.edit_event("edit", "next_event", "chaos")
+                    this.mainCycle()
+                }
+            }
+            run_timer(10, () => { timer_func() })
         }
 
     }
