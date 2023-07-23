@@ -6,11 +6,11 @@ const { encrypt } = require("../../../helper/helper")
 const start = {
 
     async create_live_room({ game_id, game_vars, socket, users }) {
-        // await Voice.start_room(game_id)
+        await Voice.start_room(game_id)
         for (let user of users) {
             const { user_id, socket_id } = user
-            // let token = Voice.join_room(user_id, game_id)
-            socket.to(socket_id).emit("game_started", { token: "1234" })
+            let token = Voice.join_room(user_id, game_id)
+            socket.to(socket_id).emit("game_started", { token })
         }
     },
 
@@ -183,16 +183,16 @@ const start = {
             const { turn } = game_vars
             let prv_queue = [...game_vars.queue]
             let user_to_add_queue = befor_start.pick_player_from_user_id({ users, user_id: user_resive_shot })
-            const {user_id,index}=user_to_add_queue
+            const { user_id, index } = user_to_add_queue
             let clean_user = {
                 speech_status: "challenge",
-                pass:false,
-                challenge_used:true,
+                pass: false,
+                challenge_used: true,
                 user_id,
-                user_index:index
+                user_index: index
             }
 
-            prv_queue.splice(turn+1, 0, clean_user)
+            prv_queue.splice(turn + 1, 0, clean_user)
             prv_queue = prv_queue.filter((e) => {
                 if (e.user_id === user_resive_shot && e.speech_status !== "challenge") return false
                 return true
@@ -204,7 +204,7 @@ const start = {
         let new_gun_status = [...gun_status]
         new_gun_status[selected_gun].used = true
         game_vars.edit_event("edit", "gun_status", new_gun_status)
-        
+
 
     }
 
