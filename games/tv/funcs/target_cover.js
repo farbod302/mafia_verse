@@ -1,5 +1,5 @@
 const targetCover = {
-    enable_target_cover({ game_vars, users, socket }) {
+    enable_target_cover({ game_vars }) {
         const { queue } = game_vars
         let target_cover_queue = []
         if (queue.length === 1) target_cover_queue = [

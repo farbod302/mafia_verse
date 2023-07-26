@@ -107,7 +107,13 @@ const Game = class {
                 })
                 const { player_status } = this.game_vars
                 this.socket.to(game_id).emit("game_action", { data: player_status })
-
+                start.edit_game_action({
+                    index,
+                    prime_event: "user_action",
+                    second_event: "hand_rise",
+                    new_value: false,
+                    game_vars: this.game_vars
+                })
 
                 vote.submit_vote({
                     client,
@@ -616,6 +622,7 @@ const Game = class {
     }
 
     enable_target_cover() {
+        console.log("enable_target_cover");
         targetCover.enable_target_cover({ game_vars: this.game_vars, user: this.users })
         this.game_vars.edit_event("edit", "next_event", "next_player_target_cover")
         this.mainCycle()
@@ -712,9 +719,9 @@ const Game = class {
 
     }
 
-    enable_target_cover() {
-        targetCover.enable_target_cover({ game_vars: this.game_vars, users: this.users, socket: this.socket })
-    }
+    // enable_target_cover() {
+    //     targetCover.enable_target_cover({ game_vars: this.game_vars, users: this.users, socket: this.socket })
+    // }
 
     next_target_cover() {
 
