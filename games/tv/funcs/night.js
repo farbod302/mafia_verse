@@ -362,7 +362,7 @@ const night = {
     },
 
 
-    async next_daya({ game_vars, socket, game_id }) {
+    async next_day({ game_vars, socket, game_id }) {
         console.log("NEXT DAY");
         game_vars.edit_event("edit", "day", "plus")
         game_vars.edit_event("edit", "time", "day")

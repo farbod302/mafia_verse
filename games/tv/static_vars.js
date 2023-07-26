@@ -13,7 +13,7 @@ const static_vars={
         "godfather",
     ],
     speech_time:{
-        introduction:5,
+        introduction:10,
         turn:15,
         challenge:15,
         defence:30,
