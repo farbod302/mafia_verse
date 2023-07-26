@@ -4,6 +4,7 @@ const imports = {
     admin: require("../routs/admin"),
     items:require("../routs/items"),
     channel:require("../routs/channel"),
+    report:require("../routs/report"),
 }
 
 module.exports=imports
