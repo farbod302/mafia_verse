@@ -95,6 +95,20 @@ const Game = class {
                 break
             }
             case ("vote"): {
+                let index = this.users.findIndex(user => user.user_id === client.idenity.user_id)
+
+                const { game_id } = this
+                start.edit_game_action({
+                    index,
+                    prime_event: "user_action",
+                    second_event: "hand_rise",
+                    new_value: true,
+                    game_vars: this.game_vars
+                })
+                const { player_status } = this.game_vars
+                this.socket.to(game_id).emit("game_action", { data: player_status })
+
+
                 vote.submit_vote({
                     client,
                     socket: this.socket,
@@ -197,7 +211,6 @@ const Game = class {
             case ("mafia_shot"): {
                 const { users } = data
                 const { day } = this.game_vars
-                console.log({ users });
                 let cur_night_events = this.db.getOne("night_records", "night", day)
                 let prv_events = [...cur_night_events.events]
                 users.forEach(target => {
@@ -267,7 +280,7 @@ const Game = class {
                 const { user_id } = data
                 this.game_vars.edit_event("push", "chaos_vots", user_id)
                 const { user_id: user_voted } = client.idenity
-                console.log({user_id,user_voted});
+                console.log({ user_id, user_voted });
                 const { game_id } = this
                 this.socket.to(game_id).emit("chaos_vote_result", { data: { from_user: user_voted, to_user: user_id } })
                 this.mainCycle()
@@ -834,7 +847,7 @@ const Game = class {
     async chaos() {
         const { game_id } = this
         const { chaos_run_count } = this.game_vars
-        this.game_vars.edit_event("edit","chaos_vots",[])
+        this.game_vars.edit_event("edit", "chaos_vots", [])
         if (chaos_run_count === 2) {
             console.log("RANDOMIZE CALL");
             //random user
