@@ -936,7 +936,6 @@ const Game = class {
             if (times_user_selected.length === 2) return true
             return false
         })
-        console.log({selected_user});
         if (!selected_user) {
             this.game_vars.edit_event("edit", "next_event", "chaos")
             mainCycle()
