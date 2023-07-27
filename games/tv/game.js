@@ -229,7 +229,6 @@ const Game = class {
                 this.db.replaceOne("night_records", "night", day, cur_night_events)
                 break
             }
-            //hhhere
             case ("using_speech_options"): {
                 const { using_option } = data
                 const { game_id } = this
@@ -557,6 +556,7 @@ const Game = class {
         await vote.start_vote({ game_vars: this.game_vars })
         const { game_id } = this
         this.socket.to(game_id).emit("game_event", { data: { game_event: "vote" } })
+        await Helper.delay(2)
         this.mainCycle()
     }
 
@@ -575,13 +575,12 @@ const Game = class {
 
 
     next_player_vote_time() {
-        console.log("aNEXT PLAYER VOTE RUN");
+        console.log("NEXT PLAYER VOTE RUN");
         this.game_vars.edit_event("edit", "turn", "plus")
         const { turn, queue, vote_type } = this.game_vars
         if (turn == queue.length) {
-            console.log({ queue: queue.length, turn });
             if (vote_type === "inquiry") {
-                console.log("VOTE TYPE INQUERY");
+                console.log("VOTE TYPE INQUIRY");
                 let live_users = start.pick_live_users({ game_vars: this.game_vars })
                 const { votes_status } = this.game_vars
                 let users_voted = votes_status[0].users.length
@@ -643,6 +642,18 @@ const Game = class {
                     { msg: `آیا درخواست ${target_cover_queue.length === 1 ? "تارگت کاور" : "درباره"} دارید؟`, timer: 7 }
             })
             //set timer to move
+
+
+            const continue_func=(target_cover_queue,turn)=>{
+                if(!target_cover_queue[turn].permission){
+                    let new_target_cover=[...target_cover_queue]
+                    new_target_cover[turn].comp=true
+                    this.game_vars.edit_event("edit","target_cover_queue",new_target_cover)
+                    console.log("PLAYER DENY");
+                    this.mainCycle()
+                }
+            }
+            run_timer(8,()=>{continue_func(target_cover_queue,turn)})
             return
         }
         if (target_cover_queue[turn].permission === false) {
