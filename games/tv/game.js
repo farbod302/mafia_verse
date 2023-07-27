@@ -633,6 +633,9 @@ const Game = class {
         let turn = target_cover_queue.findIndex(q => !q.comp)
         if (turn === -1) {
             //end target cover
+            vote.arrange_queue_after_target_cover({ game_vars: this.game_vars, users: this.users })
+            this.mainCycle()
+            return
         }
         const { user_id } = target_cover_queue[turn]
         let user = befor_start.pick_player_from_user_id({ users: this.users, user_id })
@@ -644,16 +647,16 @@ const Game = class {
             //set timer to move
 
 
-            const continue_func=(target_cover_queue,turn)=>{
-                if(!target_cover_queue[turn].permission){
-                    let new_target_cover=[...target_cover_queue]
-                    new_target_cover[turn].comp=true
-                    this.game_vars.edit_event("edit","target_cover_queue",new_target_cover)
+            const continue_func = (target_cover_queue, turn) => {
+                if (!target_cover_queue[turn].permission) {
+                    let new_target_cover = [...target_cover_queue]
+                    new_target_cover[turn].comp = true
+                    this.game_vars.edit_event("edit", "target_cover_queue", new_target_cover)
                     console.log("PLAYER DENY");
                     this.mainCycle()
                 }
             }
-            run_timer(8,()=>{continue_func(target_cover_queue,turn)})
+            run_timer(8, () => { continue_func(target_cover_queue, turn) })
             return
         }
         if (target_cover_queue[turn].permission === false) {

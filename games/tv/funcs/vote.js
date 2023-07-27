@@ -9,8 +9,8 @@ const vote = {
 
         await delay(3)
         game_vars.edit_event("edit", "votes_status", [])
-        const { custom_queue, vote_type } = game_vars
-        let users_to_vote = vote_type !== "pre_vote" ? custom_queue : start.pick_live_users({ game_vars })
+        const { defenders_queue, vote_type } = game_vars
+        let users_to_vote = vote_type !== "pre_vote" ? defenders_queue : start.pick_live_users({ game_vars })
         game_vars.edit_event("edit", "queue", users_to_vote)
         game_vars.edit_event("edit", "turn", -1)
         game_vars.edit_event("edit", "next_event", "next_player_vote_time")
@@ -52,6 +52,7 @@ const vote = {
         let users_to_defence = votes_status.filter(user => user.users.length)
         let defender_ids = users_to_defence.map(user => user.user_id)
         let defenders_queue = users.filter(user => defender_ids.includes(user.user_id))
+        game_vars.edit_event("edit","defenders_queue",defenders_queue)
         if (defenders_queue.length) {
             defenders_queue.forEach(user => game_vars.edit_event("push", "defence_history", user.user_id))
             game_vars.edit_event("edit", "can_take_challenge", false)
@@ -79,11 +80,31 @@ const vote = {
 
     },
 
+
+    arrange_queue_after_target_cover({game_vars,users}){
+
+        const {target_cover_queue}=game_vars
+        let speech_queue=[]
+        target_cover_queue.forEach((user)=>{
+            const {users_select,users_select_length,user_id}=user
+            speech_queue.push(user_id)
+            if(users_select.length === users_select_length){
+                speech_queue=speech_queue.concat(users_select)
+            }
+        })
+        speech_queue=speech_queue.map(user_id=>{
+            let user=befor_start.pick_player_from_user_id({users,user_id})
+            return user
+        })
+        game_vars.edit_event("edit","custom_queue",speech_queue)
+        game_vars.edit_event("edit","next_event","start_speech")
+        console.log({speech_queue});
+
+    },
   
     count_exit_vote({ game_vars, users, socket, game_id }) {
         const { votes_status } = game_vars
         let user_to_exit = votes_status.sort((a, b) => { b.users.length - a.users.length })
-        console.log({ user_to_exit });
         user_to_exit = user_to_exit[0]
         let exit_vote_count = user_to_exit.users.length
         if (exit_vote_count === 0) return
