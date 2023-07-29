@@ -29,7 +29,7 @@ const Game = class {
     }
 
     submit_user_disconnect({ client }) {
-        const { user_id } = client.identity
+        const { user_id } = client.idenity
         let index = this.users.findIndex(user => user.user_id === user_id)
         start.edit_game_action({
             index,
@@ -55,10 +55,10 @@ const Game = class {
     }
 
     async player_action({ op, data, client }) {
-        let user_call_identity = client.identity
+        let user_call_idenity = client.idenity
         switch (op) {
             case ("ready_to_choose"): {
-                this.game_vars.edit_event("push", "join_status", user_call_identity)
+                this.game_vars.edit_event("push", "join_status", user_call_idenity)
                 let connected_users_length = this.game_vars.join_status.length
                 if (connected_users_length == static_vars.player_count) {
                     const game_id = this.game_id
@@ -81,7 +81,7 @@ const Game = class {
                 break
 
             case ("ready_to_game"): {
-                this.game_vars.edit_event("push", "join_status_second_phase", user_call_identity)
+                this.game_vars.edit_event("push", "join_status_second_phase", user_call_idenity)
                 let connected_users_length = this.game_vars.join_status_second_phase.length
                 if (connected_users_length === static_vars.player_count) {
                     this.go_live()
@@ -96,7 +96,7 @@ const Game = class {
                 break
             }
             case ("vote"): {
-                let index = this.users.findIndex(user => user.user_id === client.identity.user_id)
+                let index = this.users.findIndex(user => user.user_id === client.idenity.user_id)
 
                 const { game_id } = this
                 start.edit_game_action({
@@ -128,7 +128,7 @@ const Game = class {
             case ("user_action"): {
 
                 const { action } = data
-                const { user_id } = client.identity
+                const { user_id } = client.idenity
                 const { game_id } = this
                 let index = this.users.findIndex(user => user.user_id === user_id)
                 start.edit_game_action({
@@ -197,11 +197,11 @@ const Game = class {
                 cur_night_events.events = prv_events
                 this.db.replaceOne("night_records", "night", day, cur_night_events)
                 night.night_act_handler({
-                    user_id: client.identity.user_id,
+                    user_id: client.idenity.user_id,
                     game_vars: this.game_vars,
                     act: role,
                     socket: this.socket,
-                    identity: client.identity,
+                    idenity: client.idenity,
                     users: this.users,
                     targets: users
                 })
@@ -240,7 +240,7 @@ const Game = class {
                 new_target_cover_queue[turn].permission = using_option
                 this.game_vars.edit_event("edit", "target_cover_queue", new_target_cover_queue)
                 if (using_option) {
-                    this.socket.to(game_id).emit("user_request_speech_options", { requested_id: client.identity.user_id })
+                    this.socket.to(game_id).emit("user_request_speech_options", { requested_id: client.idenity.user_id })
                 }
                 this.mainCycle()
                 break
@@ -264,7 +264,7 @@ const Game = class {
                 const { user_id } = data
                 start.use_gun({
                     game_vars: this.game_vars,
-                    user_shot: client.identity.user_id,
+                    user_shot: client.idenity.user_id,
                     user_resive_shot: user_id,
                     game_id: this.game_id,
                     users: this.game_vars.users_comp_list,
@@ -286,7 +286,7 @@ const Game = class {
             case ("chaos_vote"): {
                 const { user_id } = data
                 this.game_vars.edit_event("push", "chaos_vots", user_id)
-                const { user_id: user_voted } = client.identity
+                const { user_id: user_voted } = client.idenity
                 console.log({ user_id, user_voted });
                 const { game_id } = this
                 this.socket.to(game_id).emit("chaos_vote_result", { data: { from_user: user_voted, to_user: user_id } })

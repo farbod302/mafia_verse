@@ -196,7 +196,7 @@ const night = {
     },
 
 
-    night_act_handler({ user_id, game_vars, act, targets, socket, identity, users }) {
+    night_act_handler({ user_id, game_vars, act, targets, socket, idenity, users }) {
         switch (act) {
             case ("doctor"): {
                 if (targets.includes(user_id)) { game_vars.edit_event("edit", "doctor_self_save", true) }
@@ -207,7 +207,7 @@ const night = {
                 let user_to_check = targets[0].user_id
                 let target = game_vars.carts.find(cart => cart.user_id === user_to_check)
                 let status = mafia_acts.includes(target.name)
-                socket.to(identity.socket_id).emit("detective_inquiry", { data: { inquiry: status, user_id: user_to_check } })
+                socket.to(idenity.socket_id).emit("detective_inquiry", { data: { inquiry: status, user_id: user_to_check } })
                 game_vars.edit_event("push", "users_detective_check", user_to_check)
                 return
             }

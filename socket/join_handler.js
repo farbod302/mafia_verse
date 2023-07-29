@@ -7,7 +7,7 @@ const join_handler = ({ token,db,client,socket }) => {
     if (!user) return
     const { uid, device_id } = user
     let user_party = uuid(5)
-    let identity = {
+    let idenity = {
         socket_id: client.id,
         party_id: user_party,
         user_id: uid,
@@ -18,11 +18,11 @@ const join_handler = ({ token,db,client,socket }) => {
         socket.to(client.id).emit("has_exist_game")
     }
     client.join(user_party)
-    client.identity = identity
-    db.add_data("users", identity)
+    client.idenity = idenity
+    db.add_data("users", idenity)
     db.add_data("party", {
         party_id: user_party,
-        users: [identity]
+        users: [idenity]
     })
     socket.to(client.id).emit("join_status",{data:{user_id:uid}})
 }

@@ -21,7 +21,7 @@ const Voice = {
     },
     join_room(user, game_id) {
         const at = new AccessToken('devkey', 'secret', {
-            identity: `${user}`,
+            idenity: `${user}`,
         });
         at.addGrant({ roomJoin: true, room: `${game_id}` });
         const token = at.toJwt();

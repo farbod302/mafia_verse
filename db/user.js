@@ -4,7 +4,7 @@ const mongoose = require("mongoose")
 
 const user = mongoose.Schema({
 
-    identity: Object,
+    idenity: Object,
     avatar: Object,
     uid: String,
     age:{type:Number,default:0},
