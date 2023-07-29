@@ -774,6 +774,8 @@ const Game = class {
     }
 
     async mafia_speech() {
+        const { game_id } = this
+        this.socket.to(game_id).emit({ data: { msg: "زمان هم فکری مافیا", timer: 3 } })
         await night.mafia_speech({
             game_vars: this.game_vars,
             users: this.users,
