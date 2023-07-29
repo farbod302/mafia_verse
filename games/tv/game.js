@@ -210,6 +210,7 @@ const Game = class {
 
             case ("mafia_decision"): {
                 const { shot } = data
+                console.log({ shot });
                 let decision = shot ? "mafia_shot" : "use_nato"
                 this.game_vars.edit_event("edit", "next_event", decision)
                 this.mainCycle()
@@ -449,6 +450,7 @@ const Game = class {
                 game_vars: this.game_vars,
                 edit_others: false
             })
+            this.game_vars.edit_event("edit", "speech_code", "")
             const { player_status } = this.game_vars
             this.socket.to(game_id).emit("game_action", { data: player_status })
             this.socket.to(game_id).emit("current_speech_end")
@@ -540,10 +542,10 @@ const Game = class {
             func: contnue_func,
             game_vars: this.game_vars,
             time,
-            users:this.users,
+            users: this.users,
             socket: this.socket,
             speech_code,
-            player_to_set_timer:user.user_id
+            player_to_set_timer: user.user_id
         })
     }
 
@@ -553,6 +555,8 @@ const Game = class {
             users: this.users,
             socket: this.socket
         })
+        const { game_id } = this
+        this.socket.to(game_id).emit("report", { data: { msg: "مافیا در حال شناخت هم تییمی های خود هستند", timer: 3 } })
         await Helper.delay(5)
         this.mainCycle()
     }
@@ -568,6 +572,7 @@ const Game = class {
 
     async check_for_inquiry() {
         this.game_vars.edit_event("edit", "custom_queue", ["inquiry"])
+        this.game_vars.edit_event("edit", "turn", -1)
         this.game_vars.edit_event("edit", "vote_type", "inquiry")
         const { game_id } = this
         this.socket.to(game_id).emit("day_inquiry", { data: { timer: 5 } })
@@ -721,6 +726,7 @@ const Game = class {
         else {
             game_vars.edit_event("edit", "next_event", "start_night")
         }
+        this.game_vars.edit_event("edit", "defenders_queue", [])
         this.mainCycle()
     }
 
@@ -791,7 +797,7 @@ const Game = class {
             }
         }
 
-        run_timer(3, timer_func)
+        run_timer(10, timer_func)
     }
 
     mafia_shot() {

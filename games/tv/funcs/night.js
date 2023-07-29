@@ -94,6 +94,7 @@ const night = {
 
     mafia_shot({ game_vars, socket }) {
         let { socket_id, user_id } = game_vars.user_to_shot
+        console.log({user_id},"mafia shot");
         socket.to(socket_id).emit("mafia_shot", {
             timer: 10,
             max: 1,
@@ -111,7 +112,7 @@ const night = {
     },
 
     other_acts({ game_vars, users, socket, records }) {
-        let acts_used = ["gurd", "nato", "godfather", "hostage_taker", "citizen"]
+        let acts_used = ["guard", "nato", "godfather", "hostage_taker", "citizen"]
         const { carts } = game_vars
         let users_remain = carts.filter(cart => !acts_used.includes(cart.name))
 
@@ -161,7 +162,7 @@ const night = {
 
     },
 
-    pick_user_for_act({ game_vars, act, user_id }) {
+        pick_user_for_act({ game_vars, act, user_id }) {
         switch (act) {
             case ("doctor"): {
                 let live_users = start.pick_live_users({ game_vars })
@@ -355,6 +356,7 @@ const night = {
         })
         let mafia_remain = live_users_with_role.filter(user => mafia_rols.includes(user.role))
         let city = live_users_with_role.filter(user => !mafia_rols.includes(user.role))
+        return 4
         if (!mafia_remain.length) return 1
         if (city.length <= mafia_remain.length) return 2
         // if (live_users.length === 3) return 3

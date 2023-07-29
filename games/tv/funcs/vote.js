@@ -9,8 +9,9 @@ const vote = {
 
         await delay(3)
         game_vars.edit_event("edit", "votes_status", [])
-        const { defenders_queue, vote_type } = game_vars
-        let users_to_vote = vote_type !== "pre_vote" ? defenders_queue : start.pick_live_users({ game_vars })
+        const { defenders_queue, vote_type, custom_queue } = game_vars
+        let custom = defenders_queue?.length ? defenders_queue : custom_queue
+        let users_to_vote = vote_type !== "pre_vote" ? custom : start.pick_live_users({ game_vars })
         game_vars.edit_event("edit", "queue", users_to_vote)
         game_vars.edit_event("edit", "turn", -1)
         game_vars.edit_event("edit", "next_event", "next_player_vote_time")
@@ -29,7 +30,7 @@ const vote = {
             custom_queue.forEach(user => users_to_prevent_vote.push(user.user_id))
         }
         let user_to_vote = users.filter(user => !users_to_prevent_vote.includes(user.user_id))
-        user_to_vote.forEach(user => socket.to(user.socket_id).emit("vote_to_player", { data: { user: cur_player} }))
+        user_to_vote.forEach(user => socket.to(user.socket_id).emit("vote_to_player", { data: { user: cur_player } }))
         run_timer(10, cycle)
     },
     submit_vote({ client, socket, game_vars, game_id }) {
@@ -52,7 +53,7 @@ const vote = {
         let users_to_defence = votes_status.filter(user => user.users.length)
         let defender_ids = users_to_defence.map(user => user.user_id)
         let defenders_queue = users.filter(user => defender_ids.includes(user.user_id))
-        game_vars.edit_event("edit","defenders_queue",defenders_queue)
+        game_vars.edit_event("edit", "defenders_queue", defenders_queue)
         if (defenders_queue.length) {
             defenders_queue.forEach(user => game_vars.edit_event("push", "defence_history", user.user_id))
             game_vars.edit_event("edit", "can_take_challenge", false)
@@ -81,27 +82,27 @@ const vote = {
     },
 
 
-    arrange_queue_after_target_cover({game_vars,users}){
+    arrange_queue_after_target_cover({ game_vars, users }) {
 
-        const {target_cover_queue}=game_vars
-        let speech_queue=[]
-        target_cover_queue.forEach((user)=>{
-            const {users_select,users_select_length,user_id}=user
+        const { target_cover_queue } = game_vars
+        let speech_queue = []
+        target_cover_queue.forEach((user) => {
+            const { users_select, users_select_length, user_id } = user
             speech_queue.push(user_id)
-            if(users_select.length === users_select_length){
-                speech_queue=speech_queue.concat(users_select)
+            if (users_select.length === users_select_length) {
+                speech_queue = speech_queue.concat(users_select)
             }
         })
-        speech_queue=speech_queue.map(user_id=>{
-            let user=befor_start.pick_player_from_user_id({users,user_id})
+        speech_queue = speech_queue.map(user_id => {
+            let user = befor_start.pick_player_from_user_id({ users, user_id })
             return user
         })
-        game_vars.edit_event("edit","custom_queue",speech_queue)
-        game_vars.edit_event("edit","next_event","start_speech")
-        console.log({speech_queue});
+        game_vars.edit_event("edit", "custom_queue", speech_queue)
+        game_vars.edit_event("edit", "next_event", "start_speech")
+        console.log({ speech_queue });
 
     },
-  
+
     count_exit_vote({ game_vars, users, socket, game_id }) {
         const { votes_status } = game_vars
         let user_to_exit = votes_status.sort((a, b) => { b.users.length - a.users.length })
