@@ -557,7 +557,7 @@ const Game = class {
         })
         const { game_id } = this
         this.socket.to(game_id).emit("report", { data: { msg: "مافیا در حال شناخت هم تییمی های خود هستند", timer: 3 } })
-        await Helper.delay(5)
+        await Helper.delay(8)
         this.mainCycle()
     }
 
