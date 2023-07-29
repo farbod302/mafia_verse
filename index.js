@@ -10,7 +10,6 @@ require('dotenv').config()
 const SocketProvider=require("./socket");
 const Jwt = require('./helper/jwt');
 const reject = require('./helper/reject_handler');
-const multer=require("multer")
 
 const token_handler=(req,res,next)=>{
     const {token}=req.body

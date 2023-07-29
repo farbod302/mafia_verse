@@ -1,3 +1,4 @@
+const { uid } = require("uid")
 const Helper = require("../../helper/helper")
 const TempDb = require("../../helper/temp_db")
 const run_timer = require("../../helper/timer")
@@ -494,6 +495,7 @@ const Game = class {
                     status: false
                 }
             })
+            console.log({ status_list });
             this.socket.to(game_id).emit("users_challenge_status", { data: status_list })
         }
         else {
@@ -532,13 +534,16 @@ const Game = class {
         this.socket.to(game_id).emit("in_game_turn_speech", { data: { queue: new_queue, can_take_challenge, timer: time } })
         //set timer
         const contnue_func = () => { this.mainCycle(); }
+        let speech_code = uid(4)
+        this.game_vars.edit_event("edit", "speech_code", speech_code)
         start.set_timer_to_contnue_speech_queue({
             func: contnue_func,
             game_vars: this.game_vars,
             time,
+            users:this.users,
             socket: this.socket,
-            users: this.users,
-            player_to_set_timer: user.user_id
+            speech_code,
+            player_to_set_timer:user.user_id
         })
     }
 

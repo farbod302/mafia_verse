@@ -72,13 +72,12 @@ const start = {
         game_vars.edit_event("edit", "queue", new_queue)
     },
 
-    set_timer_to_contnue_speech_queue({ func, game_vars, time, socket, users, player_to_set_timer }) {
+    set_timer_to_contnue_speech_queue({ func, game_vars, time, socket,users, speech_code,player_to_set_timer }) {
         const timer_func = () => {
-            const { player_status } = game_vars
-            let s_player = player_status.find(player => player.user_id === player_to_set_timer)
+            const { speech_code:cur_speech_code } = game_vars
 
-            if (s_player.user_status.is_talking) {
-                let user = befor_start.pick_player_from_user_id({ users, user_id: s_player.user_id })
+            if (speech_code === cur_speech_code) {
+                let user = befor_start.pick_player_from_user_id({ users, user_id: player_to_set_timer })
                 const { socket_id } = user
                 socket.to(socket_id).emit("speech_time_up")
                 console.log("TIMER RUN");
