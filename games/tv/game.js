@@ -344,7 +344,7 @@ const Game = class {
         await Helper.delay(3)
         let status_list = game_vars.player_status
         this.socket.to(game_id).emit("game_action", { data: status_list })
-
+        this.socket.to(game_id).emit("report", { data: { msg: "روز معارفه", timer: 3 } })
         this.game_vars.edit_event("edit", "next_event", "start_speech")
         this.mainCycle()
     }
@@ -418,7 +418,6 @@ const Game = class {
         //check player reval
 
         if (player_reval && player_reval.turn === turn) {
-            console.log("PLAYER REVAL");
             const { user_id } = player_reval
             let player_roule = carts.find(c => c.user_id === user_id)
             const { name, id } = player_roule
@@ -775,7 +774,7 @@ const Game = class {
 
     async mafia_speech() {
         const { game_id } = this
-        this.socket.to(game_id).emit("report",{ data: { msg: "زمان هم فکری مافیا", timer: 3 } })
+        this.socket.to(game_id).emit("report", { data: { msg: "زمان هم فکری مافیا", timer: 3 } })
         await night.mafia_speech({
             game_vars: this.game_vars,
             users: this.users,
