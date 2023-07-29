@@ -1,5 +1,5 @@
 const handel_reconnect = ({ client, db ,socket}) => {
-    const { user_id } = client.idenity
+    const { user_id } = client.identity
     let game_to_join = db.getOne("disconnect", "user_id", user_id)
     if (!game_to_join) return
     const { game_id } = game_to_join

@@ -23,13 +23,13 @@ const SocketProvider = class {
                     const games = this.db.getAll("games")
                     user_game = games.find(game => {
                         let ids = game.users.map(user => user.user_id)
-                        if (ids.includes(client.idenity.user_id)) {
+                        if (ids.includes(client.identity.user_id)) {
                             client.game_id = game.game_id
                             return true
                         }
                     })
                 }
-                // console.log({user_game:user_game.game_id,op,data,client:client.idenity});
+                // console.log({user_game:user_game.game_id,op,data,client:client.identity});
                 if (!user_game) return
                 user_game.game_class.player_action({op, data, client})
             })

@@ -17,9 +17,9 @@ const find_match = {
     async find_robot_game({ senario, client, db, socket }) {
         // senario = senario || "tv"
         senario = "tv"
-        const party_id = client.idenity?.party_id
+        const party_id = client.identity?.party_id
         if (!party_id) return
-        client.to(party_id).emit("find_game_started", { user_started: client.idenity, senario })
+        client.to(party_id).emit("find_game_started", { user_started: client.identity, senario })
         let s_party = db.getOne("party", "party_id", party_id)
         let  { users } = s_party
         users=await users.map(async user=>{
@@ -78,7 +78,7 @@ const find_match = {
 
 
     async leave_find({ client, db, socket }) {
-        const party_id = client.idenity?.party_id
+        const party_id = client.identity?.party_id
         if (!party_id) return
         let all_games = db.getAll("games_queue")
         let party_to_leave = db.getOne("party", "party_id", party_id)

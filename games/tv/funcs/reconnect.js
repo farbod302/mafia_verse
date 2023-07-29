@@ -2,7 +2,7 @@ const befor_start = require("./before_start")
 const Voice=require("../../../helper/live_kit_handler")
 const reconnect=({game_vars,users,client,game_id})=>{
 
-    const {user_id}=client.idenity
+    const {user_id}=client.identity
     const user_comp_data=befor_start.pick_player_from_user_id({users,user_id})
     const {carts}=game_vars
     let user_character=carts.find(cart=>cart.user_id === user_id)

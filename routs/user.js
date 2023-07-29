@@ -10,8 +10,8 @@ router.post("/land_screen_data", async (req, res) => {
     const { uid } = req.body.user
     let user = await User.findOne({ uid })
     if (!user) return reject(5, res)
-    const { gold, chanel_id, idenity, cart } = user
-    const { name } = idenity
+    const { gold, chanel_id, identity, cart } = user
+    const { name } = identity
     res.json({
         status: true,
         msg: "",
@@ -56,8 +56,8 @@ router.post("/friend_list", async (req, res) => {
     const { friend_list_req, friend_list } = user
     let req_users = await User.find({ uid: { $in: !op ? friend_list_req : friend_list } })
     req_users = req_users.map(e => {
-        const { uid, idenity, avatar, ranking } = e
-        return { uid, idenity, avatar, ranking }
+        const { uid, identity, avatar, ranking } = e
+        return { uid, identity, avatar, ranking }
     })
     res.json({
         status: true,
@@ -104,8 +104,8 @@ router.post("/follow_list", async (req, res) => {
         list = await User.find({ uid: { $in: following } })
     }
     list = list.map(e => {
-        const { uid, idenity, avatar, ranking } = e
-        return { uid, idenity, avatar, ranking }
+        const { uid, identity, avatar, ranking } = e
+        return { uid, identity, avatar, ranking }
     })
     res.json({
         status: true,

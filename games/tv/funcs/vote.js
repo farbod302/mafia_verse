@@ -34,13 +34,13 @@ const vote = {
         run_timer(10, cycle)
     },
     submit_vote({ client, socket, game_vars, game_id }) {
-        console.log(`vote submited from ${client.idenity.user_id}`);
+        console.log(`vote submited from ${client.identity.user_id}`);
         const { votes_status } = game_vars
         console.log({ votes_status });
         let turn = votes_status.length - 1
         console.log({ turn });
         let new_vote_status = [...votes_status]
-        new_vote_status[turn].users.push(client.idenity.user_id)
+        new_vote_status[turn].users.push(client.identity.user_id)
         game_vars.edit_event("edit", "votes_status", new_vote_status)
         // socket.to(game_id).emit("vote", { data: new_vote_status[turn] })
         console.log({ votes_status });

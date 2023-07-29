@@ -4,9 +4,10 @@ const mongoose = require("mongoose")
 
 const user = mongoose.Schema({
 
-    idenity: Object,
+    identity: Object,
     avatar: Object,
     uid: String,
+    age:{type:Number,default:0},
     own_channel: { type: Boolean, default: false },
     gold: { type: Number, default: 10 },
     friend_limit: { type: Number, default: 20 },

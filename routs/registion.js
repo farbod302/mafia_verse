@@ -29,7 +29,7 @@ router.post("/", async (req, res) => {
     let player_uid = uid(4)
     const new_player = {
         device_id,
-        idenity: {
+        identity: {
             name: `guest_${player_uid}`,
             phone: null
         },
@@ -50,13 +50,13 @@ router.post("/", async (req, res) => {
 router.post("/check", async (req, res) => {
     const { phone } = req.body
     if (!Helper.valideate_phone(phone)) return reject(0, res)
-    let is_exist = await User.findOne({ "idenity.phone": phone })
+    let is_exist = await User.findOne({ "identity.phone": phone })
     res.json({ data: { is_exist: is_exist ? true : false, status: true } })
 })
 
 router.post("/sign_up", async (req, res) => {
     const { phone, name } = req.body
-    let is_user_name_uniq = await User.findOne({ $or: [{ "idenity.name": name }, { "idenity.phone": phone }] })
+    let is_user_name_uniq = await User.findOne({ $or: [{ "identity.name": name }, { "identity.phone": phone }] })
     if (is_user_name_uniq) {
         res.json({
             status: false,
@@ -86,7 +86,7 @@ router.post("/sign_up_confirm_phone", async (req, res) => {
 
     let player_uid = uid(4)
     const new_player = {
-        idenity: {
+        identity: {
             name: name || "",
             phone: phone
         },
@@ -105,7 +105,7 @@ router.post("/sign_up_confirm_phone", async (req, res) => {
 
 router.post("/log_in", async (req, res) => {
     const { phone, name } = req.body
-    let is_exist = await User.findOne(name ? { "idenity.name": name } : { "idenity.phone": phone })
+    let is_exist = await User.findOne(name ? { "identity.name": name } : { "identity.phone": phone })
     if (!is_exist) return reject(4, res)
     if (!Helper.valideate_phone(phone)) return reject(0, res)
     let code = RegistSmsHandler.send_sms(phone)
@@ -122,7 +122,7 @@ router.post("/log_in_confirm_phone", async (req, res) => {
     const { code, phone } = req.body
     let is_exist = RegistSmsHandler.check_code({ phone, code })
     if (!is_exist) return reject(1, res)
-    is_exist = await User.findOne({ "idenity.phone": phone })
+    is_exist = await User.findOne({ "identity.phone": phone })
     if (!is_exist) return reject(4, res)
     const { uid: user_id } = is_exist
     let token = Jwt.sign({ uid: user_id })
