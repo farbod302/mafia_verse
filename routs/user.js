@@ -7,7 +7,7 @@ const Item = require("../db/item")
 
 const { default: mongoose } = require("mongoose")
 const { uid: uuid } = require("uid")
-//fetach data
+//fetch data
 router.post("/land_screen_data", async (req, res) => {
     const { uid } = req.body.user
     let user = await User.findOne({ uid })
@@ -38,8 +38,8 @@ router.post("/profile_data", async (req, res) => {
 router.post("/friend_req", async (req, res) => {
     const { uid } = req.body.user
     const { req_id } = req.body
-    let req_persen = await User.findOne({ uid: req_id })
-    const { friend_list_req } = req_persen
+    let req_person = await User.findOne({ uid: req_id })
+    const { friend_list_req } = req_person
     if (friend_list_req.includes(uid)) return reject(6, res)
     await User.findOneAndUpdate({ uid: req_id }, { $push: { friend_list_req: uid } })
     res.json({
@@ -151,7 +151,7 @@ router.post("/profile", async (req, res) => {
 
 //chanel
 
-router.post("/request_join_channnel", async (req, res) => {
+router.post("/request_join_channel", async (req, res) => {
     if (!req.body.user) return reject(2, res)
     const { uid } = req.body.user
     const { channel_id } = user.body
