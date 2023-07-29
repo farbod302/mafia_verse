@@ -4,7 +4,9 @@ const reject = require("../helper/reject_handler")
 const Channel = require("../db/channel")
 const router = express.Router()
 const Item = require("../db/item")
+
 const { default: mongoose } = require("mongoose")
+const { uid: uuid } = require("uid")
 //fetach data
 router.post("/land_screen_data", async (req, res) => {
     const { uid } = req.body.user
@@ -119,15 +121,15 @@ router.post("/items_list", async (req, res) => {
 
     const user = req.body.user
     if (!user) return reject(1, res)
-    let user_with_items = await User.aggregate([{ $match: { uid: user.uid } },{
-        $lookup:{
-            from:"items",
-            foreignField:"_id",
-            localField:"items",
-            as:"user_items"
+    let user_with_items = await User.aggregate([{ $match: { uid: user.uid } }, {
+        $lookup: {
+            from: "items",
+            foreignField: "_id",
+            localField: "items",
+            as: "user_items"
         }
     }])
-    const items_list=user_with_items[0].user_items
+    const items_list = user_with_items[0].user_items
     res.json({
         status: true,
         msg: "",
@@ -240,5 +242,47 @@ router.post("/shop_finalize", async (req, res) => {
         data: {}
     })
 })
+
+
+
+//age auth
+
+
+let auth_session = []
+
+
+router.post("/age_auth", async (req, res) => {
+    const user = req.body.user
+    if (!user) return reject(1, res)
+    const { uid } = user
+    auth_session=auth_session.filter(e=>e.user_id !== uid)
+    const s_user = await User.findOne({ uid })
+    const { age } = s_user
+    if (age !== 0) return reject(16, res)
+    let session_id = uuid(5)
+    auth_session.push({ user_id: uid, session_id })
+    res.json({ status: true, data: { url: "http://localhost:3000/auth/" + session_id } })
+
+})
+
+router.post("/check_session", (req, res) => {
+    const { session_id } = req.body
+    let index = auth_session.findIndex(e => e.session_id === session_id)
+    if (index === -1) return reject(17, res)
+    res.json({ status: true })
+})
+
+
+router.post("/session_req", async (req, res) => {
+    const { age, session_id } = req.body
+    let index = auth_session.findIndex(e => e.session_id === session_id)
+    if (index === -1) return reject(17, res)
+    const { user_id } = auth_session[index]
+    await User.findOneAndUpdate({ uid: user_id }, { $set: { age } })
+    res.json({ status: true })
+    auth_session=auth_session.filter(e=>e.session_id !== session_id)
+
+})
+
 
 module.exports = router
