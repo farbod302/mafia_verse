@@ -889,6 +889,8 @@ const Game = class {
 
         this.socket.to(game_id).emit("game_event", { data: { game_event: "chaos" } })
         // this.socket.to(game_id).emit("game_action", { data: user_status })
+        this.socket.to(game_id).emit("report", { data: { msg: "زمان هرج و مرجزمان صحبت نوبتی", timer: 3 } })
+
         await Helper.delay(2)
         this.game_vars.edit_event("edit", "custom_queue", [])
         this.game_vars.edit_event("edit", "speech_type", "chaos")
@@ -898,12 +900,14 @@ const Game = class {
     }
 
 
-    chaos_speech_second_phase() {
+    async chaos_speech_second_phase() {
         console.log("CHAOS SECOND PHASE");
+        const { game_id } = this
+        this.socket.to(game_id).emit("report", { data: { msg: "صحبت دسته جمعی", timer: 3 } })
+        await Helper.delay(3)
         let live_users = start.pick_live_users({ game_vars: this.game_vars })
         live_users = live_users.map(e => e.user_id)
         live_users = [...this.users].filter(e => live_users.includes(e.user_id))
-        const { game_id } = this
         live_users.forEach(user => {
             const { socket_id } = user
             this.socket.to(socket_id).emit("chaos_all_speech")
