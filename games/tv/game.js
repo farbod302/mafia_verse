@@ -821,8 +821,14 @@ const Game = class {
             socket: this.socket,
             game_id: this.game_id
         })
-        const timer_func = () => { this.mainCycle() }
-        run_timer(5, timer_func)
+        this.game_vars.edit_event("edit", "next_event", "other_acts")
+
+        const timer_func = () => { 
+
+            this.mainCycle()
+            
+        }
+        run_timer(7, timer_func)
     }
 
 
