@@ -10,6 +10,7 @@ const start = require("./funcs/start")
 const targetCover = require("./funcs/target_cover")
 const vote = require("./funcs/vote")
 const static_vars = require("./static_vars")
+const game_result = require("./funcs/game_result")
 
 const Game = class {
     constructor({ game_id, users, socket, game_handlers }) {
@@ -307,6 +308,43 @@ const Game = class {
                 })
                 break
             }
+
+
+
+            case ("last_decision"): {
+                const { user_id } = data
+                const { game_id } = this
+                const mafia_roles = ["god_father", "nato", "hostage_taker"]
+                const { user_id: player_selected } = client.idenity
+                const { carts } = this.game_vars
+                let winner = null
+                let player_selected_role = carts.find(e => e.user_id == player_selected)
+                let player_chosen_role = carts.find(e => e.user_id == user_id)
+                if (mafia_roles.includes(player_chosen_role.name)) {
+                    winner = "mafia"
+                } else {
+                    winner = "citizen"
+                }
+                if (mafia_roles.includes(player_selected_role.name)) winner = "mafia"
+                this.game_vars.edit_event("new_value", "winner", winner)
+                this.game_vars.edit_event("edit", "next_event", "end_game")
+                this.mainCycle()
+                break
+            }
+
+
+            case ("end_game_free_speech"): {
+
+                const { user_id, is_talking } = data
+                const { game_id } = this
+                let prv_speech_status = [...this.game_vars.end_game_speech]
+                let index = prv_speech_status.findIndex(e => e.user_id === user_id)
+                prv_speech_status[index].is_talking = is_talking
+                this.game_vars.edit_event("edit", "end_game_speech", prv_speech_status)
+                this.socket.to(game_id).emit("end_game_free_speech", { data: { prv_speech_status } })
+
+            }
+
 
 
         }
@@ -823,10 +861,10 @@ const Game = class {
         })
         this.game_vars.edit_event("edit", "next_event", "other_acts")
 
-        const timer_func = () => { 
+        const timer_func = () => {
 
             this.mainCycle()
-            
+
         }
         run_timer(7, timer_func)
     }
@@ -874,7 +912,6 @@ const Game = class {
             this.game_vars.edit_event("edit", "next_event", "start_speech")
         }
         gun_status.forEach(gun => {
-            console.log({ gun });
             const user_to_emit = befor_start.pick_player_from_user_id({ users: this.users, user_id: gun.user_id })
             this.socket.to(user_to_emit.socket_id).emit("gun_status", { data: { gun_enable: true } })
         })
@@ -1003,13 +1040,33 @@ const Game = class {
             this.game_vars.edit_event("new_value", "last_decision", null)
             this.socket.to(socket_id).emit("last_decision", { data: { available_users: other_players.map(e => e.user_id) } })
             const timer_func = () => {
-                if (!this.game_vars.last_decision) {
+                if (!this.game_vars.winner) {
                     this.game_vars.edit_event("edit", "next_event", "chaos")
                     this.mainCycle()
                 }
             }
             run_timer(10, () => { timer_func() })
         }
+
+    }
+
+
+    async end_game() {
+        const { game_id } = this
+        const { winner } = this.game_vars
+        let report = game_result.game_result_generator({
+            game_vars: this.game_vars,
+            users: this.game_vars.users_comp_list,
+            winner
+        })
+
+        this.game_vars.edit_event("new_value", "end_game_speech", this.users.map(user => {
+            return { user_id: user.user_id, is_talking: false }
+        }))
+
+        this.socket.to(game_id).emit("end_game_result", { data: report })
+
+        await Helper.delay(5)
 
     }
 

@@ -94,7 +94,7 @@ const night = {
 
     mafia_shot({ game_vars, socket }) {
         let { socket_id, user_id } = game_vars.user_to_shot
-        console.log({user_id},"mafia shot");
+        console.log({ user_id }, "mafia shot");
         socket.to(socket_id).emit("mafia_shot", {
             timer: 10,
             max: 1,
@@ -162,7 +162,7 @@ const night = {
 
     },
 
-        pick_user_for_act({ game_vars, act, user_id }) {
+    pick_user_for_act({ game_vars, act, user_id }) {
         switch (act) {
             case ("doctor"): {
                 let live_users = start.pick_live_users({ game_vars })
@@ -218,7 +218,7 @@ const night = {
             }
             case ("rifleman"): {
                 // game_vars.edit_event("edit", "gun_status", targets)
-                console.log({targets});
+                console.log({ targets });
                 let real_gun = targets.find(gun => gun.act === "fighter")
                 if (real_gun) game_vars.edit_event("edit", "real_gun_used", true)
                 targets.forEach(target => {
@@ -294,7 +294,7 @@ const night = {
 
         }
         let user_to_kill = abs_deth || deth
-        console.log({abs_deth,deth});
+        console.log({ abs_deth, deth });
         //todo : tell night over
 
         await delay(5)
@@ -308,11 +308,11 @@ const night = {
                 game_vars
             })
             game_vars.edit_event("push", "dead_list", user_to_kill)
-            let prv_player_status=[...game_vars.player_status]
-            let user_index=prv_player_status.findIndex(u=>u.user_id === user_to_kill)
-            prv_player_status[user_index].user_status.is_alive=false
-            game_vars.edit_event("edit","player_status",prv_player_status)
-            console.log({prv_player_status});
+            let prv_player_status = [...game_vars.player_status]
+            let user_index = prv_player_status.findIndex(u => u.user_id === user_to_kill)
+            prv_player_status[user_index].user_status.is_alive = false
+            game_vars.edit_event("edit", "player_status", prv_player_status)
+            console.log({ prv_player_status });
             game_vars.edit_event("edit", "report_data",
                 {
                     user_id: user_to_kill,
@@ -331,11 +331,19 @@ const night = {
                 })
         }
         let next_event = this.check_next_day({ game_vars })
+        if (next_event === 3) {
+            game_vars.edit_event("edit", "next_event", "chaos")
+            return
+        }
         if (next_event === 4) {
             game_vars.edit_event("edit", "next_event", "next_day")
+            return
 
         } else {
-            //end game
+            let winner = next_event === 1 ? "citizen" : "mafia"
+            game_vars.edit_event("edit", "next_event", "end_game")
+            game_vars.edit_event("new_value", "winner", winner)
+
         }
 
     },
@@ -343,7 +351,7 @@ const night = {
 
     check_next_day({ game_vars }) {
         let live_users = start.pick_live_users({ game_vars })
-        console.log({live_users});
+        console.log({ live_users });
         const { carts } = game_vars
         let mafia_rols = ["godfather", "nato", "hostage_taker"]
         let live_users_with_role = live_users.map(user => {
@@ -356,7 +364,6 @@ const night = {
         })
         let mafia_remain = live_users_with_role.filter(user => mafia_rols.includes(user.role))
         let city = live_users_with_role.filter(user => !mafia_rols.includes(user.role))
-        return 4
         if (!mafia_remain.length) return 1
         if (city.length <= mafia_remain.length) return 2
         // if (live_users.length === 3) return 3
@@ -378,7 +385,7 @@ const night = {
         })
         game_vars.edit_event("edit", "custom_queue", [])
         game_vars.edit_event("edit", "votes_status", [])
-        game_vars.edit_event("edit","speech_type","turn")
+        game_vars.edit_event("edit", "speech_type", "turn")
     }
 
 
