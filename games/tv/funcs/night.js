@@ -284,12 +284,13 @@ const night = {
             }
         }
         else {
+            console.log({records});
             const nato_act = records.find(act => act.act === "nato")
             if (nato_act) {
-                const { user, role } = nato_act.targets[0]
-                let user_true_role = carts.find(cart => cart.user_id === user)
-                user_true_role = user_true_role.role
-                if (role === user_true_role) abs_deth = user
+                const { target, info } = nato_act
+                let user_true_role = carts.find(cart => cart.user_id === target)
+                user_true_role = user_true_role.name
+                if (info === user_true_role) abs_deth = target
             }
 
         }
@@ -350,6 +351,7 @@ const night = {
 
 
     check_next_day({ game_vars }) {
+        return 4
         let live_users = start.pick_live_users({ game_vars })
         console.log({ live_users });
         const { carts } = game_vars
