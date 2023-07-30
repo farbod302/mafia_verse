@@ -108,7 +108,7 @@ const night = {
         const { user_id } = nato
         let availabel_users = this.pick_user_for_act({ game_vars, act: "nato", user_id })
         this.emit_to_act({ user_id, availabel_users, users, socket, can_act: true })
-        socket.to(game_id).emit("mafia_use_nato")
+        socket.to(game_id).emit("report", { data: { msg: "مافیا اعلام ناتویی کرده است", timer: 3 } })
     },
 
     other_acts({ game_vars, users, socket, records }) {
@@ -284,7 +284,6 @@ const night = {
             }
         }
         else {
-            console.log({records});
             const nato_act = records.find(act => act.act === "nato")
             if (nato_act) {
                 const { target, info } = nato_act
