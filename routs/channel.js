@@ -7,6 +7,7 @@ const ChannelToken = require("../db/channel_token")
 const Channel = require("../db/channel")
 const User = require("../db/user")
 const UserChannelConfig = require("../db/user_channel_config")
+const online_users_handler = require("../socket/online_users_handler")
 router.post("/generate_channel_token", (req, res) => {
     const { user } = req.body
     const { password } = req.headers
@@ -83,16 +84,34 @@ router.post("/my_channels", async (req, res) => {
 
     const s_user = await User.findOne({ uid })
     const { chanels } = s_user
-
+    let online_users = online_users_handler.get_online_users()
     let promisees = chanels.map(channel => {
         return new Promise(async resolve => {
 
             let s_channel = await Channel.findOne({ id: channel })
             let channel_config = await UserChannelConfig.findOne({ user_id: uid, channel_id: channel })
-            const {last_visit}=channel_config
-            
+            const { last_visit } = channel_config
+            const { messages, users } = s_channel
+            let unread = messages.filter(e => e.date > last_visit)
+            let channel_online_users = users.filter(u => online_users.includes(u))
+            resolve({
+                ...channel_config,
+                channel_name: s_channel.name,
+                channel_id: s_channel.id,
+                channel_image: channel.avatar,
+                members: users.length,
+                unread_messages: unread.length,
+                online_users: channel_online_users.length
+
+            })
 
         })
+    })
+
+    let datas = await Promise.all(promisees)
+    res.json({
+        status: true,
+        data: datas
     })
 
 

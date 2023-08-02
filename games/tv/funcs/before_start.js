@@ -50,7 +50,11 @@ const befor_start = {
                 dislike:false,
                 challenge_request:false,
                 accepted_challenge_request:false,
-                hand_rise:false
+                hand_rise:false,
+                target_cover:{
+                    hand_rise:false,
+                    accepted:false
+                }
             }
            }
         })
