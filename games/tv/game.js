@@ -737,7 +737,7 @@ const Game = class {
 
             this.socket.to(game_id).emit("request_speech_options", {
                 data: {
-                    requested_id: user.user_id,
+                    requester_id: user.user_id,
                     option: choose_type,
                     timer: 7
                 }

@@ -6,6 +6,7 @@ const { uid: uuid } = require("uid")
 const ChannelToken = require("../db/channel_token")
 const Channel = require("../db/channel")
 const User = require("../db/user")
+const UserChannelConfig = require("../db/user_channel_config")
 router.post("/generate_channel_token", (req, res) => {
     const { user } = req.body
     const { password } = req.headers
@@ -82,8 +83,19 @@ router.post("/my_channels", async (req, res) => {
 
     const s_user = await User.findOne({ uid })
     const { chanels } = s_user
-    
-    
+
+    let promisees = chanels.map(channel => {
+        return new Promise(async resolve => {
+
+            let s_channel = await Channel.findOne({ id: channel })
+            let channel_config = await UserChannelConfig.findOne({ user_id: uid, channel_id: channel })
+            const {last_visit}=channel_config
+            
+
+        })
+    })
+
+
 
 })
 
