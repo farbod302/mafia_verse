@@ -51,10 +51,8 @@ const befor_start = {
                 challenge_request:false,
                 accepted_challenge_request:false,
                 hand_rise:false,
-                target_cover:{
-                    hand_rise:false,
-                    accepted:false
-                }
+                target_cover_hand_rise:false,
+                target_cover_accepted:false
             }
            }
         })

@@ -98,21 +98,24 @@ const Game = class {
             }
             case ("vote"): {
                 let index = this.users.findIndex(user => user.user_id === client.idenity.user_id)
-
+                const { cur_event } = this.game_vars
+                let event_to_change = cur_event === "target_cover" ? "target_cover_hand_rise" : "hand_rise"
+                console.log({cur_event,event_to_change});
                 const { game_id } = this
                 start.edit_game_action({
                     index,
                     prime_event: "user_action",
-                    second_event: "hand_rise",
+                    second_event: event_to_change,
                     new_value: true,
                     game_vars: this.game_vars
                 })
                 const { player_status } = this.game_vars
                 this.socket.to(game_id).emit("game_action", { data: player_status })
+                console.log({player_status:player_status[1]});
                 start.edit_game_action({
                     index,
                     prime_event: "user_action",
-                    second_event: "hand_rise",
+                    second_event: event_to_change,
                     new_value: false,
                     game_vars: this.game_vars
                 })
@@ -248,17 +251,38 @@ const Game = class {
             }
 
             case ("volunteer"): {
-                console.log({ data }, "select_volunteer");
                 const { user_id } = data
                 const { target_cover_queue } = this.game_vars
                 let turn = target_cover_queue.findIndex(q => !q.comp)
                 let new_target_cover_queue = [...target_cover_queue]
                 new_target_cover_queue[turn].users_select.push(user_id)
-                console.log({new_target_cover_queue});
                 if (new_target_cover_queue[turn].users_select.length === new_target_cover_queue[turn].users_select_length) {
                     new_target_cover_queue[turn].comp = true
                 }
                 this.game_vars.edit_event("edit", "target_cover_queue", new_target_cover_queue)
+                let index = this.users.findIndex(e => e.user_id === user_id)
+                console.log({ index });
+                start.edit_game_action({
+                    index,
+                    prime_event: "user_action",
+                    second_event: "target_cover_accepted",
+                    new_value: true,
+                    edit_others: false,
+                    game_vars: this.game_vars
+                })
+                const { game_id } = this
+                let status_list = this.game_vars.player_status
+                console.log({ status_list: status_list[1] });
+                this.socket.to(game_id).emit("game_action", { data: status_list })
+                start.edit_game_action({
+                    index,
+                    prime_event: "user_action",
+                    second_event: "target_cover_accepted",
+                    new_value: false,
+                    edit_others: false,
+                    game_vars: this.game_vars
+
+                })
                 this.mainCycle()
                 break
             }
@@ -385,6 +409,8 @@ const Game = class {
         let status_list = game_vars.player_status
         this.socket.to(game_id).emit("game_action", { data: status_list })
         this.socket.to(game_id).emit("report", { data: { msg: "روز معارفه", timer: 3 } })
+        await Helper.delay(3)
+
         this.game_vars.edit_event("edit", "next_event", "start_speech")
         this.mainCycle()
     }
@@ -501,10 +527,26 @@ const Game = class {
             }
             //end speech
             if (speech_type === "final_words") {
-                this.game_vars.edit_event("edit", "next_event", "start_night")
-                this.game_vars.edit_event("edit", "vote_type", "pre_vote")
-                this.mainCycle()
-                return
+                let game_result_check=night.check_next_day({game_vars:this.game_vars})
+                console.log({game_result_check});
+                if(game_result_check === 4 || game_result_check === 3 ){
+
+                    this.game_vars.edit_event("edit", "next_event", "start_night")
+                    this.game_vars.edit_event("edit", "vote_type", "pre_vote")
+                    this.mainCycle()
+                    return
+                }
+                else{
+                    let winner=game_result_check === 2 ? "mafia":"citizen"
+                    console.log({winner});
+                    this.game_vars.edit_event("edit","winner",winner)
+                    this.game_vars.edit_event("edit", "next_event", "end_game")
+                    this.mainCycle()
+                    return
+
+
+                }
+                
             }
             else {
                 let next_event = !reval ? "mafia_reval" : "pre_vote"
@@ -671,6 +713,7 @@ const Game = class {
         console.log("enable_target_cover");
         targetCover.enable_target_cover({ game_vars: this.game_vars, user: this.users })
         this.game_vars.edit_event("edit", "next_event", "next_player_target_cover")
+        this.game_vars.edit_event("edit", "cur_event", "target_cover")
         this.mainCycle()
     }
 
@@ -678,11 +721,11 @@ const Game = class {
         const { game_id } = this
         const { target_cover_queue } = this.game_vars
         let turn = target_cover_queue.findIndex(q => !q.comp)
-        console.log({turn});
         if (turn === -1) {
             //end target cover
             console.log("END TARGET COVER");
             vote.arrange_queue_after_target_cover({ game_vars: this.game_vars, users: this.users })
+            this.game_vars.edit_event("edit", "cur_event", "speech")
             this.mainCycle()
             return
         }
@@ -716,12 +759,12 @@ const Game = class {
         }
         if (target_cover_queue[turn].permission === true) {
             let selected = { ...target_cover_queue[turn] }
-            console.log({selected});
+            console.log({ selected });
             let choose_type = null
             if (selected.users_select_length === 1) choose_type = "about"
             if (selected.users_select_length === 2 && selected.users_select.length === 0) choose_type = "target"
             if (selected.users_select_length === 2 && selected.users_select.length === 1) choose_type = "cover"
-            console.log({choose_type});
+            console.log({ choose_type });
             const translate = () => {
                 switch (choose_type) {
                     case ("target"): return "تارگت"
@@ -750,9 +793,8 @@ const Game = class {
             const timer_func = ({ cur_selected, turn }) => {
 
                 let target_cover_queue = this.game_vars.target_cover_queue[turn]
-                console.log({ target_cover_queueeee: target_cover_queue });
                 const { comp, users_select } = target_cover_queue
-                if (!comp && users_select.length <= cur_selected) {
+                if (!comp && users_select.length == +cur_selected) {
                     let q = [...this.game_vars.target_cover_queue]
                     q[turn].comp = true
                     this.game_vars.edit_event("edit", "target_cover_queue", q)
@@ -760,8 +802,9 @@ const Game = class {
                 }
 
             }
+            let cur_selected = `${[...selected.users_select].length}`
 
-            // run_timer(15, () => { timer_func({ cur_selected: selected.users_select.length, turn }) })
+            run_timer(15, () => { timer_func({ cur_selected, turn }) })
 
             this.socket.to(game_id).emit("game_event", { data: { game_event: "target_cover_about" } })
 
@@ -948,7 +991,7 @@ const Game = class {
 
         this.socket.to(game_id).emit("game_event", { data: { game_event: "chaos" } })
         // this.socket.to(game_id).emit("game_action", { data: user_status })
-        this.socket.to(game_id).emit("report", { data: { msg: "زمان هرج و مرجزمان صحبت نوبتی", timer: 3 } })
+        this.socket.to(game_id).emit("report", { data: { msg: "زمان هرج و مرج زمان صحبت نوبتی", timer: 3 } })
 
         await Helper.delay(2)
         this.game_vars.edit_event("edit", "custom_queue", [])
@@ -1046,7 +1089,7 @@ const Game = class {
         })
         if (!selected_user) {
             this.game_vars.edit_event("edit", "next_event", "chaos")
-            mainCycle()
+            this.mainCycle()
             return
         }
         else {

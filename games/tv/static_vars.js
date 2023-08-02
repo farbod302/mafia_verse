@@ -17,7 +17,8 @@ const static_vars={
         turn:15,
         challenge:15,
         defence:30,
-        chaos:10
+        chaos:10,
+        final_words:20
     },
     scenario:"nato"
 }
