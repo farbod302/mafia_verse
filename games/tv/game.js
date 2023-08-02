@@ -241,7 +241,7 @@ const Game = class {
                 new_target_cover_queue[turn].permission = using_option
                 this.game_vars.edit_event("edit", "target_cover_queue", new_target_cover_queue)
                 if (using_option) {
-                    this.socket.to(game_id).emit("user_request_speech_options", { requested_id: client.idenity.user_id })
+                    this.socket.to(game_id).emit("user_request_speech_options", { data:{requester_id: client.idenity.user_id,timer:5} })
                 }
                 this.mainCycle()
                 break
