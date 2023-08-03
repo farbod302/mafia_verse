@@ -45,14 +45,20 @@ const Game = class {
 
     }
 
-    re_connect({ client }) {
-        const data = reconnect({
-            game_vars: this.game_vars,
-            users: this.users,
-            client,
-            game_id: this.game_id
-        })
-        this.socket.to(client.id).emit("game_history", { data })
+   async re_connect({ client }) {
+        await Helper.delay(3)
+        const { is_live } = this.game_vars
+        if (!is_live) {
+            this.game_vars.edit_event("push", "reconnect_queue", client)
+        }else{
+            const data = reconnect({
+                game_vars: this.game_vars,
+                users: this.users,
+                client,
+                game_id: this.game_id
+            })
+            this.socket.to(client.socket_id).emit("mmd", { data })
+        }
     }
 
     async player_action({ op, data, client }) {
@@ -92,6 +98,10 @@ const Game = class {
                 break
             }
 
+            case ("reconnect"): {
+                this.re_connect({ client:client.idenity })
+                break
+            }
             case ("next_speech"): {
                 this.mainCycle()
                 break
@@ -100,7 +110,7 @@ const Game = class {
                 let index = this.users.findIndex(user => user.user_id === client.idenity.user_id)
                 const { cur_event } = this.game_vars
                 let event_to_change = cur_event === "target_cover" ? "target_cover_hand_rise" : "hand_rise"
-                console.log({cur_event,event_to_change});
+                console.log({ cur_event, event_to_change });
                 const { game_id } = this
                 start.edit_game_action({
                     index,
@@ -111,7 +121,7 @@ const Game = class {
                 })
                 const { player_status } = this.game_vars
                 this.socket.to(game_id).emit("game_action", { data: player_status })
-                console.log({player_status:player_status[1]});
+                console.log({ player_status: player_status[1] });
                 start.edit_game_action({
                     index,
                     prime_event: "user_action",
@@ -128,7 +138,6 @@ const Game = class {
                 })
                 break
             }
-
             case ("user_action"): {
 
                 const { action } = data
@@ -154,7 +163,6 @@ const Game = class {
                 })
                 break
             }
-
             case ("accept_challenge"): {
                 const { user_id } = data
                 const { game_id } = this
@@ -185,7 +193,6 @@ const Game = class {
 
                 break
             }
-
             case ("night_act"): {
                 const { role, users } = data
                 const { day } = this.game_vars
@@ -211,7 +218,6 @@ const Game = class {
                 })
                 break
             }
-
             case ("mafia_decision"): {
                 const { shot } = data
                 console.log({ shot });
@@ -249,7 +255,6 @@ const Game = class {
                 this.mainCycle()
                 break
             }
-
             case ("volunteer"): {
                 const { user_id } = data
                 const { target_cover_queue } = this.game_vars
@@ -286,7 +291,6 @@ const Game = class {
                 this.mainCycle()
                 break
             }
-
             case ("rifle_gun_shot"): {
                 const { user_id } = data
                 start.use_gun({
@@ -299,7 +303,6 @@ const Game = class {
                 })
                 break
             }
-
             case ("day_using_gun"): {
                 const { user_id } = data
                 this.users.forEach(user => {
@@ -309,7 +312,6 @@ const Game = class {
                 })
                 break
             }
-
             case ("chaos_vote"): {
                 const { user_id } = data
                 this.game_vars.edit_event("push", "chaos_vots", user_id)
@@ -320,7 +322,6 @@ const Game = class {
                 this.mainCycle()
                 break
             }
-
             case ("chaos_user_speech"): {
                 const { user_id, talking } = data
                 const { game_id } = this
@@ -334,9 +335,6 @@ const Game = class {
                 })
                 break
             }
-
-
-
             case ("last_decision"): {
                 const { user_id } = data
                 const { game_id } = this
@@ -357,8 +355,6 @@ const Game = class {
                 this.mainCycle()
                 break
             }
-
-
             case ("end_game_free_speech"): {
 
                 const { user_id, is_talking } = data
@@ -370,9 +366,6 @@ const Game = class {
                 this.socket.to(game_id).emit("end_game_free_speech", { data: { prv_speech_status } })
 
             }
-
-
-
         }
     }
 
@@ -402,6 +395,8 @@ const Game = class {
             socket: this.socket,
             users: this.users
         })
+        this.game_vars.edit_event("edit", "is_live", true)
+        //handel_reconnect queue
         this.socket.to(game_id).emit("users_data", { data: user_data })
         this.socket.to(game_id).emit("game_event", { data: { game_event: time } })
         befor_start.player_status_generate({ game_vars: this.game_vars })
@@ -410,7 +405,6 @@ const Game = class {
         this.socket.to(game_id).emit("game_action", { data: status_list })
         this.socket.to(game_id).emit("report", { data: { msg: "روز معارفه", timer: 3 } })
         await Helper.delay(3)
-
         this.game_vars.edit_event("edit", "next_event", "start_speech")
         this.mainCycle()
     }
@@ -527,26 +521,26 @@ const Game = class {
             }
             //end speech
             if (speech_type === "final_words") {
-                let game_result_check=night.check_next_day({game_vars:this.game_vars})
-                console.log({game_result_check});
-                if(game_result_check === 4 || game_result_check === 3 ){
+                let game_result_check = night.check_next_day({ game_vars: this.game_vars })
+                console.log({ game_result_check });
+                if (game_result_check === 4 || game_result_check === 3) {
 
                     this.game_vars.edit_event("edit", "next_event", "start_night")
                     this.game_vars.edit_event("edit", "vote_type", "pre_vote")
                     this.mainCycle()
                     return
                 }
-                else{
-                    let winner=game_result_check === 2 ? "mafia":"citizen"
-                    console.log({winner});
-                    this.game_vars.edit_event("edit","winner",winner)
+                else {
+                    let winner = game_result_check === 2 ? "mafia" : "citizen"
+                    console.log({ winner });
+                    this.game_vars.edit_event("edit", "winner", winner)
                     this.game_vars.edit_event("edit", "next_event", "end_game")
                     this.mainCycle()
                     return
 
 
                 }
-                
+
             }
             else {
                 let next_event = !reval ? "mafia_reval" : "pre_vote"

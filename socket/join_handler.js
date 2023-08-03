@@ -1,9 +1,9 @@
 
-const Jwt=require("../helper/jwt")
-const {uid:uuid}=require("uid")
+const Jwt = require("../helper/jwt")
+const { uid: uuid } = require("uid")
 const online_users_handler = require("./online_users_handler")
 
-const join_handler = ({ token,db,client,socket }) => {
+const join_handler = ({ token, db, client, socket }) => {
     const user = Jwt.verify(token)
     if (!user) return
     const { uid, device_id } = user
@@ -15,9 +15,21 @@ const join_handler = ({ token,db,client,socket }) => {
         device_id
     }
     online_users_handler.add_user(uid)
-    let user_exist_game=db.getOne("disconnect","user_id",uid)
-    if(user_exist_game){
-        socket.to(client.id).emit("has_exist_game")
+    let user_exist_game = db.getOne("disconnect", "user_id", uid)
+    if (user_exist_game) {
+        let s_game=db.getOne("games","game_id",user_exist_game.game_id)
+        const {carts}=s_game.game_class.game_vars
+        let user_char=carts.find(e=>e.user_id === uid) || null
+       console.log({user_char});
+        socket.to(client.id).emit("reconnect_notification", {
+            data: {
+                game_id: user_exist_game.game_id,
+                game_scenario: "nato",
+                is_player: true,
+                is_supervisor: false,
+                character:user_char?.name || null
+            }
+        })
     }
     client.join(user_party)
     client.idenity = idenity
@@ -26,7 +38,7 @@ const join_handler = ({ token,db,client,socket }) => {
         party_id: user_party,
         users: [idenity]
     })
-    socket.to(client.id).emit("join_status",{data:{user_id:uid}})
+    socket.to(client.id).emit("join_status", { data: { user_id: uid } })
 }
 
-module.exports=join_handler
+module.exports = join_handler
