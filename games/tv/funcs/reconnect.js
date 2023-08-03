@@ -2,7 +2,7 @@ const befor_start = require("./before_start")
 const Voice = require("../../../helper/live_kit_handler")
 const reconnect = ({ game_vars, users, client, game_id }) => {
     const { user_id } = client
-    const user_comp_data = befor_start.pick_player_from_user_id({ users, user_id })
+    const user_comp_data = users
     const { carts } = game_vars
     let user_character = carts.find(cart => cart.user_id === user_id)
     let live_kit_token = Voice.join_room(user_id, game_id)
