@@ -26,6 +26,7 @@ const Game = class {
 
     mainCycle() {
         const next_event = this.game_vars.next_event
+        this.game_vars.edit_event("edit", "cur_event", next_event)
         this[next_event]()
     }
 
@@ -45,12 +46,12 @@ const Game = class {
 
     }
 
-   async re_connect({ client }) {
+    async re_connect({ client }) {
         await Helper.delay(3)
         const { is_live } = this.game_vars
         if (!is_live) {
             this.game_vars.edit_event("push", "reconnect_queue", client)
-        }else{
+        } else {
             const data = reconnect({
                 game_vars: this.game_vars,
                 users: this.users,
@@ -99,7 +100,7 @@ const Game = class {
             }
 
             case ("reconnect"): {
-                this.re_connect({ client:client.idenity })
+                this.re_connect({ client: client.idenity })
                 break
             }
             case ("next_speech"): {
@@ -462,7 +463,6 @@ const Game = class {
             users: custom_queue.length ? custom_queue : null
         })
         let timer = static_vars.speech_time[speech_type]
-        console.log({ timer, speech_type });
         this.game_vars.edit_event("edit", "turn", -1)
         this.game_vars.edit_event("edit", "queue", queue)
         this.game_vars.edit_event("edit", "next_event", "next_player_speech")
