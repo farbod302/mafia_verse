@@ -58,7 +58,7 @@ const Game = class {
                 client,
                 game_id: this.game_id
             })
-            this.socket.to(client.socket_id).emit("mmd", { data })
+            this.socket.to(client.socket_id).emit("reconnect_data", { data })
         }
     }
 
