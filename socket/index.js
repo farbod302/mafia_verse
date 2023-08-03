@@ -46,6 +46,24 @@ const SocketProvider = class {
                     client.join(game_id)
                 }
             })
+            client.on("abandon",()=>{
+                let game_id = client.game_id
+                let user_game = null
+                if (game_id) { user_game = this.db.getOne("games", "game_id", game_id) }
+                else {
+                    const games = this.db.getAll("games")
+                    user_game = games.find(game => {
+                        let ids = game.users.map(user => user.user_id)
+                        if (ids.includes(client.idenity.user_id)) {
+                            return true
+                        }
+                    })
+                }
+                // console.log({user_game:user_game.game_id,op,data,client:client.idenity});
+                if (!user_game) return
+                client.game_id=""
+                user_game.game_class.player_abandon({client:client.idenity})
+            })
         })
 
     }

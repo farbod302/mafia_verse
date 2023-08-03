@@ -16,6 +16,7 @@ const join_handler = ({ token, db, client, socket }) => {
     }
     online_users_handler.add_user(uid)
     let user_exist_game = db.getOne("disconnect", "user_id", uid)
+    console.log({user_exist_game});
     if (user_exist_game) {
         let s_game=db.getOne("games","game_id",user_exist_game.game_id)
         const {carts}=s_game.game_class.game_vars

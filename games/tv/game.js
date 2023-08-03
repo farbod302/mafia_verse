@@ -64,7 +64,8 @@ const Game = class {
                 prime_event: "user_status",
                 second_event: "is_connected",
                 new_value: true,
-                edit_others: false
+                edit_others: false,
+                game_vars:this.game_vars
             })
             const { player_status } = this.game_vars
             this.socket.to(game_id).emit("game_action", { data: player_status })
@@ -78,6 +79,7 @@ const Game = class {
         if (!is_live) {
             this.game_event.edit_event("push", "abandon_queue", client)
         } else {
+            let index = this.users.findIndex(e => e.user_id == client.user_id)
             start.edit_game_action({
                 index,
                 prime_event: "user_status",
@@ -89,6 +91,7 @@ const Game = class {
             this.socket.to(game_id).emit("game_action", { data: status_list })
             this.game_vars.edit_event("push", "dead_list", client.user_id)
             this.socket.to(game_id).emit({ data: { msg: `بازیکن ${client.user_id} به دست خدا کووشته شوود` } })
+            this.game_handlers.submit_player_abandon({user_id:client.user_id})
         }
 
     }
@@ -97,7 +100,7 @@ const Game = class {
         const { is_live, abandon_queue } = this.game_vars
         if (!is_live) return
         for (let user of abandon_queue) {
-            this.player_abandon(user)
+            this.player_abandon({client:user})
         }
 
     }
@@ -984,6 +987,7 @@ const Game = class {
         const { day } = this.game_vars
         const night_records = this.db.getOne("night_records", "night", day)
         let users_disconnected = this.game_vars.player_status.filter(e => !e.user_status.is_connected)
+        console.log({users_disconnected});
         this.game_vars.edit_event("edit", "abandon_queue", users_disconnected)
         this.check_for_abandon()
         await night.night_results({
