@@ -1,4 +1,3 @@
-const befor_start = require("./before_start")
 const Voice = require("../../../helper/live_kit_handler")
 const reconnect = ({ game_vars, users, client, game_id }) => {
     const { user_id } = client
