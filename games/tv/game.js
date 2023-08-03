@@ -47,7 +47,6 @@ const Game = class {
     }
 
     async re_connect({ client }) {
-        await Helper.delay(3)
         const { is_live } = this.game_vars
         if (!is_live) {
             this.game_vars.edit_event("push", "reconnect_queue", client)
