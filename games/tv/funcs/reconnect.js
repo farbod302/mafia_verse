@@ -30,10 +30,7 @@ const reconnect = ({ game_vars, users, client, game_id }) => {
 
 const game_event_finder = (event) => {
     const all_events = [
-        {
-            e: "speech",
-            events: ["start_speech", "next_player_speech"]
-        },
+        
         {
             e: "vote",
             events: ["next_player_vote"]
