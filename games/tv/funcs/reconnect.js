@@ -11,10 +11,11 @@ const reconnect = ({ game_vars, users, client, game_id }) => {
     if (game_event === "start_speech" || game_event === "next_player_speech") {
         in_game_turn_speech = [...game_vars.queue]
     }
+    let clean_users=user_comp_data.map(e=>{return {...e,user_name:"",index:e.id,user_anim:""}})
     //todo check user gun
     return {
         character: user_character.name,
-        user_data: user_comp_data,
+        users_data: clean_users,
         room_id: live_kit_token,
         game_event:game_event_finder(game_event),
         game_action,
