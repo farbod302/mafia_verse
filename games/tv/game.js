@@ -46,20 +46,63 @@ const Game = class {
 
     }
 
-    async re_connect({ client }) {
+    re_connect({ client }) {
         const { is_live } = this.game_vars
+        const { game_id } = this
         if (!is_live) {
             this.game_vars.edit_event("push", "reconnect_queue", client)
         } else {
             const data = reconnect({
                 game_vars: this.game_vars,
-                users: this.users,
                 client,
                 game_id: this.game_id
             })
             this.socket.to(client.socket_id).emit("reconnect_data", { data })
+            let index = this.users.findIndex(e => e.user_id == client.user_id)
+            start.edit_game_action({
+                index,
+                prime_event: "user_status",
+                second_event: "is_connected",
+                new_value: true,
+                edit_others: false
+            })
+            const { player_status } = this.game_vars
+            this.socket.to(game_id).emit("game_action", { data: player_status })
+            this.game_vars.edit_event("pull", "abandon_queue", client.user_id)
         }
     }
+
+    player_abandon({ client }) {
+        const { is_live } = this.game_vars
+        const { game_id } = this
+        if (!is_live) {
+            this.game_event.edit_event("push", "abandon_queue", client)
+        } else {
+            start.edit_game_action({
+                index,
+                prime_event: "user_status",
+                second_event: "is_alive",
+                new_value: false,
+                game_vars: this.game_vars
+            })
+            let status_list = this.game_vars.player_status
+            this.socket.to(game_id).emit("game_action", { data: status_list })
+            this.game_vars.edit_event("push", "dead_list", client.user_id)
+            this.socket.to(game_id).emit({ data: { msg: `بازیکن ${client.user_id} به دست خدا کووشته شوود` } })
+        }
+
+    }
+
+    check_for_abandon() {
+        const { is_live, abandon_queue } = this.game_vars
+        if (!is_live) return
+        for (let user of abandon_queue) {
+            this.player_abandon(user)
+        }
+
+    }
+
+
 
     async player_action({ op, data, client }) {
         let user_call_idenity = client.idenity
@@ -97,7 +140,6 @@ const Game = class {
 
                 break
             }
-
             case ("reconnect"): {
                 this.re_connect({ client: client.idenity })
                 break
@@ -395,6 +437,7 @@ const Game = class {
             socket: this.socket,
             users: this.users
         })
+        this.game_vars.edit_event("edit", "players_compleate_list", user_data)
         this.game_vars.edit_event("edit", "is_live", true)
         //handel_reconnect queue
         this.socket.to(game_id).emit("users_data", { data: user_data })
@@ -406,6 +449,8 @@ const Game = class {
         this.socket.to(game_id).emit("report", { data: { msg: "روز معارفه", timer: 3 } })
         await Helper.delay(3)
         this.game_vars.edit_event("edit", "next_event", "start_speech")
+        const { reconnect_queue } = this.game_vars
+        reconnect_queue.forEach(e => { return this.re_connect({ client: e }) })
         this.mainCycle()
     }
 
@@ -938,6 +983,9 @@ const Game = class {
     async night_results() {
         const { day } = this.game_vars
         const night_records = this.db.getOne("night_records", "night", day)
+        let users_disconnected = this.game_vars.player_status.filter(e => !e.user_status.is_connected)
+        this.game_vars.edit_event("edit", "abandon_queue", users_disconnected)
+        this.check_for_abandon()
         await night.night_results({
             game_vars: this.game_vars,
             records: night_records.events,

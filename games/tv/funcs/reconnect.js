@@ -1,8 +1,7 @@
 const Voice = require("../../../helper/live_kit_handler")
-const reconnect = ({ game_vars, users, client, game_id }) => {
+const reconnect = ({ game_vars, client, game_id }) => {
     const { user_id } = client
-    const user_comp_data = users
-    const { carts } = game_vars
+    const { carts, players_compleate_list, gun_status } = game_vars
     let user_character = carts.find(cart => cart.user_id === user_id)
     let live_kit_token = Voice.join_room(user_id, game_id)
     const { cur_event: game_event } = game_vars
@@ -11,17 +10,16 @@ const reconnect = ({ game_vars, users, client, game_id }) => {
     if (game_event === "start_speech" || game_event === "next_player_speech") {
         in_game_turn_speech = [...game_vars.queue]
     }
-    let clean_users=user_comp_data.map(e=>{return {...e,user_name:"",index:e.id,user_anim:""}})
     //todo check user gun
     return {
         character: user_character.name,
-        users_data: clean_users,
+        users_data: players_compleate_list,
         room_id: live_kit_token,
-        game_event:game_event_finder(game_event),
+        game_event: game_event_finder(game_event),
         game_action,
         in_game_turn_speech,
         in_game_status: {
-            has_gun: false
+            has_gun: gun_status.findIndex(e => e.user_id === user_id) > -1
         }
 
     }
@@ -30,7 +28,7 @@ const reconnect = ({ game_vars, users, client, game_id }) => {
 
 const game_event_finder = (event) => {
     const all_events = [
-        
+
         {
             e: "vote",
             events: ["next_player_vote"]
@@ -51,8 +49,8 @@ const game_event_finder = (event) => {
         }
     ]
 
-    let s_event=all_events.find(ev=>{
-        if(ev.events.includes(event))return true
+    let s_event = all_events.find(ev => {
+        if (ev.events.includes(event)) return true
     })
     return s_event?.e || "day"
 }

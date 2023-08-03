@@ -9,6 +9,7 @@ const dinamic_vars = class {
         this.day = 1
         this.is_live=false
         this.reconnect_queue=[]
+        this.abandon_queue=[]
         this.dead_list = []
         this.join_status = []
         this.join_status_second_phase = []
