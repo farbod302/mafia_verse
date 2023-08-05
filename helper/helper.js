@@ -2,6 +2,7 @@ const TrezSmsClient = require("trez-sms-client");
 const client = new TrezSmsClient("farbod302", "eefabass");
 const multer = require('multer');
 const { uid } = require("uid");
+const userChannelConfig = require("../db/user_channel_config");
 
 const Helper = {
     valideate_phone(phone) {
@@ -49,8 +50,14 @@ const Helper = {
             else{req.body.files_list=req.body.files_list.concat(file_id + '.' + format)}
             cb(null, file_id + '.' + format)
         }
-    })
+    }),
 
+
+
+    create_channel_config({channel_id,user_id}){
+        let new_conf={channel_id,user_id}
+        new userChannelConfig(new_conf).save()
+    }
 
 }
 

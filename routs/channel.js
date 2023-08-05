@@ -8,6 +8,7 @@ const Channel = require("../db/channel")
 const User = require("../db/user")
 const UserChannelConfig = require("../db/user_channel_config")
 const online_users_handler = require("../socket/online_users_handler")
+const Helper = require("../helper/helper")
 router.post("/generate_channel_token", (req, res) => {
     const { user } = req.body
     const { password } = req.headers
@@ -59,8 +60,19 @@ router.post("/create_channel_by_user", async (req, res) => {
     const { own_channel, ranking } = user
     if (own_channel || ranking?.xp < 10000) return reject(10, res)
     const { channel_name, channel_desc } = req.body
-    let new_channel = { name: channel_name, creator: uid, id: uuid(5), mod: [uid], desc: channel_desc }
+    let channel_id = uuid(5)
+    let new_channel = {
+        name: channel_name,
+        creator: uid,
+        id: channel_id,
+        mod: [uid],
+        desc: channel_desc,
+        users: [uid],
+        avatar: "files/0.png"
+    }
     create_channel(new_channel)
+    Helper.create_channel_config({channel_id,user_id:uid})
+    await User.findOneAndUpdate({ uid }, { $set: { own_channel: true }, $push: { chanels: channel_id } })
     res.json({ status: true, data: {}, msg: "" })
 })
 
@@ -89,13 +101,14 @@ router.post("/my_channels", async (req, res) => {
         return new Promise(async resolve => {
 
             let s_channel = await Channel.findOne({ id: channel })
+            console.log({uid,channel});
             let channel_config = await UserChannelConfig.findOne({ user_id: uid, channel_id: channel })
             const { last_visit } = channel_config
             const { messages, users } = s_channel
             let unread = messages.filter(e => e.date > last_visit)
             let channel_online_users = users.filter(u => online_users.includes(u))
             resolve({
-                ...channel_config,
+                ...channel_config._doc,
                 channel_name: s_channel.name,
                 channel_id: s_channel.id,
                 channel_image: channel.avatar,
@@ -119,6 +132,46 @@ router.post("/my_channels", async (req, res) => {
 })
 
 
+router.post("/specific_channel", async (req, res) => {
+    const user=req.body.user
+    if(!user)return reject(3,res)
+    const {uid:user_id}=user
+    const {  channel_id, paging } = req.body
+    let s_channel = await Channel.findOne({ id: channel_id })
+    const { users, cup, name, avatar, creator, mods, messages } = s_channel
+    let data = {
+        channel_name: name,
+        channel_image: avatar,
+        is_leader: user_id === creator,
+        is_co_leader: mods.includes(user_id),
+        channel_members: users.length,
+        channel_cup: cup,
+    }
+    messages.reverse()
+    let s_messages = messages.slice((paging - 1) * 10, (paging * 10))
+    data["content"] = s_messages
+    res.json({ status: true, data })
+})
+
+router.post("/search", async (req, res) => {
+    const { channel_name } = req.body
+    let s_channels = await Channel.find({ name: { $regex: channel_name } })
+    let clean_channels = s_channels.map(channel => {
+        const { name, cup, avatar, desc, id,public } = channel
+        return {
+            channel_name: name,
+            channel_id: id,
+            channel_cup: cup,
+            channel_image: avatar,
+            channel_description: desc,
+            public
+        }
+    })
+    res.json({
+        status: true,
+        data: clean_channels
+    })
+})
 
 
 module.exports = router

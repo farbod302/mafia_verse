@@ -7,6 +7,7 @@ const Item = require("../db/item")
 
 const { default: mongoose } = require("mongoose")
 const { uid: uuid } = require("uid")
+const Helper = require("../helper/helper")
 //fetch data
 router.post("/land_screen_data", async (req, res) => {
     const { uid } = req.body.user
@@ -154,10 +155,15 @@ router.post("/profile", async (req, res) => {
 router.post("/request_join_channel", async (req, res) => {
     if (!req.body.user) return reject(2, res)
     const { uid } = req.body.user
-    const { channel_id } = user.body
-    let is_requested = await Channel.findOne({ join_req: uid, id: channel_id })
-    if (is_requested) return reject(11, res)
-    await Channel.findOneAndUpdate({ id: channel_id }, { $push: { join_req: uid } })
+    const { channel_id } = req.body
+    let s_channel = await Channel.findOne({ id: channel_id })
+    if (s_channel.join_req.includes(uid) || s_channel.users.includes(uid)) return reject(11, res)
+    const { public } = s_channel
+    let key = !public ? "join_req" : "users"
+    await Channel.findOneAndUpdate({ id: channel_id }, { $push: { [key]: uid } })
+    if (public) {
+        Helper.create_channel_config({ channel_id, user_id: uid })
+    }
     res.json({ status: true, msg: "درخواست شما ثبت شد", data: {} })
 })
 
@@ -257,7 +263,7 @@ router.post("/age_auth", async (req, res) => {
     const user = req.body.user
     if (!user) return reject(1, res)
     const { uid } = user
-    auth_session=auth_session.filter(e=>e.user_id !== uid)
+    auth_session = auth_session.filter(e => e.user_id !== uid)
     const s_user = await User.findOne({ uid })
     const { age } = s_user
     if (age !== 0) return reject(16, res)
@@ -282,7 +288,7 @@ router.post("/session_req", async (req, res) => {
     const { user_id } = auth_session[index]
     await User.findOneAndUpdate({ uid: user_id }, { $set: { age } })
     res.json({ status: true })
-    auth_session=auth_session.filter(e=>e.session_id !== session_id)
+    auth_session = auth_session.filter(e => e.session_id !== session_id)
 
 })
 

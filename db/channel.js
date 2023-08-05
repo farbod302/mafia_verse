@@ -15,7 +15,8 @@ const channel = mongoose.Schema({
     exp_level: { type: Number, default: 1 },
     cup: { type: Number, default: 0 },
     join_req: { type: Array, default: [] },
-    messages: { type: Array, default: [] }
+    messages: { type: Array, default: [] },
+    public: { type: Boolean, default: true }
 })
 
 

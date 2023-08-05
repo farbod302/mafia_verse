@@ -35,7 +35,7 @@ const SocketProvider = class {
             })
 
             client.on("channel_handle", ({ op, data }) => {
-                channel_socket_handler[op](data, this.io, client)
+                channel_socket_handler[op](data,this.io, client)
             })
             client.on("disconnect", () => { handel_disconnect({ client, db: this.db, socket: this.io }) })
             client.on("game_history", () => { })

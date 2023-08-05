@@ -2,17 +2,20 @@
 const Jwt = require("../helper/jwt")
 const { uid: uuid } = require("uid")
 const online_users_handler = require("./online_users_handler")
-
-const join_handler = ({ token, db, client, socket }) => {
+const User=require("../db/user")
+const join_handler =async ({ token, db, client, socket }) => {
+    console.log({token});
     const user = Jwt.verify(token)
+    console.log({user});
     if (!user) return
-    const { uid, device_id } = user
+    const { uid} = user
+    let s_user=await User.findOne({uid})
     let user_party = uuid(5)
     let idenity = {
         socket_id: client.id,
         party_id: user_party,
         user_id: uid,
-        device_id
+        name:s_user.idenity.name
     }
     online_users_handler.add_user(uid)
     let user_exist_game = db.getOne("disconnect", "user_id", uid)
