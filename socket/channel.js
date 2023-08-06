@@ -1,9 +1,9 @@
-const { uid } = require("uid")
+const { uid:uuid } = require("uid")
 const Channel = require("../db/channel")
 
 const channel_socket_handler = {
 
-    async join_channel(data, socket, client) {
+    async join_to_channel(data, socket, client) {
         const { channel_id } = data
         const { idenity } = client
         const { user_id } = idenity
@@ -22,8 +22,10 @@ const channel_socket_handler = {
     },
     async send_channel_msg(data, socket, client) {
         const { channel_data, idenity } = client
-        const { user_id, msg_type, msg } = data
-        let msg_id = uid(5)
+        console.log({channel_data});
+        const { msg_type, msg } = data
+        const {user_id}=idenity
+        let msg_id = uuid(5)
         let new_msg = {
             msg_id,
             user_id,
