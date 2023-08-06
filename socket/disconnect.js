@@ -2,7 +2,7 @@ const find_match = require("./find_match")
 const online_users_handler = require("./online_users_handler")
 
 const handel_disconnect=({client,db,socket})=>{
-
+    console.log("dc");
     //handel dc during find match
     find_match.leave_find({client,db,socket})
     let game_id=client.game_id

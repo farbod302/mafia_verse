@@ -33,11 +33,11 @@ const SocketProvider = class {
                 if (!user_game) return
                 user_game.game_class.player_action({ op, data, client })
             })
-
             client.on("channel_handle", ({ op, data }) => {
                 channel_socket_handler[op](data,this.io, client)
             })
-            client.on("disconnect", () => { handel_disconnect({ client, db: this.db, socket: this.io }) })
+            client.on("disconnect", () => {
+                handel_disconnect({ client, db: this.db, socket: this.io }) })
             client.on("game_history", () => { })
             client.on("reconnect", ({ game_id }) => {
                 let s_game = this.db.getOne("games", "game_id", game_id)
