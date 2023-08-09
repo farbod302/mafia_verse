@@ -71,7 +71,7 @@ router.post("/create_channel_by_user", async (req, res) => {
         avatar: "files/0.png"
     }
     create_channel(new_channel)
-    Helper.create_channel_config({channel_id,user_id:uid})
+    Helper.create_channel_config({ channel_id, user_id: uid })
     await User.findOneAndUpdate({ uid }, { $set: { own_channel: true }, $push: { chanels: channel_id } })
     res.json({ status: true, data: {}, msg: "" })
 })
@@ -101,7 +101,7 @@ router.post("/my_channels", async (req, res) => {
         return new Promise(async resolve => {
 
             let s_channel = await Channel.findOne({ id: channel })
-            console.log({uid,channel});
+            console.log({ uid, channel });
             let channel_config = await UserChannelConfig.findOne({ user_id: uid, channel_id: channel })
             const { last_visit } = channel_config
             const { messages, users } = s_channel
@@ -133,10 +133,10 @@ router.post("/my_channels", async (req, res) => {
 
 
 router.post("/specific_channel", async (req, res) => {
-    const user=req.body.user
-    if(!user)return reject(3,res)
-    const {uid:user_id}=user
-    const {  channel_id, paging } = req.body
+    const user = req.body.user
+    if (!user) return reject(3, res)
+    const { uid: user_id } = user
+    const { channel_id, paging } = req.body
     let s_channel = await Channel.findOne({ id: channel_id })
     const { users, cup, name, avatar, creator, mods, messages } = s_channel
     let data = {
@@ -157,7 +157,7 @@ router.post("/search", async (req, res) => {
     const { channel_name } = req.body
     let s_channels = await Channel.find({ name: { $regex: channel_name } })
     let clean_channels = s_channels.map(channel => {
-        const { name, cup, avatar, desc, id,public } = channel
+        const { name, cup, avatar, desc, id, public } = channel
         return {
             channel_name: name,
             channel_id: id,
@@ -170,6 +170,44 @@ router.post("/search", async (req, res) => {
     res.json({
         status: true,
         data: clean_channels
+    })
+})
+
+router.post("/preview", async (req, res) => {
+    const user = req.body.user
+    if (!user) return reject(3, res)
+    const { channel_id } = req.body
+    const { uid: user_id } = user
+    let s_channel = await Channel.findOne({ id: channel_id })
+    if (!s_channel) reject(3, res)
+    const { name, avatar, cup, public, users, join_req } = s_channel
+    let res_data = {
+        channel_name: name,
+        channel_image: avatar,
+        channel_id,
+        channel_members: users.length,
+        channel_cup: cup,
+        is_privet: !public,
+        you_are_member: users.includes(user_id),
+        join_request: join_req.includes(user_id)
+    }
+    res.json({
+        status: true,
+        msg: "",
+        data: res_data
+    })
+})
+
+
+router.post("/exit",async (req, res) => {
+    const user = req.body.user
+    if (!user) return reject(3, res)
+    const { channel_id } = req.body
+    const { uid: user_id } = user
+    await Channel.findOne({ id: channel_id }, { $pull: { users: user_id, mod: user_id } })
+    res.json({
+        status:true,
+        msg:"درخواست ارسال شد"
     })
 })
 

@@ -34,17 +34,11 @@ const SocketProvider = class {
                 user_game.game_class.player_action({ op, data, client })
             })
             client.on("channel_handle", ({ op, data }) => {
-                channel_socket_handler[op](data,this.io, client)
+                channel_socket_handler[op](data,this.io, client,this.db)
             })
 
-            //temp 
-            client.on("join_to_channel",(data)=>{
-               channel_socket_handler["join_to_channel"](data,this.io,client)
-            })
-
-            client.on("send_channel_msg",(data)=>{
-                channel_socket_handler["send_channel_msg"](data,this.io,client)
-            })
+    
+          
 
             client.on("disconnect", () => {
                 handel_disconnect({ client, db: this.db, socket: this.io }) })

@@ -16,6 +16,7 @@ const channel = mongoose.Schema({
     cup: { type: Number, default: 0 },
     join_req: { type: Array, default: [] },
     messages: { type: Array, default: [] },
+    games: { type: Array, default: [] },
     public: { type: Boolean, default: true }
 })
 
