@@ -293,4 +293,14 @@ router.post("/session_req", async (req, res) => {
 })
 
 
+router.post("/has_enough_gold",async (req,res)=>{
+    const user=req.body.user
+    const {user_id}=user
+    const {gold}=req.body
+    let s_user=await User.findOne({uid:user_id})
+    if(s_user && s_user.gold > gold){return res.json({status:true})}
+    res.json({status:false,})
+})
+
+
 module.exports = router
