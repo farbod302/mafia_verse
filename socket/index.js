@@ -37,11 +37,15 @@ const SocketProvider = class {
                 channel_socket_handler[op]({ data: data, socket: this.io, client })
             })
 
-            client.on("start_channel_game", ({ game_id })=>{
-                let find_match_func=()=>{
-                    find_match.find_robot_game({ senario:"nato", client, db: this.db, socket: this.io })
-                }
-                channel_socket_handler.start_channel_game({game_id,start_game:find_match_func})
+            client.on("start_channel_game", ({ game_id }) => {
+
+                channel_socket_handler.start_channel_game({
+                    client,
+                    game_id,
+                    start_game: find_match.find_robot_game,
+                    db: this.db,
+                    socket: this.io
+                })
             })
 
             client.on("disconnect", () => {

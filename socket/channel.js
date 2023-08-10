@@ -30,6 +30,7 @@ const channel_socket_handler = {
                     side: ""
                 }
             ],
+            game_checked:false
         }
         await Channel.findOneAndUpdate(
             { id: channel_id },
@@ -121,15 +122,23 @@ const channel_socket_handler = {
         let { s_game } = this.pick_game({ game_id })
         const { users } = s_game.game_data
         let accepted_users = users.filter(e => e.accepted)
-        accepted_users.forEach(user=>{
-            socket.to(user.socket_id).emit("ready_check_status",{data:this.ready_check_list[s_ready_index].users})
+        accepted_users.forEach(user => {
+            socket.to(user.socket_id).emit("ready_check_status", { data: this.ready_check_list[s_ready_index].users })
         })
     },
 
-    async start_channel_game({game_id,start_game}){
+    async start_channel_game({ game_id, start_game ,client,socket,db}) {
 
-        let game
-
+        let { s_game } = this.pick_game({ game_id })
+        const { users } = s_game.game_data
+        let accepted_users = users.filter(e => e.accepted)
+        const mod_party=client.idenity.party_id
+        let prv_party=db.getOne("party","party_id",mod_party)
+        accepted_users.forEach(user=>{
+            prv_party.users.push(user)
+            socket.sockets.sockets.get(user.socket_id).join(mod_party);
+        })
+        start_game({senario:"nato",client,db,socket})
     }
 
 
