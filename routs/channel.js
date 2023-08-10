@@ -222,4 +222,10 @@ router.post("/exit", async (req, res) => {
 })
 
 
+router.post("/online_game",async (req,res)=>{
+    const  {channel_id}=req.body
+    const s_channel=await Channel.findOne({id:channel_id},{games:1})
+    res.json({status:true,data:s_channel.games})
+})
+
 module.exports = router
