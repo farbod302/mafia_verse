@@ -1,11 +1,52 @@
 const { uid: uuid } = require("uid")
 const Channel = require("../db/channel")
-const User = require("../db/user")
 
 const channel_socket_handler = {
 
     channel_games_db: [],
     ready_check_list: [],
+
+
+    async join_to_channel({ client, data }) {
+        const { channel_id } = data
+        const { user_id } = client.idenity
+        const s_channel = await Channel.findOne({ id: channel_id })
+        const { mods, creator } = s_channel
+        const { channel_data: prv_channel } = client
+        if (prv_channel) client.leave(prv_channel.channel_id)
+        let user_role = "normal"
+        if (mods.includes(user_id)) user_role = "co_leader"
+        if (creator === user_id) user_role = "leader"
+        let channel_data = {
+            channel_id,
+            user_role
+        }
+        console.log({channel_data});
+        client.channel_data = channel_data
+        client.join(channel_id)
+    },
+
+
+    async send_channel_msg({ data, client, socket }) {
+        const { msg_type, msg } = data
+        const { idenity, channel_data } = client
+        const { user_role, channel_id } = channel_data
+        const { user_id, name, image } = idenity
+        let new_message = {
+            msg_id: uuid(6),
+            user_id,
+            user_name: name,
+            user_image: image,
+            user_state: user_role,
+            msg,
+            msg_type,
+            msg_time: Date.now(),
+        }
+        console.log({new_message});
+        await Channel.findOneAndUpdate({ id: channel_id }, { $push: { messages: new_message } })
+        socket.to(channel_id).emit("send_channel_msg", { data: new_message })
+
+    },
 
     async create_game({ data, client, socket }) {
         const { entire_gold } = data
@@ -15,7 +56,7 @@ const channel_socket_handler = {
 
         let new_game = {
             game_id,
-            creator_id: idenity.use_id,
+            creator_id: idenity.user_id,
             scenario: "nato",
             entire_gold,
             finished: false,
@@ -30,7 +71,7 @@ const channel_socket_handler = {
                     side: ""
                 }
             ],
-            game_checked:false
+            game_checked: false
         }
         await Channel.findOneAndUpdate(
             { id: channel_id },
@@ -40,8 +81,10 @@ const channel_socket_handler = {
                 }
             }
         )
+        console.log({new_game:new_game.users});
         this.channel_games_db.push({ game_id, channel_id: channel_id, game_data: new_game })
-        socket.to(channel_id).emit("online_game", { data: new_game })
+        let channel_games=this.channel_games_db.filter(e=>e.channel_id == channel_id)
+        socket.to(channel_id).emit("online_game", { data:channel_games.map(e=>e.game_data) })
     },
 
     update_game({ game_id, socket }) {
@@ -127,18 +170,18 @@ const channel_socket_handler = {
         })
     },
 
-    async start_channel_game({ game_id, start_game ,client,socket,db}) {
+    async start_channel_game({ game_id, start_game, client, socket, db }) {
 
         let { s_game } = this.pick_game({ game_id })
         const { users } = s_game.game_data
         let accepted_users = users.filter(e => e.accepted)
-        const mod_party=client.idenity.party_id
-        let prv_party=db.getOne("party","party_id",mod_party)
-        accepted_users.forEach(user=>{
+        const mod_party = client.idenity.party_id
+        let prv_party = db.getOne("party", "party_id", mod_party)
+        accepted_users.forEach(user => {
             prv_party.users.push(user)
             socket.sockets.sockets.get(user.socket_id).join(mod_party);
         })
-        start_game({senario:"nato",client,db,socket})
+        start_game({ senario: "nato", client, db, socket })
     }
 
 

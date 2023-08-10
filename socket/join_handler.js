@@ -13,7 +13,8 @@ const join_handler =async ({ token, db, client, socket }) => {
         socket_id: client.id,
         party_id: user_party,
         user_id: uid,
-        name:s_user.idenity.name
+        name:s_user.idenity.name,
+        image:s_user.avatar.avatar
     }
     online_users_handler.add_user(uid)
     let user_exist_game = db.getOne("disconnect", "user_id", uid)

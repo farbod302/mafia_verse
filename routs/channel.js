@@ -80,13 +80,18 @@ router.post("/join_request", async (req, res) => {
     if (!req.body.user) return reject(2, res)
     const { uid } = req.body.user
     const { channel_id } = req.body
-    let channel = await Channel.findOne({ id: channel_id, mod: uid })
-    if (!channel) return reject(12, res)
-    res.json({
-        status: true,
-        msg: "",
-        data: { join_req: channel.join_req }
-    })
+    let s_channel = await Channel.findOne({ id: channel_id })
+    if (s_channel.join_req.includes(uid) || s_channel.users.includes(uid)) return reject(11, res)
+    const { public } = s_channel
+    let key = !public ? "join_req" : "users"
+    await Channel.findOneAndUpdate({ id: channel_id }, { $push: { [key]: uid } })
+    if (public) {
+        Helper.create_channel_config({ channel_id, user_id: uid })
+    }
+   if(public){
+    await User.findOneAndUpdate({uid},{$push:{chanels:channel_id}})
+   }
+    res.json({ status: true, msg: "درخواست شما ثبت شد", data: {} })
 
 })
 
@@ -101,7 +106,6 @@ router.post("/my_channels", async (req, res) => {
         return new Promise(async resolve => {
 
             let s_channel = await Channel.findOne({ id: channel })
-            console.log({ uid, channel });
             let channel_config = await UserChannelConfig.findOne({ user_id: uid, channel_id: channel })
             const { last_visit } = channel_config
             const { messages, users } = s_channel

@@ -34,6 +34,7 @@ const SocketProvider = class {
                 user_game.game_class.player_action({ op, data, client })
             })
             client.on("channel_handle", ({ op, data }) => {
+                console.log({op,data});
                 channel_socket_handler[op]({ data: data, socket: this.io, client })
             })
 
