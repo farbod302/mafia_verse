@@ -55,7 +55,7 @@ const Helper = {
 
 
     create_channel_config({channel_id,user_id}){
-        let new_conf={channel_id,user_id}
+        let new_conf={channel_id,user_id,last_visit:Date.now()}
         new userChannelConfig(new_conf).save()
     }
 

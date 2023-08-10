@@ -14,7 +14,7 @@ const join_handler =async ({ token, db, client, socket }) => {
         party_id: user_party,
         user_id: uid,
         name:s_user.idenity.name,
-        image:s_user.avatar.avatar
+        image:`files/${s_user.avatar.avatar}`
     }
     online_users_handler.add_user(uid)
     let user_exist_game = db.getOne("disconnect", "user_id", uid)

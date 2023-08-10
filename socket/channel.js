@@ -49,7 +49,7 @@ const channel_socket_handler = {
     },
 
     async create_game({ data, client, socket }) {
-        const { entire_gold } = data
+        const { entire_gold,with_mod } = data
         const { channel_data, idenity } = client
         const { channel_id } = channel_data
         game_cash(channel_id)
@@ -62,6 +62,7 @@ const channel_socket_handler = {
             entire_gold,
             finished: false,
             started: false,
+            with_mod,
             observable: true,
             start_time: Date.now(),
             winner: "",
@@ -89,8 +90,9 @@ const channel_socket_handler = {
 
     update_game({ game_id, socket }) {
         let s_game = this.channel_games_db.find(game => game.game_id == game_id)
-        socket.to(s_game.channel_id).emit("online_game_update", { data: { users: s_game.users, game_id } })
-        socket.to(s_game.channel_id).emit("online_game_pre_start_update", { data: { users: s_game.users, game_id } })
+        socket.to(s_game.channel_id).emit("online_game_update", { data: { users: s_game.game_data.users, game_id } })
+        console.log({ s_game:s_game.game_data.users });
+        socket.to(s_game.channel_id).emit("online_game_pre_start_update", { data:  s_game.game_data.users })
     },
     async update_game_on_db({ channel_id, game_id, new_data }) {
         await Channel.findOneAndUpdate({
@@ -115,7 +117,7 @@ const channel_socket_handler = {
         if (s_game.game_data.start) return socket.to(client.id).emit("channel_report", { data: { msg: "بازی شروع شده" } })
         let prv_game_data = { ...s_game }
         prv_game_data.game_data.users.push({ ...client.idenity, accepted: false, side: "" })
-        this.channel_games_db[index].game_data = prv_game_data
+        this.channel_games_db[index] = prv_game_data
         this.update_game_on_db({ game_id, channel_id, new_data: prv_game_data.game_data })
         this.update_game({ game_id, socket })
     },
@@ -126,7 +128,7 @@ const channel_socket_handler = {
         let { s_game, index } = this.pick_game({ game_id })
         let prv_game_data = { ...s_game }
         prv_game_data.game_data.users=prv_game_data.game_data.users.filter(e => e.user_id !== client.user_id)
-        this.channel_games_db[index].game_data = prv_game_data
+        this.channel_games_db[index] = prv_game_data
         this.update_game_on_db({ game_id, channel_id, new_data: prv_game_data.game_data })
         this.update_game({ game_id, socket })
     },
