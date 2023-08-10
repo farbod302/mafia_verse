@@ -155,7 +155,7 @@ router.post("/specific_channel", async (req, res) => {
 
 router.post("/search", async (req, res) => {
     const user = req.body.user
-    let user_id = user.user_id
+    let user_id = user.uid
     const { channel_name } = req.body
     if (!channel_name) return res.json({ status: true, data: [] })
     let s_channels = await Channel.find({ name: { $regex: channel_name } })
