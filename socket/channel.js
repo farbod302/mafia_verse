@@ -82,7 +82,6 @@ const channel_socket_handler = {
                 }
             }
         )
-        console.log({ new_game: new_game.users });
         this.channel_games_db.push({ game_id, channel_id: channel_id, game_data: new_game })
         let channel_games = this.channel_games_db.filter(e => e.channel_id == channel_id)
         socket.to(channel_id).emit("online_game", { data: channel_games.map(e => e.game_data) })
@@ -139,7 +138,7 @@ const channel_socket_handler = {
         let prv_game_data = { ...s_game }
         if (accept) {
             let user_index = prv_game_data.game_data.users.findIndex(e => e.user_id === requester_id)
-            prv_game_data.game_data.users[user_index].accepted = accept
+            prv_game_data.game_data.users[user_index].accepted = true
         }
         else{
             prv_game_data.game_data.users=prv_game_data.game_data.users.filter(e => e.user_id !== requester_id)
