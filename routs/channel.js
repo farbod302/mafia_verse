@@ -76,7 +76,7 @@ router.post("/create_channel_by_user", async (req, res) => {
     res.json({ status: true, data: {}, msg: "" })
 })
 
-router.post("/join_requests", async (req, res) => {
+router.post("/join_request", async (req, res) => {
     if (!req.body.user) return reject(2, res)
     const { uid } = req.body.user
     const { channel_id } = req.body

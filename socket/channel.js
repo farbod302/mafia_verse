@@ -128,6 +128,8 @@ const channel_socket_handler = {
 
     async start_channel_game({game_id,start_game}){
 
+        let game
+
     }
 
 
