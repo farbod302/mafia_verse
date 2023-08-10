@@ -5,7 +5,7 @@ const User = require("../db/user")
 const channel_socket_handler = {
 
     channel_games_db: [],
-    ready_check: [],
+    ready_check_list: [],
 
     async create_game({ data, client, socket }) {
         const { entire_gold } = data
@@ -103,28 +103,33 @@ const channel_socket_handler = {
         const { users } = s_game.game_data
         let accepted_users = users.filter(e => e.accepted)
         accepted_users.forEach(user => client.to(user.socket_id).emit("ready_check"))
-        this.ready_check.push({
+        this.ready_check_list.push({
             game_id,
             users: accepted_users.map(e => { return { user_id: e.user_id, ready_check: -1 } }),
         })
         await new Promise(resolve => { setTimeout(resolve, 11000) })
-        this.ready_check = this.ready_check.filter(e => e.game_id !== game_id)
+        this.ready_check_list = this.ready_check_list.filter(e => e.game_id !== game_id)
     },
 
     async ready_check_status({ client, data }) {
         const { game_id, status } = data
-        let s_ready_index = this.ready_check.findIndex(e => e.game_id === game_id)
+        let s_ready_index = this.ready_check_list.findIndex(e => e.game_id === game_id)
         if (s_ready_index === -1) return
-        let user_index = this.ready_check[s_ready_index].users.findIndex(e => e.user_id === client.idenity.use_id)
+        let user_index = this.ready_check_list[s_ready_index].users.findIndex(e => e.user_id === client.idenity.use_id)
         if (user_index === -1) { console.log("err"); return }
-        this.ready_check[s_ready_index].users[user_index].ready_check = status ? 1 : 0
+        this.ready_check_list[s_ready_index].users[user_index].ready_check = status ? 1 : 0
         let { s_game } = this.pick_game({ game_id })
         const { users } = s_game.game_data
         let accepted_users = users.filter(e => e.accepted)
         accepted_users.forEach(user=>{
-            socket.to(user.socket_id).emit("ready_check_status",{data:this.ready_check[s_ready_index].users})
+            socket.to(user.socket_id).emit("ready_check_status",{data:this.ready_check_list[s_ready_index].users})
         })
+    },
+
+    async start_channel_game({game_id,start_game}){
+
     }
+
 
 
 }
