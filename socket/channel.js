@@ -4,170 +4,126 @@ const User = require("../db/user")
 
 const channel_socket_handler = {
 
-    async join_to_channel(data, socket, client) {
-        const { channel_id } = data
-        const { idenity } = client
-        const { user_id } = idenity
-        const prv_channel = client.channel_data?.channel_id
-        if (prv_channel) client.leave(prv_channel)
-        client.join(channel_id)
-        let s_channel = await Channel.findOne({ id: channel_id })
-        const { mods, creator } = s_channel
-        let channel_data = {
-            channel_id
-        }
-        if (mods.includes(user_id)) { channel_data["role"] = "co_leader" }
-        else if (creator === user_id) { channel_data["role"] = "leader" }
-        else channel_data["role"] = "member"
-        client.channel_data = channel_data
-    },
-    async send_channel_msg(data, socket, client, db) {
+    channel_games_db: [],
+    ready_check: [],
+
+    async create_game({ data, client, socket }) {
+        const { entire_gold } = data
         const { channel_data, idenity } = client
-        console.log({ channel_data });
-        const { msg_type, msg } = data
-        const { user_id } = idenity
-        let msg_id = uuid(5)
-        let new_msg = {
-            msg_id,
-            user_id,
-            user_name: idenity.name || "",
-            msg,
-            msg_type,
-            msg_time: Date.now(),
-            user_state: channel_data.role
-        }
-        socket.to(channel_data.channel_id).emit("send_channel_msg", { data: new_msg })
-        await Channel.findOneAndUpdate({ id: channel_data.channel_id }, { $push: { messages: new_msg } })
-
-    },
-
-    async create_game(data, socket, client, db) {
-        const { channel_data, idenity } = client
-        if (!channel_data || idenity.user_id) return socket.to(client.id).emit("error")
-        const { user_id } = idenity
-        let s_user = await User.findOne({ uid: user_id })
-        if (!s_user) return socket.to(client.id).emit("error")
-        const { gold, } = s_user
-        if (gold < 100) return socket.to(client.id).emit("error_msg", { data: { msg: "شما سکه کافی ندارید" } })
-
-        let game_id = uuid(4)
+        const { channel_id } = channel_data
+        const game_id = uuid(5)
 
         let new_game = {
             game_id,
-            creator: user_id,
-            creator_socket: client.id,
+            creator_id: idenity.use_id,
             scenario: "nato",
+            entire_gold,
             finished: false,
             started: false,
             observable: true,
             start_time: Date.now(),
-            end_time: 0,
             winner: "",
-            users: [{ ...idenity, side: "" }],
-            requesters: []
+            users: [
+                {
+                    ...idenity,
+                    accepted: true,
+                    side: ""
+                }
+            ],
         }
-        await Channel.findOneAndUpdate({ id: channel_data.channel_id }, { $push: { games: new_game } })
-        socket.to(channel_data.channel_id).emit("channel_game", { data: new_game })
-        client.join(game_id)
-    },
-
-    async channel_game_update({ channel_id, game_id }) {
-        let all_game = await Channel.findOne({ id: channel_id })
-        let s_game = all_game.games.find(e => e.game_id === game_id)
-        if (!s_game) return
-        const { requesters, users } = s_game
-        return { requesters, users, mod_socket: s_game.creator_socket }
-
-    },
-
-
-    async join_channel_game(data, socket, client, db) {
-        const { game_id } = data
-        const { idenity, channel_data } = client
-        const { channel_id } = channel_data
         await Channel.findOneAndUpdate(
+            { id: channel_id },
             {
-                id: channel_id,
-                games:
-                    { $elemMatch: { game_id } }
-            },
-            {
-                $push: { "games.$.requesters": idenity.user_id }
+                $push: {
+                    games: new_game
+                }
             }
         )
-        let new_update = await this.channel_game_update({ channel_id, game_id })
-        const { requesters, users, mod_socket } = new_update
-        let requesters_comp_data = await User.find({ uid: requesters }, { idenity: 1, avatar: 1, uid: 1, _id: 0 })
-        requesters_comp_data = requesters_comp_data.map(u => {
-            return {
-                user_id: u.uid,
-                user_name: u.idenity.name,
-                user_image: u.avatar.avatar
+        this.channel_games_db.push({ game_id, channel_id: channel_id, game_data: new_game })
+        socket.to(channel_id).emit("online_game", { data: new_game })
+    },
+
+    update_game({ game_id, socket }) {
+        let s_game = this.channel_games_db.find(game => game.game_id == game_id)
+        socket.to(s_game.channel_id).emit("online_game_update", { data: { users: s_game.users, game_id } })
+    },
+    async update_game_on_db({ channel_id, game_id, new_data }) {
+        await Channel.findOneAndUpdate({
+            id: channel_id,
+            games: { $elemMatch: { game_id } }
+        }, {
+            $set: {
+                "games.$": new_data
             }
         })
-        socket.to(mod_socket).emit("request_channel_game_join", { data: requesters_comp_data })
-        socket.to(game_id).emit("online_game_update", { data: { game_id, requesters, users } })
     },
 
-    async leave_channel_game(data, socket, client, db) {
+    pick_game({ game_id }) {
+        let s_game_index = this.channel_games_db.findIndex(game => game.game_id == game_id)
+        return { s_game: this.channel_games_db[s_game_index], index: s_game_index }
+    },
+
+    async join_channel_game({ data, client, socket }) {
         const { game_id } = data
-        const { channel_data } = client
-        const { channel_id } = channel_data
-        await Channel.findOneAndUpdate(
-            {
-                id: channel_id,
-                games:
-                    { $elemMatch: { game_id } }
-            },
-            {
-                $pull: { "games.$.requesters": idenity.user_id }
-            }
-        )
-        let new_update = await this.channel_game_update({ channel_id, game_id })
-        const { requesters, users } = new_update
-        socket.to(game_id).emit("online_game_update", { data: { game_id, requesters, users } })
-
+        const { channel_id } = client.channel_data
+        let { s_game, index } = this.pick_game({ game_id })
+        if (s_game.game_data.start) return socket.to(client.id).emit("channel_report", { data: { msg: "بازی شروع شده" } })
+        let prv_game_data = { ...s_game }
+        prv_game_data.game_data.users.push({ ...client.idenity, accepted: false, side: "" })
+        this.channel_games_db[index].game_data = prv_game_data
+        this.update_game_on_db({ game_id, channel_id, new_data: prv_game_data.game_data })
+        this.update_game({ game_id, socket })
     },
 
+    async leave_channel_game({ data, client, socket }) {
+        const { game_id } = data
+        const { channel_id } = client.channel_data
+        let { s_game, index } = this.pick_game({ game_id })
+        let prv_game_data = { ...s_game }
+        prv_game_data.game_data.users.filter(e => e.user_id === client.user_id)
+        this.channel_games_db[index].game_data = prv_game_data
+        this.update_game_on_db({ game_id, channel_id, new_data: prv_game_data.game_data })
+        this.update_game({ game_id, socket })
+    },
 
-    async filter_channel_game_users(data, socket, client, db) {
-        const { requester_id, accept, game_id } = data
-        const { channel_data } = client
-        const { channel_id } = channel_data
-        await Channel.findOneAndUpdate(
-            {
-                id: channel_id,
-                games:
-                    { $elemMatch: { game_id } }
-            },
-            {
-                $pull: { "games.$.requesters": requester_id }
-            }
-        )
-        if (accept) {
-            let requester_comp_data = await User.findOne({ uid: requester_id }, { idenity: 1, avatar: 1, uid: 1, _id: 0 })
-            requester_comp_data = requester_comp_data.map(u => {
-                return {
-                    user_id: u.uid,
-                    user_name: u.idenity.name,
-                    user_image: u.avatar.avatar
-                }
-            })
-            await Channel.findOneAndUpdate(
-                {
-                    id: channel_id,
-                    games:
-                        { $elemMatch: { game_id } }
-                },
-                {
-                    $push: { "games.$.users": requester_comp_data }
-                }
-            )
-        }
-        let new_update = await this.channel_game_update({ channel_id, game_id })
-        const { requesters, users } = new_update
-        socket.to(game_id).emit("online_game_update", { data: { game_id, requesters, users } })
+    async filter_channel_game_users({ data, client, socket }) {
+        const { game_id, requester_id, accept } = data
+        const { channel_id } = client.channel_data
+        let { s_game, index } = this.pick_game({ game_id })
+        let prv_game_data = { ...s_game }
+        let user_index = prv_game_data.game_data.users.findIndex(e => e.user_id === requester_id)
+        prv_game_data.game_data.users[user_index].accepted = accept
+        this.channel_games_db[index].game_data = prv_game_data
+        this.update_game_on_db({ game_id, channel_id, new_data: prv_game_data.game_data })
+        this.update_game({ game_id, socket })
+    },
+    async ready_check({ data, client }) {
+        const { game_id } = data
+        let { s_game } = this.pick_game({ game_id })
+        const { users } = s_game.game_data
+        let accepted_users = users.filter(e => e.accepted)
+        accepted_users.forEach(user => client.to(user.socket_id).emit("ready_check"))
+        this.ready_check.push({
+            game_id,
+            users: accepted_users.map(e => { return { user_id: e.user_id, ready_check: -1 } }),
+        })
+        await new Promise(resolve => { setTimeout(resolve, 11000) })
+        this.ready_check = this.ready_check.filter(e => e.game_id !== game_id)
+    },
 
+    async ready_check_status({ client, data }) {
+        const { game_id, status } = data
+        let s_ready_index = this.ready_check.findIndex(e => e.game_id === game_id)
+        if (s_ready_index === -1) return
+        let user_index = this.ready_check[s_ready_index].users.findIndex(e => e.user_id === client.idenity.use_id)
+        if (user_index === -1) { console.log("err"); return }
+        this.ready_check[s_ready_index].users[user_index].ready_check = status ? 1 : 0
+        let { s_game } = this.pick_game({ game_id })
+        const { users } = s_game.game_data
+        let accepted_users = users.filter(e => e.accepted)
+        accepted_users.forEach(user=>{
+            socket.to(user.socket_id).emit("ready_check_status",{data:this.ready_check[s_ready_index].users})
+        })
     }
 
 

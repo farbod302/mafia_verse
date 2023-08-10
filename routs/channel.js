@@ -154,18 +154,22 @@ router.post("/specific_channel", async (req, res) => {
 })
 
 router.post("/search", async (req, res) => {
+    const user = req.body.user
+    let user_id = user.user_id
     const { channel_name } = req.body
-    if(!channel_name)return res.json({status:true,data:[]})
+    if (!channel_name) return res.json({ status: true, data: [] })
     let s_channels = await Channel.find({ name: { $regex: channel_name } })
     let clean_channels = s_channels.map(channel => {
-        const { name, cup, avatar, desc, id, public } = channel
+        const { name, cup, avatar, desc, id, public, users } = channel
         return {
             channel_name: name,
             channel_id: id,
             channel_cup: cup,
             channel_image: avatar,
             channel_description: desc,
-            public
+            public,
+            users: users.length,
+            is_member: users.includes(user_id)
         }
     })
     res.json({
@@ -200,15 +204,15 @@ router.post("/preview", async (req, res) => {
 })
 
 
-router.post("/exit",async (req, res) => {
+router.post("/exit", async (req, res) => {
     const user = req.body.user
     if (!user) return reject(3, res)
     const { channel_id } = req.body
     const { uid: user_id } = user
     await Channel.findOne({ id: channel_id }, { $pull: { users: user_id, mod: user_id } })
     res.json({
-        status:true,
-        msg:"درخواست ارسال شد"
+        status: true,
+        msg: "درخواست ارسال شد"
     })
 })
 

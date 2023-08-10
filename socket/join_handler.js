@@ -4,9 +4,7 @@ const { uid: uuid } = require("uid")
 const online_users_handler = require("./online_users_handler")
 const User=require("../db/user")
 const join_handler =async ({ token, db, client, socket }) => {
-    console.log({token});
     const user = Jwt.verify(token)
-    console.log({user});
     if (!user) return
     const { uid} = user
     let s_user=await User.findOne({uid})
@@ -19,12 +17,10 @@ const join_handler =async ({ token, db, client, socket }) => {
     }
     online_users_handler.add_user(uid)
     let user_exist_game = db.getOne("disconnect", "user_id", uid)
-    console.log({user_exist_game});
     if (user_exist_game) {
         let s_game=db.getOne("games","game_id",user_exist_game.game_id)
         const {carts}=s_game.game_class.game_vars
         let user_char=carts.find(e=>e.user_id === uid) || null
-       console.log({user_char});
         socket.to(client.id).emit("reconnect_notification", {
             data: {
                 game_id: user_exist_game.game_id,
