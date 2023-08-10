@@ -228,4 +228,18 @@ router.post("/online_game",async (req,res)=>{
     res.json({status:true,data:s_channel.games})
 })
 
+
+router.post("/online_game_pre_start_update",async (req,res)=>{
+    const  {channel_id,game_id}=req.body
+    const s_channel=await Channel.findOne({id:channel_id},{games:1})
+    const {games}=s_channel
+    let s_game=games.find(e=>e.game_id === game_id)
+    res.json({
+        status:true,
+        msg:"",
+        data:s_game.users||[]
+    })
+
+})
+
 module.exports = router
