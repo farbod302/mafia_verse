@@ -179,7 +179,7 @@ const channel_socket_handler = {
         let { s_game, index } = this.pick_game({ game_id })
         let prv_game_data = { ...s_game }
         prv_game_data.game_data.users = prv_game_data.game_data.users.filter(e => e.user_id !== user_id)
-        this.channel_games_db[index].game_data = prv_game_data
+        this.channel_games_db[index] = prv_game_data
         this.update_game_on_db({ game_id, channel_id, new_data: prv_game_data.game_data })
         this.update_game({ game_id, socket })
 
