@@ -162,6 +162,7 @@ const channel_socket_handler = {
         if (accept) {
             let user_index = prv_game_data.game_data.users.findIndex(e => e.user_id === requester_id)
             prv_game_data.game_data.users[user_index].accepted = true
+            console.log({user_index,users:prv_game_data.game_data.users});
         }
         else {
             prv_game_data.game_data.users = prv_game_data.game_data.users.filter(e => e.user_id !== requester_id)
