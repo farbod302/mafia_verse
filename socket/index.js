@@ -11,6 +11,7 @@ const SocketProvider = class {
     }
 
     lunch() {
+        channel_socket_handler.set_online_games()
         this.io.on("connection", (client) => {
             client.on("join", ({ token }) => { join_handler({ token, db: this.db, client, socket: this.io }) })
             client.on("find_match", (senario) => { find_match.find_robot_game({ senario, client, db: this.db, socket: this.io }) })

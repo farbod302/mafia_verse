@@ -26,6 +26,16 @@ const channel_socket_handler = {
         client.join(channel_id)
     },
 
+    async set_online_games(){
+        let channels=await Channel.find()
+        let all_games=[]
+        channels.forEach(channel=>{
+            const {games}=channel
+            unfinished_games=games.filter(e=>!e.start)
+            all_games=all_games.concat(unfinished_games)
+        })
+        this.channel_games_db=all_games
+    },
 
     async send_channel_msg({ data, client, socket }) {
         const { msg_type, msg } = data
