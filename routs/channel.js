@@ -23,7 +23,6 @@ router.post("/generate_channel_token", (req, res) => {
     res.json({ token })
 })
 
-
 const create_channel = (data) => { new Channel(data).save() }
 
 router.post("/create_channel_with_token", async (req, res) => {
@@ -131,8 +130,6 @@ router.post("/my_channels", async (req, res) => {
         data: datas
     })
 
-
-
 })
 
 
@@ -156,6 +153,7 @@ router.post("/specific_channel", async (req, res) => {
     data["content"] = s_messages
     res.json({ status: true, data })
 })
+
 
 router.post("/search", async (req, res) => {
     const user = req.body.user
