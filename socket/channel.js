@@ -2,6 +2,9 @@ const { uid: uuid } = require("uid")
 const Channel = require("../db/channel")
 const { game_cash, msg_cash } = require("../routs/channel_cash")
 const UserChannelConfig = require("../db/user_channel_config")
+const online_users_handler = require("./online_users_handler")
+const find_match = require("./find_match")
+const { delay } = require("../helper/helper")
 
 const channel_socket_handler = {
 
@@ -25,7 +28,6 @@ const channel_socket_handler = {
         }
         client.channel_data = channel_data
         client.join(channel_id)
-        await UserChannelConfig.findOneAndUpdate({ user_id, channel_id }, { $set: { last_visit: Date.now() } })
     },
 
     async set_online_games() {
@@ -162,7 +164,6 @@ const channel_socket_handler = {
         if (accept) {
             let user_index = prv_game_data.game_data.users.findIndex(e => e.user_id === requester_id)
             prv_game_data.game_data.users[user_index].accepted = true
-            console.log({user_index,users:prv_game_data.game_data.users});
         }
         else {
             prv_game_data.game_data.users = prv_game_data.game_data.users.filter(e => e.user_id !== requester_id)
@@ -172,7 +173,7 @@ const channel_socket_handler = {
         this.update_game({ game_id, socket })
     },
 
-    async filter_channel_kick_user({ data, client,socket }) {
+    async filter_channel_kick_user({ data, client, socket }) {
 
         const { game_id, user_id } = data
         const { channel_id } = client.channel_data
@@ -186,12 +187,16 @@ const channel_socket_handler = {
 
 
     },
-    async ready_check({ data, client }) {
+    async ready_check({ data, client, socket }) {
         const { game_id } = data
         let { s_game } = this.pick_game({ game_id })
         const { users } = s_game.game_data
         let accepted_users = users.filter(e => e.accepted)
-        accepted_users.forEach(user => client.to(user.socket_id).emit("ready_check"))
+
+        accepted_users.forEach(user => {
+            console.log({ user, client: client.id });
+            client.to(online_users_handler.get_user_socket_id(user.user_id)).emit("ready_check")
+        })
         this.ready_check_list.push({
             game_id,
             users: accepted_users.map(e => { return { user_id: e.user_id, ready_check: -1 } }),
@@ -200,33 +205,38 @@ const channel_socket_handler = {
         this.ready_check_list = this.ready_check_list.filter(e => e.game_id !== game_id)
     },
 
-    async ready_check_status({ client, data }) {
+    async ready_check_status({ client, data,socket }) {
         const { game_id, status } = data
         let s_ready_index = this.ready_check_list.findIndex(e => e.game_id === game_id)
         if (s_ready_index === -1) return
-        let user_index = this.ready_check_list[s_ready_index].users.findIndex(e => e.user_id === client.idenity.use_id)
+        let user_index = this.ready_check_list[s_ready_index].users.findIndex(e => e.user_id === client.idenity.user_id)
         if (user_index === -1) { console.log("err"); return }
         this.ready_check_list[s_ready_index].users[user_index].ready_check = status ? 1 : 0
         let { s_game } = this.pick_game({ game_id })
         const { users } = s_game.game_data
         let accepted_users = users.filter(e => e.accepted)
         accepted_users.forEach(user => {
-            socket.to(user.socket_id).emit("ready_check_status", { data: this.ready_check_list[s_ready_index].users })
+            socket.to(online_users_handler.get_user_socket_id(user.user_id)).emit("ready_check_status", { data: this.ready_check_list[s_ready_index].users })
         })
     },
 
-    async start_channel_game({ game_id, start_game, client, socket, db }) {
+    async start_channel_game({ game_id, client, socket, db }) {
 
         let { s_game } = this.pick_game({ game_id })
         const { users } = s_game.game_data
         let accepted_users = users.filter(e => e.accepted)
         const mod_party = client.idenity.party_id
         let prv_party = db.getOne("party", "party_id", mod_party)
-        accepted_users.forEach(user => {
-            prv_party.users.push(user)
-            socket.sockets.sockets.get(user.socket_id).join(mod_party);
+        accepted_users.forEach( user => {
+            let user_socket=online_users_handler.get_user_socket_id(user.user_id)
+            if(user.party_id !== mod_party){
+                prv_party.users.push(user)
+            }
+            socket.to(user_socket).emit("start_channel_game")
+            socket.sockets.sockets.get(user_socket).join(mod_party);
         })
-        start_game({ senario: "nato", client, db, socket })
+        await delay(2)
+        find_match.find_robot_game({ senario: "nato", client, db, socket })
     }
 
 

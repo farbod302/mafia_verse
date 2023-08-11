@@ -1,4 +1,5 @@
 const Game = require("../games/tv/game")
+const online_users_handler = require("./online_users_handler")
 
 const game_handler = {
     create_game({ game_id, db, socket }) {
@@ -29,7 +30,7 @@ const game_handler = {
         }
         users.forEach(user => {
             console.log({ game_id });
-            socket.sockets.sockets.get(user.socket_id).join(game_id);
+            socket.sockets.sockets.get(online_users_handler.get_user_socket_id(user.user_id)).join(game_id);
         })
         db.removeOne("games_queue", "game_id", game_id)
 

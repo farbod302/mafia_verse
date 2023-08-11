@@ -22,6 +22,7 @@ const find_match = {
         client.to(party_id).emit("find_game_started", { user_started: client.idenity, senario })
         let s_party = db.getOne("party", "party_id", party_id)
         let  { users } = s_party
+        console.log({users});
         users=await users.map(async user=>{
             let user_avatar=await find_user_avatar(user.user_id)
             return {

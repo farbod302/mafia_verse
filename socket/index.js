@@ -3,6 +3,7 @@ const join_handler = require("./join_handler")
 const find_match = require("./find_match")
 const handel_disconnect = require("./disconnect")
 const channel_socket_handler = require("./channel")
+const online_users_handler = require("./online_users_handler")
 const SocketProvider = class {
 
     constructor(io) {
@@ -12,6 +13,7 @@ const SocketProvider = class {
 
     lunch() {
         channel_socket_handler.set_online_games()
+        online_users_handler.reset()
         this.io.on("connection", (client) => {
             client.on("join", ({ token }) => { join_handler({ token, db: this.db, client, socket: this.io }) })
             client.on("find_match", (senario) => { find_match.find_robot_game({ senario, client, db: this.db, socket: this.io }) })
@@ -44,7 +46,6 @@ const SocketProvider = class {
                 channel_socket_handler.start_channel_game({
                     client,
                     game_id,
-                    start_game: find_match.find_robot_game,
                     db: this.db,
                     socket: this.io
                 })
