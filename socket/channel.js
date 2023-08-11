@@ -131,7 +131,7 @@ const channel_socket_handler = {
     },
 
     async join_channel_game({ data, client, socket }) {
-        console.log({ channel_games_db });
+        console.log({ channel_games_db:this.channel_games_db });
         const { game_id } = data
         const { channel_id } = client.channel_data
         let { s_game, index } = this.pick_game({ game_id })
