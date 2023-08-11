@@ -172,7 +172,7 @@ const channel_socket_handler = {
         this.update_game({ game_id, socket })
     },
 
-    async kick_user({ data, client }) {
+    async filter_channel_kick_user({ data, client }) {
 
         const { game_id, user_id } = data
         const { channel_id } = client.channel_data
