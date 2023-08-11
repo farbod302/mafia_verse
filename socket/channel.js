@@ -1,6 +1,7 @@
 const { uid: uuid } = require("uid")
 const Channel = require("../db/channel")
 const { game_cash, msg_cash } = require("../routs/channel_cash")
+const UserChannelConfig = require("../db/user_channel_config")
 
 const channel_socket_handler = {
 
@@ -24,10 +25,10 @@ const channel_socket_handler = {
         }
         client.channel_data = channel_data
         client.join(channel_id)
+        await UserChannelConfig.findOneAndUpdate({ user_id, channel_id }, { $set: { last_visit: Date.now() } })
     },
 
     async set_online_games() {
-        console.log("//im run");
         let channels = await Channel.find()
         let all_games = []
         channels.forEach(channel => {
@@ -42,7 +43,7 @@ const channel_socket_handler = {
             })
             all_games = all_games.concat(unfinished_games)
         })
-        console.log({all_games});
+        console.log({ all_games });
 
         this.channel_games_db = all_games
     },
@@ -131,7 +132,6 @@ const channel_socket_handler = {
     },
 
     async join_channel_game({ data, client, socket }) {
-        console.log({ channel_games_db:this.channel_games_db });
         const { game_id } = data
         const { channel_id } = client.channel_data
         let { s_game, index } = this.pick_game({ game_id })

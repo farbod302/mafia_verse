@@ -150,24 +150,6 @@ router.post("/profile", async (req, res) => {
 })
 
 
-//chanel
-
-router.post("/request_join_channel", async (req, res) => {
-    if (!req.body.user) return reject(2, res)
-    const { uid } = req.body.user
-    const { channel_id } = req.body
-    let s_channel = await Channel.findOne({ id: channel_id })
-    if (s_channel.join_req.includes(uid) || s_channel.users.includes(uid)) return reject(11, res)
-    const { public } = s_channel
-    let key = !public ? "join_req" : "users"
-    await Channel.findOneAndUpdate({ id: channel_id }, { $push: { [key]: uid } })
-    if (public) {
-        Helper.create_channel_config({ channel_id, user_id: uid })
-    }
-    res.json({ status: true, msg: "درخواست شما ثبت شد", data: {} })
-})
-
-
 
 
 router.post("/add_to_cart", async (req, res) => {
