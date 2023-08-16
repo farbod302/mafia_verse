@@ -3,12 +3,13 @@ const User = require("../db/user")
 const reject = require("../helper/reject_handler")
 const Channel = require("../db/channel")
 const router = express.Router()
-const Item = require("../db/item")
+const Pay = require("../db/pay")
 const sha256 = require("sha256")
 const { default: mongoose } = require("mongoose")
 const { uid: uuid } = require("uid")
 const Helper = require("../helper/helper")
 const UserChannelConfig = require("../db/user_channel_config")
+const online_users_handler = require("../socket/online_users_handler")
 //fetch data
 router.post("/land_screen_data", async (req, res) => {
     const { uid } = req.body.user
@@ -57,12 +58,17 @@ router.post("/friend_list", async (req, res) => {
     const { op } = req.body
     //for friend req list
     let user = await User.findOne({ uid })
+    let online_users = online_users_handler.get_online_users()
+    let online_users_id = online_users.map(e => e.user_id)
     const { friend_list_req, friend_list } = user
     let req_users = await User.find({ uid: { $in: !op ? friend_list_req : friend_list } })
     req_users = req_users.map(e => {
         const { uid, idenity, avatar, ranking } = e
-        return { uid, idenity, avatar, ranking }
+        return { uid, idenity, avatar, ranking, online: online_users_id.includes(uid) }
     })
+
+    req_users.sort((a, b) => b.online - a.online)
+
     res.json({
         status: true,
         msg: "",
@@ -335,9 +341,30 @@ router.post("/edit_profile", async (req, res) => {
     let key = `${avatar}.${section}`
     await User.findOneAndUpdate({ uid: user.uid }, { $set: { [key]: item_id } })
     res.json({
-        status:true,
-        msg:"آیتم تغییر کرد",
-        data:{}
+        status: true,
+        msg: "آیتم تغییر کرد",
+        data: {}
     })
+})
+
+
+router.post("/user_transactions", (req, res) => {
+    const user = req.body.user
+    if (!user) return reject(3, res)
+    const user_pays = Pay.find({ user: user.uid })
+    let player_transactions = user_pays.map(e => {
+        let p_date = new Date(e.date)
+        p_date = p_date.toLocaleDateString("fa-IR")
+        return {
+            ...e,
+            date: p_date
+        }
+    })
+    res.json({
+        status: true,
+        msg: "",
+        data: { transactions: player_transactions }
+    })
+
 })
 module.exports = router
