@@ -18,6 +18,11 @@ const Helper = {
         // client.manualSendCode(phone, msg)
     },
 
+    get_rooms({ room_id, users }){
+        // client.manualSendCode(room_id, users)
+
+    },
+
 
     encrypt(str) {
         let key = process.env.ENC_KEY

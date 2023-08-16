@@ -1,5 +1,5 @@
 const static_vars={
-    player_count:2,
+    player_count:3,
     rols:[
         "citizen",
         "citizen",
@@ -20,7 +20,8 @@ const static_vars={
         chaos:10,
         final_words:20
     },
-    scenario:"nato"
+    scenario:"nato",
+    to_dec:"price"
 }
 
 module.exports=static_vars

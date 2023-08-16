@@ -13,8 +13,9 @@ const static_vars = require("./static_vars")
 const game_result = require("./funcs/game_result")
 
 const Game = class {
-    constructor({ game_id, users, socket, game_handlers }) {
+    constructor({ game_id, users, socket, game_handlers, mod }) {
         this.socket = socket
+        this.mod = mod || false
         this.game_id = game_id
         this.users = users
         this.db = new TempDb()
@@ -65,7 +66,7 @@ const Game = class {
                 second_event: "is_connected",
                 new_value: true,
                 edit_others: false,
-                game_vars:this.game_vars
+                game_vars: this.game_vars
             })
             const { player_status } = this.game_vars
             this.socket.to(game_id).emit("game_action", { data: player_status })
@@ -91,7 +92,7 @@ const Game = class {
             this.socket.to(game_id).emit("game_action", { data: status_list })
             this.game_vars.edit_event("push", "dead_list", client.user_id)
             this.socket.to(game_id).emit({ data: { msg: `بازیکن ${client.user_id} به دست خدا کووشته شوود` } })
-            this.game_handlers.submit_player_abandon({user_id:client.user_id})
+            this.game_handlers.submit_player_abandon({ user_id: client.user_id })
         }
 
     }
@@ -100,7 +101,7 @@ const Game = class {
         const { is_live, abandon_queue } = this.game_vars
         if (!is_live) return
         for (let user of abandon_queue) {
-            this.player_abandon({client:user})
+            this.player_abandon({ client: user })
         }
 
     }
@@ -987,7 +988,7 @@ const Game = class {
         const { day } = this.game_vars
         const night_records = this.db.getOne("night_records", "night", day)
         let users_disconnected = this.game_vars.player_status.filter(e => !e.user_status.is_connected)
-        console.log({users_disconnected});
+        console.log({ users_disconnected });
         this.game_vars.edit_event("edit", "abandon_queue", users_disconnected)
         this.check_for_abandon()
         await night.night_results({

@@ -55,7 +55,7 @@ router.post("/check", async (req, res) => {
 })
 
 router.post("/sign_up", async (req, res) => {
-    const { phone, name } = req.body
+    const { phone, name,firebase_token } = req.body
     let is_user_name_uniq = await User.findOne({ $or: [{ "idenity.name": name }, { "idenity.phone": phone }] })
     if (is_user_name_uniq) {
         res.json({
@@ -69,7 +69,7 @@ router.post("/sign_up", async (req, res) => {
     if (!Helper.valideate_phone(phone)) return reject(0, res)
     let code = RegistSmsHandler.send_sms(phone)
     console.log({ code });
-    new TempSms({ phone, name, code }).save()
+    new TempSms({ phone, name, code,notif_token:firebase_token }).save()
     res.json({
         status: true,
         msg: "کد تایید ارسال شد",

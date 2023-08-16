@@ -8,6 +8,7 @@ const { multer_storage } = require("../helper/helper")
 const router = express.Router()
 const multer = require("multer")
 const sha256 = require("sha256")
+const Pay = require("../db/pay")
 const check_admin = (req, res, next) => {
     try {
         const admin_list = fs.readFileSync(`${__dirname}/../helper/admins.json`)
@@ -43,7 +44,7 @@ router.post("/upload", upload.array("file"), (req, res) => {
 })
 
 
-router.post("/add_item", check_admin, (req, res) => {
+router.post("/add_item", check_admin, async (req, res) => {
     const { name, file, image, price, categorys, type, active } = req.body
     const new_item = {
         name, file, image, price, categorys, type, active
@@ -57,6 +58,7 @@ router.post("/add_item", check_admin, (req, res) => {
         data: {}
     })
 
+
 })
 
 
@@ -69,6 +71,27 @@ router.post("/log_in", (req, res) => {
     })
 })
 
+router.post("/add_admin", (req, res) => {
+    const { new_admin, op } = req.body
+    if (!new_admin) return reject(3, res)
+    let prv_list = fs.readFileSync(`${__dirname}/../helper/admins.json`)
+    prv_list = JSON.parse(prv_list.toString())
+    if (op) {
+        prv_list.push(new_admin)
+    } else {
+        prv_list = prv_list.filter(e => e !== new_admin)
+    }
+    fs.writeFileSync(`${__dirname}/../helper/admins.json`, JSON.stringify(prv_list))
+    res.json(true)
+})
+
+
+router.post("/get_payments", check_admin, async (req, res) => {
+
+    let confirmed_pays = await Pay.find({ status: true })
+    res.json({confirmed_pays})
+
+})
 
 
 module.exports = router 

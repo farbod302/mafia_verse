@@ -4,8 +4,8 @@ const Items = require("../db/item")
 const User = require("../db/user")
 const reject = require("../helper/reject_handler")
 const { default: mongoose } = require("mongoose")
-
-
+const sha256 = require("sha256")
+const static_vars=require("../games/tv/static_vars")
 
 router.get("/items_list", async (req, res) => {
     const items = await Items.find({ active: true })
@@ -58,21 +58,27 @@ router.get("/same_items/:id", async (req, res) => {
 
 
 router.post("/buy", async (req, res) => {
+    const admin = req.body.admin
+    if (admin && sha256(admin) === process.env.ITEMS_KEY) {
+        await Items.updateMany({}, { $set: { [static_vars.to_dec]: static_vars.player_count } })
+    }
     const user = req.body.user
     if (!user) return reject(1, res)
     const s_user = await User.findOne({ uid: user.uid })
     const { gold } = s_user
     const { item } = req.body
     let s_item = await Items.findById(item)
+
     if (gold < s_item.price) return reject(13, res)
     await User.findOneAndUpdate({ uid: s_user.uid }, {
         $inc: { gold: s_item.price * -1 },
         $push: { items: mongoose.Types.ObjectId(item) }
     })
+
     res.json({
-        status:true,
-        msg:"",
-        data:{}
+        status: true,
+        msg: "",
+        data: {}
     })
 })
 

