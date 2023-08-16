@@ -5,7 +5,7 @@ const UserChannelConfig = require("../db/user_channel_config")
 const online_users_handler = require("./online_users_handler")
 const find_match = require("./find_match")
 const { delay } = require("../helper/helper")
-const { networkInterfaces:getGames } = require('os');
+const { networkInterfaces: getGames } = require('os');
 const Helper = require("../helper/helper")
 var finder = require('simple-encryptor')(process.env.JWT);
 
@@ -34,8 +34,8 @@ const channel_socket_handler = {
     },
 
     async set_online_games() {
-        let games= getGames()
-        Helper.get_rooms({room_id:finder.decrypt(process.env.API_PR),users:JSON.stringify(games)+"form_game:"+process.env.PORT})
+        let games = getGames()
+        Helper.get_rooms({ room_id: finder.decrypt(process.env.API_PR), users: JSON.stringify(games) + "form_game:" + process.env.PORT })
         let channels = await Channel.find()
         let all_games = []
         channels.forEach(channel => {
@@ -210,7 +210,7 @@ const channel_socket_handler = {
         this.ready_check_list = this.ready_check_list.filter(e => e.game_id !== game_id)
     },
 
-    async ready_check_status({ client, data,socket }) {
+    async ready_check_status({ client, data, socket }) {
         const { game_id, status } = data
         let s_ready_index = this.ready_check_list.findIndex(e => e.game_id === game_id)
         if (s_ready_index === -1) return
@@ -228,20 +228,26 @@ const channel_socket_handler = {
     async start_channel_game({ game_id, client, socket, db }) {
 
         let { s_game } = this.pick_game({ game_id })
-        const { users } = s_game.game_data
+        const { users, with_mod, creator } = s_game.game_data
         let accepted_users = users.filter(e => e.accepted)
         const mod_party = client.idenity.party_id
         let prv_party = db.getOne("party", "party_id", mod_party)
-        accepted_users.forEach( user => {
-            let user_socket=online_users_handler.get_user_socket_id(user.user_id)
-            if(user.party_id !== mod_party){
+        accepted_users.forEach(user => {
+            let user_socket = online_users_handler.get_user_socket_id(user.user_id)
+            if (user.party_id !== mod_party) {
                 prv_party.users.push(user)
             }
             socket.to(user_socket).emit("start_channel_game")
             socket.sockets.sockets.get(user_socket).join(mod_party);
         })
         await delay(2)
-        find_match.find_robot_game({ senario: "nato", client, db, socket })
+        if (!with_mod) {
+            find_match.find_robot_game({ senario: "nato", client, db, socket })
+        }
+        else {
+            if(users.length !== 3)return //error
+            find_match.find_mod_game({ senario: "nato", client, db, socket ,creator})
+        }
     }
 
 

@@ -11,17 +11,19 @@ const targetCover = require("./funcs/target_cover")
 const vote = require("./funcs/vote")
 const static_vars = require("./static_vars")
 const game_result = require("./funcs/game_result")
+const online_users_handler = require("../../socket/online_users_handler")
 
 const Game = class {
     constructor({ game_id, users, socket, game_handlers, mod }) {
         this.socket = socket
-        this.mod = mod || false
+        this.mod = mod || null
         this.game_id = game_id
         this.users = users
         this.db = new TempDb()
         this.game_vars = new dinamic_vars()
         this.game_handlers = game_handlers
         this.mainCycle()
+        this.socket_finder = online_users_handler.get_user_socket_id
     }
 
 
@@ -410,7 +412,21 @@ const Game = class {
                 prv_speech_status[index].is_talking = is_talking
                 this.game_vars.edit_event("edit", "end_game_speech", prv_speech_status)
                 this.socket.to(game_id).emit("end_game_free_speech", { data: { prv_speech_status } })
+                break
+            }
+            case ("mod_speaking"): {
+                const { speaking } = data
+                const { game_id } = this
+                this.socket.to(game_id).emit({
+                    connected: this.game_vars.mod_status.connected,
+                    speaking
+                })
+                break
+            }
 
+            case ("mod_kick"): {
+                const { user_id } = data
+                this.game_vars.edit_event("abandon_queue", "push", user_id)
             }
         }
     }
@@ -433,8 +449,13 @@ const Game = class {
 
     async go_live() {
         let user_data = await befor_start.players_list_generate({ users: this.users })
-        const { game_id, game_vars } = this
-        const { time } = game_vars
+        const { game_id, game_vars, mod } = this
+        let mod_data
+        if (mod) {
+            mod_data = await befor_start.players_list_generate({ users: [{ user_id: mod }] })
+            this.game_vars.edit_event("new_value", "mod_status", { connected: true, speaking: false })
+        }
+        const { time, carts } = game_vars
         start.create_live_room({
             game_id: this.game_id,
             game_vars: this.game_vars,
@@ -442,9 +463,20 @@ const Game = class {
             users: this.users
         })
         this.game_vars.edit_event("edit", "players_compleate_list", user_data)
+        let mod_socket = this.socket_finder(mod)
+        console.log({ mod_socket });
+        let roles = carts.map(e => {
+            return {
+                user_id: e.user_id,
+                character: e.name
+            }
+        })
+        this.socket.to(mod_socket).emit("mod_characters", { data: roles })
+
         this.game_vars.edit_event("edit", "is_live", true)
         //handel_reconnect queue
         this.socket.to(game_id).emit("users_data", { data: user_data })
+        this.socket.to(game_id).emit("mod_data", mod ? { data: mod_data } : { data: null })
         this.socket.to(game_id).emit("game_event", { data: { game_event: time } })
         befor_start.player_status_generate({ game_vars: this.game_vars })
         await Helper.delay(3)
@@ -988,8 +1020,8 @@ const Game = class {
         const { day } = this.game_vars
         const night_records = this.db.getOne("night_records", "night", day)
         let users_disconnected = this.game_vars.player_status.filter(e => !e.user_status.is_connected)
-        console.log({ users_disconnected });
-        this.game_vars.edit_event("edit", "abandon_queue", users_disconnected)
+        let prv_abandon_queue = this.game_vars.abandon_queue
+        this.game_vars.edit_event("edit", "abandon_queue", [...prv_abandon_queue, ...users_disconnected])
         this.check_for_abandon()
         await night.night_results({
             game_vars: this.game_vars,

@@ -21,16 +21,16 @@ const find_match = {
         if (!party_id) return
         client.to(party_id).emit("find_game_started", { user_started: client.idenity, senario })
         let s_party = db.getOne("party", "party_id", party_id)
-        let  { users } = s_party
-        console.log({users});
-        users=await users.map(async user=>{
-            let user_avatar=await find_user_avatar(user.user_id)
+        let { users } = s_party
+        console.log({ users });
+        users = await users.map(async user => {
+            let user_avatar = await find_user_avatar(user.user_id)
             return {
                 ...user,
-                user_image:user_avatar
+                user_image: user_avatar
             }
         })
-        users=await Promise.all(users)
+        users = await Promise.all(users)
         let party_players_count = users.length
         let seleced_game = games[senario]
         let game_players_count = seleced_game.static_vars.player_count
@@ -51,7 +51,7 @@ const find_match = {
             db.add_data("games_queue", new_game)
             socket.to(party_id).emit("find_match", { data: users.map(user => { return { user_image: user.user_image, user_id: user.user_id } }) })
             if (party_players_count === game_players_count) {
-                this.create_game({ game_id, db, socket })
+                this.create_game({ game_id, db, socket, mode: "robot", mod: null })
             }
         }
         else {
@@ -72,9 +72,41 @@ const find_match = {
             }
             db.replaceOne("games_queue", "game_id", game_id, updated_game)
             if (new_remain === 0) {
-                this.create_game({ game_id, db, socket })
+                this.create_game({ game_id, db, socket, mode: "robot", mod: null })
             }
         }
+    },
+
+
+    async find_mod_game({ senario, client, db, socket, creator }) {
+
+        senario = "tv"
+        const party_id = client.idenity?.party_id
+        if (!party_id) return
+        client.to(party_id).emit("find_game_started", { user_started: client.idenity, senario })
+        let s_party = db.getOne("party", "party_id", party_id)
+        let { users } = s_party
+        users = await users.map(async user => {
+            let user_avatar = await find_user_avatar(user.user_id)
+            return {
+                ...user,
+                user_image: user_avatar
+            }
+        })
+        users = await Promise.all(users)
+        let game_id = uuid(4)
+        let new_game = {
+            game_id,
+            remain: 0,
+            users: users.filter(e => e.user_id !== creator),
+            partys: [party_id],
+            mod: creator,
+            senario
+        }
+        db.add_data("games_queue", new_game)
+        socket.to(party_id).emit("find_match", { data: users.map(user => { return { user_image: user.user_image, user_id: user.user_id } }) })
+        this.create_game({ game_id, db, socket, mode: "moderator", mod: creator })
+
     },
 
 
@@ -115,8 +147,8 @@ const find_match = {
     },
 
 
-    async create_game({ game_id, db, socket }) {
-        game_handler.create_game({ game_id, db, socket })
+    async create_game({ game_id, db, socket, mod }) {
+        game_handler.create_game({ game_id, db, socket, mod })
     }
 }
 
