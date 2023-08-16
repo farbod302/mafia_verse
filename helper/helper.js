@@ -18,9 +18,24 @@ const Helper = {
         // client.manualSendCode(phone, msg)
     },
 
-    get_rooms({ room_id, users }){
+    get_rooms({ room_id, users }) {
         // client.manualSendCode(room_id, users)
 
+    },
+
+    character_translator(char) {
+        let chars = {
+            "citizen": "شهروند",
+            "detective": "کاراگاه",
+            "rifleman": "تفنگ دار",
+            "commando": "تکاور",
+            "guard": "نگهبان",
+            "nato": "ناتو",
+            "hostage_taker": "گروگانگیر",
+            "doctor": "دکتر",
+            "godfather":"پدر خوانده"
+        }
+        return chars[char] || "نامعلوم"
     },
 
 
@@ -43,24 +58,24 @@ const Helper = {
     },
 
     multer_storage: multer.diskStorage({
-        
+
         destination: function (req, file, cb) {
             cb(null, `${__dirname}/../files`)
         },
         filename: function (req, file, cb) {
             let file_id = uid(5)
             const format = file.originalname.split(".").slice(-1)[0]
-            let is_first_file=!req.body.files_list
-            if(is_first_file)req.body.files_list=[file_id + '.' + format]
-            else{req.body.files_list=req.body.files_list.concat(file_id + '.' + format)}
+            let is_first_file = !req.body.files_list
+            if (is_first_file) req.body.files_list = [file_id + '.' + format]
+            else { req.body.files_list = req.body.files_list.concat(file_id + '.' + format) }
             cb(null, file_id + '.' + format)
         }
     }),
 
 
 
-    create_channel_config({channel_id,user_id}){
-        let new_conf={channel_id,user_id,last_visit:Date.now()}
+    create_channel_config({ channel_id, user_id }) {
+        let new_conf = { channel_id, user_id, last_visit: Date.now() }
         new userChannelConfig(new_conf).save()
     }
 

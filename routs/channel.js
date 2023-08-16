@@ -87,9 +87,9 @@ router.post("/join_request", async (req, res) => {
     if (public) {
         Helper.create_channel_config({ channel_id, user_id: uid })
     }
-   if(public){
-    await User.findOneAndUpdate({uid},{$push:{chanels:channel_id}})
-   }
+    if (public) {
+        await User.findOneAndUpdate({ uid }, { $push: { chanels: channel_id } })
+    }
     res.json({ status: true, msg: "درخواست شما ثبت شد", data: {} })
 
 })
@@ -124,10 +124,11 @@ router.post("/my_channels", async (req, res) => {
         })
     })
 
-    let datas = await Promise.all(promisees)
+    let data = await Promise.all(promisees)
+    data.sort((a, b) => b.pin_status - a.pin_status)
     res.json({
         status: true,
-        data: datas
+        data: data
     })
 
 })
@@ -158,7 +159,7 @@ router.post("/specific_channel", async (req, res) => {
 router.post("/search", async (req, res) => {
     const user = req.body.user
     let user_id = user.uid
-    if(!user_id)return reject(3,res)
+    if (!user_id) return reject(3, res)
     const { channel_name } = req.body
     if (!channel_name) return res.json({ status: true, data: [] })
     let s_channels = await Channel.find({ name: { $regex: channel_name } })
@@ -220,24 +221,41 @@ router.post("/exit", async (req, res) => {
 })
 
 
-router.post("/online_game",async (req,res)=>{
-    const  {channel_id}=req.body
-    const s_channel=await Channel.findOne({id:channel_id},{games:1})
-    res.json({status:true,data:s_channel.games})
+router.post("/online_game", async (req, res) => {
+    const { channel_id } = req.body
+    const s_channel = await Channel.findOne({ id: channel_id }, { games: 1 })
+    res.json({ status: true, data: s_channel.games })
 })
 
 
-router.post("/online_game_pre_start_update",async (req,res)=>{
-    const  {channel_id,game_id}=req.body
-    const s_channel=await Channel.findOne({id:channel_id},{games:1})
-    const {games}=s_channel
-    let s_game=games.find(e=>e.game_id === game_id)
+router.post("/online_game_pre_start_update", async (req, res) => {
+    const { channel_id, game_id } = req.body
+    const s_channel = await Channel.findOne({ id: channel_id }, { games: 1 })
+    const { games } = s_channel
+    let s_game = games.find(e => e.game_id === game_id)
     res.json({
-        status:true,
-        msg:"",
-        data:s_game.users||[]
+        status: true,
+        msg: "",
+        data: s_game.users || []
     })
 
+})
+
+
+router.post("/kick_player", async (req, res) => {
+    const user = req.body.user
+    if (!user) return reject(3, res)
+    const { channel_id, user_to_kick } = req.body
+    let s_channel = await Channel.findOne({ id: channel_id })
+    const { creator, mods } = s_channel
+    let is_mod = [...creator, ...mods].includes(user.uid)
+    if (!is_mod) return reject(4, res)
+    await Channel.findOneAndUpdate({ id: channel_id }, { $pull: { users: user_to_kick, mod: user_to_kick } })
+    res.json({
+        status: true,
+        msg: "",
+        data: {}
+    })
 })
 
 module.exports = router

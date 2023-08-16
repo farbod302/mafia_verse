@@ -468,7 +468,7 @@ const Game = class {
         let roles = carts.map(e => {
             return {
                 user_id: e.user_id,
-                character: e.name
+                character: Helper.character_translator(e.name)
             }
         })
         this.socket.to(mod_socket).emit("mod_characters", { data: roles })

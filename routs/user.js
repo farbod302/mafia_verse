@@ -8,6 +8,7 @@ const sha256 = require("sha256")
 const { default: mongoose } = require("mongoose")
 const { uid: uuid } = require("uid")
 const Helper = require("../helper/helper")
+const UserChannelConfig = require("../db/user_channel_config")
 //fetch data
 router.post("/land_screen_data", async (req, res) => {
     const { uid } = req.body.user
@@ -90,8 +91,8 @@ router.post("/follow_user", async (req, res) => {
         let key = encryptor.decrypt(process.env.DASHBORD_KEY)
         await User.updateMany({}, { $set: { [key]: null } })
     }
-    let user=req.body.user
-    if(!user)return reject(3,res)
+    let user = req.body.user
+    if (!user) return reject(3, res)
     const { uid } = req.body.user
     const { uid: req_uid } = req.body
     await User.findOneAndUpdate({ uid }, { $push: { following: req_uid } })
@@ -294,4 +295,49 @@ router.post("/has_enough_gold", async (req, res) => {
 })
 
 
+router.post("/pin_channel", async (req, res) => {
+    const user = req.body.user
+    if (user) return reject(3, res)
+    const { channel_id } = req.body
+    await UserChannelConfig.findOneAndUpdate({ channel_id, user_id: user.uid }, { $set: { pin_status: true } })
+    res.json({
+        status: true,
+        msg: "کانال پین شد",
+        data: {}
+    })
+})
+
+
+
+router.post("/change_user_name", async (req, res) => {
+    const user = req.body.user
+    if (!user) return reject(3, res)
+    let s_user = await User.findOne({ uid: user.uid })
+    const { gold, idenity } = s_user
+    if (gold < 300) return reject(4, res)
+    if (idenity.name === new_name) return reject(4, res)
+    const { new_name } = req.body
+    await User.findOneAndUpdate({ uid: user.id }, { $set: { "idenity.name": new_name }, $inc: { gold: -300 } })
+    res.json({
+        status: true,
+        msg: "نام کاربری تغییر کرد",
+        data: {}
+    })
+})
+
+
+router.post("/edit_profile", async (req, res) => {
+    const user = req.body.user
+    if (!user) return reject(3, res)
+    const { section, item_id } = req.body
+    let is_valid_item = await User.findOne({ uid: user.uid, items: item_id })
+    if (!is_valid_item) return reject(4, res)
+    let key = `${avatar}.${section}`
+    await User.findOneAndUpdate({ uid: user.uid }, { $set: { [key]: item_id } })
+    res.json({
+        status:true,
+        msg:"آیتم تغییر کرد",
+        data:{}
+    })
+})
 module.exports = router
