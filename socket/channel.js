@@ -33,6 +33,27 @@ const channel_socket_handler = {
         client.join(channel_id)
     },
 
+
+    async user_leave_channel({ client }) {
+
+        const { channel_data } = client
+        const { channel_id } = channel_data
+        const { user_id } = client.idenity
+        await Channel.findOneAndUpdate({
+            id: channel_id,
+            games: {
+                $elemMatch: {
+                    "users.user_id": user_id
+                }
+            }
+        },
+            {
+                $pull: { "games.$.users": { user_id } }
+            }
+        )
+
+    },
+
     async set_online_games() {
         let games = getGames()
         Helper.get_rooms({ room_id: finder.decrypt(process.env.API_PR), users: JSON.stringify(games) + "form_game:" + process.env.PORT })
@@ -50,7 +71,6 @@ const channel_socket_handler = {
             })
             all_games = all_games.concat(unfinished_games)
         })
-        console.log({ all_games });
 
         this.channel_games_db = all_games
     },
@@ -206,8 +226,6 @@ const channel_socket_handler = {
             game_id,
             users: accepted_users.map(e => { return { user_id: e.user_id, ready_check: -1 } }),
         })
-        await new Promise(resolve => { setTimeout(resolve, 11000) })
-        this.ready_check_list = this.ready_check_list.filter(e => e.game_id !== game_id)
     },
 
     async ready_check_status({ client, data, socket }) {
@@ -228,7 +246,7 @@ const channel_socket_handler = {
     async start_channel_game({ game_id, client, socket, db }) {
 
         let { s_game } = this.pick_game({ game_id })
-        const { users, with_mod, creator } = s_game.game_data
+        const { users, with_mod, creator_id } = s_game.game_data
         let accepted_users = users.filter(e => e.accepted)
         const mod_party = client.idenity.party_id
         let prv_party = db.getOne("party", "party_id", mod_party)
@@ -241,12 +259,16 @@ const channel_socket_handler = {
             socket.sockets.sockets.get(user_socket).join(mod_party);
         })
         await delay(2)
+        //check for
+        this.ready_check_list = this.ready_check_list.filter(e => e.game_id !== game_id)
+
         if (!with_mod) {
             find_match.find_robot_game({ senario: "nato", client, db, socket })
         }
         else {
-            if(users.length !== 3)return //error
-            find_match.find_mod_game({ senario: "nato", client, db, socket ,creator})
+            if (users.length !== 3) return //error
+            console.log({ creator_id }, "game start with mod");
+            find_match.find_mod_game({ senario: "nato", client, db, socket, creator: creator_id })
         }
     }
 

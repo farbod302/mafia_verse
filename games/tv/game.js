@@ -463,16 +463,17 @@ const Game = class {
             users: this.users
         })
         this.game_vars.edit_event("edit", "players_compleate_list", user_data)
-        let mod_socket = this.socket_finder(mod)
-        console.log({ mod_socket });
-        let roles = carts.map(e => {
-            return {
-                user_id: e.user_id,
-                character: Helper.character_translator(e.name)
-            }
-        })
-        this.socket.to(mod_socket).emit("mod_characters", { data: roles })
+        if (mod) {
+            let mod_socket = this.socket_finder(mod)
+            let roles = carts.map(e => {
+                return {
+                    user_id: e.user_id,
+                    character: Helper.character_translator(e.name)
+                }
+            })
+            this.socket.to(mod_socket).emit("mod_characters", { data: roles })
 
+        }
         this.game_vars.edit_event("edit", "is_live", true)
         //handel_reconnect queue
         this.socket.to(game_id).emit("users_data", { data: user_data })

@@ -79,7 +79,7 @@ const find_match = {
 
 
     async find_mod_game({ senario, client, db, socket, creator }) {
-
+        console.log({creator},"in find mod");
         senario = "tv"
         const party_id = client.idenity?.party_id
         if (!party_id) return
@@ -94,11 +94,12 @@ const find_match = {
             }
         })
         users = await Promise.all(users)
+        users=users.filter(e => e.user_id !== creator)
         let game_id = uuid(4)
         let new_game = {
             game_id,
             remain: 0,
-            users: users.filter(e => e.user_id !== creator),
+            users: users,
             partys: [party_id],
             mod: creator,
             senario
