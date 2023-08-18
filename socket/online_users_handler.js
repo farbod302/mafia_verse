@@ -28,7 +28,7 @@ const online_users_handler = {
         let json_file = fs.readFileSync(`${__dirname}/online_users.json`)
         json_file = JSON.parse(json_file.toString())
         let s_user = json_file.find(e => e.user_id === user_id)
-        return s_user.socket_id
+        return s_user?.socket_id
     }
 
 }

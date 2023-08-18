@@ -5,13 +5,16 @@ const run_timer = require("../../../helper/timer")
 const { encrypt } = require("../../../helper/helper")
 const start = {
 
-    async create_live_room({ game_id, game_vars, socket, users }) {
+    async create_live_room({ game_id, game_vars, socket, users, mod_user_id, mod_socket }) {
         await Voice.start_room(game_id)
         for (let user of users) {
             const { user_id, socket_id } = user
             let token = Voice.join_room(user_id, game_id)
-            socket.to(socket_id).emit("game_started", { token })
+            socket.to(socket_id).emit("livekit_token", { token })
         }
+        let mod_token = Voice.join_room(mod_user_id, game_id)
+        socket.to(mod_socket).emit("livekit_token", { token: mod_token })
+
     },
 
     async create_room_for_mafia({ mafia, socket, room_id }) {
@@ -72,9 +75,9 @@ const start = {
         game_vars.edit_event("edit", "queue", new_queue)
     },
 
-    set_timer_to_contnue_speech_queue({ func, game_vars, time, socket,users, speech_code,player_to_set_timer }) {
+    set_timer_to_contnue_speech_queue({ func, game_vars, time, socket, users, speech_code, player_to_set_timer }) {
         const timer_func = () => {
-            const { speech_code:cur_speech_code } = game_vars
+            const { speech_code: cur_speech_code } = game_vars
 
             if (speech_code === cur_speech_code) {
                 let user = befor_start.pick_player_from_user_id({ users, user_id: player_to_set_timer })
@@ -127,7 +130,7 @@ const start = {
         })
         game_vars.edit_event("edit", "speech_type", "turn")
         game_vars.edit_event("edit", "reval", true)
-        game_vars.edit_event("edit", "next_event", "chaos")
+        game_vars.edit_event("edit", "next_event", "start_speech")
         // game_vars.edit_event("edit", "next_event", "start_night")
         game_vars.edit_event("edit", "can_take_challenge", true)
     },

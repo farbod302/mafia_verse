@@ -36,9 +36,15 @@ const game_handler = {
         users.forEach(user => {
             let user_socket = online_users_handler.get_user_socket_id(user.user_id)
             socket.sockets.sockets.get(user_socket).join(game_id);
-            socket.to(user_socket).emit("game_found", { data: { game_id, is_creator: user.user_id === mod } })
-
+            socket.to(user_socket).emit("game_found", { data: { game_id, is_creator: false } })
         })
+        if (mod) {
+            let mod_socket = online_users_handler.get_user_socket_id(mod)
+            socket.sockets.sockets.get(mod_socket).join(game_id);
+            socket.to(mod_socket).emit("game_found", { data: { game_id, is_creator: true } })
+        }
+
+
         db.removeOne("games_queue", "game_id", game_id)
 
 

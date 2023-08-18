@@ -22,7 +22,7 @@ const vote = {
         const { queue, turn, vote_type, custom_queue } = game_vars
         let new_vote_record = { user_id: queue[turn].user_id, users: [], vote_type, timer: 5 }
         game_vars.edit_event("push", "votes_status", new_vote_record)
-        socket.to(game_id).emit("vote", { data: new_vote_record })
+        // socket.to(game_id).emit("vote", { data: new_vote_record })
         // vote to player
         let cur_player = queue[turn]
         let users_to_prevent_vote = [cur_player.user_id]
@@ -30,7 +30,7 @@ const vote = {
             custom_queue.forEach(user => users_to_prevent_vote.push(user.user_id))
         }
         let user_to_vote = users.filter(user => !users_to_prevent_vote.includes(user.user_id))
-        user_to_vote.forEach(user => socket.to(user.socket_id).emit("vote_to_player", { data: { user: cur_player } }))
+        user_to_vote.forEach(user => socket.to(user.socket_id).emit("vote", { data: new_vote_record }))
         run_timer(10, cycle)
     },
     submit_vote({ client, socket, game_vars, game_id }) {

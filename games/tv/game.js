@@ -60,7 +60,8 @@ const Game = class {
                 client,
                 game_id: this.game_id
             })
-            this.socket.to(client.socket_id).emit("reconnect_data", { data })
+            let user_socket = this.online_users_handler(client.idenity.user_id)
+            this.socket.to(user_socket).emit("reconnect_data", { data })
             let index = this.users.findIndex(e => e.user_id == client.user_id)
             start.edit_game_action({
                 index,
@@ -70,6 +71,9 @@ const Game = class {
                 edit_others: false,
                 game_vars: this.game_vars
             })
+            let prv_users = this.users
+            prv_users[index].socket_id = client.id
+            this.users = prv_users
             const { player_status } = this.game_vars
             this.socket.to(game_id).emit("game_action", { data: player_status })
             this.game_vars.edit_event("pull", "abandon_queue", client.user_id)
@@ -267,25 +271,25 @@ const Game = class {
 
                 //first msg
                 night.emit_to_mod({
-                    game_vars:this.game_vars,
-                    socket_finder:this.socket_finder,
-                    mod:this.mod,
-                    event:null,
-                    msg:`اکت ${Helper.character_translator(role)}`,
-                    socket:this.socket
+                    game_vars: this.game_vars,
+                    socket_finder: this.socket_finder,
+                    mod: this.mod,
+                    event: null,
+                    msg: `اکت ${Helper.character_translator(role)}`,
+                    socket: this.socket
                 })
                 await Helper.delay(2)
                 //second msg
                 night.emit_to_mod({
-                    game_vars:this.game_vars,
-                    socket_finder:this.socket_finder,
-                    mod:this.mod,
-                    event:{
-                        from:client.idenity.user_id,
-                        to:users
+                    game_vars: this.game_vars,
+                    socket_finder: this.socket_finder,
+                    mod: this.mod,
+                    event: {
+                        from: client.idenity.user_id,
+                        to: users
                     },
-                    msg:null,
-                    socket:this.socket
+                    msg: null,
+                    socket: this.socket
                 })
                 break
             }
@@ -377,7 +381,8 @@ const Game = class {
             case ("day_using_gun"): {
                 const { user_id } = data
                 this.users.forEach(user => {
-                    const { socket_id } = user
+                    const { user_id: uid } = user
+                    let socket_id = this.socket_finder(uid)
                     if (user.user_id !== user_id) this.socket.to(socket_id).emit("day_using_gun", { data: { user_id } })
 
                 })
@@ -472,6 +477,13 @@ const Game = class {
 
     async go_live() {
         let user_data = await befor_start.players_list_generate({ users: this.users })
+        let prv_users = this.users.map(e => {
+            return {
+                ...e,
+                socket_id: this.socket_finder(e.user_id)
+            }
+        })
+        this.users = prv_users
         const { game_id, game_vars, mod } = this
         let mod_data
         if (mod) {
@@ -483,9 +495,17 @@ const Game = class {
             game_id: this.game_id,
             game_vars: this.game_vars,
             socket: this.socket,
-            users: this.users
+            users: this.users,
+            mod_user_id:this.mod,
+            mod_socket:this.socket_finder(mod)
         })
         this.game_vars.edit_event("edit", "players_compleate_list", user_data)
+      
+        this.game_vars.edit_event("edit", "is_live", true)
+        //handel_reconnect queue
+        this.socket.to(game_id).emit("users_data", { data: user_data })
+        this.socket.to(game_id).emit("mod_data", mod ? { data: mod_data[0] } : { data: null })
+
         if (mod) {
             let mod_socket = this.socket_finder(mod)
             let roles = carts.map(e => {
@@ -494,13 +514,10 @@ const Game = class {
                     character: Helper.character_translator(e.name)
                 }
             })
+            console.log({roles});
             this.socket.to(mod_socket).emit("mod_characters", { data: roles })
 
         }
-        this.game_vars.edit_event("edit", "is_live", true)
-        //handel_reconnect queue
-        this.socket.to(game_id).emit("users_data", { data: user_data })
-        this.socket.to(game_id).emit("mod_data", mod ? { data: mod_data } : { data: null })
         this.socket.to(game_id).emit("game_event", { data: { game_event: time } })
         befor_start.player_status_generate({ game_vars: this.game_vars })
         await Helper.delay(3)
@@ -526,7 +543,8 @@ const Game = class {
         }
         let encrypted_data = Helper.encrypt(JSON.stringify(carts))
         this.socket.to(game_id).emit("characters", { data: encrypted_data, scenario: static_vars.scenario })
-        this.socket.to(users[turn].socket_id).emit("your_turn")
+        let socket_id = this.socket_finder(users[turn].user_id)
+        this.socket.to(socket_id).emit("your_turn")
         let cur_turn = turn
         let players_comp_list = this.game_vars.users_comp_list
         let clean_users = players_comp_list.map(user => {
@@ -542,7 +560,8 @@ const Game = class {
             users: this.users,
             socket: this.socket,
             cycle: () => { this.mainCycle() },
-            turn: cur_turn
+            turn: cur_turn,
+            socket_finder:this.socket_finder
         })
     }
 
@@ -694,7 +713,8 @@ const Game = class {
         }
         user = befor_start.pick_player_from_user_id({ users: this.users, user_id: user })
         let other_users = befor_start.pick_other_player_from_user_id({ users: this.users, user_id: user.user_id })
-        const { socket_id } = user
+        const { user_id } = user
+        let socket_id = this.socket_finder(user_id)
         this.socket.to(socket_id).emit("start_speech")
         other_users.forEach(u => { this.socket.to(u.socket_id).emit("game_event", { data: { game_event: "action" } }) })
         // edit game action
@@ -829,8 +849,9 @@ const Game = class {
         }
         const { user_id } = target_cover_queue[turn]
         let user = befor_start.pick_player_from_user_id({ users: this.users, user_id })
+        let socket_id = this.socket_finder(user.user_id)
         if (target_cover_queue[turn].permission === null) {
-            this.socket.to(user.socket_id).emit("using_speech_options", {
+            this.socket.to(socket_id).emit("using_speech_options", {
                 data:
                     { msg: `آیا درخواست ${target_cover_queue.length === 1 ? "تارگت کاور" : "درباره"} دارید؟`, timer: 7 }
             })
@@ -871,14 +892,14 @@ const Game = class {
                 }
             }
 
-            this.socket.to(user.socket_id).emit("speech_option_msg",
+            this.socket.to(socket_id).emit("speech_option_msg",
                 {
                     data: {
                         msg: `از بین بازیکنان یک نفر را برای ${translate()} انتخاب کنید`, timer: 10
                     }
                 })
 
-            this.socket.to(user.socket_id).emit("grant_permission", { data: { grant: true } })
+            this.socket.to(socket_id).emit("grant_permission", { data: { grant: true } })
 
             this.socket.to(game_id).emit("request_speech_options", {
                 data: {
@@ -1073,7 +1094,8 @@ const Game = class {
         }
         gun_status.forEach(gun => {
             const user_to_emit = befor_start.pick_player_from_user_id({ users: this.users, user_id: gun.user_id })
-            this.socket.to(user_to_emit.socket_id).emit("gun_status", { data: { gun_enable: true } })
+            let socket_id = this.socket_finder(user_to_emit.user_id)
+            this.socket.to(socket_id).emit("gun_status", { data: { gun_enable: true } })
         })
         await Helper.delay(5)
         this.mainCycle()
@@ -1113,7 +1135,8 @@ const Game = class {
         live_users = live_users.map(e => e.user_id)
         live_users = [...this.users].filter(e => live_users.includes(e.user_id))
         live_users.forEach(user => {
-            const { socket_id } = user
+            const { user_id } = user
+            let socket_id = this.socket_finder(user_id)
             this.socket.to(socket_id).emit("chaos_all_speech")
         })
         let chaos_speech_all_status = live_users.map(user => {
@@ -1131,7 +1154,8 @@ const Game = class {
         this.game_vars.edit_event("edit", "next_event", "chaos_result_first_phase")
         run_timer(30, () => {
             live_users.forEach(user => {
-                const { socket_id } = user
+                const { user_id } = user
+                let socket_id
                 this.socket.to(socket_id).emit("chaos_all_speech_end")
             })
             this.mainCycle()
@@ -1166,7 +1190,8 @@ const Game = class {
         const av_users = [...queue].filter((u, i) => i !== turn)
         const { user_id } = queue[turn]
         let player = befor_start.pick_player_from_user_id({ users: this.users, user_id })
-        this.socket.to(player.socket_id).emit("chaos_vote", { data: { available_users: av_users.map(e => e.user_id) } })
+        let socket_id = this.socket_finder(user_id)
+        this.socket.to(socket_id).emit("chaos_vote", { data: { available_users: av_users.map(e => e.user_id) } })
         let restart_vote = (game_vars, require_vote, mainCycle) => {
             const { chaos_vots } = game_vars
             console.log({ require_vote, chaos_vots });
@@ -1195,9 +1220,10 @@ const Game = class {
             return
         }
         else {
-            const { socket_id, user_id } = selected_user
+            const { user_id } = selected_user
             let other_players = live_users.filter(e => e.user_id !== user_id).map(u => u.user_id)
             this.game_vars.edit_event("new_value", "last_decision", null)
+            let socket_id = this.socket_finder(user_id)
             this.socket.to(socket_id).emit("last_decision", { data: { available_users: other_players.map(e => e.user_id) } })
             const timer_func = () => {
                 if (!this.game_vars.winner) {

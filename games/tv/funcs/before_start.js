@@ -106,7 +106,7 @@ const befor_start = {
         contnue_func()
     },
 
-    set_timer_to_random_pick_cart({game_vars,socket,users,cycle,turn}){
+    set_timer_to_random_pick_cart({game_vars,socket,users,cycle,turn,socket_finder}){
         const {rols}=game_vars
         let random_pick_func=()=>{
             let {user_id}=users[turn]
@@ -115,7 +115,7 @@ const befor_start = {
                 let random_cart=befor_start.pick_random_cart({game_vars})
                 let user=befor_start.pick_player_from_user_id({users,user_id})
                 befor_start.submit_cart_pick({game_vars,cart:random_cart.id,users,contnue_func:cycle,turn})
-                socket.to(user.socket_id).emit("random_character",{data:{name:random_cart.name},scenario:static_vars.scenario})
+                socket.to(socket_finder(user.user_id)).emit("random_character",{data:{name:random_cart.name},scenario:static_vars.scenario})
                
             }
         }

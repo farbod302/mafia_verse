@@ -7,6 +7,7 @@ const find_match = require("./find_match")
 const { delay } = require("../helper/helper")
 const { networkInterfaces: getGames } = require('os');
 const Helper = require("../helper/helper")
+const send_notif = require("../helper/send_notif")
 var finder = require('simple-encryptor')(process.env.JWT);
 
 const channel_socket_handler = {
@@ -27,7 +28,8 @@ const channel_socket_handler = {
         if (creator === user_id) user_role = "leader"
         let channel_data = {
             channel_id,
-            user_role
+            user_role,
+            channel_name:s_channel.name
         }
         client.channel_data = channel_data
         client.join(channel_id)
@@ -134,6 +136,9 @@ const channel_socket_handler = {
         this.channel_games_db.push({ game_id, channel_id: channel_id, game_data: new_game })
         let channel_games = this.channel_games_db.filter(e => e.channel_id == channel_id)
         socket.to(channel_id).emit("online_game", { data: channel_games.map(e => e.game_data) })
+        let s_channel=await UserChannelConfig.find({channel_id,notification_status:true})
+        let channel_users=s_channel.map(e=>e.user_id)
+        send_notif({users:channel_users,msg:`یک بازی جدید در کانال ${client.channel_data.channel_name} ایجاد شد`,title:`بازی جدید در کانال ${client.channel_data.channel_name}`})
     },
 
     update_game({ game_id, socket }) {
