@@ -35,7 +35,6 @@ const game_handler = {
 
         users.forEach(user => {
             let user_socket = online_users_handler.get_user_socket_id(user.user_id)
-            console.log({ game_id });
             socket.sockets.sockets.get(user_socket).join(game_id);
             socket.to(user_socket).emit("game_found", { data: { game_id, is_creator: user.user_id === mod } })
 

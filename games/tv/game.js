@@ -264,6 +264,29 @@ const Game = class {
                     users: this.users,
                     targets: users
                 })
+
+                //first msg
+                night.emit_to_mod({
+                    game_vars:this.game_vars,
+                    socket_finder:this.socket_finder,
+                    mod:this.mod,
+                    event:null,
+                    msg:`اکت ${Helper.character_translator(role)}`,
+                    socket:this.socket
+                })
+                await Helper.delay(2)
+                //second msg
+                night.emit_to_mod({
+                    game_vars:this.game_vars,
+                    socket_finder:this.socket_finder,
+                    mod:this.mod,
+                    event:{
+                        from:client.idenity.user_id,
+                        to:users
+                    },
+                    msg:null,
+                    socket:this.socket
+                })
                 break
             }
             case ("mafia_decision"): {

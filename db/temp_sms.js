@@ -8,7 +8,8 @@ const temp = mongoose.Schema({
     code: String,
     phone: String,
     device_id: String,
-    used: { type: Boolean, default: false }
+    used: { type: Boolean, default: false },
+    notif_token:String
 
 })
 

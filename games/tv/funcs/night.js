@@ -2,6 +2,7 @@ const { uid } = require("uid")
 const start = require("./start")
 const befor_start = require("./before_start")
 const { delay } = require("../../../helper/helper")
+const { character_translator } = require("../../../helper/helper")
 
 const night = {
 
@@ -387,9 +388,53 @@ const night = {
         game_vars.edit_event("edit", "custom_queue", [])
         game_vars.edit_event("edit", "votes_status", [])
         game_vars.edit_event("edit", "speech_type", "turn")
+    },
+
+
+
+    emit_to_mod({ game_vars, socket_finder, mod, event, msg, socket }) {
+        if (!mod) return
+        let mod_socket = socket_finder(mod)
+        if (msg) {
+            return socket.to(mod_socket).emit("mod_panel_events",
+                {
+                    data:
+                        { msg_type: "server", header_msg: msg, content: {}, id: uid(5) }
+                })
+        }
+        else {
+            const { from, to } = event
+            const { users_comp_list, carts } = game_vars
+            let content = {
+                from: (() => {
+                    let s_user = users_comp_list.find(l => l.user_id === from)
+                    let user_role = carts.find(c => c.user_id === from)
+                    let character = character_translator(user_role.name)
+                    return {
+                        ...s_user,
+                        character
+                    }
+                })(),
+                to: to.map(e => {
+                    let s_user = users_comp_list.find(l => l.user_id === e)
+                    let user_role = carts.find(c => c.user_id === e)
+                    let character = character_translator(user_role.name)
+                    return {
+                        ...s_user,
+                        character
+                    }
+                })
+            }
+            console.log({content});
+            return socket.to(mod_socket).emit("mod_panel_events",
+                {
+                    data:
+                        { msg_type: "event", header_msg: "", content, id: uid(5) }
+                })
+
+        }
+
     }
-
-
 
 
 

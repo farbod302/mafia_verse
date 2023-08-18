@@ -55,7 +55,8 @@ router.post("/check", async (req, res) => {
 })
 
 router.post("/sign_up", async (req, res) => {
-    const { phone, name,firebase_token } = req.body
+    const { phone, name, firebase_token } = req.body
+    console.log({firebase_token});
     let is_user_name_uniq = await User.findOne({ $or: [{ "idenity.name": name }, { "idenity.phone": phone }] })
     if (is_user_name_uniq) {
         res.json({
@@ -69,7 +70,7 @@ router.post("/sign_up", async (req, res) => {
     if (!Helper.valideate_phone(phone)) return reject(0, res)
     let code = RegistSmsHandler.send_sms(phone)
     console.log({ code });
-    new TempSms({ phone, name, code,notif_token:firebase_token }).save()
+    new TempSms({ phone, name, code, notif_token: firebase_token }).save()
     res.json({
         status: true,
         msg: "کد تایید ارسال شد",
@@ -82,7 +83,7 @@ router.post("/sign_up_confirm_phone", async (req, res) => {
     const { code, phone } = req.body
     let temp = await TempSms.findOne({ code: code, phone: phone, used: false })
     if (!temp) return reject(1, res)
-    const  name  = temp.name
+    const name = temp.name
 
     let player_uid = uid(4)
     const new_player = {
@@ -91,7 +92,8 @@ router.post("/sign_up_confirm_phone", async (req, res) => {
             phone: phone
         },
         uid: player_uid,
-        avatar: default_avatar
+        avatar: default_avatar,
+        notif_token: temp.notif_token
     }
     new User(new_player).save()
 
@@ -104,7 +106,7 @@ router.post("/sign_up_confirm_phone", async (req, res) => {
 })
 
 router.post("/log_in", async (req, res) => {
-    const { phone, name } = req.body
+    const { phone, name ,firebase_token} = req.body
     let is_exist = await User.findOne(name ? { "idenity.name": name } : { "idenity.phone": phone })
     if (!is_exist) return reject(4, res)
     if (!Helper.valideate_phone(phone)) return reject(0, res)
