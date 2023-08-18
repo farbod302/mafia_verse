@@ -3,7 +3,7 @@ const online_users_handler = require("./online_users_handler")
 
 const game_handler = {
     create_game({ game_id, db, socket, mod }) {
-        console.log({mod},"form create game");
+        console.log({ mod }, "form create game");
         let selected_game_to_start = db.getOne("games_queue", "game_id", game_id)
         if (!selected_game_to_start) return
         const { users, partys, senario } = selected_game_to_start
@@ -32,12 +32,13 @@ const game_handler = {
             mod
         })
         db.add_data("games", { ...new_game, game_class: game })
-        for (let party of partys) {
-            socket.to(party).emit("game_found", { game_id })
-        }
+
         users.forEach(user => {
+            let user_socket = online_users_handler.get_user_socket_id(user.user_id)
             console.log({ game_id });
-            socket.sockets.sockets.get(online_users_handler.get_user_socket_id(user.user_id)).join(game_id);
+            socket.sockets.sockets.get(user_socket).join(game_id);
+            socket.to(user_socket).emit("game_found", { data: { game_id, is_creator: user.user_id === mod } })
+
         })
         db.removeOne("games_queue", "game_id", game_id)
 
