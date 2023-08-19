@@ -1,14 +1,15 @@
-var admin = require("firebase-admin");
-var fcm = require('fcm-notification');
-var serviceAccount = require("../notif_key.json");
-const User = require("../db/user");
-const certPath = admin.credential.cert(serviceAccount);
-var FCM = new fcm(certPath);
+// var admin = require("firebase-admin");
+// var fcm = require('fcm-notification');
+// var serviceAccount = require("../notif_key.json");
+// const User = require("../db/user");
+// const certPath = admin.credential.cert(serviceAccount);
+// var FCM = new fcm(certPath);
 
 
 
 const send_notif = async ({ users, msg, title }) => {
 
+    return true
     let users_data = await User.find({ uid: { $in: users } })
 
     for (let user of users) {
