@@ -406,7 +406,7 @@ const night = {
             const { from, to } = event
             console.log({from,to});
             const { users_comp_list, carts } = game_vars
-            console.log({carts});
+            console.log({carts:carts});
 
             let content = {
                 from: (() => {
