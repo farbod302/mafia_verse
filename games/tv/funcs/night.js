@@ -419,8 +419,8 @@ const night = {
                     }
                 })(),
                 to: to.map(e => {
-                    let s_user = users_comp_list.find(l => l.user_id === e)
-                    let user_role = carts.find(c => c.user_id === e)
+                    let s_user = users_comp_list.find(l => l.user_id === e.user_id)
+                    let user_role = carts.find(c => c.user_id === e.user_id)
                     let character = character_translator(user_role.name)
                     return {
                         ...s_user,
