@@ -41,3 +41,4 @@ const send_notif = async ({ users, msg, title }) => {
 
 
 module.exports=send_notif
+

@@ -404,7 +404,10 @@ const night = {
         }
         else {
             const { from, to } = event
+            console.log({from,to});
             const { users_comp_list, carts } = game_vars
+            console.log({carts});
+
             let content = {
                 from: (() => {
                     let s_user = users_comp_list.find(l => l.user_id === from)
