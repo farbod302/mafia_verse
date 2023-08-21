@@ -60,7 +60,7 @@ const Game = class {
                 client,
                 game_id: this.game_id
             })
-            let user_socket = this.online_users_handler(client.idenity.user_id)
+            let user_socket = this.socket_finder(client.user_id)
             this.socket.to(user_socket).emit("reconnect_data", { data })
             let index = this.users.findIndex(e => e.user_id == client.user_id)
             start.edit_game_action({

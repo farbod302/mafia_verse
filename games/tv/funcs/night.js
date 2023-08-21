@@ -428,7 +428,6 @@ const night = {
                     }
                 })
             }
-            console.log({content});
             return socket.to(mod_socket).emit("mod_panel_events",
                 {
                     data:
