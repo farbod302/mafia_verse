@@ -5,7 +5,7 @@ const online_users_handler = require("./online_users_handler")
 const User=require("../db/user")
 const join_handler =async ({ token, db, client, socket }) => {
     const user = Jwt.verify(token)
-    console.log({user});
+    console.log({token});
     if (!user) return
     const { uid} = user
     let s_user=await User.findOne({uid})

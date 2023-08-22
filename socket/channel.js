@@ -33,6 +33,7 @@ const channel_socket_handler = {
         }
         client.channel_data = channel_data
         client.join(channel_id)
+        await UserChannelConfig.updateOne({user_id,channel_id},{$set:{last_visit:Date.now()}})
     },
 
 

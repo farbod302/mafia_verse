@@ -1249,11 +1249,11 @@ const Game = class {
         this.game_vars.edit_event("new_value", "end_game_speech", this.users.map(user => {
             return { user_id: user.user_id, is_talking: false }
         }))
-
+        this.game_vars.edit_event("edit","game_event","end")
+        this.socket.to(game_id).emit("game_event", { data: { game_event: "end" } })
+        await Helper.delay(2)
         this.socket.to(game_id).emit("end_game_result", { data: report })
-
-        await Helper.delay(5)
-
+        //finish game
     }
 
 

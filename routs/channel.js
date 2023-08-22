@@ -110,7 +110,7 @@ router.post("/my_channels", async (req, res) => {
             let channel_config = await UserChannelConfig.findOne({ user_id: uid, channel_id: channel })
             const { last_visit } = channel_config
             const { messages, users } = s_channel
-            let unread = messages.filter(e => e.date > last_visit)
+            let unread = messages.filter(e => e.msg_time > last_visit)
             let channel_online_users = users.filter(u => online_users.includes(u))
             resolve({
                 ...channel_config._doc,
@@ -140,7 +140,10 @@ router.post("/specific_channel", async (req, res) => {
     const user = req.body.user
     if (!user) return reject(3, res)
     const { uid: user_id } = user
+    
     const { channel_id, paging } = req.body
+    let channel_config = await UserChannelConfig.findOne({ user_id, channel_id })
+    const {last_visit}=channel_config
     let s_channel = await Channel.findOne({ id: channel_id })
     const { users, cup, name, avatar, creator, mods, messages } = s_channel
     let data = {
@@ -151,8 +154,7 @@ router.post("/specific_channel", async (req, res) => {
         channel_members: users.length,
         channel_cup: cup,
     }
-    messages.reverse()
-    let s_messages = messages.slice((paging - 1) * 10, (paging * 10))
+    let s_messages = messages.filter(e=>e.msg_time > last_visit)
     data["content"] = s_messages
     res.json({ status: true, data })
 })
