@@ -140,10 +140,10 @@ router.post("/specific_channel", async (req, res) => {
     const user = req.body.user
     if (!user) return reject(3, res)
     const { uid: user_id } = user
-    
+
     const { channel_id, paging } = req.body
     let channel_config = await UserChannelConfig.findOne({ user_id, channel_id })
-    const {last_visit}=channel_config
+    const { last_visit } = channel_config
     let s_channel = await Channel.findOne({ id: channel_id })
     const { users, cup, name, avatar, creator, mods, messages } = s_channel
     let data = {
@@ -154,7 +154,7 @@ router.post("/specific_channel", async (req, res) => {
         channel_members: users.length,
         channel_cup: cup,
     }
-    let s_messages = messages.filter(e=>e.msg_time > last_visit)
+    let s_messages = messages.filter(e => e.msg_time > last_visit)
     data["content"] = s_messages
     res.json({ status: true, data })
 })
@@ -260,6 +260,23 @@ router.post("/kick_player", async (req, res) => {
         msg: "",
         data: {}
     })
+})
+
+
+router.post("/promote_demote", async (req, res) => {
+
+    const user = req.body.user
+    if (!user) return reject(3, res)
+    const { user_id, op } = req.body
+    const { uid: creator } = req.body
+    let key = op ? "$push" : "$pull"
+    await Channel.findOneAndUpdate({ creator }, { [key]: { mods: user_id } })
+    res.json({
+        status: true,
+        msg: "درخواست انجام شد",
+        data: {}
+    })
+
 })
 
 module.exports = router
