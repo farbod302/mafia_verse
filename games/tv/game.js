@@ -448,7 +448,7 @@ const Game = class {
             case ("last_decision"): {
                 const { user_id } = data
                 const { game_id } = this
-                const mafia_roles = ["god_father", "nato", "hostage_taker"]
+                const mafia_roles = ["godfather", "nato", "hostage_taker"]
                 const { user_id: player_selected } = client.idenity
                 const { carts } = this.game_vars
                 let winner = null

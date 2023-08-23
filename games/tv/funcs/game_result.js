@@ -2,7 +2,7 @@ const { character_translator } = require("../../../helper/helper")
 
 const game_result = {
 
-    mafia_sides: ["god_father", "nato", "hostage_taker"],
+    mafia_sides: ["godfather", "nato", "hostage_taker"],
 
     game_result_generator({ game_vars, users, winner }) {
         const { carts } = game_vars
@@ -10,8 +10,7 @@ const game_result = {
             const { user_id } = user
             let user_char = carts.find(e => e.user_id === user_id)
             user_char = user_char.name
-            let side = this.mafia_sides.includes(user_char)
-            side = side ? "mafia" : "citizen"
+            let side = game_result.mafia_sides.includes(user_char) ? "mafia" : "citizen"
             return {
                 ...user,
                 point: 25 * (side === winner ? 1 : -1),
