@@ -7,10 +7,16 @@ const game_result = {
         const clean_list = users.map(user => {
             const { user_id } = user
             let user_char = carts.find(e => e.user_id === user_id)
-            user_char=user_char.name
+            user_char = user_char.name
             let side = this.mafia_sides.includes(user_char)
-            side= side ? "mafia" : "citizen"
-            return { ...user, point: 25 * side === winner ? 1:-1, side,role:user_char }
+            side = side ? "mafia" : "citizen"
+            return {
+                ...user,
+                point: 25 * (side === winner ? 1 : -1),
+                side,
+                role: user_char, xp: side === winner ? 100 : 50,
+                winner:side === winner
+            }
         })
         return {
             winner,

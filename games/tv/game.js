@@ -12,6 +12,7 @@ const vote = require("./funcs/vote")
 const static_vars = require("./static_vars")
 const game_result = require("./funcs/game_result")
 const online_users_handler = require("../../socket/online_users_handler")
+const User = require("../../db/user")
 
 const Game = class {
     constructor({ game_id, users, socket, game_handlers, mod }) {
@@ -298,6 +299,15 @@ const Game = class {
                 console.log({ shot });
                 let decision = shot ? "mafia_shot" : "use_nato"
                 this.game_vars.edit_event("edit", "next_event", decision)
+                night.emit_to_mod({
+                    game_vars: this.game_vars,
+                    socket_finder: this.socket_finder,
+                    mod: this.mod,
+                    event: null,
+                    msg: `مافیا تصمیم به ${decision === "mafia_shot" ? "شلیک":"ناتویی"}گرفت`,
+                    socket: this.socket
+                })
+               
                 this.mainCycle()
                 break
             }
@@ -314,6 +324,30 @@ const Game = class {
                 })
                 cur_night_events.events = prv_events
                 this.db.replaceOne("night_records", "night", day, cur_night_events)
+
+                night.emit_to_mod({
+                    game_vars: this.game_vars,
+                    socket_finder: this.socket_finder,
+                    mod: this.mod,
+                    event: null,
+                    msg: `شات مافیا`,
+                    socket: this.socket
+                })
+                await Helper.delay(2)
+
+                night.emit_to_mod({
+                    game_vars: this.game_vars,
+                    socket_finder: this.socket_finder,
+                    mod: this.mod,
+                    event: {
+                        from: client.idenity.user_id,
+                        to: users
+                    },
+                    msg: null,
+                    socket: this.socket
+                })
+
+
                 break
             }
             case ("using_speech_options"): {
@@ -1248,6 +1282,17 @@ const Game = class {
             winner
         })
 
+        let database_update = report.map(update => {
+            let key = update.winner ? "points.win" : "points.lose"
+            return User.findOneAndUpdate({ uid: update.user_id }, {
+                $inc: {
+                    "ranking.rank": update.point,
+                    "ranking.xp": update.xp,
+                    [key]: 1
+                }
+            })
+        })
+        await Promise.all(database_update)
         this.game_vars.edit_event("new_value", "end_game_speech", this.users.map(user => {
             return { user_id: user.user_id, is_talking: false }
         }))
