@@ -496,11 +496,11 @@ const Game = class {
             game_vars: this.game_vars,
             socket: this.socket,
             users: this.users,
-            mod_user_id:this.mod,
-            mod_socket:this.socket_finder(mod)
+            mod_user_id: this.mod,
+            mod_socket: this.socket_finder(mod)
         })
         this.game_vars.edit_event("edit", "players_compleate_list", user_data)
-      
+
         this.game_vars.edit_event("edit", "is_live", true)
         //handel_reconnect queue
         this.socket.to(game_id).emit("users_data", { data: user_data })
@@ -514,7 +514,7 @@ const Game = class {
                     character: Helper.character_translator(e.name)
                 }
             })
-            console.log({roles});
+            console.log({ roles });
             this.socket.to(mod_socket).emit("mod_characters", { data: roles })
 
         }
@@ -561,7 +561,7 @@ const Game = class {
             socket: this.socket,
             cycle: () => { this.mainCycle() },
             turn: cur_turn,
-            socket_finder:this.socket_finder
+            socket_finder: this.socket_finder
         })
     }
 
@@ -1239,6 +1239,7 @@ const Game = class {
 
     async end_game() {
         const { game_id } = this
+        this.game_vars.edit_event("edit", "is_end", true)
         const { winner } = this.game_vars
         let report = game_result.game_result_generator({
             game_vars: this.game_vars,
@@ -1249,7 +1250,7 @@ const Game = class {
         this.game_vars.edit_event("new_value", "end_game_speech", this.users.map(user => {
             return { user_id: user.user_id, is_talking: false }
         }))
-        this.game_vars.edit_event("edit","game_event","end")
+        this.game_vars.edit_event("edit", "game_event", "end")
         this.socket.to(game_id).emit("game_event", { data: { game_event: "end" } })
         await Helper.delay(2)
         this.socket.to(game_id).emit("end_game_result", { data: report })
