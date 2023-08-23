@@ -21,6 +21,9 @@ const game_handler = {
                 console.log(db.getAll("disconnect"), "befor");
                 db.removeOne("disconnect", "user_id", user_id)
                 console.log(db.getAll("disconnect"), "after");
+            },
+            submit_finish_game() {
+                db.removeOne("games", "game_id", game_id)
             }
 
         }

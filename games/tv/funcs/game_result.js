@@ -10,7 +10,7 @@ const game_result = {
             user_char=user_char.name
             let side = this.mafia_sides.includes(user_char)
             side= side ? "mafia" : "citizen"
-            return { ...user, point: 25 * side === winner ? 1:-1, side }
+            return { ...user, point: 25 * side === winner ? 1:-1, side,role:user_char }
         })
         return {
             winner,

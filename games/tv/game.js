@@ -1240,6 +1240,7 @@ const Game = class {
     async end_game() {
         const { game_id } = this
         this.game_vars.edit_event("edit", "is_end", true)
+        this.game_handlers.submit_finish_game()
         const { winner } = this.game_vars
         let report = game_result.game_result_generator({
             game_vars: this.game_vars,
