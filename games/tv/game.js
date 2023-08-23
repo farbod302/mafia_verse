@@ -1282,7 +1282,7 @@ const Game = class {
             winner
         })
 
-        let database_update = report.map(update => {
+        let database_update = report.clean_list.map(update => {
             let key = update.winner ? "points.win" : "points.lose"
             return User.findOneAndUpdate({ uid: update.user_id }, {
                 $inc: {
