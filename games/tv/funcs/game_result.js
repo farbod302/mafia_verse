@@ -1,3 +1,5 @@
+const { character_translator } = require("../../../helper/helper")
+
 const game_result = {
 
     mafia_sides: ["god_father", "nato", "hostage_taker"],
@@ -14,10 +16,14 @@ const game_result = {
                 ...user,
                 point: 25 * (side === winner ? 1 : -1),
                 side,
-                role: user_char, xp: side === winner ? 100 : 50,
+                role: character_translator(user_char), 
+                xp: side === winner ? 100 : 50,
                 winner:side === winner
             }
         })
+        console.log({
+            clean_list
+        });
         return {
             winner,
             users: clean_list,

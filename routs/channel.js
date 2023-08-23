@@ -279,4 +279,49 @@ router.post("/promote_demote", async (req, res) => {
 
 })
 
+
+
+router.post("/channel_detail", async (req, res) => {
+    const user = req.body.user
+    if (!user) return reject(3, res)
+    const { uid: user_id } = user
+    const { channel_id } = req.body
+    const channel_config = await UserChannelConfig.findOne({ user_id, channel_id })
+    let s_channel = await Channel.aggregate([{ $match: { id: channel_id } }, {
+        $lookup: {
+            from: "users",
+            localField: "users",
+            foreignField: "uid",
+            as: "users"
+        }
+    }])
+    s_channel = s_channel[0]
+    const { mods, creator, users, desc } = s_channel
+    const users_status = users.map(user => {
+        const { idenity, avatar } = user
+        return (
+            {
+                user_name: idenity.name,
+                avatar: avatar.avatar,
+                role: (() => {
+                    if (user === creator) return "مدیر"
+                    if (mods.includes(user)) return "کمک مدیر"
+                    return "کاربر"
+                })()
+            }
+        )
+    })
+    res.json({
+        status: true,
+        msg: "",
+        data: {
+            notif_status: channel_config.notification_status,
+            channel_description: desc,
+            users: users_status
+        }
+    })
+})
+
+
+
 module.exports = router
