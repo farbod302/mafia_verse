@@ -241,7 +241,7 @@ const night = {
     },
 
 
-    async night_results({ game_vars, records, users }) {
+    async night_results({ game_vars, records, users,socket }) {
         const { carts } = game_vars
         let mafia_shot = records.find(act => act.act === "mafia_shot")
         let mafia_target = mafia_shot?.target || null
@@ -308,6 +308,8 @@ const night = {
                 new_value: false,
                 game_vars
             })
+            const { player_status } = game_vars
+            socket.to(game_id).emit("game_action", { data: player_status })
             game_vars.edit_event("push", "dead_list", user_to_kill)
             let prv_player_status = [...game_vars.player_status]
             let user_index = prv_player_status.findIndex(u => u.user_id === user_to_kill)
