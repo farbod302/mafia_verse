@@ -304,7 +304,7 @@ const night = {
             start.edit_game_action({
                 index,
                 prime_event: "user_status",
-                second_event: "is_aliave",
+                second_event: "is_alive",
                 new_value: false,
                 game_vars
             })
