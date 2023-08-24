@@ -12,7 +12,7 @@ const handel_disconnect = ({ client, db, socket }) => {
         if (!selected_game) return client.game_id = null
         console.log({selected_gameeeeee:selected_game});
         const { game_class } = selected_game
-        if (game_class.game_vars.is_end) {
+        if (!game_class.game_vars.is_end) {
             game_class.submit_user_disconnect({ client })
             db.add_data("disconnect", { user_id: client.idenity.user_id, game_id })
         }
