@@ -309,6 +309,7 @@ const night = {
                 game_vars
             })
             const { player_status } = game_vars
+            console.log({player_status});
             socket.to(game_id).emit("game_action", { data: player_status })
             game_vars.edit_event("push", "dead_list", user_to_kill)
             let prv_player_status = [...game_vars.player_status]
