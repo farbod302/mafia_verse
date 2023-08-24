@@ -14,7 +14,7 @@ const game_result = {
             user_char = user_char.name
             let side = game_result.mafia_sides.includes(user_char) ? "mafia" : "citizen"
             const giveaway = side === winner && spin()
-            const item_giveaway = null
+            let item_giveaway = null
             if (giveaway) {
                 item_giveaway = await Helper.send_giveaway(user_id)
             }
