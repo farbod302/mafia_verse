@@ -94,6 +94,7 @@ const find_match = {
                 user_image: user_avatar
             }
         })
+        console.log({users});
         users = await Promise.all(users)
         users=users.filter(e => e.user_id !== creator)
         let game_id = uuid(4)

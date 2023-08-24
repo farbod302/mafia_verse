@@ -275,7 +275,6 @@ const channel_socket_handler = {
             find_match.find_robot_game({ senario: "nato", client, db, socket })
         }
         else {
-            if (users.length !== 3) return //error
             console.log({ creator_id }, "game start with mod");
             find_match.find_mod_game({ senario: "nato", client, db, socket, creator: creator_id })
         }
