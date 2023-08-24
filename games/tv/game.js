@@ -304,10 +304,10 @@ const Game = class {
                     socket_finder: this.socket_finder,
                     mod: this.mod,
                     event: null,
-                    msg: `مافیا تصمیم به ${decision === "mafia_shot" ? "شلیک":"ناتویی"}گرفت`,
+                    msg: `مافیا تصمیم به ${decision === "mafia_shot" ? "شلیک" : "ناتویی"}گرفت`,
                     socket: this.socket
                 })
-               
+
                 this.mainCycle()
                 break
             }
@@ -473,7 +473,7 @@ const Game = class {
                 let index = prv_speech_status.findIndex(e => e.user_id === user_id)
                 prv_speech_status[index].is_talking = is_talking
                 this.game_vars.edit_event("edit", "end_game_speech", prv_speech_status)
-                this.socket.to(game_id).emit("end_game_free_speech", { data: { prv_speech_status } })
+                this.socket.to(game_id).emit("end_game_free_speech", { data: prv_speech_status})
                 break
             }
             case ("mod_speaking"): {

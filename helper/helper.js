@@ -3,6 +3,8 @@ const client = new TrezSmsClient("farbod302", "eefabass");
 const multer = require('multer');
 const { uid } = require("uid");
 const userChannelConfig = require("../db/user_channel_config");
+const User = require("../db/user");
+const Item = require("../db/item");
 
 const Helper = {
     valideate_phone(phone) {
@@ -33,7 +35,7 @@ const Helper = {
             "nato": "ناتو",
             "hostage_taker": "گروگانگیر",
             "doctor": "دکتر",
-            "godfather":"پدر خوانده"
+            "godfather": "پدر خوانده"
         }
         return chars[char] || "نامعلوم"
     },
@@ -77,7 +79,20 @@ const Helper = {
     create_channel_config({ channel_id, user_id }) {
         let new_conf = { channel_id, user_id, last_visit: Date.now() }
         new userChannelConfig(new_conf).save()
+    },
+
+
+    async send_giveaway(user_id) {
+        const user = await User.findOne({ uid: user_id })
+        const { items } = user
+        const items_to_give = await Item.find({ _id: { $nin: items } })
+        if (items_to_give.length === 0) return null
+        const random_num = Math.floor(Math.random() * items_to_give.length)
+        await User.findOneAndUpdate({ uid: user_id }, { $push: { items: items_to_give[random_num]._id } })
+        return items_to_give[random_num].image
     }
+
+
 
 }
 
