@@ -473,7 +473,7 @@ const Game = class {
                 let index = prv_speech_status.findIndex(e => e.user_id === user_id)
                 prv_speech_status[index].is_talking = is_talking
                 this.game_vars.edit_event("edit", "end_game_speech", prv_speech_status)
-                this.socket.to(game_id).emit("end_game_free_speech", { data: prv_speech_status})
+                this.socket.to(game_id).emit("end_game_free_speech", { data: prv_speech_status })
                 break
             }
             case ("mod_speaking"): {
@@ -1276,7 +1276,7 @@ const Game = class {
         this.game_vars.edit_event("edit", "is_end", true)
         this.game_handlers.submit_finish_game()
         const { winner } = this.game_vars
-        let report = game_result.game_result_generator({
+        let report =await game_result.game_result_generator({
             game_vars: this.game_vars,
             users: this.game_vars.users_comp_list,
             winner
