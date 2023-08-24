@@ -1105,7 +1105,8 @@ const Game = class {
             game_vars: this.game_vars,
             records: night_records.events,
             users: this.users,
-            socket:this.socket
+            socket:this.socket,
+            game_id:this.game_id
         })
         await Helper.delay(3)
         this.mainCycle()

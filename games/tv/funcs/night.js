@@ -241,7 +241,7 @@ const night = {
     },
 
 
-    async night_results({ game_vars, records, users,socket }) {
+    async night_results({ game_vars, records, users,socket,game_id }) {
         const { carts } = game_vars
         let mafia_shot = records.find(act => act.act === "mafia_shot")
         let mafia_target = mafia_shot?.target || null
