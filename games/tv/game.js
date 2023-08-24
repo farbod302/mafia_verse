@@ -98,7 +98,7 @@ const Game = class {
             let status_list = this.game_vars.player_status
             this.socket.to(game_id).emit("game_action", { data: status_list })
             this.game_vars.edit_event("push", "dead_list", client.user_id)
-            this.socket.to(game_id).emit({ data: { msg: `بازیکن ${client.user_id} به دست خدا کووشته شوود` } })
+            this.socket.to(game_id).emit("report", { data: { msg: `بازیکن ${client.user_id} به دست خدا کشته شد` } })
             this.game_handlers.submit_player_abandon({ user_id: client.user_id })
         }
 
@@ -466,7 +466,6 @@ const Game = class {
                 break
             }
             case ("end_game_free_speech"): {
-
                 const { user_id, is_talking } = data
                 const { game_id } = this
                 let prv_speech_status = [...this.game_vars.end_game_speech]
@@ -1274,9 +1273,8 @@ const Game = class {
     async end_game() {
         const { game_id } = this
         this.game_vars.edit_event("edit", "is_end", true)
-        this.game_handlers.submit_finish_game()
         const { winner } = this.game_vars
-        let report =await game_result.game_result_generator({
+        let report = await game_result.game_result_generator({
             game_vars: this.game_vars,
             users: this.game_vars.users_comp_list,
             winner
@@ -1300,6 +1298,9 @@ const Game = class {
         this.socket.to(game_id).emit("game_event", { data: { game_event: "end" } })
         await Helper.delay(2)
         this.socket.to(game_id).emit("end_game_result", { data: report })
+        await Helper.delay(30)
+        this.game_handlers.submit_finish_game(game_id)
+
         //finish game
     }
 

@@ -131,15 +131,13 @@ const start = {
         game_vars.edit_event("edit", "speech_type", "turn")
         game_vars.edit_event("edit", "reval", true)
         // game_vars.edit_event("edit", "next_event", "start_speech")
-        game_vars.edit_event("edit", "next_event", "chaos")
+        game_vars.edit_event("edit", "next_event", "start_night")
         game_vars.edit_event("edit", "can_take_challenge", true)
     },
 
 
     generate_report({ game_vars, report_type, socket, game_id }) {
-
         console.log("REPORT GENERATED");
-
         const { report_data } = game_vars
         const { user_id, msg } = report_data
         raw_reports = {
@@ -162,7 +160,6 @@ const start = {
             if (mafia_rols.includes(role.name)) return true
             return false
         })
-
         return `از بازی ${mafia_death.length} مافیا و ${dead_list.length - mafia_death.length} شهروند از بازی خارج شده`
 
     },

@@ -16,6 +16,7 @@ const find_user_avatar = async (user_id) => {
 const find_match = {
     async find_robot_game({ senario, client, db, socket }) {
         // senario = senario || "tv"
+        client.game_id=null
         senario = "tv"
         const party_id = client.idenity?.party_id
         if (!party_id) return
