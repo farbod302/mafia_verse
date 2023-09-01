@@ -20,9 +20,15 @@ const reconnect = ({ game_vars, client, game_id }) => {
         in_game_turn_speech,
         in_game_status: {
             has_gun: gun_status.findIndex(e => e.user_id === user_id) > -1
-        }
+        },
+        join_type: "player"
 
     }
+}
+
+
+const reconnect_mod = ({ game_vars, client, game_id }) => {
+
 }
 
 

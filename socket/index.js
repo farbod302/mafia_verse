@@ -14,7 +14,7 @@ const SocketProvider = class {
 
     lunch() {
 
-        
+
         channel_socket_handler.set_online_games()
         online_users_handler.reset()
         this.io.on("connection", (client) => {
@@ -29,6 +29,9 @@ const SocketProvider = class {
                     const games = this.db.getAll("games")
                     user_game = games.find(game => {
                         let ids = game.users.map(user => user.user_id)
+                        if (game.mod) {
+                            ids = ids.concat(game.mod)
+                        }
                         if (ids.includes(client.idenity.user_id)) {
                             client.game_id = game.game_id
                             return true

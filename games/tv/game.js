@@ -47,6 +47,8 @@ const Game = class {
         const { game_id } = this
         let status_list = this.game_vars.player_status
         this.socket.to(game_id).emit("game_action", { data: status_list })
+        if(this.mod && this.mod === user_id)return true
+        return false
 
     }
 
@@ -79,6 +81,10 @@ const Game = class {
             this.socket.to(game_id).emit("game_action", { data: player_status })
             this.game_vars.edit_event("pull", "abandon_queue", client.user_id)
         }
+    }
+
+    re_connect_mod({client}){
+        
     }
 
     player_abandon({ client }) {

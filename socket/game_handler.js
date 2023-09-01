@@ -3,7 +3,6 @@ const online_users_handler = require("./online_users_handler")
 
 const game_handler = {
     create_game({ game_id, db, socket, mod }) {
-        console.log({ mod }, "form create game");
         let selected_game_to_start = db.getOne("games_queue", "game_id", game_id)
         if (!selected_game_to_start) return
         const { users, partys, senario } = selected_game_to_start

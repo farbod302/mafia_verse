@@ -1,21 +1,25 @@
 const livekitApi = require('livekit-server-sdk');
 const AccessToken = livekitApi.AccessToken;
 const RoomServiceClient = livekitApi.RoomServiceClient;
-const livekitHost = "http://185.44.112.9:7880"
-const svc = new RoomServiceClient(livekitHost, 'devkey', 'secret');
+const livekitHost = "http://mafia.altf1.ir:7880"
+console.log(
+    process.env.LIVEKIT_SEC,
+    process.env.LIVEKIT_API
+);
+const svc = new RoomServiceClient(livekitHost, process.env.LIVEKIT_API, process.env.LIVEKIT_SEC,);
 
 
 const Voice = {
-    async start_room( game_id) {
+    async start_room(game_id) {
         const room_name = `${game_id}`
         const opts = {
             name: room_name,
             emptyTimeout: 1 * 60,
         };
-        try{
+        try {
             await svc.createRoom(opts)
         }
-        catch(err){
+        catch (err) {
             console.log(err);
         }
     },
@@ -29,4 +33,4 @@ const Voice = {
     }
 }
 
-module.exports=Voice
+module.exports = Voice
