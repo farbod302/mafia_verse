@@ -12,7 +12,7 @@ const reconnect = ({ game_vars, client, game_id }) => {
     }
     //todo check user gun
     return {
-        character: user_character.name,
+        character: user_character?.name || "not_found",
         users_data: players_compleate_list,
         room_id: live_kit_token,
         game_event: game_event_finder(game_event),
@@ -21,15 +21,13 @@ const reconnect = ({ game_vars, client, game_id }) => {
         in_game_status: {
             has_gun: gun_status.findIndex(e => e.user_id === user_id) > -1
         },
-        join_type: "player"
+        join_type: "player",
+        roles:[]
 
     }
 }
 
 
-const reconnect_mod = ({ game_vars, client, game_id }) => {
-
-}
 
 
 const game_event_finder = (event) => {

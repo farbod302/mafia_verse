@@ -17,14 +17,15 @@ const Voice = {
             emptyTimeout: 1 * 60,
         };
         try {
-            await svc.createRoom(opts)
+            const res=await svc.createRoom(opts)
+            console.log(res);
         }
         catch (err) {
             console.log(err);
         }
     },
     join_room(user, game_id) {
-        const at = new AccessToken('devkey', 'secret', {
+        const at = new AccessToken( process.env.LIVEKIT_API,  process.env.LIVEKIT_SEC, {
             identity: `${user}`,
         });
         at.addGrant({ roomJoin: true, room: `${game_id}` });

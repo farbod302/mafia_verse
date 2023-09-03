@@ -47,7 +47,7 @@ const Game = class {
         const { game_id } = this
         let status_list = this.game_vars.player_status
         this.socket.to(game_id).emit("game_action", { data: status_list })
-        if(this.mod && this.mod === user_id)return true
+        if (this.mod && this.mod === user_id) return true
         return false
 
     }
@@ -55,8 +55,12 @@ const Game = class {
     re_connect({ client }) {
         const { is_live } = this.game_vars
         const { game_id } = this
+        const { user_id } = client
+        if (this.mod && this.mod === user_id) {
+            return this.re_connect_mod({ client })
+        }
         if (!is_live) {
-            this.game_vars.edit_event("push", "reconnect_queue", client)
+            this.game_vars.edit_event("push", "reconnect_queue", { client, is_mod: false })
         } else {
             const data = reconnect({
                 game_vars: this.game_vars,
@@ -83,8 +87,26 @@ const Game = class {
         }
     }
 
-    re_connect_mod({client}){
-        
+    re_connect_mod({ client }) {
+        const { is_live, carts } = this.game_vars
+        if (!is_live) {
+            this.game_vars.edit_event("push", "reconnect_queue", { client, is_mod: true })
+        } else {
+            const data = reconnect({
+                game_vars: this.game_vars,
+                client,
+                game_id: this.game_id
+            })
+            let roles = carts.map(e => {
+                return {
+                    user_id: e.user_id,
+                    character: Helper.character_translator(e.name)
+                }
+            })
+            let user_socket = this.socket_finder(client.user_id)
+            console.log({ mod_reconnect_data: { ...data, roles, join_type: "moderator" } });
+            this.socket.to(user_socket).emit("reconnect_data", { data: { ...data, roles, join_type: "moderator" } })
+        }
     }
 
     player_abandon({ client }) {
@@ -94,6 +116,7 @@ const Game = class {
             this.game_event.edit_event("push", "abandon_queue", client)
         } else {
             let index = this.users.findIndex(e => e.user_id == client.user_id)
+            if (index === -1) return
             start.edit_game_action({
                 index,
                 prime_event: "user_status",
@@ -112,6 +135,7 @@ const Game = class {
 
     check_for_abandon() {
         const { is_live, abandon_queue } = this.game_vars
+        console.log({abandon_queue});
         if (!is_live) return
         for (let user of abandon_queue) {
             this.player_abandon({ client: user })
@@ -150,7 +174,7 @@ const Game = class {
             case ("ready_to_game"): {
                 this.game_vars.edit_event("push", "join_status_second_phase", user_call_idenity)
                 let connected_users_length = this.game_vars.join_status_second_phase.length
-                if (connected_users_length === static_vars.player_count) {
+                if (connected_users_length === static_vars.player_count + (this.mod ? 1 : 0)) {
                     this.go_live()
                     this.game_vars.edit_event("edit", "game_go_live", true)
                 }
@@ -493,6 +517,7 @@ const Game = class {
 
             case ("mod_kick"): {
                 const { user_id } = data
+                console.log({data});
                 this.game_vars.edit_event("abandon_queue", "push", user_id)
             }
         }
@@ -544,6 +569,8 @@ const Game = class {
         //handel_reconnect queue
         this.socket.to(game_id).emit("users_data", { data: user_data })
         this.socket.to(game_id).emit("mod_data", mod ? { data: mod_data[0] } : { data: null })
+        console.log(Date.now());
+        await Helper.delay(2)
 
         if (mod) {
             let mod_socket = this.socket_finder(mod)
@@ -553,9 +580,8 @@ const Game = class {
                     character: Helper.character_translator(e.name)
                 }
             })
-            console.log({ roles });
             this.socket.to(mod_socket).emit("mod_characters", { data: roles })
-
+            console.log(Date.now());
         }
         this.socket.to(game_id).emit("game_event", { data: { game_event: time } })
         befor_start.player_status_generate({ game_vars: this.game_vars })
@@ -566,7 +592,13 @@ const Game = class {
         await Helper.delay(3)
         this.game_vars.edit_event("edit", "next_event", "start_speech")
         const { reconnect_queue } = this.game_vars
-        reconnect_queue.forEach(e => { return this.re_connect({ client: e }) })
+        reconnect_queue.forEach(e => {
+            if (e.is_mod) {
+                return this.re_connect_mod({ client: e.client })
+            } else {
+                return this.re_connect({ client: e.client })
+            }
+        })
         this.mainCycle()
     }
 
@@ -1111,8 +1143,8 @@ const Game = class {
             game_vars: this.game_vars,
             records: night_records.events,
             users: this.users,
-            socket:this.socket,
-            game_id:this.game_id
+            socket: this.socket,
+            game_id: this.game_id
         })
         await Helper.delay(3)
         this.mainCycle()
