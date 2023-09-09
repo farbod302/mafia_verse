@@ -691,24 +691,25 @@ const Game = class {
         const { game_id } = this
         const { queue, turn, can_take_challenge, speech_type, reval, player_reval, carts } = this.game_vars
         //check player reval
-
         if (player_reval && player_reval.turn === turn) {
+            console.log({ player_reval });
             const { user_id } = player_reval
             let player_roule = carts.find(c => c.user_id === user_id)
             const { name, id } = player_roule
             this.socket.to(game_id).emit("player_show_character", { data: { user_id, id, name } })
             this.game_vars.edit_event("edit", "player_reval", null)
-            this.game_vars.edit_event("edit", "turn", turn - 1)
             const contnue_func = () => {
                 start.edit_game_action({
-                    index,
+                    index: queue[turn].user_index,
                     prime_event: "user_status",
                     second_event: "is_alive",
                     new_value: false,
                     game_vars: this.game_vars
                 })
                 const { player_status } = this.game_vars
-                this.socket.to(game_id).emit("game_action", { data: [player_status[index]] })
+                this.socket.to(game_id).emit("game_action", { data: [player_status[queue[turn].user_index]] })
+                this.game_vars.edit_event("edit", "turn", turn - 1)
+
                 this.mainCycle()
             }
             run_timer(5, contnue_func)
@@ -716,9 +717,10 @@ const Game = class {
         }
 
         if (queue.length === turn) {
-            const index=queue[turn - 1].user_index
+            console.log("end");
+
             start.edit_game_action({
-                index,
+                index: queue[turn - 1].user_index,
                 prime_event: "user_status",
                 second_event: "is_talking",
                 new_value: false,
@@ -727,7 +729,7 @@ const Game = class {
             })
             this.game_vars.edit_event("edit", "speech_code", "")
             const { player_status } = this.game_vars
-            this.socket.to(game_id).emit("game_action", { data: [player_status[index]] })
+            this.socket.to(game_id).emit("game_action", { data: [player_status[queue[turn - 1].user_index]] })
             this.socket.to(game_id).emit("current_speech_end")
             if (speech_type === "chaos") {
                 console.log("CHAOS SPEECH END");
@@ -767,8 +769,8 @@ const Game = class {
             }
         }
         // emit current_speech
-
         let time = static_vars.speech_time[speech_type]
+        console.log({ time });
         let cur_speech = queue[turn]
         this.socket.to(game_id).emit("current_speech", {
             current: cur_speech.user_id,
@@ -811,7 +813,7 @@ const Game = class {
         this.socket.to(socket_id).emit("start_speech")
         other_users.forEach(u => { this.socket.to(u.socket_id).emit("game_event", { data: { game_event: "action" } }) })
         // edit game action
-        const index= queue[turn].user_index
+        const index = queue[turn].user_index
         start.edit_game_action({
             index,
             prime_event: "user_status",
@@ -821,6 +823,7 @@ const Game = class {
             edit_others: true
         })
         let status_list = this.game_vars.player_status
+        console.log("Emit to MMD");
         this.socket.to(game_id).emit("game_action", { data: [status_list[index]] })
         //edit speech queue
         start.move_speech_queue({ game_vars: this.game_vars })
