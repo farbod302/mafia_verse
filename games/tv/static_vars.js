@@ -1,5 +1,5 @@
 const static_vars={
-    player_count:1,
+    player_count:3,
     rols:[
         "citizen",
         "citizen",

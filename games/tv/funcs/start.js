@@ -5,7 +5,7 @@ const run_timer = require("../../../helper/timer")
 const { encrypt } = require("../../../helper/helper")
 const start = {
 
-    async create_live_room({ game_id, game_vars, socket, users, mod_user_id, mod_socket }) {
+    async create_live_room({ game_id, socket, users, mod_user_id, mod_socket }) {
         await Voice.start_room(game_id)
         for (let user of users) {
             const { user_id, socket_id } = user

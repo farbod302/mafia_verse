@@ -46,7 +46,7 @@ const Game = class {
         })
         const { game_id } = this
         let status_list = this.game_vars.player_status
-        this.socket.to(game_id).emit("game_action", { data: status_list })
+        this.socket.to(game_id).emit("game_action", { data: [status_list[index]] })
         if (this.mod && this.mod === user_id) return true
         return false
 
@@ -82,7 +82,7 @@ const Game = class {
             prv_users[index].socket_id = client.id
             this.users = prv_users
             const { player_status } = this.game_vars
-            this.socket.to(game_id).emit("game_action", { data: player_status })
+            this.socket.to(game_id).emit("game_action", { data: [player_status[index]] })
             this.game_vars.edit_event("pull", "abandon_queue", client.user_id)
         }
     }
@@ -125,7 +125,7 @@ const Game = class {
                 game_vars: this.game_vars
             })
             let status_list = this.game_vars.player_status
-            this.socket.to(game_id).emit("game_action", { data: status_list })
+            this.socket.to(game_id).emit("game_action", { data: [status_list[index]] })
             this.game_vars.edit_event("push", "dead_list", client.user_id)
             this.socket.to(game_id).emit("report", { data: { msg: `بازیکن ${client.user_id} به دست خدا کشته شد` } })
             this.game_handlers.submit_player_abandon({ user_id: client.user_id })
@@ -135,7 +135,7 @@ const Game = class {
 
     check_for_abandon() {
         const { is_live, abandon_queue } = this.game_vars
-        console.log({abandon_queue});
+        console.log({ abandon_queue });
         if (!is_live) return
         for (let user of abandon_queue) {
             this.player_abandon({ client: user })
@@ -193,7 +193,6 @@ const Game = class {
                 let index = this.users.findIndex(user => user.user_id === client.idenity.user_id)
                 const { cur_event } = this.game_vars
                 let event_to_change = cur_event === "target_cover" ? "target_cover_hand_rise" : "hand_rise"
-                console.log({ cur_event, event_to_change });
                 const { game_id } = this
                 start.edit_game_action({
                     index,
@@ -203,7 +202,7 @@ const Game = class {
                     game_vars: this.game_vars
                 })
                 const { player_status } = this.game_vars
-                this.socket.to(game_id).emit("game_action", { data: player_status })
+                this.socket.to(game_id).emit("game_action", { data: [player_status[index]] })
                 console.log({ player_status: player_status[1] });
                 start.edit_game_action({
                     index,
@@ -235,7 +234,7 @@ const Game = class {
                     game_vars: this.game_vars,
                 })
                 const { player_status } = this.game_vars
-                this.socket.to(game_id).emit("game_action", { data: player_status })
+                this.socket.to(game_id).emit("game_action", { data: [player_status[index]] })
 
                 start.edit_game_action({
                     index,
@@ -264,7 +263,7 @@ const Game = class {
                     game_vars: this.game_vars,
                 })
                 const { player_status } = this.game_vars
-                this.socket.to(game_id).emit("game_action", { data: player_status })
+                this.socket.to(game_id).emit("game_action", { data: [player_status[index]] })
 
                 start.edit_game_action({
                     index,
@@ -417,7 +416,7 @@ const Game = class {
                 const { game_id } = this
                 let status_list = this.game_vars.player_status
                 console.log({ status_list: status_list[1] });
-                this.socket.to(game_id).emit("game_action", { data: status_list })
+                this.socket.to(game_id).emit("game_action", { data: [status_list[index]] })
                 start.edit_game_action({
                     index,
                     prime_event: "user_action",
@@ -517,8 +516,30 @@ const Game = class {
 
             case ("mod_kick"): {
                 const { user_id } = data
-                console.log({data});
-                this.game_vars.edit_event("abandon_queue", "push", user_id)
+                console.log({ user_id });
+                const { turn } = this.game_vars
+                let index = this.users.findIndex(user => user.user_id === user_id)
+                start.edit_game_action({
+                    index,
+                    prime_event: "user_status",
+                    second_event: "is_alive",
+                    new_value: false,
+                    game_vars: this.game_vars
+                })
+                const { game_id } = this
+                let status_list = this.game_vars.player_status
+                this.socket.to(game_id).emit("game_action", { data: [status_list[index]] })
+                let new_queue = [...this.game_vars.queue]
+                console.log({ queue: new_queue[turn] });
+                if (new_queue[turn].user_id === user_id) {
+                    this.mainCycle()
+                    console.log("cycle");
+                }
+                else {
+                    new_queue = new_queue.filter(e => e.user_id !== user_id)
+                    console.log({ new_queue });
+                    this.game_vars.edit_event("edit", "queue", new_queue)
+                }
             }
         }
     }
@@ -687,7 +708,7 @@ const Game = class {
                     game_vars: this.game_vars
                 })
                 const { player_status } = this.game_vars
-                this.socket.to(game_id).emit("game_action", { data: player_status })
+                this.socket.to(game_id).emit("game_action", { data: [player_status[index]] })
                 this.mainCycle()
             }
             run_timer(5, contnue_func)
@@ -695,8 +716,9 @@ const Game = class {
         }
 
         if (queue.length === turn) {
+            const index=queue[turn - 1].user_index
             start.edit_game_action({
-                index: queue[turn - 1].user_index,
+                index,
                 prime_event: "user_status",
                 second_event: "is_talking",
                 new_value: false,
@@ -705,7 +727,7 @@ const Game = class {
             })
             this.game_vars.edit_event("edit", "speech_code", "")
             const { player_status } = this.game_vars
-            this.socket.to(game_id).emit("game_action", { data: player_status })
+            this.socket.to(game_id).emit("game_action", { data: [player_status[index]] })
             this.socket.to(game_id).emit("current_speech_end")
             if (speech_type === "chaos") {
                 console.log("CHAOS SPEECH END");
@@ -789,8 +811,9 @@ const Game = class {
         this.socket.to(socket_id).emit("start_speech")
         other_users.forEach(u => { this.socket.to(u.socket_id).emit("game_event", { data: { game_event: "action" } }) })
         // edit game action
+        const index= queue[turn].user_index
         start.edit_game_action({
-            index: queue[turn].user_index,
+            index,
             prime_event: "user_status",
             second_event: "is_talking",
             new_value: true,
@@ -798,7 +821,7 @@ const Game = class {
             edit_others: true
         })
         let status_list = this.game_vars.player_status
-        this.socket.to(game_id).emit("game_action", { data: status_list })
+        this.socket.to(game_id).emit("game_action", { data: [status_list[index]] })
         //edit speech queue
         start.move_speech_queue({ game_vars: this.game_vars })
         let new_queue = this.game_vars.queue

@@ -21,12 +21,6 @@ const channel_socket_handler = {
         const { user_id } = client.idenity
         const s_channel = await Channel.findOne({ id: channel_id })
         const { mods, creator } = s_channel
-        const { channel_data: prv_channel } = client
-        if (prv_channel) {
-            client.leave(prv_channel.channel_id)
-            await UserChannelConfig.updateOne({ user_id, channel_id: prv_channel.channel_id }, { $set: { last_visit: Date.now() } })
-
-        }
         let user_role = "normal"
         if (mods.includes(user_id)) user_role = "co_leader"
         if (creator === user_id) user_role = "leader"
@@ -39,6 +33,16 @@ const channel_socket_handler = {
         client.join(channel_id)
     },
 
+
+    async leave_channel({ client }) {
+        const prv_channel = client.channel_data
+        const { user_id } = client.idenity
+        if (prv_channel) {
+            client.leave(prv_channel.channel_id)
+            await UserChannelConfig.updateOne({ user_id, channel_id: prv_channel.channel_id }, { $set: { last_visit: Date.now() } })
+
+        }
+    },
 
     async user_leave_channel({ client }) {
 
