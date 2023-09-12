@@ -5,7 +5,7 @@ const game_handler = {
     create_game({ game_id, db, socket, mod }) {
         let selected_game_to_start = db.getOne("games_queue", "game_id", game_id)
         if (!selected_game_to_start) return
-        const { users, partys, senario } = selected_game_to_start
+        const { users, senario } = selected_game_to_start
         let new_game = {
             mod,
             senario,
@@ -16,15 +16,11 @@ const game_handler = {
         const game_handlers = {
             abandon_game: (socket) => { game_handler.abandon_game({ game_id, socket, db }) },
             submit_player_abandon: ({ user_id }) => {
-                console.log({ user_id }, "for abandon");
-                console.log(db.getAll("disconnect"), "befor");
                 db.removeOne("disconnect", "user_id", user_id)
-                console.log(db.getAll("disconnect"), "after");
             },
             submit_finish_game(game_id) {
-                console.log({ game_iddddddddddddddddd: game_id });
+                console.log("game finish", { game_id });
                 db.removeOne("games", "game_id", game_id)
-                console.log({after_remove:db.getAll("games")});
             }
 
         }
@@ -55,7 +51,6 @@ const game_handler = {
     },
 
     abandon_game({ game_id, socket, db }) {
-        console.log("im run");
         socket.to(game_id).emit("abandon")
         db.removeOne("game", "game_id", game_id)
     }

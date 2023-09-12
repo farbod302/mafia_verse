@@ -13,7 +13,9 @@ const handel_disconnect = async ({ client, db, socket }) => {
         if (!game_class.game_vars.is_end) {
             const is_mod = game_class.submit_user_disconnect({ client })
             db.add_data("disconnect", { user_id: client.idenity.user_id, game_id, is_mod })
+            console.log("submit user to dc",{user_id: client.idenity.user_id, game_id, is_mod});
         }
+
     }
     online_users_handler.remove_user(client.idenity?.user_id)
     const user_id = client.idenity?.user_id

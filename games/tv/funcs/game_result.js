@@ -30,11 +30,13 @@ const game_result = {
             }
         })
         const list = await Promise.all(clean_list)
+        let now=Date.now()
+        now += (1000*60*1)
         return {
             winner,
             users: list,
             scenario: "nato",
-            free_speech_timer: 1
+            free_speech_timer: now
         }
     }
 

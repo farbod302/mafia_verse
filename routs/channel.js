@@ -9,7 +9,7 @@ const User = require("../db/user")
 const UserChannelConfig = require("../db/user_channel_config")
 const online_users_handler = require("../socket/online_users_handler")
 const Helper = require("../helper/helper")
-
+const {send_channel_msg}=require("../socket/server_channel_msg/send_server_msg")
 
 router.post("/generate_channel_token", (req, res) => {
     const { user } = req.body
@@ -80,6 +80,7 @@ router.post("/create_channel_by_user", async (req, res) => {
 router.post("/join_request", async (req, res) => {
     if (!req.body.user) return reject(2, res)
     const { uid } = req.body.user
+    const s_user=await User.findOne({uid})
     const { channel_id } = req.body
     let s_channel = await Channel.findOne({ id: channel_id })
     if (s_channel.join_req.includes(uid) || s_channel.users.includes(uid)) return reject(11, res)
@@ -88,6 +89,8 @@ router.post("/join_request", async (req, res) => {
     await Channel.findOneAndUpdate({ id: channel_id }, { $push: { [key]: uid } })
     if (public) {
         Helper.create_channel_config({ channel_id, user_id: uid })
+        const io=req.socket
+        send_channel_msg(io,`کاربر ${s_user.idenity.name} به گروه پیوست`,channel_id)
     }
     if (public) {
         await User.findOneAndUpdate({ uid }, { $push: { chanels: channel_id } })
@@ -218,6 +221,8 @@ router.post("/exit", async (req, res) => {
     const { channel_id } = req.body
     const { uid: user_id } = user
     await Channel.findOne({ id: channel_id }, { $pull: { users: user_id, mod: user_id } })
+    const io=req.socket
+    send_channel_msg(io,`کاربر ${s_user.idenity.name} گروه را ترک کرد`,channel_id)
     res.json({
         status: true,
         msg: "درخواست ارسال شد"

@@ -24,12 +24,15 @@ const SocketProvider = class {
             client.on("game_handle", ({ op, data }) => {
                 console.log({op});
                 let game_id = client.game_id
+                console.log({game_id});
                 let user_game = null
                 if (game_id) { user_game = this.db.getOne("games", "game_id", game_id) }
                 else {
                     const games = this.db.getAll("games")
                     user_game = games.find(game => {
-                        let ids = game.users.map(user => user.user_id)
+                        const users=game.game_class.get_users()
+                        console.log({users});
+                        let ids = users.map(user => user.user_id)
                         if (game.mod) {
                             ids = ids.concat(game.mod)
                         }

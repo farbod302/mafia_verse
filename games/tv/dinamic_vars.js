@@ -42,7 +42,7 @@ const dinamic_vars = class {
         this.chaos_vots = []
         this.chaos_run_count = 0
         this.player_reval = null
-        this.winner="mafia"
+        this.winner=null
     }
     edit_event(op, event, value, from) {
         switch (op) {

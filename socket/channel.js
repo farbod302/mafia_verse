@@ -8,6 +8,7 @@ const { delay } = require("../helper/helper")
 const { networkInterfaces: getGames } = require('os');
 const Helper = require("../helper/helper")
 const send_notif = require("../helper/send_notif")
+const { check_last_msg } = require("./server_channel_msg/send_server_msg")
 var finder = require('simple-encryptor')(process.env.JWT);
 
 const channel_socket_handler = {
@@ -32,6 +33,9 @@ const channel_socket_handler = {
         client.channel_data = channel_data
         client.join(channel_id)
     },
+
+
+    
 
 
     async leave_channel({ client }) {
@@ -86,9 +90,11 @@ const channel_socket_handler = {
     },
 
     async send_channel_msg({ data, client, socket }) {
-        const { msg_type, msg } = data
+
         const { idenity, channel_data } = client
         const { user_role, channel_id } = channel_data
+        await check_last_msg(channel_id, socket)
+        const { msg_type, msg } = data
         msg_cash(channel_id)
         const { user_id, name, image } = idenity
         let new_message = {

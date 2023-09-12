@@ -267,7 +267,7 @@ router.post("/age_auth", async (req, res) => {
     if (age !== 0) return reject(16, res)
     let session_id = uuid(5)
     auth_session.push({ user_id: uid, session_id })
-    res.json({ status: true, data: { url: "http://localhost:3000/auth/" + session_id } })
+    res.json({ status: true, data: { url: "https://mafia.devdailychallenge.com/auth/" + session_id } })
 
 })
 
@@ -279,7 +279,7 @@ router.post("/check_session", (req, res) => {
 })
 
 
-router.post("/session_req", async (req, res) => {
+router.post("/confirm_auth", async (req, res) => {
     const { age, session_id } = req.body
     let index = auth_session.findIndex(e => e.session_id === session_id)
     if (index === -1) return reject(17, res)
@@ -367,4 +367,77 @@ router.post("/user_transactions", (req, res) => {
     })
 
 })
+
+
+router.post("/lucky_wheel_status", async (req, res) => {
+    const user = req.body.user
+    if (!user) return reject(3, res)
+    const s_user = await User.findOne({ uid: user.uid })
+    const lucky_wheel_status = s_user.lucky_wheel_status || 0
+    const now = Date.now()
+    res.json({
+        status: true,
+        msg: "",
+        data: {
+            ready: now > lucky_wheel_status
+        }
+    })
+})
+
+
+
+router.post("/lucky_wheel", async (req, res) => {
+    const user = req.body.user
+    if (!user) return reject(3, res)
+    const is_ready = await User.findOne({ uid: user.uid })
+    if (is_ready.lucky_wheel_status > Date.now()) {
+        return reject("3", res)
+    }
+    const wheel_items = [
+        {
+            gold: 10,
+            start: 0,
+            end: 50
+        },
+        {
+            gold: 20,
+            start: 51,
+            end: 70
+        },
+        {
+            gold: 30,
+            start: 61,
+            end: 80
+        },
+        {
+            gold: 40,
+            start: 81,
+            end: 90
+        },
+        {
+            gold: 50,
+            start: 91,
+            end: 98
+        },
+        {
+            gold: 100,
+            start: 99,
+            end: 100
+        },
+    ]
+
+
+    const random_num = Math.floor(Math.random() * 100) + 1
+    const selected_range = wheel_items.find(e => e.start < random_num && e.end >= random_num)
+    await User.findOneAndUpdate({ uid: user.uid }, { $set: { lucky_wheel_status: Date.now() + (1000 * 60 * 60 * 12) } })
+    console.log({ selected_range, random_num });
+    res.json({
+        status: true,
+        msg: "",
+        data: { gold: selected_range?.gold || 10 }
+    })
+
+})
+
+
 module.exports = router

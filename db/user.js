@@ -7,7 +7,7 @@ const user = mongoose.Schema({
     idenity: Object,
     avatar: Object,
     uid: String,
-    age:{type:Number,default:0},
+    age: { type: Number, default: 0 },
     own_channel: { type: Boolean, default: false },
     gold: { type: Number, default: 10 },
     friend_limit: { type: Number, default: 20 },
@@ -33,7 +33,8 @@ const user = mongoose.Schema({
     status: { type: String, default: "gust" },
     device_id: String,
     cur_game: { type: String, default: "" },
-    notif_token: String
+    notif_token: String,
+    lucky_wheel_status: { type: Number, default: 0 }
 
 })
 

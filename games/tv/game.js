@@ -37,19 +37,27 @@ const Game = class {
     submit_user_disconnect({ client }) {
         const { user_id } = client.idenity
         let index = this.users.findIndex(user => user.user_id === user_id)
-        start.edit_game_action({
-            index,
-            prime_event: "user_status",
-            second_event: "is_connected",
-            new_value: false,
-            game_vars: this.game_vars
-        })
-        const { game_id } = this
-        let status_list = this.game_vars.player_status
-        this.socket.to(game_id).emit("game_action", { data: [status_list[index]] })
+        if (index > -1) {
+            start.edit_game_action({
+                index,
+                prime_event: "user_status",
+                second_event: "is_connected",
+                new_value: false,
+                game_vars: this.game_vars
+            })
+            const { game_id } = this
+            let status_list = this.game_vars.player_status
+            if (status_list?.length) {
+                this.socket.to(game_id).emit("game_action", { data: [status_list[index]] })
+            }
+        }
         if (this.mod && this.mod === user_id) return true
         return false
 
+    }
+
+    get_users() {
+        return this.users
     }
 
     re_connect({ client }) {
@@ -88,6 +96,7 @@ const Game = class {
     }
 
     re_connect_mod({ client }) {
+        console.log("RECONECT MOOOOOOOOOOOOOOOOOOOOOOOOD");
         const { is_live, carts } = this.game_vars
         if (!is_live) {
             this.game_vars.edit_event("push", "reconnect_queue", { client, is_mod: true })
@@ -110,6 +119,7 @@ const Game = class {
     }
 
     player_abandon({ client }) {
+        console.log("ABENDOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOON");
         const { is_live } = this.game_vars
         const { game_id } = this
         if (!is_live) {
@@ -129,6 +139,9 @@ const Game = class {
             this.game_vars.edit_event("push", "dead_list", client.user_id)
             this.socket.to(game_id).emit("report", { data: { msg: `بازیکن ${client.user_id} به دست خدا کشته شد` } })
             this.game_handlers.submit_player_abandon({ user_id: client.user_id })
+            const new_users = this.users.filter(e => e.user_id !== client.user_id)
+            this.users = new_users
+            console.log({ new_users });
         }
 
     }
@@ -515,6 +528,7 @@ const Game = class {
             }
 
             case ("mod_kick"): {
+                console.log("MOOOOOOOOOOOOOOOOOOOOOOOOOOD KICKKKKKKKKKKKKK");
                 const { user_id } = data
                 console.log({ user_id });
                 const { turn } = this.game_vars
@@ -540,6 +554,7 @@ const Game = class {
                     console.log({ new_queue });
                     this.game_vars.edit_event("edit", "queue", new_queue)
                 }
+                break
             }
         }
     }
@@ -823,7 +838,6 @@ const Game = class {
             edit_others: true
         })
         let status_list = this.game_vars.player_status
-        console.log("Emit to MMD");
         this.socket.to(game_id).emit("game_action", { data: [status_list[index]] })
         //edit speech queue
         start.move_speech_queue({ game_vars: this.game_vars })
@@ -1216,7 +1230,7 @@ const Game = class {
         // this.socket.to(game_id).emit("game_action", { data: user_status })
         this.socket.to(game_id).emit("report", { data: { msg: "زمان هرج و مرج زمان صحبت نوبتی", timer: 3 } })
 
-        await Helper.delay(2)
+        await Helper.delay(20)
         this.game_vars.edit_event("edit", "custom_queue", [])
         this.game_vars.edit_event("edit", "speech_type", "chaos")
         this.game_vars.edit_event("edit", "next_event", "start_speech")
@@ -1319,12 +1333,14 @@ const Game = class {
             return
         }
         else {
+            console.log("WE HAVE ECUAL CITYSEN");
             const { user_id } = selected_user
             let other_players = live_users.filter(e => e.user_id !== user_id).map(u => u.user_id)
             this.game_vars.edit_event("new_value", "last_decision", null)
             let socket_id = this.socket_finder(user_id)
             this.socket.to(socket_id).emit("last_decision", { data: { available_users: other_players.map(e => e.user_id) } })
             const timer_func = () => {
+                console.log("RUN TIMER IN SECOND PHASE", { winner: this.game_vars.winner });
                 if (!this.game_vars.winner) {
                     this.game_vars.edit_event("edit", "next_event", "chaos")
                     this.mainCycle()
