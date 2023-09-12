@@ -11,6 +11,7 @@ const SocketProvider = require("./socket");
 const Jwt = require('./helper/jwt');
 const reject = require('./helper/reject_handler');
 const { check_last_msgs } = require('./socket/server_channel_msg/send_server_msg');
+const check_bad_words = require('./socket/bad_word');
 
 const token_handler = (req, res, next) => {
     const { token } = req.body
@@ -66,3 +67,5 @@ app.use("/files", express.static("./files"))
 
 
 check_last_msgs()
+
+check_bad_words.check("کسکش مادر جنده ننتو گاییدم")

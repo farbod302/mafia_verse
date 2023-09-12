@@ -9,6 +9,7 @@ const { networkInterfaces: getGames } = require('os');
 const Helper = require("../helper/helper")
 const send_notif = require("../helper/send_notif")
 const { check_last_msg } = require("./server_channel_msg/send_server_msg")
+const check_bad_words = require("./bad_word")
 var finder = require('simple-encryptor')(process.env.JWT);
 
 const channel_socket_handler = {
@@ -43,6 +44,7 @@ const channel_socket_handler = {
         const { user_id } = client.idenity
         if (prv_channel) {
             client.leave(prv_channel.channel_id)
+            console.log({user_id,channel_id:prv_channel.channel_id});
             await UserChannelConfig.updateOne({ user_id, channel_id: prv_channel.channel_id }, { $set: { last_visit: Date.now() } })
 
         }
@@ -95,6 +97,7 @@ const channel_socket_handler = {
         const { user_role, channel_id } = channel_data
         await check_last_msg(channel_id, socket)
         const { msg_type, msg } = data
+        const clean_msg=check_bad_words.check(msg)
         msg_cash(channel_id)
         const { user_id, name, image } = idenity
         let new_message = {
@@ -103,7 +106,7 @@ const channel_socket_handler = {
             user_name: name,
             user_image: image,
             user_state: user_role,
-            msg,
+            msg:clean_msg,
             msg_type,
             msg_time: Date.now(),
         }

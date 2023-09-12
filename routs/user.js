@@ -267,7 +267,7 @@ router.post("/age_auth", async (req, res) => {
     if (age !== 0) return reject(16, res)
     let session_id = uuid(5)
     auth_session.push({ user_id: uid, session_id })
-    res.json({ status: true, data: { url: "https://mafia.devdailychallenge.com/auth/" + session_id } })
+    res.json({ status: true, data: { url: "https://mafia.devdailychallenge.com/auth/?session=" + session_id } })
 
 })
 

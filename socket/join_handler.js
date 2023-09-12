@@ -41,7 +41,7 @@ const join_handler = async ({ token, db, client, socket }) => {
         party_id: user_party,
         users: [idenity]
     })
-    socket.to(client.id).emit("join_status", { data: { user_id: uid, auth: s_user.age && s_user.age > 16 } })
+    socket.to(client.id).emit("join_status", { data: { user_id: uid, auth: (s_user.age && s_user.age > 16) ? true : false } })
 }
 
 module.exports = join_handler

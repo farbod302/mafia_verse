@@ -17,6 +17,7 @@ const find_match = {
     async find_robot_game({ senario, client, db, socket ,auth}) {
         // senario = senario || "tv"
         client.game_id=null
+        auth=auth?true:false
         senario = "tv"
         const party_id = client.idenity?.party_id
         if (!party_id) return
@@ -46,7 +47,7 @@ const find_match = {
                 users: users,
                 partys: [party_id],
                 senario,
-                auth
+                auth:auth?true:false
             }
 
             db.add_data("games_queue", new_game)
@@ -104,7 +105,8 @@ const find_match = {
             users: users,
             partys: [party_id],
             mod: creator,
-            senario
+            senario,
+            
         }
         db.add_data("games_queue", new_game)
         socket.to(party_id).emit("find_match", { data: users.map(user => { return { user_image: user.user_image, user_id: user.user_id } }) })

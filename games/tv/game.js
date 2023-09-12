@@ -549,17 +549,14 @@ const Game = class {
                 });
                 this.socket.to(game_id).emit("mod_status", {
                     data: {
-
                         connected: this.game_vars.mod_status.connected,
                         speaking
-
                     }
                 })
                 break
             }
 
             case ("mod_kick"): {
-                console.log("MOOOOOOOOOOOOOOOOOOOOOOOOOOD KICKKKKKKKKKKKKK");
                 const { user_id } = data
                 console.log({ user_id });
                 const { turn } = this.game_vars

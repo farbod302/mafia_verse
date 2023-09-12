@@ -19,7 +19,7 @@ const SocketProvider = class {
         online_users_handler.reset()
         this.io.on("connection", (client) => {
             client.on("join", ({ token }) => { join_handler({ token, db: this.db, client, socket: this.io }) })
-            client.on("find_match", (senario,auth) => { find_match.find_robot_game({ senario, client, db: this.db, socket: this.io ,auth}) })
+            client.on("find_match", ({auth}) => { find_match.find_robot_game({ senario:"nato", client, db: this.db, socket: this.io ,auth}) })
             client.on("leave_find", () => { find_match.leave_find({ client, db: this.db, socket: this.io }) })
             client.on("game_handle", ({ op, data }) => {
                 console.log({op});
