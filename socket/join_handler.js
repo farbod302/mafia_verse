@@ -20,7 +20,7 @@ const join_handler = async ({ token, db, client, socket }) => {
     online_users_handler.add_user(uid, client.id)
     let user_exist_game = db.getOne("disconnect", "user_id", uid)
     if (user_exist_game) {
-        console.log({ user_exist_game ,socket_id:client.id});
+        console.log({ user_exist_game, socket_id: client.id });
         let s_game = db.getOne("games", "game_id", user_exist_game.game_id)
         const { carts } = s_game.game_class.game_vars
         let user_char = carts.find(e => e.user_id === uid) || null
@@ -41,7 +41,7 @@ const join_handler = async ({ token, db, client, socket }) => {
         party_id: user_party,
         users: [idenity]
     })
-    socket.to(client.id).emit("join_status", { data: { user_id: uid } })
+    socket.to(client.id).emit("join_status", { data: { user_id: uid, auth: s_user.age && s_user.age > 16 } })
 }
 
 module.exports = join_handler

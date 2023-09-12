@@ -1,3 +1,4 @@
+const Helper = require("../../../helper/helper")
 const { delay } = require("../../../helper/helper")
 const run_timer = require("../../../helper/timer")
 const befor_start = require("./before_start")
@@ -17,10 +18,12 @@ const vote = {
         game_vars.edit_event("edit", "next_event", "next_player_vote_time")
 
     },
-    next_player_vote_turn({ game_vars, socket, game_id, cycle, users }) {
+    async next_player_vote_turn({ game_vars, socket, game_id, cycle, users }) {
         console.log("VOTE ADD");
         const { queue, turn, vote_type, custom_queue } = game_vars
         let new_vote_record = { user_id: queue[turn].user_id, users: [], vote_type, timer: 5 }
+        const s_player = queue[turn]
+        console.log({ s_player });
         game_vars.edit_event("push", "votes_status", new_vote_record)
         // socket.to(game_id).emit("vote", { data: new_vote_record })
         // vote to player
@@ -30,6 +33,12 @@ const vote = {
             custom_queue.forEach(user => users_to_prevent_vote.push(user.user_id))
         }
         let user_to_vote = users.filter(user => !users_to_prevent_vote.includes(user.user_id))
+        socket.to(game_id).emit("report", {
+            data: {
+                msg: `رای گیری برای بازیکن شماره ${s_player.user_index + 1}`, timer: 2
+            }
+        })
+        await Helper.delay(2)
         user_to_vote.forEach(user => socket.to(user.socket_id).emit("vote", { data: new_vote_record }))
         run_timer(10, cycle)
     },

@@ -14,7 +14,7 @@ const find_user_avatar = async (user_id) => {
 }
 
 const find_match = {
-    async find_robot_game({ senario, client, db, socket }) {
+    async find_robot_game({ senario, client, db, socket ,auth}) {
         // senario = senario || "tv"
         client.game_id=null
         senario = "tv"
@@ -34,7 +34,7 @@ const find_match = {
         let party_players_count = users.length
         let seleced_game = games[senario]
         let game_players_count = seleced_game.static_vars.player_count
-        let available_games = db.filterModel("games_queue", "senario", senario)
+        let available_games = db.filterModel("games_queue", "auth", auth)
         let choosen_game = available_games.find(e => e.remain >= party_players_count)
         if (!choosen_game) {
             console.log("game created");
@@ -45,7 +45,8 @@ const find_match = {
                 remain: game_players_count - party_players_count,
                 users: users,
                 partys: [party_id],
-                senario
+                senario,
+                auth
             }
 
             db.add_data("games_queue", new_game)

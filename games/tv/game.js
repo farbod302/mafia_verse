@@ -465,14 +465,36 @@ const Game = class {
                 break
             }
             case ("chaos_vote"): {
-                const { user_id } = data
-                this.game_vars.edit_event("push", "chaos_vots", user_id)
-                const { user_id: user_voted } = client.idenity
-                console.log({ user_id, user_voted });
-                const { game_id } = this
-                this.socket.to(game_id).emit("chaos_vote_result", { data: { from_user: user_voted, to_user: user_id } })
-                this.mainCycle()
-                break
+                const is_last = this.game_vars.is_last_decision
+                if (is_last) {
+                    const { user_id } = data
+                    const mafia_roles = ["godfather", "nato", "hostage_taker"]
+                    const { user_id: player_selected } = client.idenity
+                    const { carts } = this.game_vars
+                    let winner = null
+                    let player_selected_role = carts.find(e => e.user_id == player_selected)
+                    let player_chosen_role = carts.find(e => e.user_id == user_id)
+                    if (mafia_roles.includes(player_chosen_role.name)) {
+                        winner = "mafia"
+                    } else {
+                        winner = "citizen"
+                    }
+                    if (mafia_roles.includes(player_selected_role.name)) winner = "mafia"
+                    this.game_vars.edit_event("new_value", "winner", winner)
+                    this.game_vars.edit_event("edit", "next_event", "end_game")
+                    this.mainCycle()
+                    break
+                } else {
+
+                    const { user_id } = data
+                    this.game_vars.edit_event("push", "chaos_vots", user_id)
+                    const { user_id: user_voted } = client.idenity
+                    console.log({ user_id, user_voted });
+                    const { game_id } = this
+                    this.socket.to(game_id).emit("chaos_vote_result", { data: { from_user: user_voted, to_user: user_id } })
+                    this.mainCycle()
+                    break
+                }
             }
             case ("chaos_user_speech"): {
                 const { user_id, talking } = data
@@ -489,7 +511,6 @@ const Game = class {
             }
             case ("last_decision"): {
                 const { user_id } = data
-                const { game_id } = this
                 const mafia_roles = ["godfather", "nato", "hostage_taker"]
                 const { user_id: player_selected } = client.idenity
                 const { carts } = this.game_vars
@@ -519,10 +540,20 @@ const Game = class {
             }
             case ("mod_speaking"): {
                 const { speaking } = data
+                console.log({ speaking });
                 const { game_id } = this
-                this.socket.to(game_id).emit({
+
+                console.log({
                     connected: this.game_vars.mod_status.connected,
                     speaking
+                });
+                this.socket.to(game_id).emit("mod_status", {
+                    data: {
+
+                        connected: this.game_vars.mod_status.connected,
+                        speaking
+
+                    }
                 })
                 break
             }
@@ -1230,7 +1261,7 @@ const Game = class {
         // this.socket.to(game_id).emit("game_action", { data: user_status })
         this.socket.to(game_id).emit("report", { data: { msg: "زمان هرج و مرج زمان صحبت نوبتی", timer: 3 } })
 
-        await Helper.delay(20)
+        await Helper.delay(5)
         this.game_vars.edit_event("edit", "custom_queue", [])
         this.game_vars.edit_event("edit", "speech_type", "chaos")
         this.game_vars.edit_event("edit", "next_event", "start_speech")
@@ -1265,10 +1296,10 @@ const Game = class {
         this.game_vars.edit_event("new_value", "chaos_speech_all_status", chaos_speech_all_status)
 
         this.game_vars.edit_event("edit", "next_event", "chaos_result_first_phase")
-        run_timer(30, () => {
+        run_timer(10, () => {
             live_users.forEach(user => {
                 const { user_id } = user
-                let socket_id
+                let socket_id = this.socket_finder(user_id)
                 this.socket.to(socket_id).emit("chaos_all_speech_end")
             })
             this.mainCycle()
@@ -1314,7 +1345,7 @@ const Game = class {
 
             }
         }
-        run_timer(7, () => { restart_vote(this.game_vars, `${turn + 1}`, () => { this.mainCycle() }) })
+        run_timer(15, () => { restart_vote(this.game_vars, `${turn + 1}`, () => { this.mainCycle() }) })
 
     }
 
@@ -1334,19 +1365,26 @@ const Game = class {
         }
         else {
             console.log("WE HAVE ECUAL CITYSEN");
+            this.game_vars.edit_event("new_value", "is_last_decision", true)
             const { user_id } = selected_user
+            console.log({ selected_user });
             let other_players = live_users.filter(e => e.user_id !== user_id).map(u => u.user_id)
+            console.log({ other_players, live_users });
             this.game_vars.edit_event("new_value", "last_decision", null)
             let socket_id = this.socket_finder(user_id)
-            this.socket.to(socket_id).emit("last_decision", { data: { available_users: other_players.map(e => e.user_id) } })
+            console.log({ socket_id });
+            this.socket.to(socket_id).emit("report", { data: { msg: "تصمیم نهایی با شماست.شهروند خود را انتخاب کنید", timer: 3 } })
+            this.socket.to(socket_id).emit("last_decision", { data: { available_users: other_players } })
+            console.log("im emit to" + socket_id);
             const timer_func = () => {
                 console.log("RUN TIMER IN SECOND PHASE", { winner: this.game_vars.winner });
                 if (!this.game_vars.winner) {
+                    this.game_vars.edit_event("new_value", "is_last_decision", false)
                     this.game_vars.edit_event("edit", "next_event", "chaos")
                     this.mainCycle()
                 }
             }
-            run_timer(10, () => { timer_func() })
+            run_timer(15, () => { timer_func() })
         }
 
     }
