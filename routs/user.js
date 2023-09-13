@@ -10,6 +10,7 @@ const { uid: uuid } = require("uid")
 const Helper = require("../helper/helper")
 const UserChannelConfig = require("../db/user_channel_config")
 const online_users_handler = require("../socket/online_users_handler")
+const Voice = require("../helper/live_kit_handler")
 //fetch data
 router.post("/land_screen_data", async (req, res) => {
     const { uid } = req.body.user
@@ -437,6 +438,14 @@ router.post("/lucky_wheel", async (req, res) => {
         data: { gold: selected_range?.gold || 10 }
     })
 
+})
+
+
+
+router.get("/test_room", async (req, res) => {
+    await Voice.start_room("test_mmd")
+    const token = Voice.join_room("mmd", "test_mmd")
+    res.json({ data: { token } })
 })
 
 
