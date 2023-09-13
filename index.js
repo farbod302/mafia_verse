@@ -27,8 +27,7 @@ const token_handler = (req, res, next) => {
 app.use(cors())
 app.use(bodyParser.json())
 app.use(token_handler)
-// mongoose.connect(process.env.DB)
-mongoose.connect("mongodb://localhost:27017/mafia")
+mongoose.connect(process.env.DB)
 
 
 
