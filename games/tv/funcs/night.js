@@ -3,6 +3,7 @@ const start = require("./start")
 const befor_start = require("./before_start")
 const { delay } = require("../../../helper/helper")
 const { character_translator } = require("../../../helper/helper")
+const data_handler = require("../../../games_temp_data/data_handler")
 
 const night = {
 
@@ -241,7 +242,7 @@ const night = {
     },
 
 
-    async night_results({ game_vars, records, users,socket,game_id }) {
+    async night_results({ game_vars, records, users, socket, game_id }) {
         const { carts } = game_vars
         let mafia_shot = records.find(act => act.act === "mafia_shot")
         let mafia_target = mafia_shot?.target || null
@@ -295,7 +296,7 @@ const night = {
 
         }
         let user_to_kill = abs_deth || deth
-        console.log({ abs_deth, deth });
+        data_handler.add_data(game_id, { user: "server", op: "night_result", data: { abs_deth, deth } })
         //todo : tell night over
 
         await delay(5)
@@ -309,7 +310,7 @@ const night = {
                 game_vars
             })
             const { player_status } = game_vars
-            console.log({player_status});
+            console.log({ player_status });
             socket.to(game_id).emit("game_action", { data: [player_status[index]] })
             game_vars.edit_event("push", "dead_list", user_to_kill)
             let prv_player_status = [...game_vars.player_status]

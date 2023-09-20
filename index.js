@@ -1,12 +1,12 @@
 const express = require('express');
 const app = express();
+require('dotenv').config()
 const http = require('http');
 const { Server } = require("socket.io");
 const cors = require("cors")
 const bodyParser = require("body-parser");
 const imports = require('./container/imports');
 const mongoose = require("mongoose");
-require('dotenv').config()
 const SocketProvider = require("./socket");
 const Jwt = require('./helper/jwt');
 const reject = require('./helper/reject_handler');
@@ -55,16 +55,16 @@ const middle = (req, res, next) => {
 app.use(middle)
 
 
-server.listen(process.env.PORT, () => { console.log("Server Run"); })
 
 keys.forEach(key => {
     app.use(`/${key}`, imports[key])
 });
+
 app.use("/files", express.static("./files"))
+server.listen(process.env.PORT, () => { console.log("Server Run"); })
 
 
 
 
 check_last_msgs()
 
-check_bad_words.check("کسکش مادر جنده ننتو گاییدم")

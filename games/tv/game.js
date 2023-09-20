@@ -13,6 +13,7 @@ const static_vars = require("./static_vars")
 const game_result = require("./funcs/game_result")
 const online_users_handler = require("../../socket/online_users_handler")
 const User = require("../../db/user")
+const data_handler = require("../../games_temp_data/data_handler")
 
 const Game = class {
     constructor({ game_id, users, socket, game_handlers, mod }) {
@@ -890,7 +891,8 @@ const Game = class {
         start.mafia_reval({
             game_vars: this.game_vars,
             users: this.users,
-            socket: this.socket
+            socket: this.socket,
+            game_id: this.game_id
         })
         const { game_id } = this
         this.socket.to(game_id).emit("report", { data: { msg: "مافیا در حال شناخت هم تییمی های خود هستند", timer: 3 } })
@@ -1081,6 +1083,7 @@ const Game = class {
             this.game_vars.edit_event("edit", "custom_queue", queue)
             this.game_vars.edit_event("edit", "speech_type", "final_words")
             this.game_vars.edit_event("edit", "turn", -1)
+            data_handler.add_data(this.game_id, { user: "server", op: "user_exit", data: { user_to_exit } })
         }
         else {
             this.game_vars.edit_event("edit", "next_event", "start_night")
@@ -1364,15 +1367,11 @@ const Game = class {
             console.log("WE HAVE ECUAL CITYSEN");
             this.game_vars.edit_event("new_value", "is_last_decision", true)
             const { user_id } = selected_user
-            console.log({ selected_user });
             let other_players = live_users.filter(e => e.user_id !== user_id).map(u => u.user_id)
-            console.log({ other_players, live_users });
             this.game_vars.edit_event("new_value", "last_decision", null)
             let socket_id = this.socket_finder(user_id)
-            console.log({ socket_id });
             this.socket.to(socket_id).emit("report", { data: { msg: "تصمیم نهایی با شماست.شهروند خود را انتخاب کنید", timer: 3 } })
             this.socket.to(socket_id).emit("last_decision", { data: { available_users: other_players } })
-            console.log("im emit to" + socket_id);
             const timer_func = () => {
                 console.log("RUN TIMER IN SECOND PHASE", { winner: this.game_vars.winner });
                 if (!this.game_vars.winner) {
@@ -1415,7 +1414,6 @@ const Game = class {
         this.socket.to(game_id).emit("game_event", { data: { game_event: "end" } })
         await Helper.delay(2)
         this.socket.to(game_id).emit("end_game_result", { data: report })
-        await Helper.delay(30)
         this.game_handlers.submit_finish_game(game_id)
 
         //finish game

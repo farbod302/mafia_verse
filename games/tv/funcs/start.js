@@ -3,6 +3,7 @@ const User = require("../../../db/user")
 const befor_start = require("./before_start")
 const run_timer = require("../../../helper/timer")
 const { encrypt } = require("../../../helper/helper")
+const data_handler = require("../../../games_temp_data/data_handler")
 const start = {
 
     async create_live_room({ game_id, socket, users, mod_user_id, mod_socket }) {
@@ -110,7 +111,7 @@ const start = {
         socket.to(challenge_user.socket_id).emit("accept_challenge")
     },
 
-    mafia_reval({ game_vars, users, socket }) {
+    mafia_reval({ game_vars, users, socket, game_id }) {
         const { carts } = game_vars
         const mafai_rols = ["godfather", "nato", "hostage_taker"]
         let users_pick_mafia = carts.filter(user => mafai_rols.includes(user.name))
@@ -125,13 +126,14 @@ const start = {
             }
         })
         game_vars.edit_event("new_value", "mafia_list", clean_mafia_detile)
+        data_handler.add_data(game_id, { user: "server", op: "mafia_list", data: { mafia_list: clean_mafia_detile } })
         mafia.forEach(user => {
             socket.to(user.socket_id).emit("mafia_visitation", { data: { mafia: encrypt(JSON.stringify(clean_mafia_detile)) } })
         })
         game_vars.edit_event("edit", "speech_type", "turn")
         game_vars.edit_event("edit", "reval", true)
-        game_vars.edit_event("edit", "next_event", "start_speech")
-        // game_vars.edit_event("edit", "next_event", "chaos")
+        // game_vars.edit_event("edit", "next_event", "start_speech")
+        game_vars.edit_event("edit", "next_event", "start_night")
         game_vars.edit_event("edit", "can_take_challenge", true)
     },
 

@@ -4,6 +4,7 @@ const find_match = require("./find_match")
 const handel_disconnect = require("./disconnect")
 const channel_socket_handler = require("./channel")
 const online_users_handler = require("./online_users_handler")
+const data_handler = require("../games_temp_data/data_handler")
 
 const SocketProvider = class {
 
@@ -19,19 +20,16 @@ const SocketProvider = class {
         online_users_handler.reset()
         this.io.on("connection", (client) => {
             client.on("join", ({ token }) => { join_handler({ token, db: this.db, client, socket: this.io }) })
-            client.on("find_match", ({auth}) => { find_match.find_robot_game({ senario:"nato", client, db: this.db, socket: this.io ,auth}) })
+            client.on("find_match", ({ auth }) => { find_match.find_robot_game({ senario: "nato", client, db: this.db, socket: this.io, auth }) })
             client.on("leave_find", () => { find_match.leave_find({ client, db: this.db, socket: this.io }) })
             client.on("game_handle", ({ op, data }) => {
-                console.log({op});
                 let game_id = client.game_id
-                console.log({game_id});
                 let user_game = null
                 if (game_id) { user_game = this.db.getOne("games", "game_id", game_id) }
                 else {
                     const games = this.db.getAll("games")
                     user_game = games.find(game => {
-                        const users=game.game_class.get_users()
-                        console.log({users});
+                        const users = game.game_class.get_users()
                         let ids = users.map(user => user.user_id)
                         if (game.mod) {
                             ids = ids.concat(game.mod)
@@ -42,8 +40,8 @@ const SocketProvider = class {
                         }
                     })
                 }
-                // console.log({user_game:user_game.game_id,op,data,client:client.idenity});
                 if (!user_game) return
+                data_handler.add_data(user_game.game_id, { user: client.idenity.user_id, op, received_data: data })
                 user_game.game_class.player_action({ op, data, client })
             })
             client.on("channel_handle", ({ op, data }) => {
@@ -88,6 +86,13 @@ const SocketProvider = class {
                 if (!user_game) return
                 client.game_id = ""
                 user_game.game_class.player_abandon({ client: client.idenity })
+            })
+
+            client.on("user_end_game", () => {
+                const game_id=client.game_id
+                if(!game_id)return
+                client.leave(game_id)
+                client.game_id=null
             })
         })
 

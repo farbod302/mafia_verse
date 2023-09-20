@@ -38,7 +38,6 @@ const find_match = {
         let available_games = db.filterModel("games_queue", "auth", auth)
         let choosen_game = available_games.find(e => e.remain >= party_players_count)
         if (!choosen_game) {
-            console.log("game created");
             //create game queue
             let game_id = uuid(4)
             let new_game = {
@@ -81,7 +80,6 @@ const find_match = {
 
 
     async find_mod_game({ senario, client, db, socket, creator }) {
-        console.log({creator},"in find mod");
         senario = "tv"
         const party_id = client.idenity?.party_id
         if (!party_id) return

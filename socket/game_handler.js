@@ -1,4 +1,5 @@
 const Game = require("../games/tv/game")
+const data_handler = require("../games_temp_data/data_handler")
 const online_users_handler = require("./online_users_handler")
 
 const game_handler = {
@@ -19,8 +20,10 @@ const game_handler = {
                 db.removeOne("disconnect", "user_id", user_id)
             },
             submit_finish_game(game_id) {
-                console.log("game finish", { game_id });
+                console.log("run for remove game" , game_id);
                 db.removeOne("games", "game_id", game_id)
+                console.log(db.getAll("games"));
+                db.removeOne("disconnect", "game_id", game_id)
             }
 
         }
@@ -32,7 +35,7 @@ const game_handler = {
             mod
         })
         db.add_data("games", { ...new_game, game_class: game })
-
+        data_handler.create_game(game_id)
         users.forEach(user => {
             let user_socket = online_users_handler.get_user_socket_id(user.user_id)
             socket.sockets.sockets.get(user_socket).join(game_id);
