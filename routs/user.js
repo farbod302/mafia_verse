@@ -443,8 +443,9 @@ router.post("/lucky_wheel", async (req, res) => {
 
 
 router.get("/test_room", async (req, res) => {
-    await Voice.start_room("test_mmd")
-    const token = Voice.join_room("mmd", "test_mmd")
+    const {name}=req.body
+    await Voice.start_room(name)
+    const token = Voice.join_room("mmd", name)
     res.json({ data: { token } })
 })
 
