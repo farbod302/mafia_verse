@@ -855,7 +855,10 @@ const Game = class {
         const { user_id } = user
         let socket_id = this.socket_finder(user_id)
         this.socket.to(socket_id).emit("start_speech")
-        other_users.forEach(u => { this.socket.to(u.socket_id).emit("game_event", { data: { game_event: "action" } }) })
+        other_users.forEach(u => { 
+            const s_user_socket=this.socket_finder(u.user_id)
+            this.socket.to(s_user_socket).emit("game_event", { data: { game_event: "action" } })
+         })
         // edit game action
         const index = queue[turn].user_index
         start.edit_game_action({

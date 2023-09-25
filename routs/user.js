@@ -431,7 +431,6 @@ router.post("/lucky_wheel", async (req, res) => {
     const random_num = Math.floor(Math.random() * 100) + 1
     const selected_range = wheel_items.find(e => e.start < random_num && e.end >= random_num)
     await User.findOneAndUpdate({ uid: user.uid }, { $set: { lucky_wheel_status: Date.now() + (1000 * 60 * 60 * 12) } })
-    console.log({ selected_range, random_num });
     res.json({
         status: true,
         msg: "",
