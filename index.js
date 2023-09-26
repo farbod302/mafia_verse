@@ -1,4 +1,5 @@
 const express = require('express');
+const fs = require("fs")
 const app = express();
 require('dotenv').config()
 const http = require('http');
@@ -61,6 +62,7 @@ keys.forEach(key => {
 });
 
 app.use("/files", express.static("./files"))
+app.use("/characters", express.static("./characters"))
 server.listen(process.env.PORT, () => { console.log("Server Run"); })
 
 
@@ -68,3 +70,23 @@ server.listen(process.env.PORT, () => { console.log("Server Run"); })
 
 check_last_msgs()
 
+
+
+
+// const clean_deck = () => {
+//     const deck = fs.readFileSync("./games/local/deck.json")
+//     let deck_json = JSON.parse(deck.toString())
+//     const clean_deck = deck_json.map(d => {
+//         const { id, mafia, solo, icon, info } = d
+//         const { name, description } = info.fa
+//         return {
+//             id, side: mafia ? "mafia" : solo ? "solo" : "Citizen",
+//             icon: "http://192.168.43.161:4090/characters/" + icon,
+//             name, description,
+//             multi: false
+//         }
+//     })
+//     fs.writeFileSync("./games/local/clean_deck.json", JSON.stringify(clean_deck))
+// }
+
+// clean_deck()
