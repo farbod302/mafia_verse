@@ -814,7 +814,6 @@ const Game = class {
         }
         // emit current_speech
         let time = static_vars.speech_time[speech_type]
-        console.log({ time });
         let cur_speech = queue[turn]
         this.socket.to(game_id).emit("current_speech", {
             current: cur_speech.user_id,
@@ -860,7 +859,8 @@ const Game = class {
             this.socket.to(s_user_socket).emit("game_event", { data: { game_event: "action" } })
          })
         // edit game action
-        const index = queue[turn].user_index
+        const index =this.users.findIndex(e=>e.user_id === user_id)
+        console.log({index});
         start.edit_game_action({
             index,
             prime_event: "user_status",
