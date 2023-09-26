@@ -84,7 +84,6 @@ const start = {
                 let user = befor_start.pick_player_from_user_id({ users, user_id: player_to_set_timer })
                 const { socket_id } = user
                 socket.to(socket_id).emit("speech_time_up")
-                console.log("TIMER RUN");
                 func()
             }
         }
@@ -139,7 +138,6 @@ const start = {
 
 
     generate_report({ game_vars, report_type, socket, game_id }) {
-        console.log("REPORT GENERATED");
         const { report_data } = game_vars
         const { user_id, msg } = report_data
         raw_reports = {
@@ -168,7 +166,6 @@ const start = {
 
 
     use_gun({ game_vars, user_shot, user_resive_shot, socket, game_id, users }) {
-        console.log({ user_resive_shot, users });
         const { gun_status } = game_vars
         let selected_gun = gun_status.findIndex(g => g.user_id === user_shot)
         const { gun_type } = gun_status[selected_gun]

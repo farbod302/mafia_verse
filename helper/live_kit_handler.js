@@ -2,10 +2,7 @@ const livekitApi = require('livekit-server-sdk');
 const AccessToken = livekitApi.AccessToken;
 const RoomServiceClient = livekitApi.RoomServiceClient;
 const livekitHost = "http://mafia.altf1.ir:7880"
-console.log(
-    process.env.LIVEKIT_SEC,
-    process.env.LIVEKIT_API
-);
+
 const svc = new RoomServiceClient(livekitHost, process.env.LIVEKIT_API, process.env.LIVEKIT_SEC,);
 
 
@@ -17,8 +14,7 @@ const Voice = {
             emptyTimeout: 1 * 60,
         };
         try {
-            const res=await svc.createRoom(opts)
-            console.log(res);
+            await svc.createRoom(opts)
         }
         catch (err) {
             console.log(err);

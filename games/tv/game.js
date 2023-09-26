@@ -97,7 +97,6 @@ const Game = class {
     }
 
     re_connect_mod({ client }) {
-        console.log("RECONECT MOOOOOOOOOOOOOOOOOOOOOOOOD");
         const { is_live, carts } = this.game_vars
         if (!is_live) {
             this.game_vars.edit_event("push", "reconnect_queue", { client, is_mod: true })
@@ -114,13 +113,11 @@ const Game = class {
                 }
             })
             let user_socket = this.socket_finder(client.user_id)
-            console.log({ mod_reconnect_data: { ...data, roles, join_type: "moderator" } });
             this.socket.to(user_socket).emit("reconnect_data", { data: { ...data, roles, join_type: "moderator" } })
         }
     }
 
     player_abandon({ client }) {
-        console.log("ABENDOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOON");
         const { is_live } = this.game_vars
         const { game_id } = this
         if (!is_live) {
@@ -142,14 +139,12 @@ const Game = class {
             this.game_handlers.submit_player_abandon({ user_id: client.user_id })
             const new_users = this.users.filter(e => e.user_id !== client.user_id)
             this.users = new_users
-            console.log({ new_users });
         }
 
     }
 
     check_for_abandon() {
         const { is_live, abandon_queue } = this.game_vars
-        console.log({ abandon_queue });
         if (!is_live) return
         for (let user of abandon_queue) {
             this.player_abandon({ client: user })
@@ -217,7 +212,6 @@ const Game = class {
                 })
                 const { player_status } = this.game_vars
                 this.socket.to(game_id).emit("game_action", { data: [player_status[index]] })
-                console.log({ player_status: player_status[1] });
                 start.edit_game_action({
                     index,
                     prime_event: "user_action",
@@ -339,7 +333,6 @@ const Game = class {
             }
             case ("mafia_decision"): {
                 const { shot } = data
-                console.log({ shot });
                 let decision = shot ? "mafia_shot" : "use_nato"
                 this.game_vars.edit_event("edit", "next_event", decision)
                 night.emit_to_mod({
@@ -418,7 +411,6 @@ const Game = class {
                 }
                 this.game_vars.edit_event("edit", "target_cover_queue", new_target_cover_queue)
                 let index = this.users.findIndex(e => e.user_id === user_id)
-                console.log({ index });
                 start.edit_game_action({
                     index,
                     prime_event: "user_action",
@@ -429,7 +421,6 @@ const Game = class {
                 })
                 const { game_id } = this
                 let status_list = this.game_vars.player_status
-                console.log({ status_list: status_list[1] });
                 this.socket.to(game_id).emit("game_action", { data: [status_list[index]] })
                 start.edit_game_action({
                     index,
@@ -490,7 +481,6 @@ const Game = class {
                     const { user_id } = data
                     this.game_vars.edit_event("push", "chaos_vots", user_id)
                     const { user_id: user_voted } = client.idenity
-                    console.log({ user_id, user_voted });
                     const { game_id } = this
                     this.socket.to(game_id).emit("chaos_vote_result", { data: { from_user: user_voted, to_user: user_id } })
                     this.mainCycle()
@@ -541,13 +531,9 @@ const Game = class {
             }
             case ("mod_speaking"): {
                 const { speaking } = data
-                console.log({ speaking });
                 const { game_id } = this
 
-                console.log({
-                    connected: this.game_vars.mod_status.connected,
-                    speaking
-                });
+               
                 this.socket.to(game_id).emit("mod_status", {
                     data: {
                         connected: this.game_vars.mod_status.connected,
@@ -559,7 +545,6 @@ const Game = class {
 
             case ("mod_kick"): {
                 const { user_id } = data
-                console.log({ user_id });
                 const { turn } = this.game_vars
                 let index = this.users.findIndex(user => user.user_id === user_id)
                 start.edit_game_action({
@@ -573,14 +558,11 @@ const Game = class {
                 let status_list = this.game_vars.player_status
                 this.socket.to(game_id).emit("game_action", { data: [status_list[index]] })
                 let new_queue = [...this.game_vars.queue]
-                console.log({ queue: new_queue[turn] });
                 if (new_queue[turn].user_id === user_id) {
                     this.mainCycle()
-                    console.log("cycle");
                 }
                 else {
                     new_queue = new_queue.filter(e => e.user_id !== user_id)
-                    console.log({ new_queue });
                     this.game_vars.edit_event("edit", "queue", new_queue)
                 }
                 break
@@ -634,7 +616,6 @@ const Game = class {
         //handel_reconnect queue
         this.socket.to(game_id).emit("users_data", { data: user_data })
         this.socket.to(game_id).emit("mod_data", mod ? { data: mod_data[0] } : { data: null })
-        console.log(Date.now());
         await Helper.delay(2)
 
         if (mod) {
@@ -646,7 +627,6 @@ const Game = class {
                 }
             })
             this.socket.to(mod_socket).emit("mod_characters", { data: roles })
-            console.log(Date.now());
         }
         this.socket.to(game_id).emit("game_event", { data: { game_event: time } })
         befor_start.player_status_generate({ game_vars: this.game_vars })
@@ -736,7 +716,6 @@ const Game = class {
         const { queue, turn, can_take_challenge, speech_type, reval, player_reval, carts } = this.game_vars
         //check player reval
         if (player_reval && player_reval.turn === turn) {
-            console.log({ player_reval });
             const { user_id } = player_reval
             let player_roule = carts.find(c => c.user_id === user_id)
             const { name, id } = player_roule
@@ -761,7 +740,6 @@ const Game = class {
         }
 
         if (queue.length === turn) {
-            console.log("end");
 
             start.edit_game_action({
                 index: queue[turn - 1].user_index,
@@ -776,7 +754,6 @@ const Game = class {
             this.socket.to(game_id).emit("game_action", { data: [player_status[queue[turn - 1].user_index]] })
             this.socket.to(game_id).emit("current_speech_end")
             if (speech_type === "chaos") {
-                console.log("CHAOS SPEECH END");
                 this.game_vars.edit_event("edit", "next_event", "chaos_speech_second_phase")
                 this.mainCycle()
                 return
@@ -784,7 +761,6 @@ const Game = class {
             //end speech
             if (speech_type === "final_words") {
                 let game_result_check = night.check_next_day({ game_vars: this.game_vars })
-                console.log({ game_result_check });
                 if (game_result_check === 4 || game_result_check === 3) {
 
                     this.game_vars.edit_event("edit", "next_event", "start_night")
@@ -794,7 +770,6 @@ const Game = class {
                 }
                 else {
                     let winner = game_result_check === 2 ? "mafia" : "citizen"
-                    console.log({ winner });
                     this.game_vars.edit_event("edit", "winner", winner)
                     this.game_vars.edit_event("edit", "next_event", "end_game")
                     this.mainCycle()
@@ -927,12 +902,10 @@ const Game = class {
 
 
     next_player_vote_time() {
-        console.log("NEXT PLAYER VOTE RUN");
         this.game_vars.edit_event("edit", "turn", "plus")
         const { turn, queue, vote_type } = this.game_vars
         if (turn == queue.length) {
             if (vote_type === "inquiry") {
-                console.log("VOTE TYPE INQUIRY");
                 let live_users = start.pick_live_users({ game_vars: this.game_vars })
                 const { votes_status } = this.game_vars
                 let users_voted = votes_status[0].users.length
@@ -955,7 +928,6 @@ const Game = class {
             }
         } else {
             let cycle = () => { this.mainCycle() }
-            console.log("VOTE TIMER RUN");
             vote.next_player_vote_turn({
                 game_vars: this.game_vars,
                 socket: this.socket,
@@ -972,7 +944,6 @@ const Game = class {
     }
 
     enable_target_cover() {
-        console.log("enable_target_cover");
         targetCover.enable_target_cover({ game_vars: this.game_vars, user: this.users })
         this.game_vars.edit_event("edit", "next_event", "next_player_target_cover")
         this.game_vars.edit_event("edit", "cur_event", "target_cover")
@@ -985,7 +956,6 @@ const Game = class {
         let turn = target_cover_queue.findIndex(q => !q.comp)
         if (turn === -1) {
             //end target cover
-            console.log("END TARGET COVER");
             vote.arrange_queue_after_target_cover({ game_vars: this.game_vars, users: this.users })
             this.game_vars.edit_event("edit", "cur_event", "speech")
             this.mainCycle()
@@ -1007,7 +977,6 @@ const Game = class {
                     let new_target_cover = [...target_cover_queue]
                     new_target_cover[turn].comp = true
                     this.game_vars.edit_event("edit", "target_cover_queue", new_target_cover)
-                    console.log("PLAYER DENY");
                     this.mainCycle()
                 }
             }
@@ -1022,12 +991,10 @@ const Game = class {
         }
         if (target_cover_queue[turn].permission === true) {
             let selected = { ...target_cover_queue[turn] }
-            console.log({ selected });
             let choose_type = null
             if (selected.users_select_length === 1) choose_type = "about"
             if (selected.users_select_length === 2 && selected.users_select.length === 0) choose_type = "target"
             if (selected.users_select_length === 2 && selected.users_select.length === 1) choose_type = "cover"
-            console.log({ choose_type });
             const translate = () => {
                 switch (choose_type) {
                     case ("target"): return "تارگت"
@@ -1099,7 +1066,6 @@ const Game = class {
         this.game_vars.edit_event("edit", "inquiry_used", "plus")
         let inquiry_res = start.inquiry({ game_vars: this.game_vars })
         const { game_id } = this
-        console.log(" inquiry_res CALL", inquiry_res);
         this.socket.to(game_id).emit("day_inquiry_result", { data: { msg: inquiry_res, timer: 7 } })
         await Helper.delay(5)
         this.game_vars.edit_event("edit", "custom_queue", [])
@@ -1254,7 +1220,6 @@ const Game = class {
         const { chaos_run_count } = this.game_vars
         this.game_vars.edit_event("edit", "chaos_vots", [])
         if (chaos_run_count === 2) {
-            console.log("RANDOMIZE CALL");
             //random user
             return
         }
@@ -1274,7 +1239,6 @@ const Game = class {
 
 
     async chaos_speech_second_phase() {
-        console.log("CHAOS SECOND PHASE");
         const { game_id } = this
         this.socket.to(game_id).emit("report", { data: { msg: "صحبت دسته جمعی", timer: 3 } })
         await Helper.delay(3)
@@ -1341,7 +1305,6 @@ const Game = class {
         this.socket.to(socket_id).emit("chaos_vote", { data: { available_users: av_users.map(e => e.user_id) } })
         let restart_vote = (game_vars, require_vote, mainCycle) => {
             const { chaos_vots } = game_vars
-            console.log({ require_vote, chaos_vots });
             if (chaos_vots.length < Number(require_vote)) {
                 game_vars.edit_event("edit", "next_event", "chaos")
                 mainCycle()
@@ -1353,7 +1316,6 @@ const Game = class {
     }
 
     chaos_result_second_phase() {
-        console.log("CHAOS RESULT SECOND PHASE");
         const { chaos_vots } = this.game_vars
         let live_users = start.pick_live_users({ game_vars: this.game_vars })
         const selected_user = live_users.find(user => {
@@ -1367,7 +1329,6 @@ const Game = class {
             return
         }
         else {
-            console.log("WE HAVE ECUAL CITYSEN");
             this.game_vars.edit_event("new_value", "is_last_decision", true)
             const { user_id } = selected_user
             let other_players = live_users.filter(e => e.user_id !== user_id).map(u => u.user_id)
@@ -1376,7 +1337,6 @@ const Game = class {
             this.socket.to(socket_id).emit("report", { data: { msg: "تصمیم نهایی با شماست.شهروند خود را انتخاب کنید", timer: 3 } })
             this.socket.to(socket_id).emit("last_decision", { data: { available_users: other_players } })
             const timer_func = () => {
-                console.log("RUN TIMER IN SECOND PHASE", { winner: this.game_vars.winner });
                 if (!this.game_vars.winner) {
                     this.game_vars.edit_event("new_value", "is_last_decision", false)
                     this.game_vars.edit_event("edit", "next_event", "chaos")

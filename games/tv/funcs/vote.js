@@ -19,11 +19,9 @@ const vote = {
 
     },
     async next_player_vote_turn({ game_vars, socket, game_id, cycle, users }) {
-        console.log("VOTE ADD");
         const { queue, turn, vote_type, custom_queue } = game_vars
         let new_vote_record = { user_id: queue[turn].user_id, users: [], vote_type, timer: 5 }
         const s_player = queue[turn]
-        console.log({ s_player });
         game_vars.edit_event("push", "votes_status", new_vote_record)
         // socket.to(game_id).emit("vote", { data: new_vote_record })
         // vote to player
@@ -43,10 +41,8 @@ const vote = {
         run_timer(10, cycle)
     },
     submit_vote({ client, socket, game_vars, game_id }) {
-        console.log(`vote submited from ${client.idenity.user_id}`);
         const { votes_status } = game_vars
         let turn = votes_status.length - 1
-        console.log({ turn });
         let new_vote_status = [...votes_status]
         new_vote_status[turn].users.push(client.idenity.user_id)
         game_vars.edit_event("edit", "votes_status", new_vote_status)
@@ -106,7 +102,6 @@ const vote = {
         })
         game_vars.edit_event("edit", "custom_queue", speech_queue)
         game_vars.edit_event("edit", "next_event", "start_speech")
-        console.log({ speech_queue });
 
     },
 
@@ -121,7 +116,6 @@ const vote = {
         user_to_exit = null
         if (users_with_same_vote.length === 1) {
             user_to_exit = users_with_same_vote[0]
-            console.log({ user_to_exit });
         }
         else {
             let { defence_history } = game_vars

@@ -96,7 +96,6 @@ const night = {
 
     mafia_shot({ game_vars, socket }) {
         let { socket_id, user_id } = game_vars.user_to_shot
-        console.log({ user_id }, "mafia shot");
         socket.to(socket_id).emit("mafia_shot", {
             timer: 10,
             max: 1,
@@ -133,14 +132,12 @@ const night = {
         hostage_taker_act = hostage_taker_act.map(target => target.target)
         switch (name) {
             case ("commando"): {
-                console.log(records.events);
                 let mafia_shot = records.events.find(each_act => each_act.act === "mafia_shot")
                 mafia_shot = mafia_shot?.target || null
                 //check _shot
                 let can_act = false
                 let msg = "شما نمی توانید امشب از توانایی خود استفاده کنید"
                 let is_targeted = mafia_shot === user_id
-                console.log({ mafia_shot, user_id });
                 if (is_targeted) { can_act = true; msg = "" }
                 if (hostage_taker_act.includes(user_id) && is_targeted) {
                     can_act = false;
@@ -220,7 +217,6 @@ const night = {
             }
             case ("rifleman"): {
                 // game_vars.edit_event("edit", "gun_status", targets)
-                console.log({ targets });
                 let real_gun = targets.find(gun => gun.act === "fighter")
                 if (real_gun) game_vars.edit_event("edit", "real_gun_used", true)
                 targets.forEach(target => {
@@ -310,14 +306,12 @@ const night = {
                 game_vars
             })
             const { player_status } = game_vars
-            console.log({ player_status });
             socket.to(game_id).emit("game_action", { data: [player_status[index]] })
             game_vars.edit_event("push", "dead_list", user_to_kill)
             let prv_player_status = [...game_vars.player_status]
             let user_index = prv_player_status.findIndex(u => u.user_id === user_to_kill)
             prv_player_status[user_index].user_status.is_alive = false
             game_vars.edit_event("edit", "player_status", prv_player_status)
-            console.log({ prv_player_status });
             game_vars.edit_event("edit", "report_data",
                 {
                     user_id: user_to_kill,
@@ -357,7 +351,6 @@ const night = {
     check_next_day({ game_vars }) {
         // return 4
         let live_users = start.pick_live_users({ game_vars })
-        console.log({ live_users });
         const { carts } = game_vars
         let mafia_rols = ["godfather", "nato", "hostage_taker"]
         let live_users_with_role = live_users.map(user => {
@@ -378,7 +371,6 @@ const night = {
 
 
     async next_day({ game_vars, socket, game_id }) {
-        console.log("NEXT DAY");
         game_vars.edit_event("edit", "day", "plus")
         game_vars.edit_event("edit", "time", "day")
         socket.to(game_id).emit("game_event", { data: { game_event: "day" } })
