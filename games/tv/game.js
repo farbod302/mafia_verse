@@ -522,9 +522,11 @@ const Game = class {
             case ("end_game_free_speech"): {
                 const { user_id, is_talking } = data
                 const { game_id } = this
+                console.log({ data });
                 let prv_speech_status = [...this.game_vars.end_game_speech]
                 let index = prv_speech_status.findIndex(e => e.user_id === user_id)
                 prv_speech_status[index].is_talking = is_talking
+                console.log({ prv_speech_status });
                 this.game_vars.edit_event("edit", "end_game_speech", prv_speech_status)
                 this.socket.to(game_id).emit("end_game_free_speech", { data: prv_speech_status })
                 break
@@ -533,7 +535,7 @@ const Game = class {
                 const { speaking } = data
                 const { game_id } = this
 
-               
+
                 this.socket.to(game_id).emit("mod_status", {
                     data: {
                         connected: this.game_vars.mod_status.connected,
@@ -614,9 +616,12 @@ const Game = class {
 
         this.game_vars.edit_event("edit", "is_live", true)
         //handel_reconnect queue
+        await Helper.delay(2)
         this.socket.to(game_id).emit("users_data", { data: user_data })
+        await Helper.delay(2)
         this.socket.to(game_id).emit("mod_data", mod ? { data: mod_data[0] } : { data: null })
         await Helper.delay(2)
+
 
         if (mod) {
             let mod_socket = this.socket_finder(mod)
@@ -740,9 +745,9 @@ const Game = class {
         }
 
         if (queue.length === turn) {
-
+            const index = this.users.findIndex(e => e.user_id === queue[turn - 1].user_id)
             start.edit_game_action({
-                index: queue[turn - 1].user_index,
+                index,
                 prime_event: "user_status",
                 second_event: "is_talking",
                 new_value: false,
@@ -751,7 +756,7 @@ const Game = class {
             })
             this.game_vars.edit_event("edit", "speech_code", "")
             const { player_status } = this.game_vars
-            this.socket.to(game_id).emit("game_action", { data: [player_status[queue[turn - 1].user_index]] })
+            this.socket.to(game_id).emit("game_action", { data: [player_status[index]] })
             this.socket.to(game_id).emit("current_speech_end")
             if (speech_type === "chaos") {
                 this.game_vars.edit_event("edit", "next_event", "chaos_speech_second_phase")
@@ -829,13 +834,13 @@ const Game = class {
         const { user_id } = user
         let socket_id = this.socket_finder(user_id)
         this.socket.to(socket_id).emit("start_speech")
-        other_users.forEach(u => { 
-            const s_user_socket=this.socket_finder(u.user_id)
+        other_users.forEach(u => {
+            const s_user_socket = this.socket_finder(u.user_id)
             this.socket.to(s_user_socket).emit("game_event", { data: { game_event: "action" } })
-         })
+        })
         // edit game action
-        const index =this.users.findIndex(e=>e.user_id === user_id)
-        console.log({index});
+        const index = this.users.findIndex(e => e.user_id === user_id)
+        console.log({ index });
         start.edit_game_action({
             index,
             prime_event: "user_status",
@@ -1130,11 +1135,12 @@ const Game = class {
     mafia_shot() {
         night.mafia_shot({
             game_vars: this.game_vars,
-            socket: this.socket
+            socket: this.socket,
+            socket_finder: this.socket_finder
         })
         this.game_vars.edit_event("edit", "next_event", "other_acts")
         const timer_func = () => { this.mainCycle() }
-        run_timer(5, timer_func)
+        run_timer(15, timer_func)
 
 
     }

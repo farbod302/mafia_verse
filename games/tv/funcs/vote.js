@@ -72,7 +72,6 @@ const vote = {
                 game_vars.edit_event("edit", "queue", defenders_queue)
                 game_vars.edit_event("edit", "next_event", "enable_target_cover")
                 game_vars.edit_event("edit", "turn", -1)
-
             }
 
 

@@ -94,10 +94,11 @@ const night = {
 
     },
 
-    mafia_shot({ game_vars, socket }) {
-        let { socket_id, user_id } = game_vars.user_to_shot
+    mafia_shot({ game_vars, socket, socket_finder }) {
+        let { user_id } = game_vars.user_to_shot
+        const socket_id = socket_finder(user_id)
         socket.to(socket_id).emit("mafia_shot", {
-            timer: 10,
+            timer: 15,
             max: 1,
             availabel_users: this.pick_user_for_act({ game_vars, act: "mafia", user_id })
         })
@@ -171,13 +172,13 @@ const night = {
                 }
                 return live_users.map(user => user.user_id)
             }
-            // case ("mafia"): {
-            //     const { mafia_list } = game_vars
-            //     let mafia_ids = mafia_list.map(user => user.user_id)
-            //     let live_users = start.pick_live_users({ game_vars })
-            //     live_users = live_users.filter(user => !mafia_ids.includes(user.user_id))
-            //     return live_users
-            // }
+            case ("mafia"): {
+                const { mafia_list } = game_vars
+                let mafia_ids = mafia_list.map(user => user.user_id)
+                let live_users = start.pick_live_users({ game_vars })
+                live_users = live_users.filter(user => !mafia_ids.includes(user.user_id))
+                return live_users.map(e => e.user_id)
+            }
 
             case ("detective"): {
                 const { users_gurd_check } = game_vars
@@ -198,7 +199,8 @@ const night = {
     night_act_handler({ user_id, game_vars, act, targets, socket, idenity, users }) {
         switch (act) {
             case ("doctor"): {
-                if (targets.includes(user_id)) { game_vars.edit_event("edit", "doctor_self_save", true) }
+                const targets_user_id = targets.map(e => e.user_id)
+                if (targets_user_id.includes(user_id)) { game_vars.edit_event("edit", "doctor_self_save", true) }
                 return
             }
             case ("detective"): {
@@ -251,7 +253,7 @@ const night = {
             //check comondo act
             const comondo_act = records.find(act => act.act === "commando")
             if (comondo_act) {
-                const comondo_shot = comondo_act.targets[0]
+                const comondo_shot = comondo_act?.target
                 if (comondo_shot) {
                     let user_targeted_by_comondo = carts.find(cart => cart.user_id === comondo_shot)
                     let mafia_rols = ["godfather", "nato", "hostage_taker"]
