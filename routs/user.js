@@ -442,11 +442,26 @@ router.post("/lucky_wheel", async (req, res) => {
 
 
 router.post("/test_room", async (req, res) => {
-    const {name}=req.body
+    const { name } = req.body
     await Voice.start_room("test_mmd")
     const token = Voice.join_room(name, "test_mmd")
     res.json({ data: { token } })
 })
 
+
+
+
+router.post("/user_profile", async (req, res) => {
+    const { user_id } = req.body
+    const s_user = await User.findOne({ uid: user_id })
+    const { idenity, session_rank, ranking, avatar, points } = s_user
+    const { win, lose } = points
+    const data = { idenity, session_rank, ranking, avatar, win, lose }
+    res.json({
+        status: true,
+        msg: "",
+        data
+    })
+})
 
 module.exports = router
