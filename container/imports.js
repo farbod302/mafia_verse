@@ -5,6 +5,7 @@ const imports = {
     items:require("../routs/items"),
     channel:require("../routs/channel"),
     report:require("../routs/report"),
+    ranking:require("../routs/reanking"),
 }
 
 module.exports=imports
