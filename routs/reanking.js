@@ -7,7 +7,7 @@ router.get("/", async (req, res) => {
     const ranking = await User.find({}).sort({ session_rank: 1 }).limit(50)
     const clean_ranking = ranking.map(user => {
         const { idenity, session_rank, ranking, avatar,points } = user
-        const {win,lose}=poin
+        const {win,lose}=points
         return { idenity, session_rank, ranking, avatar,win,lose }
     })
     res.json({
