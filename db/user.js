@@ -22,6 +22,7 @@ const user = mongoose.Schema({
         }
     },
     ranking: { type: Object, default: { xp: 0, rank: 1500, medal: 0 } },
+    session_rank: { type: Number, default: 1500 },
     achivments: { type: Array, default: [] },
     items: { type: Array, default: [] },
     friend_list: { type: Array, default: [] },

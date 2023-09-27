@@ -1369,6 +1369,7 @@ const Game = class {
             return User.findOneAndUpdate({ uid: update.user_id }, {
                 $inc: {
                     "ranking.rank": update.point,
+                    "session_rank": update.point,
                     "ranking.xp": update.xp,
                     [key]: 1
                 }
