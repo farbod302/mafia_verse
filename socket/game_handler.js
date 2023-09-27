@@ -20,10 +20,11 @@ const game_handler = {
                 db.removeOne("disconnect", "user_id", user_id)
             },
             submit_finish_game(game_id) {
-                console.log("run for remove game" , game_id);
-                db.removeOne("games", "game_id", game_id)
-                console.log(db.getAll("games"));
+
                 db.removeOne("disconnect", "game_id", game_id)
+                setTimeout(() => {
+                    db.removeOne("games", "game_id", game_id)
+                }, 1000 * 60 * 2)
             }
 
         }

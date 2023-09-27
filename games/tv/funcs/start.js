@@ -19,10 +19,10 @@ const start = {
     },
 
     async create_room_for_mafia({ mafia, socket, room_id }) {
-        await Voice.start_room(room_id)
+        const room_status=await Voice.start_room(room_id)
         for (let user of mafia) {
             const { user_id, socket_id } = user
-            let token = Voice.join_room(user_id, game_id)
+            let token = Voice.join_room(user_id, room_id)
             socket.to(socket_id).emit("mafia_speech", { token })
         }
 
@@ -131,8 +131,8 @@ const start = {
         })
         game_vars.edit_event("edit", "speech_type", "turn")
         game_vars.edit_event("edit", "reval", true)
-        game_vars.edit_event("edit", "next_event", "start_speech")
-        // game_vars.edit_event("edit", "next_event", "start_night")
+        // game_vars.edit_event("edit", "next_event", "start_speech")
+        game_vars.edit_event("edit", "next_event", "start_night")
         game_vars.edit_event("edit", "can_take_challenge", true)
     },
 

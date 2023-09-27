@@ -9,11 +9,11 @@ const night = {
 
     async generate_room_for_mafia({ game_vars, users, socket }) {
         const { carts } = game_vars
-        const mafai_rols = ["godfather", "nato"]
-        let users_pick_mafia = carts.filter(user => mafai_rols.includes(user.name))
+        const mafia_roles = ["godfather", "nato"]
+        let users_pick_mafia = carts.filter(user => mafia_roles.includes(user.name))
         let random_room_id = uid(4)
         let users_pick_mafia_ids = users_pick_mafia.map(user => user.user_id)
-        let mafia = users.filter(user => users_pick_mafia_ids.includes(user.uid))
+        let mafia = users.filter(user => users_pick_mafia_ids.includes(user.user_id))
         await start.create_room_for_mafia({ mafia, socket, room_id: random_room_id })
 
     },
@@ -56,7 +56,8 @@ const night = {
             users_can_cop.includes(mafia.role) &&
             !dead_list.includes(mafia.user_id))
         if (speech_list.length === 2) {
-            // await this.generate_room_for_mafia({ game_vars, users, socket })
+            console.log("mafia speech");
+            await this.generate_room_for_mafia({ game_vars, users, socket })
             game_vars.edit_event("edit", "mafia_speak", true)
         }
         await delay(5)
@@ -163,6 +164,8 @@ const night = {
     },
 
     pick_user_for_act({ game_vars, act, user_id }) {
+        const mafia_acts=["mafia","nato","hostage_taker"]
+        if(mafia_acts.includes(act))act="mafia"
         switch (act) {
             case ("doctor"): {
                 let live_users = start.pick_live_users({ game_vars })

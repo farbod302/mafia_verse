@@ -38,7 +38,7 @@ const Game = class {
     submit_user_disconnect({ client }) {
         const { user_id } = client.idenity
         let index = this.users.findIndex(user => user.user_id === user_id)
-        if (index > -1) {
+        if (index > -1 && this.game_vars.player_status) {
             start.edit_game_action({
                 index,
                 prime_event: "user_status",
@@ -47,10 +47,9 @@ const Game = class {
                 game_vars: this.game_vars
             })
             const { game_id } = this
-            let status_list = this.game_vars.player_status
-            if (status_list?.length) {
-                this.socket.to(game_id).emit("game_action", { data: [status_list[index]] })
-            }
+            let { player_status } = this.game_vars
+            this.socket.to(game_id).emit("game_action", { data: [player_status[index]] })
+
         }
         if (this.mod && this.mod === user_id) return true
         return false
@@ -88,7 +87,7 @@ const Game = class {
                 game_vars: this.game_vars
             })
             let prv_users = this.users
-            prv_users[index].socket_id = client.id
+            prv_users[index].socket_id = user_socket
             this.users = prv_users
             const { player_status } = this.game_vars
             this.socket.to(game_id).emit("game_action", { data: [player_status[index]] })
@@ -137,7 +136,9 @@ const Game = class {
             this.game_vars.edit_event("push", "dead_list", client.user_id)
             this.socket.to(game_id).emit("report", { data: { msg: `بازیکن ${client.user_id} به دست خدا کشته شد` } })
             this.game_handlers.submit_player_abandon({ user_id: client.user_id })
-            const new_users = this.users.filter(e => e.user_id !== client.user_id)
+            // const new_users = this.users.filter(e => e.user_id !== client.user_id)
+            const new_users = [...this.users]
+            new_users[index].is_alive = "dead"
             this.users = new_users
         }
 
@@ -522,11 +523,9 @@ const Game = class {
             case ("end_game_free_speech"): {
                 const { user_id, is_talking } = data
                 const { game_id } = this
-                console.log({ data });
                 let prv_speech_status = [...this.game_vars.end_game_speech]
                 let index = prv_speech_status.findIndex(e => e.user_id === user_id)
                 prv_speech_status[index].is_talking = is_talking
-                console.log({ prv_speech_status });
                 this.game_vars.edit_event("edit", "end_game_speech", prv_speech_status)
                 this.socket.to(game_id).emit("end_game_free_speech", { data: prv_speech_status })
                 break
@@ -1384,7 +1383,8 @@ const Game = class {
         await Helper.delay(2)
         this.socket.to(game_id).emit("end_game_result", { data: report })
         this.game_handlers.submit_finish_game(game_id)
-
+        const new_users=this.users.map(e=>{return {...e,is_alive:"dead"}})
+        this.users=new_users
         //finish game
     }
 

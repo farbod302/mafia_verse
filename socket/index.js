@@ -29,7 +29,8 @@ const SocketProvider = class {
                 else {
                     const games = this.db.getAll("games")
                     user_game = games.find(game => {
-                        const users = game.game_class.get_users()
+                        let users = game.game_class.get_users()
+                        users = users.filter(e => !e.is_alive || e.is_alive !== "dead")
                         let ids = users.map(user => user.user_id)
                         if (game.mod) {
                             ids = ids.concat(game.mod)
@@ -89,10 +90,12 @@ const SocketProvider = class {
             })
 
             client.on("user_end_game", () => {
-                const game_id=client.game_id
-                if(!game_id)return
-                client.leave(game_id)
-                client.game_id=null
+                setTimeout(() => {
+                    const game_id = client.game_id
+                    if (!game_id) return
+                    client.leave(game_id)
+                    client.game_id = null
+                }, 1000 * 60 * 2)
             })
         })
 
