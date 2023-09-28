@@ -26,24 +26,24 @@ const LocalGame = class {
     game_handler(client, op, data) {
         switch (op) {
 
-
-            case ("start_join"): {
-                if (this.player_count !== this.deck.length) return this.socket.to(client.id).emit("error", { data: { msg: "تعداد کارت با تعداد پلیر مقایرت دارد" } })
-                QRCode.toDataURL("http://192.168.43.161:3000/local_game?game_id=" + this.game_id, function (err, url) {
-                    this.socket.to(client.id).emit("game_started", { data: { qr_code: url } })
-                    this.start = true
-                })
-                break
-            }
-
-
             case ("set_deck"): {
-                const { deck } = data
-                this.deck = deck
+                console.log({ data_deck: data });
+                this.deck = data
+                if (this.player_count !== data.length) return this.socket.to(client.id).emit("error", { data: { msg: "تعداد کارت با تعداد پلیر مقایرت دارد" } })
+                let qr_url = ""
+                QRCode.toDataURL("http://192.168.43.161:3000/local_game?game_id=" + this.game_id, function (err, url) {
+                    qr_url = url
+                })
+
+                setTimeout(() => {
+                    console.log({ qr_url });
+                    this.socket.to(client.id).emit("local_game_started", { data: { qr_code: qr_url } })
+                    this.start = true
+                }, 500)
                 break
             }
 
-            case ("join_game"): {
+            case ("join_local_game"): {
                 if (this.users.length === this.player_count) return this.socket.to(client.id).emit("error", { data: { msg: "ظرفیت تکمیل است" } })
                 const { name } = data
                 client.join(this.game_id)
@@ -57,7 +57,7 @@ const LocalGame = class {
                     socket_id: client.id
                 })
                 const { socket_id } = this.mod
-                this.socket.to(socket_id).emit("users_join", { data: { users: this.users } })
+                this.socket.to(socket_id).emit("users_join", { data: { users: this.users, can_start: this.player_count === this.users } })
                 break
             }
 
