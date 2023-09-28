@@ -8,6 +8,7 @@ const join_handler = async ({ token, db, client, socket }) => {
     if (!user) return
     const { uid } = user
     let s_user = await User.findOne({ uid })
+    if(!s_user)return
     let user_party = uuid(5)
     let idenity = {
         socket_id: client.id,

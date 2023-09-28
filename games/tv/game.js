@@ -14,7 +14,7 @@ const game_result = require("./funcs/game_result")
 const online_users_handler = require("../../socket/online_users_handler")
 const User = require("../../db/user")
 const data_handler = require("../../games_temp_data/data_handler")
-
+const GameHistory = require("../../db/game_history")
 const Game = class {
     constructor({ game_id, users, socket, game_handlers, mod }) {
         this.socket = socket
@@ -1364,6 +1364,15 @@ const Game = class {
             winner
         })
 
+        const new_game_result = {
+            game_id,
+            winner,
+            users: this.users.map(e => e.user_id),
+            game_info: report
+        }
+
+        new GameHistory(new_game_result).save()
+
         let database_update = report.users.map(update => {
             let key = update.winner ? "points.win" : "points.lose"
             return User.findOneAndUpdate({ uid: update.user_id }, {
@@ -1384,8 +1393,8 @@ const Game = class {
         await Helper.delay(2)
         this.socket.to(game_id).emit("end_game_result", { data: report })
         this.game_handlers.submit_finish_game(game_id)
-        const new_users=this.users.map(e=>{return {...e,is_alive:"dead"}})
-        this.users=new_users
+        const new_users = this.users.map(e => { return { ...e, is_alive: "dead" } })
+        this.users = new_users
         //finish game
     }
 

@@ -11,6 +11,7 @@ const Helper = require("../helper/helper")
 const UserChannelConfig = require("../db/user_channel_config")
 const online_users_handler = require("../socket/online_users_handler")
 const Voice = require("../helper/live_kit_handler")
+const GameHistory = require("../db/game_history")
 //fetch data
 router.post("/land_screen_data", async (req, res) => {
     const { uid } = req.body.user
@@ -457,11 +458,27 @@ router.post("/user_profile", async (req, res) => {
     const { idenity, session_rank, ranking, avatar, points } = s_user
     const { win, lose } = points
     const data = { idenity, session_rank, ranking, avatar, win, lose }
+    const user_last_game = await GameHistory.find({ user: user_id }).limit(-1)
+    data.last_game = user_last_game[0] || null
     res.json({
         status: true,
         msg: "",
         data
     })
 })
+
+
+router.post("/game_history", async (req, res) => {
+    const user = req.body.user
+    if (!user) return reject(3, res)
+    const { uid } = user
+    const games = await GameHistory.find({ users: uid })
+    res.json({
+        status: true,
+        msg: "",
+        data: { games }
+    })
+})
+
 
 module.exports = router

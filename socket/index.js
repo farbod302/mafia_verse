@@ -5,6 +5,8 @@ const handel_disconnect = require("./disconnect")
 const channel_socket_handler = require("./channel")
 const online_users_handler = require("./online_users_handler")
 const data_handler = require("../games_temp_data/data_handler")
+const LocalGame = require("../games/local")
+const { uid } = require("uid")
 
 const SocketProvider = class {
 
@@ -97,6 +99,25 @@ const SocketProvider = class {
                     client.game_id = null
                 }, 1000 * 60 * 2)
             })
+
+
+
+            client.on("create_local_game", ({ player_count }) => {
+                const { idenity } = client
+                const game_id = uid(4)
+                client.local_game_id = game_id
+                const new_local_game = new LocalGame(idenity, +player_count, this.io, game_id)
+                this.db.add_data("local_game", { game_class: new_local_game, local_game_id: game_id })
+            })
+
+            client.on("handle_local_game", ({ op, data }) => {
+                if (data?.game_id) client.local_game_id = data.game_id
+                const { local_game_id } = client
+                const s_game = this.db.getOne("local_game", "local_game_id", local_game_id)
+                if (!s_game) return
+                s_game.game_class.game_handler(client, op, data)
+            })
+
         })
 
     }

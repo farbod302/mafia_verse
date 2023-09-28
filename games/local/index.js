@@ -3,50 +3,29 @@ const { uid } = require("uid")
 var QRCode = require('qrcode')
 const LocalGame = class {
 
-    constructor(mod, player_count, socket) {
+    constructor(mod, player_count, socket, game_id) {
         this.mod = mod
         this.player_count = player_count
         this.deck = []
         this.socket = socket
-        const game_id = uid(5)
         this.load_deck()
         this.start = false
         this.start_pick = false
         this.users = []
         this.turn = -1
+        this.game_id = game_id
     }
 
     load_deck() {
-        const file = fs.readFileSync("./clean_deck.json")
+        const file = fs.readFileSync(`${__dirname}/clean_deck.json`)
         const deck = JSON.parse(file.toString())
         this.raw_deck = deck
-        const { socket_id } = this.mod
-        this.socket.to(socket_id).emit("deck", { data: { deck } })
+
     }
 
     game_handler(client, op, data) {
         switch (op) {
-            case ("select_character"): {
-                const { character_id } = data
-                if (this.deck.length === this.player_count || this.start) return this.socket.to(client.id).emit("error", { data: { msg: "ظرفیت تکمیل است" } })
-                const selected_character = this.raw_deck.find(e => e.id === character_id)
-                this.deck.push(selected_character)
-                const { socket_id } = this.mod
-                this.socket.to(socket_id).emit("deck", { data: { deck: this.deck } })
-                break
-            }
 
-            case ("unselect_character"): {
-                if (this.start) return this.socket.to(client.id).emit("error", { data: { msg: "قابلیت ویرایش وجود ندارد" } })
-                const { character_id } = data
-                const selected_character_index = this.deck.findIndex(e => e.id === character_id)
-                const new_deck = [...this.deck]
-                new_deck.splice(selected_character_index, 1)
-                this.deck = new_deck
-                const { socket_id } = this.mod
-                this.socket.to(socket_id).emit("deck", { data: { deck: this.deck } })
-                break
-            }
 
             case ("start_join"): {
                 if (this.player_count !== this.deck.length) return this.socket.to(client.id).emit("error", { data: { msg: "تعداد کارت با تعداد پلیر مقایرت دارد" } })
@@ -54,6 +33,13 @@ const LocalGame = class {
                     this.socket.to(client.id).emit("game_started", { data: { qr_code: url } })
                     this.start = true
                 })
+                break
+            }
+
+
+            case ("set_deck"): {
+                const { deck } = data
+                this.deck = deck
                 break
             }
 
@@ -83,6 +69,13 @@ const LocalGame = class {
             case ("pick_cart"): {
                 const { index } = data
                 this.pick({ index, local_game_data: client.local_game_data })
+                break
+            }
+
+            case ("get_deck"): {
+                const { socket_id } = this.mod
+                const { raw_deck } = this
+                this.socket.to(socket_id).emit("get_deck", { data:raw_deck  })
             }
         }
     }
@@ -145,9 +138,11 @@ const LocalGame = class {
         }
         setTimeout(() => {
             jump_to_next(cur)
-        }, 15000)
+        }, 2000)
 
     }
 
 
 }
+
+module.exports = LocalGame
