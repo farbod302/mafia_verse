@@ -47,7 +47,7 @@ const LocalGame = class {
                 if (this.users.length === this.player_count) return this.socket.to(client.id).emit("error", { data: { msg: "ظرفیت تکمیل است" } })
                 const { name } = data
                 client.join(this.game_id)
-                this.socket.to(client.id).emit("deck", { data: { deck: this.deck } })
+                this.socket.to(client.id).emit("get_deck", { data: { deck: this.deck } })
                 const user_id = uid(3)
                 client.local_game_data = { user_id, game_id: this.game_id, name }
                 this.users.push({
@@ -75,7 +75,7 @@ const LocalGame = class {
             case ("get_deck"): {
                 const { socket_id } = this.mod
                 const { raw_deck } = this
-                this.socket.to(socket_id).emit("get_deck", { data:raw_deck  })
+                this.socket.to(socket_id).emit("get_deck", { data: raw_deck })
             }
         }
     }
@@ -86,10 +86,11 @@ const LocalGame = class {
         const user_index = this.users.find(e => e.user_id === user_id)
         this.users[user_index].cart = selected_cart.name
         this.shuffled_carts[index].user_pick = name
+        const s_user = this.users.find(e => e.user_id === user_id)
+        const { socket_id: user_socket_id } = s_user
+        this.socket.to(user_socket_id).emit("cart", { data: selected_cart })
         const { socket_id } = this.mod
         this.socket.to(socket_id).emit("users", { data: { users: this.users } })
-        const { game_id } = this
-        this.socket(game_id).emit("shuffled_carts", { data: { cart: this.shuffled_carts } })
         this.next_player_pick_cart()
     }
 
