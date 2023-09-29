@@ -27,19 +27,19 @@ const LocalGame = class {
         switch (op) {
 
             case ("set_deck"): {
-                console.log({ data_deck: data });
-                this.deck = data
+                const clean_deck = data.map(e => {
+                    const { id } = e
+                    const selected = this.raw_deck.find(e => e.id === id)
+                    return selected
+                })
+                this.deck=clean_deck
                 if (this.player_count !== data.length) return this.socket.to(client.id).emit("error", { data: { msg: "تعداد کارت با تعداد پلیر مقایرت دارد" } })
-                let qr_url = ""
-                QRCode.toDataURL("http://192.168.43.161:3000/local_game?game_id=" + this.game_id, function (err, url) {
-                    qr_url = url
+                QRCode.toDataURL("http://192.168.43.161:3000/local_game?game_id=" + this.game_id, (err, url) => {
+                    console.log({ url });
+                    this.socket.to(client.id).emit("local_game_started", { data: { qr_code: url } })
+                    this.start = true
                 })
 
-                setTimeout(() => {
-                    console.log({ qr_url });
-                    this.socket.to(client.id).emit("local_game_started", { data: { qr_code: qr_url } })
-                    this.start = true
-                }, 500)
                 break
             }
 
@@ -47,7 +47,7 @@ const LocalGame = class {
                 if (this.users.length === this.player_count) return this.socket.to(client.id).emit("error", { data: { msg: "ظرفیت تکمیل است" } })
                 const { name } = data
                 client.join(this.game_id)
-                this.socket.to(client.id).emit("get_deck", { data: { deck: this.deck } })
+                this.socket.to(client.id).emit("prv_deck", { data: { deck: this.deck } })
                 const user_id = uid(3)
                 client.local_game_data = { user_id, game_id: this.game_id, name }
                 this.users.push({
