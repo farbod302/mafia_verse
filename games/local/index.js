@@ -32,7 +32,7 @@ const LocalGame = class {
                     const selected = this.raw_deck.find(e => e.id === id)
                     return selected
                 })
-                this.deck=clean_deck
+                this.deck = clean_deck
                 if (this.player_count !== data.length) return this.socket.to(client.id).emit("error", { data: { msg: "تعداد کارت با تعداد پلیر مقایرت دارد" } })
                 QRCode.toDataURL("http://192.168.43.161:3000/local_game?game_id=" + this.game_id, (err, url) => {
                     console.log({ url });
@@ -47,8 +47,8 @@ const LocalGame = class {
                 if (this.users.length === this.player_count) return this.socket.to(client.id).emit("error", { data: { msg: "ظرفیت تکمیل است" } })
                 const { name } = data
                 client.join(this.game_id)
-                this.socket.to(client.id).emit("prv_deck", { data: { deck: this.deck } })
                 const user_id = uid(3)
+                this.socket.to(client.id).emit("prv_deck", { data: { deck: this.deck } })
                 client.local_game_data = { user_id, game_id: this.game_id, name }
                 this.users.push({
                     cart: null,
@@ -59,6 +59,10 @@ const LocalGame = class {
                 const { socket_id } = this.mod
                 this.socket.to(socket_id).emit("users_join", { data: { users: this.users, can_start: this.player_count === this.users.length } })
                 break
+            }
+            case ("leave_local_game"): {
+                const { user_id } = client.local_game_data
+                this.users_leave(user_id)
             }
 
             case ("start_pick_cart"): {
@@ -92,6 +96,14 @@ const LocalGame = class {
         const { socket_id } = this.mod
         this.socket.to(socket_id).emit("users", { data: { users: this.users } })
         this.next_player_pick_cart()
+    }
+
+    users_leave(user_id) {
+        let prv_users = [...this.users]
+        prv_users = prv_users.filter(e => e.user_id !== user_id)
+        this.users = prv_users
+        const { socket_id } = this.mod
+        this.socket.to(socket_id).emit("users", { data: { users: prv_users } })
     }
 
 

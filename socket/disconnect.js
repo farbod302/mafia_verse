@@ -24,6 +24,13 @@ const handel_disconnect = async ({ client, db, socket }) => {
     console.log({user_id,prv_channel});
     await UserChannelConfig.updateOne({ user_id, channel_id: prv_channel.channel_id }, { $set: { last_visit: Date.now() } })
 
+    if(client.local_game_data){
+        const {game_id,user_id}=client.local_game_data
+        const local_game=db.getOne("local_game","local_game_id",game_id)
+        if(local_game){
+            local_game.game_class.users_leave(user_id)
+        }
+    }
 
 
 }
