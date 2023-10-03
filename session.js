@@ -22,7 +22,7 @@ const Session = {
             range,
             result
         }
-        const file_name = `${range}_${preview_session_date}`
+        const file_name = `${range}_${start}`
         fs.writeFileSync(`${__dirname}/sessions_result/${file_name}.json`, JSON.stringify(new_session_history))
         console.log({ key });
         await User.updateMany({}, { $set: { [key]: default_rank } })
