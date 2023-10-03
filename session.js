@@ -25,7 +25,7 @@ const Session = {
         const file_name = `${range}_${preview_session_date}`
         fs.writeFileSync(`${__dirname}/sessions_result/${file_name}.json`, JSON.stringify(new_session_history))
         console.log({ key });
-        await User.updateMany({}, { $set: { session_rank: { [range]: default_rank } } })
+        await User.updateMany({}, { $set: { [key]: default_rank } })
         const prv_sessions_record = fs.readFileSync(`${__dirname}/session.json`)
         const json = JSON.parse(prv_sessions_record.toLocaleString())
         const new_json = json.filter(e => e.range !== range)
