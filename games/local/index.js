@@ -1,6 +1,7 @@
 const fs = require("fs")
 const { uid } = require("uid")
 var QRCode = require('qrcode')
+const Helper = require("../../helper/helper")
 const LocalGame = class {
 
     constructor(mod, player_count, socket, game_id) {
@@ -65,16 +66,12 @@ const LocalGame = class {
                 this.users_leave(user_id)
             }
 
-            case ("start_pick_cart"): {
+            case ("pick_cart"): {
                 if (this.users.length !== this.player_count) return this.socket.to(client.id).emit("error", { data: { msg: "تعدادی از بازیکنان هنوز به بازی متصل نشده اند" } })
                 this.start_pick_cart()
                 break
             }
-            case ("pick_cart"): {
-                const { index } = data
-                this.pick({ index, local_game_data: client.local_game_data })
-                break
-            }
+
 
             case ("get_deck"): {
                 const { socket_id } = this.mod
@@ -87,7 +84,7 @@ const LocalGame = class {
     pick({ index, local_game_data }) {
         const { user_id, name } = local_game_data
         const selected_cart = this.shuffled_carts[index]
-        const user_index = this.users.find(e => e.user_id === user_id)
+        const user_index = this.users.findIndex(e => e.user_id === user_id)
         this.users[user_index].cart = selected_cart.name
         this.shuffled_carts[index].user_pick = name
         const s_user = this.users.find(e => e.user_id === user_id)
@@ -129,14 +126,15 @@ const LocalGame = class {
         this.next_player_pick_cart()
     }
 
-    next_player_pick_cart() {
+    async next_player_pick_cart() {
         this.turn = this.turn + 1
         const { turn } = this
-        if (turn === this.player_count - 1) return
+        if (turn === this.player_count) return
         const s_user = this.users[turn]
         const { socket_id } = s_user
         this.socket.to(socket_id).emit("pick_cart")
-        const cur = this.turn
+        const cur = +`${this.turn}`
+        console.log({ cur });
         const jump_to_next = (cur_index) => {
             if (cur_index === this.turn) {
                 const first_empty_slot = this.shuffled_carts.findIndex(e => !e.user_pick)
@@ -149,9 +147,9 @@ const LocalGame = class {
                 })
             }
         }
-        setTimeout(() => {
-            jump_to_next(cur)
-        }, 2000)
+        await Helper.delay(0.5)
+        jump_to_next(cur)
+
 
     }
 
