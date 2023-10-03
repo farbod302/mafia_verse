@@ -13,7 +13,7 @@ const Session = {
         }
         console.log({ range });
         const start = Date.now()
-        const end = start + range
+        const end = start + range_time
         const preview_session_start = start - range_time
         const preview_session_date = new Date(preview_session_start)
         const new_session_history = {
