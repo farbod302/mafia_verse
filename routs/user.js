@@ -31,8 +31,9 @@ router.post("/profile_data", async (req, res) => {
     const { uid } = req.body.user
     const user = await User.findOne({ uid })
     if (!user) return reject(5, res)
-    const { followers, friend_list, points, gold, status, ranking } = user
-    const data = { followers: followers.length, friend_list: friend_list.length, points, gold, status, ranking }
+    const { points, gold, status, ranking, session_rank } = user
+    const rank_num = await User.find({ session_rank: { $gt: session_rank } })
+    const data = { points, gold, status, ranking, session_rank, rank_num: rank_num.length + 1 }
     res.json({
         status: true,
         msg: "",
