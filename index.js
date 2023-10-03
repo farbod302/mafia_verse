@@ -101,6 +101,6 @@ const create_sessional_session_2 = new CronJob("0 0 21 6 *", () => { Session.cre
 const create_sessional_session_3 = new CronJob("0 0 21 9 *", () => { Session.create_session("session") })
 const create_sessional_session_4 = new CronJob("0 0 21 12 *", () => { Session.create_session("session") })
 
-Session.create_session("day")
-Session.create_session("week")
-Session.create_session("session")
+// Session.create_session("day")
+// Session.create_session("week")
+// Session.create_session("session")
