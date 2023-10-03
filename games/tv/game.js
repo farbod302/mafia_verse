@@ -1099,7 +1099,7 @@ const Game = class {
         })
         let mainCycle = () => { this.mainCycle() }
         this.game_vars.edit_event("edit", "next_event", "mafia_speech")
-        run_timer(5, mainCycle)
+        run_timer(25, mainCycle)
     }
 
     async mafia_speech() {

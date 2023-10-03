@@ -16,14 +16,15 @@ const Session = {
         const end = start + range_time
         const preview_session_start = start - range_time
         const preview_session_date = new Date(preview_session_start)
+        const str_data=preview_session_date.getFullYear()+"_"+preview_session_date.getMonth()+"_"+preview_session_date.getDate()
         const new_session_history = {
             start: preview_session_date,
             end: new Date(),
             range,
             result
         }
-        const file_name = `${range}_${start}`
-        fs.writeFileSync(`${__dirname}/sessions_result/${file_name}.json`, JSON.stringify(new_session_history))
+        const file_name = `${range}_${preview_session_date}`
+        fs.writeFileSync(`${__dirname}/sessions_result/${range}_${str_data}.json`, JSON.stringify(new_session_history))
         console.log({ key });
         await User.updateMany({}, { $set: { [key]: default_rank } })
         const prv_sessions_record = fs.readFileSync(`${__dirname}/session.json`)

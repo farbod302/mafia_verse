@@ -132,6 +132,12 @@ const night = {
         const { name, user_id } = act
         let hostage_taker_act = records.events.filter(each_act => each_act.act === "hostage_taker")
         hostage_taker_act = hostage_taker_act.map(target => target.target)
+        let guard_act = records.events.filter(each_act => each_act.act === "guard")
+        guard_act = guard_act.map(target => target.target)
+        const hostage_taker_id = game_vars.carts.find(e => e.name === "hostage_taker")
+        if (guard_act.includes(hostage_taker_id)) hostage_taker_act = []
+        hostage_taker_act = hostage_taker_act.filter(e => !guard_act.includes(e))
+
         switch (name) {
             case ("commando"): {
                 let mafia_shot = records.events.find(each_act => each_act.act === "mafia_shot")
@@ -164,8 +170,8 @@ const night = {
     },
 
     pick_user_for_act({ game_vars, act, user_id }) {
-        const mafia_acts=["mafia","nato","hostage_taker"]
-        if(mafia_acts.includes(act))act="mafia"
+        const mafia_acts = ["mafia", "nato", "hostage_taker"]
+        if (mafia_acts.includes(act)) act = "mafia"
         switch (act) {
             case ("doctor"): {
                 let live_users = start.pick_live_users({ game_vars })
