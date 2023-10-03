@@ -100,7 +100,7 @@ const LocalGame = class {
         prv_users = prv_users.filter(e => e.user_id !== user_id)
         this.users = prv_users
         const { socket_id } = this.mod
-        this.socket.to(socket_id).emit("users", { data: { users: prv_users } })
+        this.socket.to(socket_id).emit("users_join", { data: { users: this.users, can_start: this.player_count === this.users.length } })
     }
 
 

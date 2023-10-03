@@ -34,7 +34,12 @@ router.post("/", async (req, res) => {
             phone: null
         },
         uid: player_uid,
-        avatar: default_avatar
+        avatar: default_avatar,
+        session_rank: {
+            day: 125,
+            week: 875,
+            session: 3000
+        }
     }
     new User(new_player).save()
     res.json({
@@ -56,7 +61,7 @@ router.post("/check", async (req, res) => {
 
 router.post("/sign_up", async (req, res) => {
     const { phone, name, firebase_token } = req.body
-    console.log({firebase_token});
+    console.log({ firebase_token });
     let is_user_name_uniq = await User.findOne({ $or: [{ "idenity.name": name }, { "idenity.phone": phone }] })
     if (is_user_name_uniq) {
         res.json({
@@ -93,7 +98,12 @@ router.post("/sign_up_confirm_phone", async (req, res) => {
         },
         uid: player_uid,
         avatar: default_avatar,
-        notif_token: temp.notif_token
+        notif_token: temp.notif_token,
+        session_rank: {
+            day: 125,
+            week: 875,
+            session: 3000
+        }
     }
     new User(new_player).save()
 
@@ -106,7 +116,7 @@ router.post("/sign_up_confirm_phone", async (req, res) => {
 })
 
 router.post("/log_in", async (req, res) => {
-    const { phone, name ,firebase_token} = req.body
+    const { phone, name, firebase_token } = req.body
     let is_exist = await User.findOne(name ? { "idenity.name": name } : { "idenity.phone": phone })
     if (!is_exist) return reject(4, res)
     if (!Helper.valideate_phone(phone)) return reject(0, res)

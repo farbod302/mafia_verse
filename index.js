@@ -13,7 +13,8 @@ const Jwt = require('./helper/jwt');
 const reject = require('./helper/reject_handler');
 const { check_last_msgs } = require('./socket/server_channel_msg/send_server_msg');
 const check_bad_words = require('./socket/bad_word');
-
+const Session = require('./session');
+const { CronJob } = require("cron")
 const token_handler = (req, res, next) => {
     const { token } = req.body
     if (!token) return next()
@@ -90,3 +91,12 @@ check_last_msgs()
 // }
 
 // clean_deck()
+
+
+
+const create_daily_session = new CronJob("0 0 * * *", () => { Session.create_session("day") })
+const create_weekly_session = new CronJob("0 0 * * 6", () => { Session.create_session("week") })
+const create_sessional_session_1 = new CronJob("0 0 21 3 *", () => { Session.create_session("session") })
+const create_sessional_session_2 = new CronJob("0 0 21 6 *", () => { Session.create_session("session") })
+const create_sessional_session_3 = new CronJob("0 0 21 9 *", () => { Session.create_session("session") })
+const create_sessional_session_4 = new CronJob("0 0 21 12 *", () => { Session.create_session("session") })
