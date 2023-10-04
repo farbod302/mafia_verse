@@ -22,7 +22,6 @@ router.get("/", async (req, res) => {
             }
         })
         const selected_session = json.find(e => e.range === session)
-        console.log({ selected_session });
         ranking_res.push({
             session,
             session_end: selected_session.end - Date.now(),
