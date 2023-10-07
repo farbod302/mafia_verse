@@ -30,9 +30,14 @@ const Game = class {
 
 
     mainCycle() {
-        const next_event = this.game_vars.next_event
-        this.game_vars.edit_event("edit", "cur_event", next_event)
-        this[next_event]()
+        try {
+            const next_event = this.game_vars.next_event
+            this.game_vars.edit_event("edit", "cur_event", next_event)
+            this[next_event]()
+        } catch (err) {
+            console.log(err);
+            this.game_handlers.abandon()
+        }
     }
 
     submit_user_disconnect({ client }) {

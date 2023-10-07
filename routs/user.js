@@ -372,75 +372,6 @@ router.post("/user_transactions", (req, res) => {
 })
 
 
-router.post("/lucky_wheel_status", async (req, res) => {
-    const user = req.body.user
-    if (!user) return reject(3, res)
-    const s_user = await User.findOne({ uid: user.uid })
-    const lucky_wheel_status = s_user.lucky_wheel_status || 0
-    const now = Date.now()
-    res.json({
-        status: true,
-        msg: "",
-        data: {
-            ready: now > lucky_wheel_status
-        }
-    })
-})
-
-
-
-router.post("/lucky_wheel", async (req, res) => {
-    const user = req.body.user
-    if (!user) return reject(3, res)
-    const is_ready = await User.findOne({ uid: user.uid })
-    if (is_ready.lucky_wheel_status > Date.now()) {
-        return reject("3", res)
-    }
-    const wheel_items = [
-        {
-            gold: 10,
-            start: 0,
-            end: 50
-        },
-        {
-            gold: 20,
-            start: 51,
-            end: 70
-        },
-        {
-            gold: 30,
-            start: 61,
-            end: 80
-        },
-        {
-            gold: 40,
-            start: 81,
-            end: 90
-        },
-        {
-            gold: 50,
-            start: 91,
-            end: 98
-        },
-        {
-            gold: 100,
-            start: 99,
-            end: 100
-        },
-    ]
-
-
-    const random_num = Math.floor(Math.random() * 100) + 1
-    const selected_range = wheel_items.find(e => e.start < random_num && e.end >= random_num)
-    await User.findOneAndUpdate({ uid: user.uid }, { $set: { lucky_wheel_status: Date.now() + (1000 * 60 * 60 * 12) } })
-    res.json({
-        status: true,
-        msg: "",
-        data: { gold: selected_range?.gold || 10 }
-    })
-
-})
-
 
 
 router.post("/test_room", async (req, res) => {
@@ -478,6 +409,75 @@ router.post("/game_history", async (req, res) => {
         status: true,
         msg: "",
         data: { games }
+    })
+})
+
+
+
+
+router.post("/lucky_wheel_status", async (req, res) => {
+    const user = req.body.user
+    if (!user) return reject(3, res)
+    const { uid } = user
+    const s_user = await user.findOne({ uid })
+    const { lucky_wheel_status } = s_user
+    const now = Date.now()
+    res.json({
+        status: true,
+        msg: "",
+        data: {
+            is_ready: now > lucky_wheel_status,
+            time_remain: Math.max(lucky_wheel_status - now, 0)
+        }
+    })
+
+})
+
+
+router.post("/spin_lucky_wheel", async (req, res) => {
+    const user = req.body.user
+    if (!user) return reject(3, res)
+    const { uid } = user
+    const s_user = await user.findOne({ uid })
+    const { lucky_wheel_status } = s_user
+    const now = Date.now()
+    if (lucky_wheel_status > now) return reject(18, res)
+    const chance = [
+        {
+            num: 40,
+            gold: 10
+        },
+        {
+            num: 60,
+            gold: 20
+        },
+        {
+            num: 80,
+            gold: 30
+        },
+        {
+            num: 90,
+            gold: 40
+        },
+        {
+            num: 95,
+            gold: 50
+        },
+        {
+            num: 100,
+            gold: 100
+        }
+    ]
+    const random_num = Math.floor(Math.random() * 100)
+    console.log({ random_num });
+    const index = chance.findLastIndex(e => e.num >= random_num)
+    const gold = chance[index] || 10
+    const next_spin = 1000 * 60 * 60 * 12
+    await User.findOne({ uid }, { $inc: { gold }, $set: { lucky_wheel_status: now + next_spin } })
+    res.json({
+        status: true,
+        mag: "",
+        data: { gold, next_spin: now + next_spin }
     })
 })
 

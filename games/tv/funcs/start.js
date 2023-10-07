@@ -4,10 +4,12 @@ const befor_start = require("./before_start")
 const run_timer = require("../../../helper/timer")
 const { encrypt } = require("../../../helper/helper")
 const data_handler = require("../../../games_temp_data/data_handler")
+const Helper = require("../../../helper/helper")
 const start = {
 
     async create_live_room({ game_id, socket, users, mod_user_id, mod_socket }) {
         await Voice.start_room(game_id)
+        await Helper.delay(3)
         for (let user of users) {
             const { user_id, socket_id } = user
             let token = Voice.join_room(user_id, game_id)
@@ -19,11 +21,14 @@ const start = {
     },
 
     async create_room_for_mafia({ mafia, socket, room_id }) {
-        const room_status=await Voice.start_room(room_id)
+        await Voice.start_room(room_id)
         for (let user of mafia) {
             const { user_id, socket_id } = user
             let token = Voice.join_room(user_id, room_id)
             socket.to(socket_id).emit("mafia_speech", { token })
+            setTimeout(() => {
+                socket.to(socket_id).emit("mafia_speech_end")
+            }, 5000)
         }
 
     },
