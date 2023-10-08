@@ -14,7 +14,8 @@ const reject = require('./helper/reject_handler');
 const { check_last_msgs } = require('./socket/server_channel_msg/send_server_msg');
 const check_bad_words = require('./socket/bad_word');
 const Session = require('./session');
-const { CronJob } = require("cron")
+const { CronJob } = require("cron");
+const Transaction = require('./helper/transaction');
 const token_handler = (req, res, next) => {
     const { token } = req.body
     if (!token) return next()
@@ -104,3 +105,12 @@ const create_sessional_session_4 = new CronJob("0 0 21 12 *", () => { Session.cr
 // Session.create_session("day")
 // Session.create_session("week")
 // Session.create_session("session")
+
+Transaction.refresh_token()
+const refresh_api_token_job = new CronJob("58 * * * *", Transaction.refresh_token)
+// refresh_api_token_job.start()
+
+
+//3119103712
+//test_2
+

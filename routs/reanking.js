@@ -22,7 +22,7 @@ router.post("/", async (req, res) => {
                 idenity, session_rank: session_rank[session], ranking, avatar: {
                     avatar: "files/" + avatar.avatar,
                     tabel: "files/" + avatar.tabel,
-                }, win, lose, user_id: uid, rate: index + 1
+                }, win, lose, user_id: uid, rate: index + 1,prize:10
             }
         })
         const user_self = ranking.findIndex(e => e.uid === req_user_id)
@@ -37,7 +37,7 @@ router.post("/", async (req, res) => {
                 idenity, session_rank: session_rank[session], ranking: user_rank, avatar: {
                     avatar: "files/" + avatar.avatar,
                     tabel: "files/" + avatar.tabel,
-                }, win, lose, user_id: uid, rate: user_self + 1
+                }, win, lose, user_id: uid, rate: user_self + 1,prize:10
             }
         })
     }
