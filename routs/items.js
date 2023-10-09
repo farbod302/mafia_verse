@@ -5,7 +5,7 @@ const User = require("../db/user")
 const reject = require("../helper/reject_handler")
 const { default: mongoose } = require("mongoose")
 const sha256 = require("sha256")
-const static_vars=require("../games/tv/static_vars")
+const static_vars = require("../games/tv/static_vars")
 
 router.get("/items_list", async (req, res) => {
     const items = await Items.find({ active: true })
@@ -18,10 +18,10 @@ router.post("/items_list", async (req, res) => {
     if (!user) return reject(0, res)
     const items = await Items.find({ active: true })
     let s_user = await User.findOne({ uid: user.uid })
-    const { items: user_items } = s_user
+    const { items: user_items, gold } = s_user
     let items_to_res = items.map(item => {
         return {
-            ...item,
+            ...item._doc,
             active_for_user: !user_items.includes(item._id)
         }
     })
@@ -29,7 +29,7 @@ router.post("/items_list", async (req, res) => {
     res.json({
         status: true,
         msg: "",
-        data: { items: items_to_res }
+        data: { items: items_to_res, user_gold: gold }
     })
 
 })
