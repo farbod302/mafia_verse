@@ -14,6 +14,7 @@ const check_admin = (req, res, next) => {
         const admin_list = fs.readFileSync(`${__dirname}/../helper/admins.json`)
         const admin_list_json = JSON.parse(admin_list)
         const uid = req.body.user?.uid
+        console.log({uid});
         if (!uid) return reject(3, res)
         if (!admin_list_json.includes(uid)) return reject(3, res)
         next()
