@@ -484,6 +484,7 @@ router.post("/spin_lucky_wheel", async (req, res) => {
 router.post("/find_match_gold",async (req, res) => {
     const user = req.body.user
     if (!user) return reject(3, res)
+    const {uid}=user
     const s_user = await User.findOne({ uid })
     res.json({
         status: true,
