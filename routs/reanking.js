@@ -31,7 +31,7 @@ router.post("/", async (req, res) => {
         const selected_session = json.find(e => e.range === session)
         ranking_res.push({
             session,
-            session_end: selected_session.end - Date.now(),
+            session_end: selected_session.end,
             ranking_list: clean_ranking,
             user_self: {
                 idenity, session_rank: session_rank[session], ranking: user_rank, avatar: {
