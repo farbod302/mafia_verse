@@ -481,5 +481,18 @@ router.post("/spin_lucky_wheel", async (req, res) => {
     })
 })
 
+router.post("/find_match_gold",async (req, res) => {
+    const user = req.body.user
+    if (!user) return reject(3, res)
+    const s_user = await User.findOne({ uid })
+    res.json({
+        status: true,
+        msg: s_user.gold >= 20 ? "" : "شما سکه کافی برای شروع بازی ندارید",
+        data: {
+            has_enough_gold: user.gold >= 20
+        }
+    })
+})
+
 
 module.exports = router
