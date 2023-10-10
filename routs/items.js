@@ -3,13 +3,31 @@ const router = express.Router()
 const Items = require("../db/item")
 const User = require("../db/user")
 const reject = require("../helper/reject_handler")
-const { default: mongoose } = require("mongoose")
 const sha256 = require("sha256")
 const static_vars = require("../games/tv/static_vars")
-
+const fs = require("fs")
 router.get("/items_list", async (req, res) => {
+
+
+    const gold_pack_file = fs.readFileSync(`${__dirname}/../gold_pack.json`)
+    const gold_pack = JSON.parse(gold_pack_file.toString())
     const items = await Items.find({ active: true })
-    res.json({ items })
+    const types = ["animation", "avatar"]
+    const clean_items = types.map(filter => {
+        const category_items = items.filter(e => e.type === filter)
+        return {
+            type: filter,
+            items: category_items
+        }
+    })
+    clean_items.push({
+        type: "gold",
+        items: gold_pack
+    })
+
+    res.json({
+        items: clean_items
+    })
 })
 
 
@@ -18,18 +36,32 @@ router.post("/items_list", async (req, res) => {
     if (!user) return reject(0, res)
     const items = await Items.find({ active: true })
     let s_user = await User.findOne({ uid: user.uid })
-    const { items: user_items, gold } = s_user
-    let items_to_res = items.map(item => {
+    const gold_pack_file = fs.readFileSync(`${__dirname}/../gold_pack.json`)
+    const gold_pack = JSON.parse(gold_pack_file.toString())
+    const types = ["animation", "avatar"]
+    const clean_items = types.map(filter => {
+        const category_items = items.filter(e => e.type === filter)
+        const clean__category_items = category_items.map(i => {
+            return {
+                ...i._doc,
+                active_for_user: s_user.items.includes(i._id)
+            }
+        })
         return {
-            ...item._doc,
-            active_for_user: !user_items.includes(item._id)
+            type: filter,
+            items: clean__category_items
         }
     })
+    clean_items.push({
+        type: "gold",
+        items: gold_pack
+    })
 
+   
     res.json({
         status: true,
         msg: "",
-        data: { items: items_to_res, user_gold: gold }
+        data: { items: clean_items, user_gold: s_user.gold }
     })
 
 })
