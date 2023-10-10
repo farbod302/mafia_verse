@@ -20,7 +20,7 @@ router.get("/items_list", async (req, res) => {
     const items = await Items.find({ active: true })
     const types = ["animation", "avatar"]
     const clean_items = types.map(filter => {
-        const category_items = items.filter(e => e.type === filter)
+        let category_items = items.filter(e => e.type === filter)
         return {
             type: filter,
             items: category_items
@@ -56,6 +56,8 @@ router.post("/items_list", async (req, res) => {
         const clean__category_items = category_items.map(i => {
             return {
                 ...i._doc,
+                image:"files/"+i._doc.image,
+                file:"files/"+i._doc.file,
                 active_for_user: s_user.items.includes(i._id)
             }
         })
