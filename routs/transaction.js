@@ -11,7 +11,8 @@ router.post("/confirm_transaction", async (req, res) => {
     const { uid } = user
     const { tr_token, plan, price, gold } = req.body
     //check transaction from bazar
-    const { purchaseState } = Tr.check_transaction_result(plan, tr_token)
+    const { purchaseState } =await Tr.check_transaction_result(plan, tr_token)
+    console.log({purchaseState});
     if (purchaseState !== 0) return reject(3, res)
     //check used
     const is_exist = await Transaction.findOne({ token: tr_token })
