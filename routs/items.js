@@ -10,7 +10,13 @@ router.get("/items_list", async (req, res) => {
 
 
     const gold_pack_file = fs.readFileSync(`${__dirname}/../gold_pack.json`)
-    const gold_pack = JSON.parse(gold_pack_file.toString())
+    let gold_pack = JSON.parse(gold_pack_file.toString())
+    gold_pack = gold_pack.map(e => {
+        return {
+            ...e,
+            price_after_off: e.price - (e.price * e.off / 100)
+        }
+    })
     const items = await Items.find({ active: true })
     const types = ["animation", "avatar"]
     const clean_items = types.map(filter => {
@@ -37,7 +43,13 @@ router.post("/items_list", async (req, res) => {
     const items = await Items.find({ active: true })
     let s_user = await User.findOne({ uid: user.uid })
     const gold_pack_file = fs.readFileSync(`${__dirname}/../gold_pack.json`)
-    const gold_pack = JSON.parse(gold_pack_file.toString())
+    let gold_pack = JSON.parse(gold_pack_file.toString())
+    gold_pack = gold_pack.map(e => {
+        return {
+            ...e,
+            price_after_off: e.price - (e.price * e.off /100 )
+        }
+    })
     const types = ["animation", "avatar"]
     const clean_items = types.map(filter => {
         const category_items = items.filter(e => e.type === filter)
@@ -57,7 +69,7 @@ router.post("/items_list", async (req, res) => {
         items: gold_pack
     })
 
-   
+
     res.json({
         status: true,
         msg: "",
