@@ -722,7 +722,7 @@ const Game = class {
     next_player_speech() {
         this.game_vars.edit_event("edit", "turn", "plus")
         const { game_id } = this
-        const { queue, turn, can_take_challenge, speech_type, reval, player_reval, carts } = this.game_vars
+        const { queue, turn, can_take_challenge, speech_type, reval, player_reval, carts, player_status, second_chance } = this.game_vars
         //check player reval
         if (player_reval && player_reval.turn === turn) {
             const { user_id } = player_reval
@@ -797,8 +797,19 @@ const Game = class {
             }
         }
         // emit current_speech
-        let time = static_vars.speech_time[speech_type]
+
         let cur_speech = queue[turn]
+        const cur_user_status = player_status.find(e => e.user_id === cur_speech.user_id)
+        if (!cur_user_status.user_status.is_connected) {
+            if (!second_chance.includes(cur_speech.user_id)) {
+                const new_queue = [...queue]
+                new_queue.push(cur_speech)
+                this.game_vars.edit_event("edit", "queue", new_queue)
+                this.game_vars.second_chance.push(cur_speech.user_id)
+            }
+            this.mainCycle()
+        }
+        let time = static_vars.speech_time[speech_type]
         this.socket.to(game_id).emit("current_speech", {
             current: cur_speech.user_id,
             timer: time,
@@ -844,7 +855,6 @@ const Game = class {
         })
         // edit game action
         const index = this.users.findIndex(e => e.user_id === user_id)
-        console.log({ index });
         start.edit_game_action({
             index,
             prime_event: "user_status",
@@ -1066,7 +1076,8 @@ const Game = class {
             let user_to_speech = befor_start.pick_player_from_user_id({ users: this.users, user_id: user_to_exit })
             let queue = [user_to_speech]
             this.game_vars.edit_event("edit", "next_event", "start_speech")
-            this.game_vars.edit_event("edit", "custom_queue", queue)
+            this.game_vars.edit_event("edit", "custom_queue", [])
+            // this.game_vars.edit_event("edit", "custom_queue", queue)
             this.game_vars.edit_event("edit", "speech_type", "final_words")
             this.game_vars.edit_event("edit", "turn", -1)
             data_handler.add_data(this.game_id, { user: "server", op: "user_exit", data: { user_to_exit } })

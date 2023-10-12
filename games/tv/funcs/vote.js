@@ -3,7 +3,6 @@ const { delay } = require("../../../helper/helper")
 const run_timer = require("../../../helper/timer")
 const befor_start = require("./before_start")
 const start = require("./start")
-const targetCover = require("./target_cover")
 
 const vote = {
     async start_vote({ game_vars }) {
@@ -53,8 +52,9 @@ const vote = {
 
     arange_defence({ game_vars, users }) {
         const { votes_status } = game_vars
-        //todo : count users
-        let users_to_defence = votes_status.filter(user => user.users.length)
+        const live_users = start.pick_live_users({ game_vars })
+        const live_users_count = live_users.length
+        let users_to_defence = votes_status.filter(user => user.users.length >= Math.floor(live_users_count / 2))
         let defender_ids = users_to_defence.map(user => user.user_id)
         let defenders_queue = users.filter(user => defender_ids.includes(user.user_id))
         game_vars.edit_event("edit", "defenders_queue", defenders_queue)
@@ -110,7 +110,9 @@ const vote = {
         let user_to_exit = votes_status.sort((a, b) => { b.users.length - a.users.length })
         user_to_exit = user_to_exit[0]
         let exit_vote_count = user_to_exit.users.length
-        if (exit_vote_count === 0) return
+        const live_users = start.pick_live_users({ game_vars })
+        const live_users_count = live_users.length
+        if (exit_vote_count < Math.floor(live_users_count / 2)) return
         //todo count exit vote
         let users_with_same_vote = votes_status.filter(user => user.users.length === exit_vote_count)
         user_to_exit = null
@@ -136,15 +138,16 @@ const vote = {
             const { carts } = game_vars
             let guard = carts.findIndex(cart => cart.name === "guard")
             if (carts[guard].user_id === user_id) {
+                console.log("user turn to citizen");
                 let new_carts = [...carts]
                 new_carts[guard].name === "citizen"
                 game_vars.edit_event("edit", "carts", new_carts)
-                let comp_user = befor_start.pick_player_from_user_id({ users, user_id })
+                const index = users.findIndex(e => e.user_id === user_id)
                 game_vars.edit_event("edit", "report_data",
                     {
                         user: user_id,
                         event: "exit_vote",
-                        msg: `از بازی کسی خارج نشد.بازیکن شماره ${comp_user.index} با نقش شهروندی به بازی ادامه خواهد داد و قابل ناتوئی نیست.`
+                        msg: `از بازی کسی خارج نشد.بازیکن شماره ${index + 1} با نقش شهروندی به بازی ادامه خواهد داد و قابل ناتوئی نیست.`
                     })
             } else {
                 let index = users.findIndex(user => user.user_id === user_id)

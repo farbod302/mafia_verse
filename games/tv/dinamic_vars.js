@@ -1,6 +1,6 @@
 const dinamic_vars = class {
     constructor() {
-        this.is_end=false
+        this.is_end = false
         this.time = "day"
         this.start = false
         this.turn = -1
@@ -8,9 +8,9 @@ const dinamic_vars = class {
         this.next_event = "wait_to_join"
         this.queue = []
         this.day = 1
-        this.is_live=false
-        this.reconnect_queue=[]
-        this.abandon_queue=[]
+        this.is_live = false
+        this.reconnect_queue = []
+        this.abandon_queue = []
         this.dead_list = []
         this.join_status = []
         this.join_status_second_phase = []
@@ -42,7 +42,8 @@ const dinamic_vars = class {
         this.chaos_vots = []
         this.chaos_run_count = 0
         this.player_reval = null
-        this.winner=null
+        this.winner = null
+        this.second_chance = []
     }
     edit_event(op, event, value, from) {
         switch (op) {
