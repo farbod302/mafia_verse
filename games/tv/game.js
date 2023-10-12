@@ -888,6 +888,13 @@ const Game = class {
     }
 
     async pre_vote() {
+        const { gun_status } = this.game_vars
+        gun_status.forEach(gun => {
+            const user_to_emit = befor_start.pick_player_from_user_id({ users: this.users, user_id: gun.user_id })
+            let socket_id = this.socket_finder(user_to_emit.user_id)
+            this.socket.to(socket_id).emit("gun_status", { data: { gun_enable: false } })
+        })
+
         await vote.start_vote({ game_vars: this.game_vars })
         const { game_id } = this
         this.socket.to(game_id).emit("game_event", { data: { game_event: "vote" } })

@@ -56,7 +56,6 @@ const night = {
             users_can_cop.includes(mafia.role) &&
             !dead_list.includes(mafia.user_id))
         if (speech_list.length === 2) {
-            console.log("mafia speech");
             await this.generate_room_for_mafia({ game_vars, users, socket })
             game_vars.edit_event("edit", "mafia_speak", true)
         }
