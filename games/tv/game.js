@@ -989,7 +989,7 @@ const Game = class {
 
 
             const continue_func = (target_cover_queue, turn) => {
-                if (!target_cover_queue[turn].permission) {
+                if (target_cover_queue[turn].permission === null) {
                     let new_target_cover = [...target_cover_queue]
                     new_target_cover[turn].comp = true
                     this.game_vars.edit_event("edit", "target_cover_queue", new_target_cover)
