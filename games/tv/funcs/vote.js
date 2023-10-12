@@ -25,9 +25,8 @@ const vote = {
         // socket.to(game_id).emit("vote", { data: new_vote_record })
         // vote to player
         let cur_player = queue[turn]
-        const s_player = befor_start.pick_player_from_user_id({ users, user_id: cur_player.user_id })
-        console.log({s_player});
-        const index = s_player.id 
+
+        const index = users.findIndex(e => e.user_id === cur_player.user_id)
         let users_to_prevent_vote = [cur_player.user_id]
         if (custom_queue.length && custom_queue.length < 3) {
             custom_queue.forEach(user => users_to_prevent_vote.push(user.user_id))
@@ -35,7 +34,7 @@ const vote = {
         let user_to_vote = users.filter(user => !users_to_prevent_vote.includes(user.user_id))
         socket.to(game_id).emit("report", {
             data: {
-                msg: `رای گیری برای بازیکن شماره ${index+1}`, timer: 2
+                msg: `رای گیری برای بازیکن شماره ${index + 1}`, timer: 2
             }
         })
         await Helper.delay(2)
