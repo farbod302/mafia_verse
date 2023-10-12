@@ -22,6 +22,7 @@ const start = {
 
     async create_room_for_mafia({ mafia, socket, room_id }) {
         await Voice.start_room(room_id)
+        console.log("hi");
         for (let user of mafia) {
             const { user_id, socket_id } = user
             let token = Voice.join_room(user_id, room_id)
