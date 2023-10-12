@@ -34,7 +34,7 @@ const vote = {
         let user_to_vote = users.filter(user => !users_to_prevent_vote.includes(user.user_id))
         socket.to(game_id).emit("report", {
             data: {
-                msg: `رای گیری برای بازیکن شماره ${index}`, timer: 2
+                msg: `رای گیری برای بازیکن شماره ${index+1}`, timer: 2
             }
         })
         await Helper.delay(2)
