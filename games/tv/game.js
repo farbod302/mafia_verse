@@ -749,6 +749,7 @@ const Game = class {
         }
 
         if (queue.length === turn) {
+            this.game_vars.edit_event("edit","second_chance",[])
             const index = this.users.findIndex(e => e.user_id === queue[turn - 1].user_id)
             start.edit_game_action({
                 index,
