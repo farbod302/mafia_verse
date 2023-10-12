@@ -808,6 +808,7 @@ const Game = class {
                 this.game_vars.second_chance.push(cur_speech.user_id)
             }
             this.mainCycle()
+            return
         }
         let time = static_vars.speech_time[speech_type]
         this.socket.to(game_id).emit("current_speech", {
