@@ -21,13 +21,11 @@ const vote = {
     async next_player_vote_turn({ game_vars, socket, game_id, cycle, users }) {
         const { queue, turn, vote_type, custom_queue } = game_vars
         let new_vote_record = { user_id: queue[turn].user_id, users: [], vote_type, timer: 5 }
-        const s_player = queue[turn]
         game_vars.edit_event("push", "votes_status", new_vote_record)
         // socket.to(game_id).emit("vote", { data: new_vote_record })
         // vote to player
         let cur_player = queue[turn]
-        console.log({ cur_player })
-        const test = befor_start.pick_player_from_user_id({ users, user_id: cur_player.user_id })
+        const index=cur_player.user_index +1 || cur_player.id
         let users_to_prevent_vote = [cur_player.user_id]
         if (custom_queue.length && custom_queue.length < 3) {
             custom_queue.forEach(user => users_to_prevent_vote.push(user.user_id))
@@ -35,7 +33,7 @@ const vote = {
         let user_to_vote = users.filter(user => !users_to_prevent_vote.includes(user.user_id))
         socket.to(game_id).emit("report", {
             data: {
-                msg: `رای گیری برای بازیکن شماره ${s_player.user_index + 1}`, timer: 2
+                msg: `رای گیری برای بازیکن شماره ${index}`, timer: 2
             }
         })
         await Helper.delay(2)
