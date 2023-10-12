@@ -26,8 +26,7 @@ const vote = {
         // vote to player
         let cur_player = queue[turn]
         const s_player = befor_start.pick_player_from_user_id({ users, user_id: cur_player.user_id })
-        console.log({s_player});
-        const index = cur_player.user_index + 1 || cur_player.id
+        const index = s_player.id + 1
         let users_to_prevent_vote = [cur_player.user_id]
         if (custom_queue.length && custom_queue.length < 3) {
             custom_queue.forEach(user => users_to_prevent_vote.push(user.user_id))
