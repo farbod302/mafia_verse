@@ -236,6 +236,8 @@ const Game = class {
             }
             case ("user_action"): {
 
+                const { speech_type } = this.game_vars
+                if (speech_type !== "turn") return
                 const { action } = data
                 const { user_id } = client.idenity
                 const { game_id } = this
