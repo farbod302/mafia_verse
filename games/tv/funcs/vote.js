@@ -147,7 +147,7 @@ const vote = {
                 const index = users.findIndex(e => e.user_id === user_id)
                 game_vars.edit_event("edit", "report_data",
                     {
-                        user: user_id,
+                        user_id: user_id,
                         event: "exit_vote",
                         msg: `از بازی کسی خارج نشد.بازیکن شماره ${index + 1} با نقش شهروندی به بازی ادامه خواهد داد و قابل ناتوئی نیست.`
                     })
@@ -163,7 +163,7 @@ const vote = {
                 game_vars.edit_event("push", "dead_list", user_id)
                 game_vars.edit_event("edit", "report_data",
                     {
-                        user: user_id,
+                        user_id: user_id,
                         event: "exit_vote",
                         msg: "از بازی یک نفر با رای بازیکنان خارج شد "
                     })
