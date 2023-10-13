@@ -47,7 +47,7 @@ const night = {
             const { user_id } = user
             let availabel_users = this.pick_user_for_act({ game_vars, act, user_id })
             this.emit_to_act({
-                user_id, availabel_users, users, socket, can_act: true, msg: "",game_vars
+                user_id, availabel_users, users, socket, can_act: true, msg: "", game_vars
             })
         }
     },
@@ -112,7 +112,7 @@ const night = {
         let nato = carts.find(cart => cart.name === "nato")
         const { user_id } = nato
         let availabel_users = this.pick_user_for_act({ game_vars, act: "nato", user_id })
-        this.emit_to_act({ user_id, availabel_users, users, socket, can_act: true ,game_vars})
+        this.emit_to_act({ user_id, availabel_users, users, socket, can_act: true, game_vars })
         socket.to(game_id).emit("report", { data: { msg: "مافیا اعلام ناتویی کرده است", timer: 3 } })
     },
 
@@ -125,7 +125,7 @@ const night = {
             let { can_act, msg } = this.check_act({ records, act, game_vars })
             let { user_id, name } = act
             let availabel_users = this.pick_user_for_act({ game_vars, act: name, user_id })
-            this.emit_to_act({ user_id, availabel_users, users, socket, can_act, msg,game_vars })
+            this.emit_to_act({ user_id, availabel_users, users, socket, can_act, msg, game_vars })
         }
     },
 
@@ -219,12 +219,12 @@ const night = {
                 let user_to_check = targets[0].user_id
                 let target = game_vars.carts.find(cart => cart.user_id === user_to_check)
                 let status = mafia_acts.includes(target.name)
-                socket.to(idenity.socket_id).emit("detective_inquiry", { data: { inquiry: status, user_id: user_to_check } })
-                console.log({idenity:idenity.socket_id,status});
+                socket.to(idenity.socket_id).emit("detective_inquiry", { inquiry: status, user_id: user_to_check })
+                console.log({ idenity: idenity.socket_id, status });
                 game_vars.edit_event("push", "users_detective_check", user_to_check)
                 return
             }
-            
+
             case ("rifleman"): {
                 // game_vars.edit_event("edit", "gun_status", targets)
                 let real_gun = targets.find(gun => gun.act === "fighter")
