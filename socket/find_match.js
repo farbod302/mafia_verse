@@ -124,7 +124,7 @@ const find_match = {
         let users_ids = users.map(user => user.user_id)
         let game_to_leave = all_games.find(game => game.partys.includes(party_id))
         if (!game_to_leave) return
-        let { users: users_befor_leave, partys, remain, game_id } = game_to_leave
+        let { users: users_befor_leave, partys, remain, game_id ,auth} = game_to_leave
         let users_after_leave = users_befor_leave.filter(user => !users_ids.includes(user.user_id))
         let new_party_lists = partys.filter(party => party !== party_id)
         let new_remain = remain + users.length
@@ -133,7 +133,8 @@ const find_match = {
             users: users_after_leave,
             remain: new_remain,
             partys: new_party_lists,
-            senario: "tv"
+            senario: "tv",
+            auth
         }
         //remove game if its empty
         if (updated_game.users.length === 0) {
