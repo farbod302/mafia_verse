@@ -1075,7 +1075,7 @@ const Game = class {
     }
 
 
-    count_exit_vote() {
+    async count_exit_vote() {
         const { game_id, socket } = this
         let user_to_exit = vote.count_exit_vote({ game_vars: this.game_vars, game_id, socket, users: this.users })
         // if (user_to_exit) {
@@ -1092,6 +1092,7 @@ const Game = class {
         this.game_vars.edit_event("edit", "next_event", "start_night")
         // }
         this.game_vars.edit_event("edit", "defenders_queue", [])
+        await Helper.delay(3)
         this.mainCycle()
     }
 
