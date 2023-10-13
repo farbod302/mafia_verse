@@ -1,5 +1,5 @@
 const Voice = require("../../../helper/live_kit_handler")
-const reconnect = ({ game_vars, client, game_id }) => {
+const reconnect = ({ game_vars, client, game_id,users }) => {
     const { user_id } = client
     const { carts, players_compleate_list, gun_status } = game_vars
     let user_character = carts.find(cart => cart.user_id === user_id)

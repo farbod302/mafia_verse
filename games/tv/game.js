@@ -78,7 +78,8 @@ const Game = class {
             const data = reconnect({
                 game_vars: this.game_vars,
                 client,
-                game_id: this.game_id
+                game_id: this.game_id,
+                users: this.users
             })
             let user_socket = this.socket_finder(client.user_id)
             this.socket.to(user_socket).emit("reconnect_data", { data })
