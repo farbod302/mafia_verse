@@ -31,11 +31,13 @@ const vote = {
             custom_queue.forEach(user => users_to_prevent_vote.push(user.user_id))
         }
         let user_to_vote = users.filter(user => !users_to_prevent_vote.includes(user.user_id))
-        socket.to(game_id).emit("report", {
-            data: {
-                msg: `رای گیری برای بازیکن شماره ${index + 1}`, timer: 2
-            }
-        })
+        if (index > -1) {
+            socket.to(game_id).emit("report", {
+                data: {
+                    msg: `رای گیری برای بازیکن شماره ${index + 1}`, timer: 2
+                }
+            })
+        }
         await Helper.delay(2)
         user_to_vote.forEach(user => socket.to(user.socket_id).emit("vote", { data: new_vote_record }))
         run_timer(10, cycle)
