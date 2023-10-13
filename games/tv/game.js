@@ -842,7 +842,7 @@ const Game = class {
                 let user_in_queue = queue.filter(u => u.user_id === user_id)
                 return {
                     user_id,
-                    status: user_in_queue.length ? true:false
+                    status: user_in_queue.length === 1
                 }
             })
             console.log({ challenge_status: status_list });
@@ -941,7 +941,7 @@ const Game = class {
                 let live_users = start.pick_live_users({ game_vars: this.game_vars })
                 const { votes_status } = this.game_vars
                 let users_voted = votes_status[0].users.length
-                if (users_voted > (live_users.length / 2)) {
+                if (users_voted > (Math.floor(live_users.length / 2))) {
                     this.game_vars.edit_event("edit", "next_event", "inquiry")
                 }
                 else {
