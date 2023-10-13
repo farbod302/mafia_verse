@@ -341,6 +341,9 @@ const Game = class {
                 const { shot } = data
                 let decision = shot ? "mafia_shot" : "use_nato"
                 this.game_vars.edit_event("edit", "next_event", decision)
+                if(decision === "use_nato"){
+                    this.game_vars.edit_event("edit","mafia_decision",true)
+                }
                 night.emit_to_mod({
                     game_vars: this.game_vars,
                     socket_finder: this.socket_finder,

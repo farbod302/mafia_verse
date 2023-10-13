@@ -25,7 +25,10 @@ const night = {
         game_vars.edit_event("edit", "gun_status", [])
     },
 
-    emit_to_act({ user_id, availabel_users, users, socket, can_act, msg }) {
+    emit_to_act({ user_id, availabel_users, users, socket, can_act, msg, game_vars }) {
+        const { player_status } = game_vars
+        const s_user = player_status.find(e => e.user_id === user_id)
+        if (!s_user || !s_user.user_status?.is_alive) return
         let selected_user = befor_start.pick_player_from_user_id({ users, user_id })
         if (!selected_user) return
         //check alive
@@ -220,11 +223,7 @@ const night = {
                 game_vars.edit_event("push", "users_detective_check", user_to_check)
                 return
             }
-            case ("nato"): {
-                game_vars.edit_event("edit", "nato_act", true)
-                return
-
-            }
+            
             case ("rifleman"): {
                 // game_vars.edit_event("edit", "gun_status", targets)
                 let real_gun = targets.find(gun => gun.act === "fighter")
