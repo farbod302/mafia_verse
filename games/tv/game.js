@@ -341,8 +341,8 @@ const Game = class {
                 const { shot } = data
                 let decision = shot ? "mafia_shot" : "use_nato"
                 this.game_vars.edit_event("edit", "next_event", decision)
-                if(decision === "use_nato"){
-                    this.game_vars.edit_event("edit","mafia_decision",true)
+                if (decision === "use_nato") {
+                    this.game_vars.edit_event("edit", "mafia_decision", true)
                 }
                 night.emit_to_mod({
                     game_vars: this.game_vars,
@@ -752,7 +752,7 @@ const Game = class {
         }
 
         if (queue.length === turn) {
-            this.game_vars.edit_event("edit","second_chance",[])
+            this.game_vars.edit_event("edit", "second_chance", [])
             const index = this.users.findIndex(e => e.user_id === queue[turn - 1].user_id)
             start.edit_game_action({
                 index,
@@ -1077,19 +1077,19 @@ const Game = class {
     count_exit_vote() {
         const { game_id, socket } = this
         let user_to_exit = vote.count_exit_vote({ game_vars: this.game_vars, game_id, socket, users: this.users })
-        if (user_to_exit) {
-            let user_to_speech = befor_start.pick_player_from_user_id({ users: this.users, user_id: user_to_exit })
-            let queue = [user_to_speech]
-            this.game_vars.edit_event("edit", "next_event", "start_speech")
-            this.game_vars.edit_event("edit", "custom_queue", [])
-            // this.game_vars.edit_event("edit", "custom_queue", queue)
-            this.game_vars.edit_event("edit", "speech_type", "final_words")
-            this.game_vars.edit_event("edit", "turn", -1)
-            data_handler.add_data(this.game_id, { user: "server", op: "user_exit", data: { user_to_exit } })
-        }
-        else {
-            this.game_vars.edit_event("edit", "next_event", "start_night")
-        }
+        // if (user_to_exit) {
+        //     let user_to_speech = befor_start.pick_player_from_user_id({ users: this.users, user_id: user_to_exit })
+        //     let queue = [user_to_speech]
+        //     this.game_vars.edit_event("edit", "next_event", "start_speech")
+        //     this.game_vars.edit_event("edit", "custom_queue", [])
+        //     // this.game_vars.edit_event("edit", "custom_queue", queue)
+        //     this.game_vars.edit_event("edit", "speech_type", "final_words")
+        //     this.game_vars.edit_event("edit", "turn", -1)
+        //     data_handler.add_data(this.game_id, { user: "server", op: "user_exit", data: { user_to_exit } })
+        // }
+        // else {
+        this.game_vars.edit_event("edit", "next_event", "start_night")
+        // }
         this.game_vars.edit_event("edit", "defenders_queue", [])
         this.mainCycle()
     }

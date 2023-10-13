@@ -152,6 +152,8 @@ const start = {
             timer: 7
         }
 
+        console.log({game_id,user_id,msg},"report");
+
         socket.to(game_id).emit("report", { data: raw_reports })
         game_vars.edit_event("edit", "report_data", {})
     },

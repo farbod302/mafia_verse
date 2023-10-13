@@ -47,7 +47,7 @@ const night = {
             const { user_id } = user
             let availabel_users = this.pick_user_for_act({ game_vars, act, user_id })
             this.emit_to_act({
-                user_id, availabel_users, users, socket, can_act: true, msg: ""
+                user_id, availabel_users, users, socket, can_act: true, msg: "",game_vars
             })
         }
     },
@@ -112,7 +112,7 @@ const night = {
         let nato = carts.find(cart => cart.name === "nato")
         const { user_id } = nato
         let availabel_users = this.pick_user_for_act({ game_vars, act: "nato", user_id })
-        this.emit_to_act({ user_id, availabel_users, users, socket, can_act: true })
+        this.emit_to_act({ user_id, availabel_users, users, socket, can_act: true ,game_vars})
         socket.to(game_id).emit("report", { data: { msg: "مافیا اعلام ناتویی کرده است", timer: 3 } })
     },
 
@@ -125,7 +125,7 @@ const night = {
             let { can_act, msg } = this.check_act({ records, act, game_vars })
             let { user_id, name } = act
             let availabel_users = this.pick_user_for_act({ game_vars, act: name, user_id })
-            this.emit_to_act({ user_id, availabel_users, users, socket, can_act, msg })
+            this.emit_to_act({ user_id, availabel_users, users, socket, can_act, msg,game_vars })
         }
     },
 
