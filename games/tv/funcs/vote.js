@@ -165,13 +165,13 @@ const vote = {
                         event: "exit_vote",
                         msg: "از بازی یک نفر با رای بازیکنان خارج شد "
                     })
-                start.generate_report({
-                    game_vars,
-                    report_type: "vote_report",
-                    socket,
-                    game_id
-                })
             }
+            start.generate_report({
+                game_vars,
+                report_type: "vote_report",
+                socket,
+                game_id
+            })
 
         }
         game_vars.edit_event("edit", "vote_type", "pre_vote")
