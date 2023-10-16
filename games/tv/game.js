@@ -15,6 +15,7 @@ const online_users_handler = require("../../socket/online_users_handler")
 const User = require("../../db/user")
 const data_handler = require("../../games_temp_data/data_handler")
 const GameHistory = require("../../db/game_history")
+const User = require("../../db/user")
 const Game = class {
     constructor({ game_id, users, socket, game_handlers, mod }) {
         this.socket = socket
@@ -634,6 +635,7 @@ const Game = class {
         await Helper.delay(2)
 
 
+
         if (mod) {
             let mod_socket = this.socket_finder(mod)
             let roles = carts.map(e => {
@@ -661,6 +663,9 @@ const Game = class {
             }
         })
         this.mainCycle()
+        const { users } = this
+        const users_id = users.map(e => e.uid)
+        await User.updateMany({ uid: { $in: users_id } }, { $inc: { gold: -20 } })
     }
 
 
@@ -1409,6 +1414,8 @@ const Game = class {
 
         let database_update = report.users.map(update => {
             let key = update.winner ? "points.win" : "points.lose"
+            const game_result_key = `games_result.game_as_${update.side}`
+            const game_result_win_key = `games_result.win_as_${update.side}`
             return User.findOneAndUpdate({ uid: update.user_id }, {
                 $inc: {
                     "ranking.rank": update.point,
@@ -1416,7 +1423,9 @@ const Game = class {
                     "session_rank.week": update.point,
                     "session_rank.session": update.point,
                     "ranking.xp": update.xp,
-                    [key]: 1
+                    [key]: 1,
+                    [game_result_key]: 1,
+                    [game_result_win_key]: update.winner ? 1 : 0
                 }
             })
         })
