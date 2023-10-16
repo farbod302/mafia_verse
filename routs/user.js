@@ -410,7 +410,7 @@ router.post("/game_history", async (req, res) => {
     res.json({
         status: true,
         msg: "",
-        data: { games }
+        data: { games:games.reverse() }
     })
 })
 
