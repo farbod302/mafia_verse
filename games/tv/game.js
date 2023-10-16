@@ -15,7 +15,6 @@ const online_users_handler = require("../../socket/online_users_handler")
 const User = require("../../db/user")
 const data_handler = require("../../games_temp_data/data_handler")
 const GameHistory = require("../../db/game_history")
-const User = require("../../db/user")
 const Game = class {
     constructor({ game_id, users, socket, game_handlers, mod }) {
         this.socket = socket
