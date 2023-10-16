@@ -65,7 +65,7 @@ const Game = class {
         return this.users
     }
 
-    re_connect({ client }) {
+    async re_connect({ client }) {
         const { is_live } = this.game_vars
         const { game_id } = this
         const { user_id } = client
@@ -84,6 +84,7 @@ const Game = class {
             let user_socket = this.socket_finder(client.user_id)
             this.socket.to(user_socket).emit("reconnect_data", { data })
             let index = this.users.findIndex(e => e.user_id == client.user_id)
+            await Helper.delay(3)
             start.edit_game_action({
                 index,
                 prime_event: "user_status",
