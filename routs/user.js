@@ -489,7 +489,7 @@ router.post("/find_match_gold", async (req, res) => {
     const { uid } = user
     const s_user = await User.findOne({ uid })
     res.json({
-        status: true,
+        status: user.gold >= 20,
         msg: s_user.gold >= 20 ? "" : "شما سکه کافی برای شروع بازی ندارید",
         data: {
             has_enough_gold: user.gold >= 20
