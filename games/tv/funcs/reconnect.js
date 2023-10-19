@@ -1,5 +1,5 @@
 const Voice = require("../../../helper/live_kit_handler")
-const reconnect = ({ game_vars, client, game_id,users }) => {
+const reconnect = ({ game_vars, client, game_id, users }) => {
     const { user_id } = client
     const { carts, players_compleate_list, gun_status } = game_vars
     let user_character = carts.find(cart => cart.user_id === user_id)
@@ -74,6 +74,7 @@ const game_event_finder = (event) => {
     let s_event = all_events.find(ev => {
         if (ev.events.includes(event)) return true
     })
+    console.log({ event: s_event?.e });
     return s_event?.e || "day"
 }
 
