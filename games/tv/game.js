@@ -1358,7 +1358,8 @@ const Game = class {
 
     }
 
-    chaos_result_second_phase() {
+    async chaos_result_second_phase() {
+        await Helper.delay(5)
         const { chaos_vots } = this.game_vars
         let live_users = start.pick_live_users({ game_vars: this.game_vars })
         const selected_user = live_users.find(user => {
