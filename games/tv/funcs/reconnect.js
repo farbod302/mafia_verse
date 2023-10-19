@@ -1,7 +1,7 @@
 const Voice = require("../../../helper/live_kit_handler")
 const reconnect = ({ game_vars, client, game_id, users }) => {
     const { user_id } = client
-    const { carts, players_compleate_list, gun_status } = game_vars
+    const { carts, players_compleate_list, gun_status, chaos_run_count } = game_vars
     let user_character = carts.find(cart => cart.user_id === user_id)
     let mafia_list = []
     const mafia_acts = ["godfather", "nato", "hostage_taker"]
@@ -32,7 +32,7 @@ const reconnect = ({ game_vars, client, game_id, users }) => {
         character: user_character?.name || "not_found",
         users_data: players_compleate_list,
         room_id: live_kit_token,
-        game_event: game_event_finder(game_event),
+        game_event: chaos_run_count ? "chaos" : game_event_finder(game_event),
         game_action,
         in_game_turn_speech,
         in_game_status: {
@@ -49,7 +49,7 @@ const reconnect = ({ game_vars, client, game_id, users }) => {
 
 
 const game_event_finder = (event) => {
-    console.log({event});
+    console.log({ event });
     const all_events = [
 
         {
@@ -71,6 +71,7 @@ const game_event_finder = (event) => {
             ]
         }
     ]
+
 
     let s_event = all_events.find(ev => {
         if (ev.events.includes(event)) return true
