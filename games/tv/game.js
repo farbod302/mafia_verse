@@ -1085,7 +1085,7 @@ const Game = class {
 
     async count_exit_vote() {
         const { game_id, socket } = this
-        let user_to_exit = vote.count_exit_vote({ game_vars: this.game_vars, game_id, socket, users: this.users })
+        let user_to_exit = vote.count_exit_vote({ game_vars: this.game_vars, game_id, socket, users: this.users,socket_finder:this.socket_finder })
         // if (user_to_exit) {
         //     let user_to_speech = befor_start.pick_player_from_user_id({ users: this.users, user_id: user_to_exit })
         //     let queue = [user_to_speech]

@@ -107,7 +107,7 @@ const vote = {
 
     },
 
-    count_exit_vote({ game_vars, users, socket, game_id }) {
+    count_exit_vote({ game_vars, users, socket, game_id,socket_finder }) {
         const { votes_status } = game_vars
         let user_to_exit = votes_status.sort((a, b) => { b.users.length - a.users.length })
         user_to_exit = user_to_exit[0]
@@ -145,12 +145,17 @@ const vote = {
                 new_carts[guard].name === "citizen"
                 game_vars.edit_event("edit", "carts", new_carts)
                 const index = users.findIndex(e => e.user_id === user_id)
+                const socket_id=socket_finder(user_id)
+                socket.to(socket_id).emit("changed_to_citizen")
                 game_vars.edit_event("edit", "report_data",
                     {
                         user_id: user_id,
                         event: "exit_vote",
                         msg: `از بازی کسی خارج نشد.بازیکن شماره ${index + 1} با نقش شهروندی به بازی ادامه خواهد داد و قابل ناتوئی نیست.`
                     })
+
+
+
             } else {
                 let index = users.findIndex(user => user.user_id === user_id)
                 start.edit_game_action({
