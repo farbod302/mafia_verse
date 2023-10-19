@@ -1264,6 +1264,11 @@ const Game = class {
         this.game_vars.edit_event("edit", "chaos_vots", [])
         if (chaos_run_count === 2) {
             //random user
+            const sides = ["mafia", "citizen"]
+            const random_side = Math.floor(Math.random() * 2)
+            const winner=sides[random_side]
+            this.game_vars.edit_event("edit","winner",winner)
+            this.game_vars.edit_event("edit","next_event","end_game")
             return
         }
         this.game_vars.edit_event("edit", "chaos_run_count", "plus")
