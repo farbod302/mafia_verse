@@ -33,6 +33,7 @@ const vote = {
             custom_queue.forEach(user => users_to_prevent_vote.push(user.user_id))
         }
         let user_to_vote = users.filter(user => !users_to_prevent_vote.includes(user.user_id))
+        console.log({user_to_vote});
         if (index > -1) {
             socket.to(game_id).emit("report", {
                 data: {
