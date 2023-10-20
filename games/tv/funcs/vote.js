@@ -54,6 +54,8 @@ const vote = {
         // socket.to(game_id).emit("vote", { data: new_vote_status[turn] })
     },
 
+    // A1V4Nymz9ovZ91iM8O
+
 
     arange_defence({ game_vars, users }) {
         const { votes_status } = game_vars
