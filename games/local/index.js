@@ -36,7 +36,6 @@ const LocalGame = class {
                 this.deck = clean_deck
                 if (this.player_count !== data.length) return this.socket.to(client.id).emit("error", { data: { msg: "تعداد کارت با تعداد پلیر مقایرت دارد" } })
                 QRCode.toDataURL("http://192.168.43.161:3000/local_game?game_id=" + this.game_id, (err, url) => {
-                    console.log({ url });
                     this.socket.to(client.id).emit("local_game_started", { data: { qr_code: url } })
                     this.start = true
                 })
@@ -134,7 +133,6 @@ const LocalGame = class {
         const { socket_id } = s_user
         this.socket.to(socket_id).emit("pick_cart")
         const cur = +`${this.turn}`
-        console.log({ cur });
         const jump_to_next = (cur_index) => {
             if (cur_index === this.turn) {
                 const first_empty_slot = this.shuffled_carts.findIndex(e => !e.user_pick)

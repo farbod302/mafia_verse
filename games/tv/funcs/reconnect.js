@@ -76,7 +76,6 @@ const game_event_finder = (event) => {
     let s_event = all_events.find(ev => {
         if (ev.events.includes(event)) return true
     })
-    console.log({ event: s_event?.e });
     return s_event?.e || "day"
 }
 

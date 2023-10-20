@@ -25,10 +25,11 @@ const start = {
         for (let user of mafia) {
             const { user_id, socket_id } = user
             let token = Voice.join_room(user_id, room_id)
-            socket.to(socket_id).emit("mafia_speech", { token, timer: 5 })
+            const teammate = mafia.find(e => e.user_id === user_id)
+            socket.to(socket_id).emit("mafia_speech", { token, timer: 20, teammate: teammate.user_id })
             setTimeout(() => {
                 socket.to(socket_id).emit("mafia_speech_end")
-            }, 5000)
+            }, 20000)
         }
 
     },
@@ -152,7 +153,6 @@ const start = {
             timer: 7
         }
 
-        console.log({ game_id, user_id, msg }, "report");
 
         socket.to(game_id).emit("report", { data: raw_reports })
         game_vars.edit_event("edit", "report_data", {})

@@ -62,7 +62,7 @@ const night = {
             await this.generate_room_for_mafia({ game_vars, users, socket })
             game_vars.edit_event("edit", "mafia_speak", true)
         }
-        await delay(5)
+        await delay(20)
         game_vars.edit_event("next_event", "check_mafia_decision")
     },
 
@@ -220,7 +220,6 @@ const night = {
                 let target = game_vars.carts.find(cart => cart.user_id === user_to_check)
                 let status = mafia_acts.includes(target.name)
                 socket.to(idenity.socket_id).emit("detective_inquiry", { inquiry: status, user_id: user_to_check })
-                console.log({ idenity: idenity.socket_id, status });
                 game_vars.edit_event("push", "users_detective_check", user_to_check)
                 return
             }

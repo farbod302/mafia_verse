@@ -11,7 +11,6 @@ const Session = {
             case ("week"): range_time = 1000 * 60 * 60 * 24 * 7; default_rank = 875; break
             case ("session"): range_time = 1000 * 60 * 60 * 24 * 7 * 4 * 3; default_rank = 3000; break
         }
-        console.log({ range });
         const start = Date.now()
         const end = start + range_time
         const preview_session_start = start - range_time
@@ -25,7 +24,6 @@ const Session = {
         }
         const file_name = `${range}_${preview_session_date}`
         fs.writeFileSync(`${__dirname}/sessions_result/${range}_${str_data}.json`, JSON.stringify(new_session_history))
-        console.log({ key });
         await User.updateMany({}, { $set: { [key]: default_rank } })
         const prv_sessions_record = fs.readFileSync(`${__dirname}/session.json`)
         const json = JSON.parse(prv_sessions_record.toLocaleString())

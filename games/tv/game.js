@@ -730,7 +730,8 @@ const Game = class {
     }
 
 
-    next_player_speech() {
+    async next_player_speech() {
+        await Helper.delay(0.5)
         this.game_vars.edit_event("edit", "turn", "plus")
         const { game_id } = this
         const { queue, turn, can_take_challenge, speech_type, reval, player_reval, carts, player_status, second_chance } = this.game_vars
@@ -853,7 +854,6 @@ const Game = class {
                     status: user_in_queue.length === 1
                 }
             })
-            console.log({ challenge_status: status_list });
             this.socket.to(game_id).emit("users_challenge_status", { data: status_list })
 
 
@@ -1229,7 +1229,7 @@ const Game = class {
             socket: this.socket,
             game_id: this.game_id
         })
-        await Helper.delay(3)
+        await Helper.delay(8)
         this.mainCycle()
 
     }

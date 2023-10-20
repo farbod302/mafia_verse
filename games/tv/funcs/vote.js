@@ -26,7 +26,9 @@ const vote = {
         let cur_player = queue[turn]
 
         const index = users.findIndex(e => e.user_id === cur_player.user_id)
-        let users_to_prevent_vote = [cur_player.user_id]
+        let dead_users = game_vars.player_status.filter(e => !e.user_status.is_alive)
+        dead_users = dead_users.map(e => e.user_id)
+        let users_to_prevent_vote = dead_users.concat(cur_player.user_id)
         if (custom_queue.length && custom_queue.length < 3) {
             custom_queue.forEach(user => users_to_prevent_vote.push(user.user_id))
         }
@@ -107,12 +109,13 @@ const vote = {
 
     },
 
-    count_exit_vote({ game_vars, users, socket, game_id,socket_finder }) {
+    count_exit_vote({ game_vars, users, socket, game_id, socket_finder }) {
         const { votes_status } = game_vars
         let user_to_exit = votes_status.sort((a, b) => { b.users.length - a.users.length })
         user_to_exit = user_to_exit[0]
         let exit_vote_count = user_to_exit.users.length
         const live_users = start.pick_live_users({ game_vars })
+        console.log({ exit_vote_count, live_users });
         const live_users_count = live_users.length
         if (exit_vote_count < Math.floor(live_users_count / 2)) return
         //todo count exit vote
@@ -145,7 +148,7 @@ const vote = {
                 new_carts[guard].name === "citizen"
                 game_vars.edit_event("edit", "carts", new_carts)
                 const index = users.findIndex(e => e.user_id === user_id)
-                const socket_id=socket_finder(user_id)
+                const socket_id = socket_finder(user_id)
                 socket.to(socket_id).emit("changed_to_citizen")
                 game_vars.edit_event("edit", "report_data",
                     {
