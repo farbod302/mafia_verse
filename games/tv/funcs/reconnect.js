@@ -27,6 +27,7 @@ const reconnect = ({ game_vars, client, game_id, users }) => {
     if (game_event === "start_speech" || game_event === "next_player_speech") {
         in_game_turn_speech = [...game_vars.queue]
     }
+    console.log({ reconnect_game_action: game_action });
 
     return {
         character: user_character?.name || "not_found",
