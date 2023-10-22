@@ -33,7 +33,6 @@ const vote = {
             custom_queue.forEach(user => users_to_prevent_vote.push(user.user_id))
         }
         let user_to_vote = users.filter(user => !users_to_prevent_vote.includes(user.user_id))
-        console.log({user_to_vote});
         if (index > -1) {
             socket.to(game_id).emit("report", {
                 data: {
@@ -42,7 +41,10 @@ const vote = {
             })
         }
         await Helper.delay(2)
-        user_to_vote.forEach(user => socket.to(user.socket_id).emit("vote", { data: new_vote_record }))
+        user_to_vote.forEach(user => {
+            socket.to(user.socket_id).emit("vote", { data: new_vote_record })
+            console.log({ user_socket: user.socket_id });
+        })
         run_timer(10, cycle)
     },
     submit_vote({ client, socket, game_vars, game_id }) {
@@ -112,7 +114,7 @@ const vote = {
 
     },
 
-    count_exit_vote({ game_vars, users, socket, game_id, socket_finder }) {
+    count_exit_vote({ game_vars, users, socket, game_id, socket_finder, game_id }) {
         const { votes_status } = game_vars
         let user_to_exit = votes_status.sort((a, b) => { b.users.length - a.users.length })
         user_to_exit = user_to_exit[0]
@@ -146,7 +148,6 @@ const vote = {
             const { carts } = game_vars
             let guard = carts.findIndex(cart => cart.name === "guard")
             if (carts[guard].user_id === user_id) {
-                console.log("user turn to citizen");
                 let new_carts = [...carts]
                 new_carts[guard].name === "citizen"
                 game_vars.edit_event("edit", "carts", new_carts)
@@ -172,6 +173,9 @@ const vote = {
                     game_vars
                 })
                 game_vars.edit_event("push", "dead_list", user_id)
+                const { player_status } = game_vars
+                this.socket.to(game_id).emit("game_action", { data: [player_status[index]] })
+
                 game_vars.edit_event("edit", "report_data",
                     {
                         user_id: user_id,

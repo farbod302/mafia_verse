@@ -1085,7 +1085,7 @@ const Game = class {
 
     async count_exit_vote() {
         const { game_id, socket } = this
-        let user_to_exit = vote.count_exit_vote({ game_vars: this.game_vars, game_id, socket, users: this.users,socket_finder:this.socket_finder })
+        let user_to_exit = vote.count_exit_vote({ game_vars: this.game_vars, game_id, socket, users: this.users, socket_finder: this.socket_finder, game_id: this.game_id })
         // if (user_to_exit) {
         //     let user_to_speech = befor_start.pick_player_from_user_id({ users: this.users, user_id: user_to_exit })
         //     let queue = [user_to_speech]
@@ -1266,9 +1266,9 @@ const Game = class {
             //random user
             const sides = ["mafia", "citizen"]
             const random_side = Math.floor(Math.random() * 2)
-            const winner=sides[random_side]
-            this.game_vars.edit_event("edit","winner",winner)
-            this.game_vars.edit_event("edit","next_event","end_game")
+            const winner = sides[random_side]
+            this.game_vars.edit_event("edit", "winner", winner)
+            this.game_vars.edit_event("edit", "next_event", "end_game")
             this.mainCycle()
             return
         }
