@@ -114,7 +114,7 @@ const vote = {
 
     },
 
-    count_exit_vote({ game_vars, users, socket, game_id, socket_finder, game_id }) {
+    count_exit_vote({ game_vars, users, socket, game_id, socket_finder }) {
         const { votes_status } = game_vars
         let user_to_exit = votes_status.sort((a, b) => { b.users.length - a.users.length })
         user_to_exit = user_to_exit[0]
