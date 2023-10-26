@@ -27,13 +27,12 @@ const reconnect = ({ game_vars, client, game_id, users }) => {
     if (game_event === "start_speech" || game_event === "next_player_speech") {
         in_game_turn_speech = [...game_vars.queue]
     }
-    console.log({ reconnect_game_action: game_action });
 
     return {
         character: user_character?.name || "not_found",
         users_data: players_compleate_list,
         room_id: live_kit_token,
-        game_event: chaos_run_count ? "chaos" : game_event_finder(game_event),
+        game_event: game_vars.mafia_talking ? "night" : chaos_run_count ? "chaos" : game_event_finder(game_event),
         game_action,
         in_game_turn_speech,
         in_game_status: {

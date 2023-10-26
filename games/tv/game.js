@@ -1143,11 +1143,14 @@ const Game = class {
     async mafia_speech() {
         const { game_id } = this
         this.socket.to(game_id).emit("report", { data: { msg: "زمان هم فکری مافیا", timer: 3 } })
+        this.game_vars.edit_event("edit", "mafia_talking", true)
         await night.mafia_speech({
             game_vars: this.game_vars,
             users: this.users,
             socket: this.socket
         })
+        this.game_vars.edit_event("edit", "mafia_talking", false)
+
         this.game_vars.edit_event("edit", "next_event", "check_mafia_decision")
         this.mainCycle()
     }
