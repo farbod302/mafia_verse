@@ -43,7 +43,6 @@ const vote = {
         await Helper.delay(2)
         user_to_vote.forEach(user => {
             socket.to(user.socket_id).emit("vote", { data: new_vote_record })
-            console.log({ user_socket: user.socket_id });
         })
         run_timer(10, cycle)
     },
@@ -120,7 +119,6 @@ const vote = {
         user_to_exit = user_to_exit[0]
         let exit_vote_count = user_to_exit.users.length
         const live_users = start.pick_live_users({ game_vars })
-        console.log({ exit_vote_count, live_users });
         const live_users_count = live_users.length
         if (exit_vote_count < Math.floor(live_users_count / 2)) return
         //todo count exit vote
@@ -158,7 +156,7 @@ const vote = {
                     {
                         user_id: user_id,
                         event: "exit_vote",
-                        msg: `از بازی کسی خارج نشد.بازیکن شماره ${index + 1} با نقش شهروندی به بازی ادامه خواهد داد و قابل ناتوئی نیست.`
+                        msg: `از بازی کسی خارج نشد.بازیکن شماره ${index + 1} با نقش شهروندی به بازی ادامه خواهد داد و قابل ناتویی نیست.`
                     })
 
 
@@ -174,7 +172,7 @@ const vote = {
                 })
                 game_vars.edit_event("push", "dead_list", user_id)
                 const { player_status } = game_vars
-                this.socket.to(game_id).emit("game_action", { data: [player_status[index]] })
+                socket.to(game_id).emit("game_action", { data: [player_status[index]] })
 
                 game_vars.edit_event("edit", "report_data",
                     {

@@ -33,6 +33,7 @@ const Game = class {
         try {
             const next_event = this.game_vars.next_event
             this.game_vars.edit_event("edit", "cur_event", next_event)
+            console.log({next_event});
             this[next_event]()
         } catch (err) {
             console.log(err);
