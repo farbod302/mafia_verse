@@ -776,6 +776,8 @@ const Game = class {
             const { player_status } = this.game_vars
             this.socket.to(game_id).emit("game_action", { data: [player_status[index]] })
             this.socket.to(game_id).emit("current_speech_end")
+            const last_player_socket=this.socket_finder(this.users[index].user_id)
+            this.socket.to(last_player_socket).emit("speech_time_up")
             if (speech_type === "chaos") {
                 this.game_vars.edit_event("edit", "next_event", "chaos_speech_second_phase")
                 this.mainCycle()
