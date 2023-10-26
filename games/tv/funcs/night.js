@@ -43,7 +43,7 @@ const night = {
         const { carts } = game_vars
         for (let act of users_to_act) {
             let user = carts.find(cart => cart.name === act)
-            if (!user.user_id) return
+            if (!user?.user_id) continue
             const { user_id } = user
             let availabel_users = this.pick_user_for_act({ game_vars, act, user_id })
             this.emit_to_act({

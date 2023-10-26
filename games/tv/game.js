@@ -936,7 +936,7 @@ const Game = class {
         this.game_vars.edit_event("edit", "vote_type", "inquiry")
         const { game_id } = this
         this.socket.to(game_id).emit("day_inquiry", { data: { timer: 5 } })
-        this.socket.to(game_id).emit("game_event", { data: { game_event: "inquiry_vote" } })
+        this.socket.to(game_id).emit("game_event", { data: { game_event: "vote" } })
         await vote.start_vote({ game_vars: this.game_vars })
         this.mainCycle()
 
@@ -1104,6 +1104,7 @@ const Game = class {
         // }
         this.game_vars.edit_event("edit", "defenders_queue", [])
         await Helper.delay(3)
+        this.game_vars.edit_event("edit", "can_take_challenge", true)
         this.mainCycle()
     }
 
