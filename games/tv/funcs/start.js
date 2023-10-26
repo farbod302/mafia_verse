@@ -152,8 +152,6 @@ const start = {
             user_id,
             timer: 7
         }
-
-
         socket.to(game_id).emit("report", { data: raw_reports })
         game_vars.edit_event("edit", "report_data", {})
     },
