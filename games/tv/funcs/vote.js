@@ -149,6 +149,7 @@ const vote = {
                 let new_carts = [...carts]
                 new_carts[guard].name === "citizen"
                 game_vars.edit_event("edit", "carts", new_carts)
+                console.log({new_carts});
                 const index = users.findIndex(e => e.user_id === user_id)
                 const socket_id = socket_finder(user_id)
                 socket.to(socket_id).emit("changed_to_citizen")

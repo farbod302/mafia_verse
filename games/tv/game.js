@@ -1086,7 +1086,7 @@ const Game = class {
 
     async count_exit_vote() {
         const { game_id, socket } = this
-        let user_to_exit = vote.count_exit_vote({ game_vars: this.game_vars, game_id, socket, users: this.users, socket_finder: this.socket_finder, game_id: this.game_id })
+         vote.count_exit_vote({ game_vars: this.game_vars, game_id, socket, users: this.users, socket_finder: this.socket_finder, game_id: this.game_id })
         // if (user_to_exit) {
         //     let user_to_speech = befor_start.pick_player_from_user_id({ users: this.users, user_id: user_to_exit })
         //     let queue = [user_to_speech]
@@ -1153,6 +1153,7 @@ const Game = class {
         this.game_vars.edit_event("edit", "mafia_talking", false)
 
         this.game_vars.edit_event("edit", "next_event", "check_mafia_decision")
+        await Helper.delay(5)
         this.mainCycle()
     }
 
