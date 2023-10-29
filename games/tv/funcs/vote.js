@@ -20,7 +20,7 @@ const vote = {
     },
     async next_player_vote_turn({ game_vars, socket, game_id, cycle, users }) {
         const { queue, turn, vote_type, custom_queue } = game_vars
-        let new_vote_record = { user_id: queue[turn].user_id, users: [], vote_type, timer: 5 }
+        let new_vote_record = { user_id: queue[turn].user_id, available_users: [], vote_type, timer: 5 }
         game_vars.edit_event("push", "votes_status", new_vote_record)
         // socket.to(game_id).emit("vote", { data: new_vote_record })
         // vote to player
@@ -34,6 +34,7 @@ const vote = {
             custom_queue.forEach(user => users_to_prevent_vote.push(user.user_id))
         }
         let user_to_vote = users.filter(user => !users_to_prevent_vote.includes(user.user_id))
+        new_vote_record.available_users = user_to_vote.map(e => e.user_id)
         if (index > -1) {
             socket.to(game_id).emit("report", {
                 data: {
@@ -152,7 +153,6 @@ const vote = {
                 let new_carts = [...carts]
                 new_carts[guard].name = "citizen"
                 game_vars.edit_event("edit", "carts", new_carts)
-                console.log({ new_carts });
                 const index = users.findIndex(e => e.user_id === user_id)
                 const socket_id = socket_finder(user_id)
                 socket.to(socket_id).emit("changed_to_citizen")
@@ -166,7 +166,7 @@ const vote = {
 
 
             } else {
-                let index = users.findIndex(user => user.user_id === user_id)
+                let index = game_vars.player_status.findIndex(user => user.user_id === user_id)
                 start.edit_game_action({
                     index,
                     prime_event: "user_status",

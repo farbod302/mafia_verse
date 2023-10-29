@@ -15,8 +15,10 @@ const start = {
             let token = Voice.join_room(user_id, game_id)
             socket.to(socket_id).emit("livekit_token", { token })
         }
-        let mod_token = Voice.join_room(mod_user_id, game_id)
-        socket.to(mod_socket).emit("livekit_token", { token: mod_token })
+        if (mod_user_id) {
+            let mod_token = Voice.join_room(mod_user_id, game_id)
+            socket.to(mod_socket).emit("livekit_token", { token: mod_token })
+        }
 
     },
 
@@ -25,7 +27,7 @@ const start = {
         for (let user of mafia) {
             const { user_id, socket_id } = user
             let token = Voice.join_room(user_id, room_id)
-            const teammate = mafia.find(e => e.user_id === user_id)
+            const teammate = mafia.find(e => e.user_id !== user_id)
             socket.to(socket_id).emit("mafia_speech", { token, timer: 20, teammate: teammate.user_id })
             setTimeout(() => {
                 socket.to(socket_id).emit("mafia_speech_end")

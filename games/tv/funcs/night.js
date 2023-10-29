@@ -61,6 +61,7 @@ const night = {
         if (speech_list.length === 2) {
             await this.generate_room_for_mafia({ game_vars, users, socket })
             game_vars.edit_event("edit", "mafia_speak", true)
+            game_vars.edit_event("edit","mafia_need_token",speech_list)
         }
         await delay(20)
         game_vars.edit_event("next_event", "check_mafia_decision")
@@ -315,7 +316,9 @@ const night = {
                 game_vars
             })
             const { player_status } = game_vars
-            socket.to(game_id).emit("game_action", { data: [player_status[index]] })
+            setTimeout(() => {
+                socket.to(game_id).emit("game_action", { data: [player_status[index]] })
+            }, 6000)
             game_vars.edit_event("push", "dead_list", user_to_kill)
             let prv_player_status = [...game_vars.player_status]
             let user_index = prv_player_status.findIndex(u => u.user_id === user_to_kill)

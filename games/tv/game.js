@@ -15,6 +15,7 @@ const online_users_handler = require("../../socket/online_users_handler")
 const User = require("../../db/user")
 const data_handler = require("../../games_temp_data/data_handler")
 const GameHistory = require("../../db/game_history")
+const Voice = require("../../helper/live_kit_handler")
 const Game = class {
     constructor({ game_id, users, socket, game_handlers, mod }) {
         this.socket = socket
@@ -33,7 +34,7 @@ const Game = class {
         try {
             const next_event = this.game_vars.next_event
             this.game_vars.edit_event("edit", "cur_event", next_event)
-            console.log({next_event});
+            console.log({ next_event });
             this[next_event]()
         } catch (err) {
             console.log(err);
@@ -776,7 +777,7 @@ const Game = class {
             const { player_status } = this.game_vars
             this.socket.to(game_id).emit("game_action", { data: [player_status[index]] })
             this.socket.to(game_id).emit("current_speech_end")
-            const last_player_socket=this.socket_finder(this.users[index].user_id)
+            const last_player_socket = this.socket_finder(this.users[index].user_id)
             this.socket.to(last_player_socket).emit("speech_time_up")
             if (speech_type === "chaos") {
                 this.game_vars.edit_event("edit", "next_event", "chaos_speech_second_phase")
@@ -786,12 +787,16 @@ const Game = class {
             //end speech
             if (speech_type === "final_words") {
                 let game_result_check = night.check_next_day({ game_vars: this.game_vars })
-                if (game_result_check === 4 || game_result_check === 3) {
+                if (game_result_check === 4) {
 
                     this.game_vars.edit_event("edit", "next_event", "start_night")
                     this.game_vars.edit_event("edit", "vote_type", "pre_vote")
                     this.mainCycle()
                     return
+                }
+                else if (game_result_check === 3) {
+                    this.game_vars.edit_event("edit", "next_event", "chaos")
+
                 }
                 else {
                     let winner = game_result_check === 2 ? "mafia" : "citizen"
@@ -1088,20 +1093,22 @@ const Game = class {
 
     async count_exit_vote() {
         const { game_id, socket } = this
-         vote.count_exit_vote({ game_vars: this.game_vars, game_id, socket, users: this.users, socket_finder: this.socket_finder, game_id: this.game_id })
-        // if (user_to_exit) {
-        //     let user_to_speech = befor_start.pick_player_from_user_id({ users: this.users, user_id: user_to_exit })
-        //     let queue = [user_to_speech]
-        //     this.game_vars.edit_event("edit", "next_event", "start_speech")
-        //     this.game_vars.edit_event("edit", "custom_queue", [])
-        //     // this.game_vars.edit_event("edit", "custom_queue", queue)
-        //     this.game_vars.edit_event("edit", "speech_type", "final_words")
-        //     this.game_vars.edit_event("edit", "turn", -1)
-        //     data_handler.add_data(this.game_id, { user: "server", op: "user_exit", data: { user_to_exit } })
-        // }
-        // else {
-        this.game_vars.edit_event("edit", "next_event", "start_night")
-        // }
+        vote.count_exit_vote({ game_vars: this.game_vars, game_id, socket, users: this.users, socket_finder: this.socket_finder, game_id: this.game_id })
+        if (user_to_exit) {
+            const game_result_check = night.check_next_day({ game_vars: this.game_vars })
+            if (game_result_check === 4) this.game_vars.edit_event("edit", "next_event", "start_night")
+            if (game_result_check === 1 || game_result_check === 2) {
+                let winner = game_result_check === 2 ? "mafia" : "citizen"
+                this.game_vars.edit_event("edit", "winner", winner)
+                this.game_vars.edit_event("edit", "next_event", "end_game")
+            }
+            if (game_result_check === 3) {
+                this.game_vars.edit_event("edit", "next_event", "chaos")
+            }
+        }
+        else {
+            this.game_vars.edit_event("edit", "next_event", "start_night")
+        }
         this.game_vars.edit_event("edit", "defenders_queue", [])
         await Helper.delay(3)
         this.game_vars.edit_event("edit", "can_take_challenge", true)
@@ -1244,6 +1251,18 @@ const Game = class {
 
 
     async next_day() {
+
+
+        const { mafia_need_token } = this.game_vars
+        if (mafia_need_token.length) {
+            for (let user of mafia_need_token) {
+                const { user_id, socket_id } = user
+                let token = Voice.join_room(user_id, this.game_id)
+                this.socket.to(socket_id).emit("livekit_token", { token })
+            }
+            this.game_vars.edit_event("edit", "mafia_need_token", [])
+        }
+
         await night.next_day({
             game_vars: this.game_vars,
             socket: this.socket,
