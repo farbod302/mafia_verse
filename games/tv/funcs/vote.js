@@ -20,7 +20,7 @@ const vote = {
     },
     async next_player_vote_turn({ game_vars, socket, game_id, cycle, users }) {
         const { queue, turn, vote_type, custom_queue } = game_vars
-        let new_vote_record = { user_id: queue[turn].user_id, available_users: [], vote_type, timer: 5 }
+        let new_vote_record = { user_id: queue[turn].user_id, available_users: [], users: [], vote_type, timer: 5 }
         game_vars.edit_event("push", "votes_status", new_vote_record)
         // socket.to(game_id).emit("vote", { data: new_vote_record })
         // vote to player

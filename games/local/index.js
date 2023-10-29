@@ -4,7 +4,7 @@ var QRCode = require('qrcode')
 const Helper = require("../../helper/helper")
 const LocalGame = class {
 
-    constructor(mod, player_count, socket, game_id) {
+    constructor(mod, player_count, socket, game_id, db) {
         this.mod = mod
         this.player_count = player_count
         this.deck = []
@@ -15,6 +15,10 @@ const LocalGame = class {
         this.users = []
         this.turn = -1
         this.game_id = game_id
+        const remove_game = () => {
+            db.removeOne("local_game", "game_id", game_id)
+        }
+        this.remove_game = remove_game
     }
 
     load_deck() {
@@ -128,7 +132,9 @@ const LocalGame = class {
     async next_player_pick_cart() {
         this.turn = this.turn + 1
         const { turn } = this
-        if (turn === this.player_count) return
+        if (turn === this.player_count) {
+            this.remove_game()
+        }
         const s_user = this.users[turn]
         const { socket_id } = s_user
         this.socket.to(socket_id).emit("pick_cart")

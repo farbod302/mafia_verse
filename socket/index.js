@@ -106,7 +106,7 @@ const SocketProvider = class {
                 const { idenity } = client
                 const game_id = uid(4)
                 client.local_game_id = game_id
-                const new_local_game = new LocalGame(idenity, +player_count, this.io, game_id)
+                const new_local_game = new LocalGame(idenity, +player_count, this.io, game_id,this.db)
                 this.db.add_data("local_game", { game_class: new_local_game, local_game_id: game_id })
             })
 
