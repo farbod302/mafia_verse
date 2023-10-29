@@ -1093,7 +1093,7 @@ const Game = class {
 
     async count_exit_vote() {
         const { game_id, socket } = this
-        vote.count_exit_vote({ game_vars: this.game_vars, game_id, socket, users: this.users, socket_finder: this.socket_finder, game_id: this.game_id })
+        const user_to_exit=vote.count_exit_vote({ game_vars: this.game_vars, game_id, socket, users: this.users, socket_finder: this.socket_finder, game_id: this.game_id })
         if (user_to_exit) {
             const game_result_check = night.check_next_day({ game_vars: this.game_vars })
             if (game_result_check === 4) this.game_vars.edit_event("edit", "next_event", "start_night")
