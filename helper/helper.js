@@ -28,7 +28,7 @@ const Helper = {
         let chars = {
             "citizen": "شهروند",
             "detective": "کاراگاه",
-            "rifleman": "تفنگ دار",
+            "rifleman": "تفنگدار",
             "commando": "تکاور",
             "guard": "نگهبان",
             "nato": "ناتو",
