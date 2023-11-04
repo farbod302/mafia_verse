@@ -467,6 +467,7 @@ const Game = class {
                     const { user_id: uid } = user
                     let socket_id = this.socket_finder(uid)
                     if (user.user_id !== user_id) this.socket.to(socket_id).emit("day_using_gun", { data: { user_id } })
+
                 })
                 break
             }
@@ -736,6 +737,8 @@ const Game = class {
         this.game_vars.edit_event("edit", "turn", "plus")
         const { game_id } = this
         const { queue, turn, can_take_challenge, speech_type, reval, player_reval, carts, player_status, second_chance } = this.game_vars
+        const user_index=queue[turn]
+        if(!player_status[user_index].user_status.is_alive)return this.mainCycle()
         //check player reval
         if (player_reval && player_reval.turn === turn) {
             const { user_id } = player_reval
@@ -751,8 +754,8 @@ const Game = class {
                     new_value: false,
                     game_vars: this.game_vars
                 })
-                const { player_status } = this.game_vars
-                this.socket.to(game_id).emit("game_action", { data: [player_status[queue[turn-1].user_index]] })
+                const new_status = this.game_vars.player_status
+                this.socket.to(game_id).emit("game_action", { data: [new_status[queue[turn-1].user_index]] })
                 this.game_vars.edit_event("edit", "turn", turn - 1)
 
                 this.mainCycle()
@@ -1092,7 +1095,7 @@ const Game = class {
 
     async count_exit_vote() {
         const { game_id, socket } = this
-        const user_to_exit=vote.count_exit_vote({ game_vars: this.game_vars, game_id, socket, users: this.users, socket_finder: this.socket_finder, game_id: this.game_id })
+        const user_to_exit = vote.count_exit_vote({ game_vars: this.game_vars, game_id, socket, users: this.users, socket_finder: this.socket_finder, game_id: this.game_id })
         if (user_to_exit) {
             const game_result_check = night.check_next_day({ game_vars: this.game_vars })
             if (game_result_check === 4) this.game_vars.edit_event("edit", "next_event", "start_night")
