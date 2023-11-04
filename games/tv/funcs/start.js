@@ -199,10 +199,12 @@ const start = {
                 user_index: index
             }
             prv_queue.splice(turn + 1, 0, clean_user)
+            console.log({prv_queue});
             prv_queue = prv_queue.filter((e) => {
                 if (e.user_id === user_resive_shot && e.speech_status !== "challenge") return false
                 return true
             })
+            console.log({prv_queue});
             game_vars.edit_event("edit", "queue", prv_queue)
             game_vars.edit_event("edit", "player_reval", { user_id: user_resive_shot, turn: game_vars.turn + 2 })
         }
