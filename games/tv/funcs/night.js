@@ -342,10 +342,10 @@ const night = {
                 })
         }
         let next_event = this.check_next_day({ game_vars })
-        if (next_event === 3) {
-            game_vars.edit_event("edit", "next_event", "chaos")
-            return
-        }
+        // if (next_event === 3) {
+        //     game_vars.edit_event("edit", "next_event", "chaos")
+        //     return
+        // }
         if (next_event === 4) {
             game_vars.edit_event("edit", "next_event", "next_day")
             return
