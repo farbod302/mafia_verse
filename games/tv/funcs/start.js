@@ -183,6 +183,7 @@ const start = {
                 kind: gun_type
             }
         })
+        console.log({gun_type});
         if (gun_type === "fighter") {
             game_vars.edit_event("push", "dead_list", user_resive_shot)
             const { turn } = game_vars
@@ -196,7 +197,6 @@ const start = {
                 user_id,
                 user_index: index
             }
-
             prv_queue.splice(turn + 1, 0, clean_user)
             prv_queue = prv_queue.filter((e) => {
                 if (e.user_id === user_resive_shot && e.speech_status !== "challenge") return false

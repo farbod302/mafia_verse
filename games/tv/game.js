@@ -467,7 +467,6 @@ const Game = class {
                     const { user_id: uid } = user
                     let socket_id = this.socket_finder(uid)
                     if (user.user_id !== user_id) this.socket.to(socket_id).emit("day_using_gun", { data: { user_id } })
-
                 })
                 break
             }
