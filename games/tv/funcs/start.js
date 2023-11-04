@@ -185,6 +185,7 @@ const start = {
         })
         console.log({gun_type});
         if (gun_type === "fighter") {
+            console.log({user_resive_shot});
             game_vars.edit_event("push", "dead_list", user_resive_shot)
             const { turn } = game_vars
             let prv_queue = [...game_vars.queue]
