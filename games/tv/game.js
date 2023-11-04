@@ -737,9 +737,7 @@ const Game = class {
         this.game_vars.edit_event("edit", "turn", "plus")
         const { game_id } = this
         const { queue, turn, can_take_challenge, speech_type, reval, player_reval, carts, player_status, second_chance } = this.game_vars
-        const user_index=queue[turn]
-        console.log({user_index});
-        console.log({player_status});
+        const user_index=queue[turn].user_index;
         if(!player_status[user_index].user_status.is_alive)return this.mainCycle()
         //check player reval
         if (player_reval && player_reval.turn === turn) {
