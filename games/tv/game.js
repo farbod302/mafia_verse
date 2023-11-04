@@ -737,28 +737,38 @@ const Game = class {
         this.game_vars.edit_event("edit", "turn", "plus")
         const { game_id } = this
         const { queue, turn, can_take_challenge, speech_type, reval, player_reval, carts, player_status, second_chance } = this.game_vars
-        const user_index=queue[turn]?.user_index;
-        if(user_index && !player_status[user_index].user_status.is_alive)return this.mainCycle()
+        const user_index = queue[turn]?.user_index;
+        if (user_index && !player_status[user_index].user_status.is_alive) return this.mainCycle()
         //check player reval
         if (player_reval && player_reval.turn === turn) {
             const { user_id } = player_reval
             let player_roule = carts.find(c => c.user_id === user_id)
             const { name, id } = player_roule
-            this.socket.to(game_id).emit("player_show_character", { data: { user_id, id, name } })
+            let mafia_roles = ["godfather", "nato", "hostage_taker"]
+            const msg = `بازیکن شماره ${queue[turn - 1].user_index} با ساید ${mafia_roles.includes(name) ? "مافیا" : "شهروندی"} از بازی خارج شد`
+            this.socket.to(game_id).emit("report", { data: { user_id, msg, timer: 5 } })
             this.game_vars.edit_event("edit", "player_reval", null)
             const contnue_func = () => {
                 start.edit_game_action({
-                    index: queue[turn-1].user_index,
+                    index: queue[turn - 1].user_index,
                     prime_event: "user_status",
                     second_event: "is_alive",
                     new_value: false,
                     game_vars: this.game_vars
                 })
                 const new_status = this.game_vars.player_status
-                this.socket.to(game_id).emit("game_action", { data: [new_status[queue[turn-1].user_index]] })
+                this.socket.to(game_id).emit("game_action", { data: [new_status[queue[turn - 1].user_index]] })
                 this.game_vars.edit_event("edit", "turn", turn - 1)
-
+                const game_result = night.check_next_day({ game_vars: this.game_vars })
+                if (game_result === 3) {
+                    this.game_vars.edit_event("edit", "next_event", "chaos")
+                }
+                if (game_result === 1 || game_result === 2) {
+                    this.game_vars.edit_event("edit", "winner", game_result == 2 ? "mafia" : "citizen")
+                    this.game_vars.edit_event("edit", "next_event", "end_game")
+                }
                 this.mainCycle()
+
             }
             run_timer(5, contnue_func)
             return
