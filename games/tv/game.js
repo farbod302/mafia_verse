@@ -1302,6 +1302,7 @@ const Game = class {
         const { chaos_run_count } = this.game_vars
         this.game_vars.edit_event("edit", "chaos_vots", [])
         if (chaos_run_count === 2) {
+            console.log("random call");
             //random user
             const sides = ["mafia", "citizen"]
             const random_side = Math.floor(Math.random() * 2)
