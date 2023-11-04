@@ -31,7 +31,7 @@ const start = {
             socket.to(socket_id).emit("mafia_speech", { token, timer: 20, teammate: teammate.user_id })
             setTimeout(() => {
                 socket.to(socket_id).emit("mafia_speech_end")
-            }, 20000)
+            }, 5000)
         }
 
     },

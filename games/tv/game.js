@@ -793,10 +793,10 @@ const Game = class {
                     this.mainCycle()
                     return
                 }
-                else if (game_result_check === 3) {
-                    this.game_vars.edit_event("edit", "next_event", "chaos")
+                // else if (game_result_check === 3) {
+                //     this.game_vars.edit_event("edit", "next_event", "chaos")
 
-                }
+                // }
                 else {
                     let winner = game_result_check === 2 ? "mafia" : "citizen"
                     this.game_vars.edit_event("edit", "winner", winner)
