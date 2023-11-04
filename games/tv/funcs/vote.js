@@ -155,7 +155,7 @@ const vote = {
                 game_vars.edit_event("edit", "carts", new_carts)
                 const index = users.findIndex(e => e.user_id === user_id)
                 const socket_id = socket_finder(user_id)
-                socket.to(socket_id).emit("changed_to_citizen")
+                socket.to(socket_id).emit("player_show_character")
                 game_vars.edit_event("edit", "report_data",
                     {
                         user_id: user_id,

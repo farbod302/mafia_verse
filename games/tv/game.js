@@ -767,6 +767,10 @@ const Game = class {
                     this.game_vars.edit_event("edit", "winner", game_result == 2 ? "mafia" : "citizen")
                     this.game_vars.edit_event("edit", "next_event", "end_game")
                 }
+                this.socket.to(game_id).emit("current_speech_end")
+                const player_socket=this.socket_finder(user_id)
+                this.socket.to(player_socket).emit("speech_time_up")
+
                 this.mainCycle()
 
             }
