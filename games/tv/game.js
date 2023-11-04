@@ -745,14 +745,14 @@ const Game = class {
             this.game_vars.edit_event("edit", "player_reval", null)
             const contnue_func = () => {
                 start.edit_game_action({
-                    index: queue[turn].user_index,
+                    index: queue[turn-1].user_index,
                     prime_event: "user_status",
                     second_event: "is_alive",
                     new_value: false,
                     game_vars: this.game_vars
                 })
                 const { player_status } = this.game_vars
-                this.socket.to(game_id).emit("game_action", { data: [player_status[queue[turn].user_index]] })
+                this.socket.to(game_id).emit("game_action", { data: [player_status[queue[turn-1].user_index]] })
                 this.game_vars.edit_event("edit", "turn", turn - 1)
 
                 this.mainCycle()
