@@ -149,7 +149,7 @@ const vote = {
             //check if guard
             const { carts } = game_vars
             let guard = carts.findIndex(cart => cart.name === "guard")
-            if (carts[guard].user_id === user_id) {
+            if (guard !== -1 && carts[guard]?.user_id === user_id) {
                 let new_carts = [...carts]
                 new_carts[guard].name = "citizen"
                 game_vars.edit_event("edit", "carts", new_carts)

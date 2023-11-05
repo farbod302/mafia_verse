@@ -148,12 +148,16 @@ const night = {
                 mafia_shot = mafia_shot?.target || null
                 //check _shot
                 let can_act = false
-                let msg = "شما نمی توانید امشب از توانایی خود استفاده کنید"
+                let msg = "امشب توسط مافیا مورد هدف قرار نگرفتی"
                 let is_targeted = mafia_shot === user_id
                 if (is_targeted) { can_act = true; msg = "" }
                 if (hostage_taker_act.includes(user_id) && is_targeted) {
                     can_act = false;
                     msg = "شما توسط مافیا مورد هدف قرار گرفتید ولی نمی توانید از توانایی خود استفاده کنید"
+                }
+                if(game_vars.comondo_gun_used){
+                    can_act=false
+                    msg="شما از تیر خود استفاده کرده اید"
                 }
                 return { can_act, msg }
             }
@@ -333,6 +337,7 @@ const night = {
                         "دیشب یک نفر از بازی خداحافظی کرد" :
                         "آفرین به نکاور این شهر.از بازی یک نفر خارج شد"
                 })
+                game_vars.edit_event("edit","comondo_true_shot",false)
         }
         else {
             game_vars.edit_event("edit", "report_data",

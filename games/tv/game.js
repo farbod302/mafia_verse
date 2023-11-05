@@ -193,7 +193,7 @@ const Game = class {
             case ("ready_to_game"): {
                 this.game_vars.edit_event("push", "join_status_second_phase", user_call_idenity)
                 let connected_users_length = this.game_vars.join_status_second_phase.length
-                if (connected_users_length === static_vars.player_count + (this.mod ? 1 : 0)) {
+                if (connected_users_length === static_vars.player_count + (this.mod ? 1 : 0) && !this.game_vars.is_live) {
                     this.go_live()
                     this.game_vars.edit_event("edit", "game_go_live", true)
                 }
@@ -768,7 +768,7 @@ const Game = class {
                     this.game_vars.edit_event("edit", "next_event", "end_game")
                 }
                 this.socket.to(game_id).emit("current_speech_end")
-                const player_socket=this.socket_finder(user_id)
+                const player_socket = this.socket_finder(user_id)
                 this.socket.to(player_socket).emit("speech_time_up")
 
                 this.mainCycle()
