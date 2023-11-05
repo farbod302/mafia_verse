@@ -119,6 +119,7 @@ const start = {
     },
 
     mafia_reval({ game_vars, users, socket, game_id }) {
+        socket.to(game_id).emit("action_end")
         const { carts } = game_vars
         const mafai_rols = ["godfather", "nato", "hostage_taker"]
         let users_pick_mafia = carts.filter(user => mafai_rols.includes(user.name))

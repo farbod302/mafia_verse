@@ -19,6 +19,7 @@ const night = {
     },
 
     start_night({ game_vars, socket, game_id }) {
+        socket.to(game_id).emit("action_end")
         game_vars.edit_event("edit", "time", "night")
         socket.to(game_id).emit("game_event", { data: { game_event: "night" } })
         game_vars.edit_event("edit", "next_event", "guard_and_hostage_taker_act")
@@ -383,6 +384,7 @@ const night = {
 
 
     async next_day({ game_vars, socket, game_id }) {
+        socket.to(game_id).emit("action_end")
         game_vars.edit_event("edit", "day", "plus")
         game_vars.edit_event("edit", "time", "day")
         socket.to(game_id).emit("game_event", { data: { game_event: "day" } })

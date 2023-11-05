@@ -1180,6 +1180,7 @@ const Game = class {
 
         this.game_vars.edit_event("edit", "next_event", "check_mafia_decision")
         await Helper.delay(5)
+        this.socket.to(game_id).emit("action_end")
         this.mainCycle()
     }
 
@@ -1303,6 +1304,7 @@ const Game = class {
 
     async chaos() {
         const { game_id } = this
+        this.socket.to(game_id).emit("action_end")
         const { chaos_run_count } = this.game_vars
         this.game_vars.edit_event("edit", "chaos_vots", [])
         if (chaos_run_count === 2) {
