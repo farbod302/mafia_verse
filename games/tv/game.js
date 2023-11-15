@@ -767,9 +767,9 @@ const Game = class {
                     this.game_vars.edit_event("edit", "winner", game_result == 2 ? "mafia" : "citizen")
                     this.game_vars.edit_event("edit", "next_event", "end_game")
                 }
-                this.socket.to(game_id).emit("current_speech_end")
+                this.socket.to(game_id).emit("current_speech_end", { data: { user_id: queue[turn]?.user_id } })
                 const player_socket = this.socket_finder(user_id)
-                this.socket.to(player_socket).emit("speech_time_up")
+                this.socket.to(player_socket).emit("speech_time_up",{ data: { user_id: queue[turn]?.user_id } })
 
                 this.mainCycle()
 
@@ -792,9 +792,9 @@ const Game = class {
             this.game_vars.edit_event("edit", "speech_code", "")
             const { player_status } = this.game_vars
             this.socket.to(game_id).emit("game_action", { data: [player_status[index]] })
-            this.socket.to(game_id).emit("current_speech_end")
+            this.socket.to(game_id).emit("current_speech_end",{ data: { user_id: queue[turn-1]?.user_id } })
             const last_player_socket = this.socket_finder(this.users[index].user_id)
-            this.socket.to(last_player_socket).emit("speech_time_up")
+            this.socket.to(last_player_socket).emit("speech_time_up",{ data: { user_id: queue[turn-1]?.user_id } })
             if (speech_type === "chaos") {
                 this.game_vars.edit_event("edit", "next_event", "chaos_speech_second_phase")
                 this.mainCycle()
@@ -834,7 +834,7 @@ const Game = class {
             }
         }
         // emit current_speech
-        this.socket.to(game_id).emit("current_speech_end")
+        this.socket.to(game_id).emit("current_speech_end",{ data: { user_id: queue[turn]?.user_id } })
         let cur_speech = queue[turn]
         const cur_user_status = player_status.find(e => e.user_id === cur_speech.user_id)
         if (!cur_user_status.user_status.is_connected) {
