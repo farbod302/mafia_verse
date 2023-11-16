@@ -440,7 +440,7 @@ router.post("/spin_lucky_wheel", async (req, res) => {
     const user = req.body.user
     if (!user) return reject(3, res)
     const { uid } = user
-    const s_user = await user.findOne({ uid })
+    const s_user = await User.findOne({ uid })
     const { lucky_wheel_status } = s_user
     const now = Date.now()
     if (lucky_wheel_status > now) return reject(18, res)
