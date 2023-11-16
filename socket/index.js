@@ -111,6 +111,7 @@ const SocketProvider = class {
             })
 
             client.on("handle_local_game", ({ op, data }) => {
+                console.log({op, data});
                 if (data?.game_id) client.local_game_id = data.game_id
                 const { local_game_id } = client
                 const s_game = this.db.getOne("local_game", "local_game_id", local_game_id)
