@@ -137,7 +137,6 @@ const LocalGame = class {
             return this.remove_game()
         }
         const s_user = this.users[turn]
-        console.log({s_user});
         const { socket_id } = s_user
         this.socket.to(socket_id).emit("pick_cart")
         const cur = +`${this.turn}`
