@@ -475,7 +475,7 @@ router.post("/spin_lucky_wheel", async (req, res) => {
     const index = chance.findLastIndex(e => e.num >= random_num)
     const gold = chance[index] || 10
     const next_spin = 1000 * 60 * 60 * 12
-    await User.findOne({ uid }, { $inc: { gold: gold.gold }, $set: { lucky_wheel_status: now + next_spin } })
+    await User.findOneAndUpdate({ uid }, { $inc: { gold: gold.gold }, $set: { lucky_wheel_status: now + next_spin } })
     res.json({
         status: true,
         mag: "",
