@@ -410,7 +410,7 @@ router.post("/game_history", async (req, res) => {
     res.json({
         status: true,
         msg: "",
-        data: { games:games.reverse() }
+        data: { games:games.reverse().slice(0,25) }
     })
 })
 
@@ -479,7 +479,7 @@ router.post("/spin_lucky_wheel", async (req, res) => {
     res.json({
         status: true,
         mag: "",
-        data: { gold, next_spin: now + next_spin }
+        data: { number:random_num, next_spin: now + next_spin }
     })
 })
 

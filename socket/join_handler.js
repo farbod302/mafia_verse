@@ -7,8 +7,13 @@ const join_handler = async ({ token, db, client, socket }) => {
     const user = Jwt.verify(token)
     if (!user) return
     const { uid } = user
+    const is_online = online_users_handler.get_user_socket_id(uid)
+    if (is_online) {
+        client.emit("force_exit")
+        return
+    }
     let s_user = await User.findOne({ uid })
-    if(!s_user)return
+    if (!s_user) return
     let user_party = uuid(5)
     let idenity = {
         socket_id: client.id,

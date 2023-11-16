@@ -75,16 +75,16 @@ const vote = {
             game_vars.edit_event("edit", "turn", -1)
             game_vars.edit_event("edit", "cur_event", "defence")
             game_vars.edit_event("edit", "vote_type", "defence")
-            if (defenders_queue.length >= 3) {
-                game_vars.edit_event("edit", "custom_queue", defenders_queue)
-                game_vars.edit_event("edit", "next_event", "start_speech")
-                return
-            }
-            else {
-                game_vars.edit_event("edit", "queue", defenders_queue)
-                game_vars.edit_event("edit", "next_event", "enable_target_cover")
-                game_vars.edit_event("edit", "turn", -1)
-            }
+            // if (defenders_queue.length >= 3) {
+            game_vars.edit_event("edit", "custom_queue", defenders_queue)
+            game_vars.edit_event("edit", "next_event", "start_speech")
+            return
+            // }
+            // else {
+            //     game_vars.edit_event("edit", "queue", defenders_queue)
+            //     game_vars.edit_event("edit", "next_event", "enable_target_cover")
+            //     game_vars.edit_event("edit", "turn", -1)
+            // }
 
 
         }
