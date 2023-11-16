@@ -133,10 +133,11 @@ const LocalGame = class {
     async next_player_pick_cart() {
         this.turn = this.turn + 1
         const { turn } = this
-        if (turn === this.player_count) {
+        if (turn === this.player_count-1) {
             this.remove_game()
         }
         const s_user = this.users[turn]
+        console.log({s_user});
         const { socket_id } = s_user
         this.socket.to(socket_id).emit("pick_cart")
         const cur = +`${this.turn}`
