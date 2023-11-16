@@ -462,7 +462,7 @@ router.post("/spin_lucky_wheel", async (req, res) => {
             gold: 40
         },
         {
-            num: 95,
+            num: 98,
             gold: 50
         },
         {
@@ -479,7 +479,7 @@ router.post("/spin_lucky_wheel", async (req, res) => {
     res.json({
         status: true,
         mag: "",
-        data: { number:random_num, next_spin: now + next_spin }
+        data: { percent:random_num, next_spin: now + next_spin }
     })
 })
 
