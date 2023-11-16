@@ -429,7 +429,7 @@ router.post("/lucky_wheel_status", async (req, res) => {
         msg: "",
         data: {
             is_ready: now > lucky_wheel_status,
-            time_remain: Math.max(lucky_wheel_status - now, 0)
+            time_remain: Math.max(lucky_wheel_status, 0)
         }
     })
 
