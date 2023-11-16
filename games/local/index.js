@@ -133,8 +133,8 @@ const LocalGame = class {
     async next_player_pick_cart() {
         this.turn = this.turn + 1
         const { turn } = this
-        if (turn === this.player_count-1) {
-            this.remove_game()
+        if (turn === this.player_count) {
+            return this.remove_game()
         }
         const s_user = this.users[turn]
         console.log({s_user});
