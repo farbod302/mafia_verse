@@ -410,7 +410,7 @@ router.post("/game_history", async (req, res) => {
     res.json({
         status: true,
         msg: "",
-        data: { games:games.reverse().slice(0,25) }
+        data: { games: games.reverse().slice(0, 25) }
     })
 })
 
@@ -475,11 +475,11 @@ router.post("/spin_lucky_wheel", async (req, res) => {
     const index = chance.findLastIndex(e => e.num >= random_num)
     const gold = chance[index] || 10
     const next_spin = 1000 * 60 * 60 * 12
-    await User.findOne({ uid }, { $inc: { gold }, $set: { lucky_wheel_status: now + next_spin } })
+    await User.findOne({ uid }, { $inc: { gold: gold.gold }, $set: { lucky_wheel_status: now + next_spin } })
     res.json({
         status: true,
         mag: "",
-        data: { percent:random_num, next_spin: now + next_spin }
+        data: { percent: random_num, next_spin: now + next_spin }
     })
 })
 
@@ -489,7 +489,7 @@ router.post("/find_match_gold", async (req, res) => {
     const { uid } = user
     const s_user = await User.findOne({ uid })
     res.json({
-        status:true,
+        status: true,
         msg: s_user.gold >= 20 ? "" : "شما سکه کافی برای شروع بازی ندارید",
         data: {
             has_enough_gold: user.gold >= 20
