@@ -421,7 +421,7 @@ router.post("/lucky_wheel_status", async (req, res) => {
     const user = req.body.user
     if (!user) return reject(3, res)
     const { uid } = user
-    const s_user = await user.findOne({ uid })
+    const s_user = await User.findOne({ uid })
     const { lucky_wheel_status } = s_user
     const now = Date.now()
     res.json({
