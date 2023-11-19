@@ -33,6 +33,7 @@ const user = mongoose.Schema({
     cart: { type: Array, default: [] },
     reports: { type: Array, default: [] },
     status: { type: String, default: "gust" },
+    representative: { type: String, default: "" },
     device_id: String,
     cur_game: { type: String, default: "" },
     notif_token: String,

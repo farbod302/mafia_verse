@@ -14,18 +14,6 @@ const default_avatar = {
 }
 
 router.post("/", async (req, res) => {
-    const { device_id } = req.body
-    let is_exist = await User.findOne({ device_id })
-    if (is_exist) {
-        const { uid: player_uid } = is_exist
-        const token = Jwt.sign({ uid: player_uid, device_id })
-        res.json({
-            status: true,
-            msg: "ورود انجام شد",
-            data: { token }
-        })
-        return
-    }
     let player_uid = uid(4)
     const new_player = {
         device_id,
@@ -61,7 +49,11 @@ router.post("/check", async (req, res) => {
 
 router.post("/sign_up", async (req, res) => {
     const { phone, name, firebase_token } = req.body
-    console.log({ firebase_token });
+    const representative = req.body.representative
+    if (representative) {
+        const r_user = await User.findOne({ uid: representative })
+        if (!r_user) return res.json({ status: false, msg: "کد معرف اشتباه است", data: {} })
+    }
     let is_user_name_uniq = await User.findOne({ $or: [{ "idenity.name": name }, { "idenity.phone": phone }] })
     if (is_user_name_uniq) {
         res.json({
@@ -74,7 +66,6 @@ router.post("/sign_up", async (req, res) => {
 
     if (!Helper.valideate_phone(phone)) return reject(0, res)
     let code = RegistSmsHandler.send_sms(phone)
-    console.log({ code });
     new TempSms({ phone, name, code, notif_token: firebase_token }).save()
     res.json({
         status: true,
@@ -121,7 +112,6 @@ router.post("/log_in", async (req, res) => {
     if (!is_exist) return reject(4, res)
     if (!Helper.valideate_phone(phone)) return reject(0, res)
     let code = RegistSmsHandler.send_sms(phone)
-    console.log(code);
     res.json({
         status: true,
         msg: "کد تایید ارسال شد",
@@ -138,6 +128,7 @@ router.post("/log_in_confirm_phone", async (req, res) => {
     if (!is_exist) return reject(4, res)
     const { uid: user_id } = is_exist
     let token = Jwt.sign({ uid: user_id })
+    console.log({ token });
     res.json({
         status: true,
         msg: "",

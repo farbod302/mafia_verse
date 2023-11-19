@@ -2,15 +2,15 @@ const fs = require("fs")
 const online_users_handler = {
 
 
-    reset(){
+    reset() {
         fs.writeFileSync(`${__dirname}/online_users.json`, JSON.stringify([]))
     },
 
-    add_user(user_id, socket_id) {
+    add_user(user_id, socket_id, token) {
         let json_file = fs.readFileSync(`${__dirname}/online_users.json`)
         json_file = JSON.parse(json_file.toString())
-        json_file=json_file.filter(e=>e.user_id !== user_id)
-        json_file.push({ user_id, socket_id })
+        json_file = json_file.filter(e => e.user_id !== user_id)
+        json_file.push({ user_id, socket_id, token: token.slice(-10) })
         fs.writeFileSync(`${__dirname}/online_users.json`, JSON.stringify(json_file))
     },
     remove_user(user_id) {
