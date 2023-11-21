@@ -57,6 +57,17 @@ const Game = class {
             let { player_status } = this.game_vars
             this.socket.to(game_id).emit("game_action", { data: [player_status[index]] })
 
+            const abandon_user = () => { this.player_abandon({ client }) }
+
+            const abandon_func = (index, abandon_user) => {
+                const cur_status = this.game_vars.player_status
+                const s_player = cur_status[index]
+                if (!s_player.user_status.is_connected) return abandon_user()
+            }
+            setTimeout(() => {
+                abandon_func(index, abandon_user)
+            }, 1000 * 10)
+
         }
         if (this.mod && this.mod === user_id) return true
         return false
@@ -767,9 +778,9 @@ const Game = class {
                     this.game_vars.edit_event("edit", "winner", game_result == 2 ? "mafia" : "citizen")
                     this.game_vars.edit_event("edit", "next_event", "end_game")
                 }
-                this.socket.to(game_id).emit("current_speech_end", { data: { user_id: queue[turn-1]?.user_id } })
+                this.socket.to(game_id).emit("current_speech_end", { data: { user_id: queue[turn - 1]?.user_id } })
                 const player_socket = this.socket_finder(user_id)
-                this.socket.to(player_socket).emit("speech_time_up", { data: { user_id: queue[turn-1]?.user_id } })
+                this.socket.to(player_socket).emit("speech_time_up", { data: { user_id: queue[turn - 1]?.user_id } })
 
                 this.mainCycle()
 
@@ -834,7 +845,7 @@ const Game = class {
             }
         }
         // emit current_speech
-        this.socket.to(game_id).emit("current_speech_end", { data: { user_id: queue[turn-1]?.user_id } })
+        this.socket.to(game_id).emit("current_speech_end", { data: { user_id: queue[turn - 1]?.user_id } })
         let cur_speech = queue[turn]
         const cur_user_status = player_status.find(e => e.user_id === cur_speech.user_id)
         if (!cur_user_status.user_status.is_connected) {
@@ -1253,7 +1264,7 @@ const Game = class {
         let users_disconnected = this.game_vars.player_status.filter(e => !e.user_status.is_connected)
         let prv_abandon_queue = this.game_vars.abandon_queue
         this.game_vars.edit_event("edit", "abandon_queue", [...prv_abandon_queue, ...users_disconnected])
-        this.check_for_abandon()
+        // this.check_for_abandon()
         await night.night_results({
             game_vars: this.game_vars,
             records: night_records.events,
