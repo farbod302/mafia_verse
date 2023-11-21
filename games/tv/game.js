@@ -57,7 +57,7 @@ const Game = class {
             let { player_status } = this.game_vars
             this.socket.to(game_id).emit("game_action", { data: [player_status[index]] })
 
-            const abandon_user = () => { this.player_abandon({ client }) }
+            const abandon_user = () => { this.player_abandon({ client:client.idenity }) }
 
             const abandon_func = (index, abandon_user) => {
                 const cur_status = this.game_vars.player_status
@@ -138,7 +138,6 @@ const Game = class {
     }
 
     player_abandon({ client }) {
-        console.log("subit abandon for player" ,client);
         const { is_live } = this.game_vars
         const { game_id } = this
         if (!is_live) {
