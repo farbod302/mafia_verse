@@ -21,7 +21,8 @@ router.post("/confirm_transaction", async (req, res) => {
         user_id: uid,
         date: Date.now(),
         plan, token: tr_token,
-        price, gold, success: purchaseState === 0 ? true : false
+        price, gold, success: purchaseState === 0 ? true : false,
+        device:req.body.device|| "Web",note:"افزایش اعتبار"
     }
     await new Transaction(new_transaction).save()
     await User.findOneAndUpdate({ uid }, { $inc: { gold } })

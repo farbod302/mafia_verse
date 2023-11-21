@@ -1,13 +1,12 @@
 const express = require("express")
 const User = require("../db/user")
 const reject = require("../helper/reject_handler")
-const Channel = require("../db/channel")
 const router = express.Router()
 const Pay = require("../db/pay")
 const sha256 = require("sha256")
+const Transaction=require("../db/transaction")
 const { default: mongoose } = require("mongoose")
 const { uid: uuid } = require("uid")
-const Helper = require("../helper/helper")
 const UserChannelConfig = require("../db/user_channel_config")
 const online_users_handler = require("../socket/online_users_handler")
 const Voice = require("../helper/live_kit_handler")
@@ -247,6 +246,19 @@ router.post("/shop_finalize", async (req, res) => {
             $push: { items: { $each: user_with_items[0].cart } }
         }
     )
+    const new_transaction = {
+        user_id: uid,
+        price: 0,
+        gold: selected_item_price * -1,
+        token: "",
+        device: "Web",
+        note: "خرید آیتم از فروشگاه",
+    }
+
+    new Transaction(new_transaction).save()
+
+
+
     res.json({
         status: true,
         msg: "خرید انجام شد",
@@ -365,6 +377,12 @@ router.post("/user_transactions", (req, res) => {
             date: p_date
         }
     })
+    player_transactions=player_transactions.map(e=>{
+        return{
+            ...e,
+            price:`${e.price}`
+        }
+    })
     res.json({
         status: true,
         msg: "",
@@ -376,12 +394,6 @@ router.post("/user_transactions", (req, res) => {
 
 
 
-router.post("/test_room", async (req, res) => {
-    const { name } = req.body
-    await Voice.start_room("test_mmd")
-    const token = Voice.join_room(name, "test_mmd")
-    res.json({ data: { token } })
-})
 
 
 

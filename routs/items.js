@@ -6,6 +6,7 @@ const reject = require("../helper/reject_handler")
 const sha256 = require("sha256")
 const static_vars = require("../games/tv/static_vars")
 const fs = require("fs")
+const Transaction=require("../db/transaction")
 router.get("/items_list", async (req, res) => {
 
 
@@ -111,7 +112,7 @@ router.post("/buy", async (req, res) => {
     const user = req.body.user
     if (!user) return reject(1, res)
     const s_user = await User.findOne({ uid: user.uid })
-    const { gold } = s_user
+    const { gold,uid } = s_user
     const { item } = req.body
     let s_item = await Items.findById(item)
 
@@ -120,6 +121,19 @@ router.post("/buy", async (req, res) => {
         $inc: { gold: s_item.price * -1 },
         $push: { items: mongoose.Types.ObjectId(item) }
     })
+
+
+    const new_transaction = {
+        user_id: uid,
+        price: 0,
+        gold: s_item.price * -1,
+        token: "",
+        device: "App",
+        note: "خرید آیتم از فروشگاه",
+    }
+
+    new Transaction(new_transaction).save()
+
 
     res.json({
         status: true,

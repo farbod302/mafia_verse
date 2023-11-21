@@ -10,7 +10,9 @@ const transaction = mongoose.Schema({
     token:String,
     price:String,
     gold:Number,
-    success:Boolean
+    success:Boolean,
+    note:String,
+    device:String
    
 })
 
