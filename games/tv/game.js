@@ -67,7 +67,7 @@ const Game = class {
             }
             setTimeout(() => {
                 abandon_func(index, abandon_user)
-            }, 1000 * 10)
+            }, 1000 * 30)
 
         }
         if (this.mod && this.mod === user_id) return true
