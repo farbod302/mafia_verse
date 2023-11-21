@@ -62,6 +62,7 @@ const Game = class {
             const abandon_func = (index, abandon_user) => {
                 const cur_status = this.game_vars.player_status
                 const s_player = cur_status[index]
+                console.log({s_player,index});
                 if (!s_player.user_status.is_connected) return abandon_user()
             }
             setTimeout(() => {
