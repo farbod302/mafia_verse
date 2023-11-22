@@ -69,7 +69,7 @@ router.post("/create_channel_by_user", async (req, res) => {
         mod: [uid],
         desc: channel_desc,
         users: [uid],
-        avatar: "files/0.png"
+        avatar: "files/11990.png"
     }
     create_channel(new_channel)
     Helper.create_channel_config({ channel_id, user_id: uid })

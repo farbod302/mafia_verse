@@ -26,7 +26,7 @@ const befor_start = {
                 index,
                 user_id: user.user_id,
                 user_name: slected_user_from_db ? `${slected_user_from_db.idenity.name}` : "کاربر مهمان",
-                user_image: `files/${slected_user_from_db?.avatar?.avatar || "0.png"}`,
+                user_image: `files/${slected_user_from_db?.avatar?.avatar || "11990.png"}`,
                 user_anim: `files/test1.json`,
             }
         })

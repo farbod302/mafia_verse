@@ -10,7 +10,7 @@ const games = {
 
 const find_user_avatar = async (user_id) => {
     let user = await User.findOne({ uid: user_id })
-    return "files/" + `${user?.avatar?.avatar || "0.png"}`
+    return "files/" + `${user?.avatar?.avatar || "11990.png"}`
 }
 
 const find_match = {

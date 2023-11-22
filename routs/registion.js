@@ -8,8 +8,8 @@ const Jwt = require("../helper/jwt")
 const RegistSmsHandler = require("../helper/regist_sms_handler")
 const reject = require("../helper/reject_handler")
 const default_avatar = {
-    avatar: "0.png",
-    tabel: "0.png",
+    avatar: "11990.png",
+    tabel: "11990.png",
     rols: []
 }
 
