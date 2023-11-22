@@ -37,7 +37,7 @@ const Game = class {
             console.log({ next_event });
             this[next_event]()
         } catch (err) {
-            console.log(err);
+            console.log(err,next_event,"err");
             this.game_handlers.abandon()
         }
     }
