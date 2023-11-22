@@ -57,17 +57,17 @@ const Game = class {
             let { player_status } = this.game_vars
             this.socket.to(game_id).emit("game_action", { data: [player_status[index]] })
 
-            const abandon_user = () => { this.player_abandon({ client:client.idenity }) }
+            const abandon_user = () => { this.player_abandon({ client: client.idenity }) }
 
             const abandon_func = (index, abandon_user) => {
                 const cur_status = this.game_vars.player_status
                 const s_player = cur_status[index]
-                console.log("status:",!s_player.user_status.is_connected);
+                console.log("status:", !s_player.user_status.is_connected);
                 if (!s_player.user_status.is_connected) abandon_user()
             }
             setTimeout(() => {
                 abandon_func(index, abandon_user)
-            }, 1000 * 30)
+            }, 1000 * 60 * 3)
 
         }
         if (this.mod && this.mod === user_id) return true
@@ -941,8 +941,13 @@ const Game = class {
             socket: this.socket,
             game_id: this.game_id
         })
-        const { game_id } = this
-        this.socket.to(game_id).emit("report", { data: { msg: "مافیا در حال شناخت هم تییمی های خود هستند", timer: 3 } })
+        const { carts } = this.game_vars
+        const mafia_acts = ["mafia", "nato", "hostage_taker"]
+        const city = carts.filter(e => !mafia_acts.includes(e.name))
+        city.forEach(e => {
+            const user_socket = this.socket_finder(e.user_id)
+            this.socket.to(user_socket).emit("report", { data: { msg: "مافیا در حال شناخت هم تییمی های خود هستند", timer: 3 } })
+        })
         await Helper.delay(8)
         this.mainCycle()
     }
@@ -1266,14 +1271,14 @@ const Game = class {
         let prv_abandon_queue = this.game_vars.abandon_queue
         this.game_vars.edit_event("edit", "abandon_queue", [...prv_abandon_queue, ...users_disconnected])
         // this.check_for_abandon()
-        await night.night_results({
+        night.night_results({
             game_vars: this.game_vars,
             records: night_records.events,
             users: this.users,
             socket: this.socket,
             game_id: this.game_id
         })
-        await Helper.delay(8)
+       
         this.mainCycle()
 
     }

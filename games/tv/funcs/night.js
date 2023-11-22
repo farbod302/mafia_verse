@@ -62,7 +62,7 @@ const night = {
         if (speech_list.length === 2) {
             await this.generate_room_for_mafia({ game_vars, users, socket })
             game_vars.edit_event("edit", "mafia_speak", true)
-            game_vars.edit_event("edit","mafia_need_token",speech_list)
+            game_vars.edit_event("edit", "mafia_need_token", speech_list)
         }
         await delay(5)
         game_vars.edit_event("next_event", "check_mafia_decision")
@@ -155,9 +155,9 @@ const night = {
                     can_act = false;
                     msg = "شما توسط مافیا مورد هدف قرار گرفتید ولی نمی توانید از توانایی خود استفاده کنید"
                 }
-                if(game_vars.comondo_gun_used){
-                    can_act=false
-                    msg="شما از تیر خود استفاده کرده اید"
+                if (game_vars.comondo_gun_used) {
+                    can_act = false
+                    msg = "شما از تیر خود استفاده کرده اید"
                 }
                 return { can_act, msg }
             }
@@ -310,7 +310,8 @@ const night = {
         data_handler.add_data(game_id, { user: "server", op: "night_result", data: { abs_deth, deth } })
         //todo : tell night over
 
-        await delay(5)
+        await delay(3)
+
         if (user_to_kill) {
             let index = users.findIndex(user => user.user_id === user_to_kill)
             start.edit_game_action({
@@ -321,9 +322,7 @@ const night = {
                 game_vars
             })
             const { player_status } = game_vars
-            setTimeout(() => {
-                socket.to(game_id).emit("game_action", { data: [player_status[index]] })
-            }, 6000)
+            socket.to(game_id).emit("game_action", { data: [player_status[index]] })
             game_vars.edit_event("push", "dead_list", user_to_kill)
             let prv_player_status = [...game_vars.player_status]
             let user_index = prv_player_status.findIndex(u => u.user_id === user_to_kill)
@@ -337,7 +336,7 @@ const night = {
                         "دیشب یک نفر از بازی خداحافظی کرد" :
                         "آفرین به نکاور این شهر.از بازی یک نفر خارج شد"
                 })
-                game_vars.edit_event("edit","comondo_true_shot",false)
+            game_vars.edit_event("edit", "comondo_true_shot", false)
         }
         else {
             game_vars.edit_event("edit", "report_data",
