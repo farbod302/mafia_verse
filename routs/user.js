@@ -11,6 +11,7 @@ const UserChannelConfig = require("../db/user_channel_config")
 const online_users_handler = require("../socket/online_users_handler")
 const Voice = require("../helper/live_kit_handler")
 const GameHistory = require("../db/game_history")
+const UserReport = require("../db/user_report")
 //fetch data
 router.post("/land_screen_data", async (req, res) => {
     const { uid } = req.body.user
@@ -508,6 +509,23 @@ router.post("/find_match_gold", async (req, res) => {
         }
     })
 })
+
+
+
+
+router.post("/support",(req,res)=>{
+    const user = req.body.user
+    if (!user) return reject(3, res)
+    const {msg}=req.body
+    const new_report={
+        user_id:user.uid,
+        date:Date.now(),
+        msg
+    }
+
+    new UserReport(new_report).save()
+})
+
 
 
 module.exports = router
