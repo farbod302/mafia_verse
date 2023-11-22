@@ -22,7 +22,7 @@ const befor_start = {
         let users_from_db = await Users.find({ uid: { $in: users_user_id } })
         const player_clean_list = users.map((user, index) => {
             let selected_user_from_db = users_from_db.find(d_user => user.user_id === d_user.uid)
-            console.log({selected_user_from_db});
+            console.log({selected_user_from_db:selected_user_from_db?.avatar});
             return {
                 index,
                 user_id: user.user_id,
