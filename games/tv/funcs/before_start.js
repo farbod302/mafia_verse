@@ -27,7 +27,7 @@ const befor_start = {
                 user_id: user.user_id,
                 user_name: slected_user_from_db ? `${slected_user_from_db.idenity.name}` : "کاربر مهمان",
                 user_image: `files/${slected_user_from_db?.avatar?.avatar || "11990.png"}`,
-                user_anim: `files/test1.json`,
+                user_anime:  `files/${slected_user_from_db?.avatar?.table || "a2e11.lottie"}`,
             }
         })
         return player_clean_list

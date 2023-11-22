@@ -9,7 +9,7 @@ const RegistSmsHandler = require("../helper/regist_sms_handler")
 const reject = require("../helper/reject_handler")
 const default_avatar = {
     avatar: "11990.png",
-    tabel: "11990.png",
+    tabel: "a2e11.lottie",
     rols: []
 }
 
