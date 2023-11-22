@@ -21,15 +21,17 @@ const befor_start = {
         let users_user_id = users.map(user => user.user_id)
         let users_from_db = await Users.find({ uid: { $in: users_user_id } })
         const player_clean_list = users.map((user, index) => {
-            let slected_user_from_db = users_from_db.find(d_user => user.user_id === d_user.uid)
+            let selected_user_from_db = users_from_db.find(d_user => user.user_id === d_user.uid)
+            console.log({selected_user_from_db});
             return {
                 index,
                 user_id: user.user_id,
-                user_name: slected_user_from_db ? `${slected_user_from_db.idenity.name}` : "کاربر مهمان",
-                user_image: `files/${slected_user_from_db?.avatar?.avatar || "11990.png"}`,
-                user_anim:  `files/${slected_user_from_db?.avatar?.table || "a2e11.lottie"}`,
+                user_name: selected_user_from_db ? `${selected_user_from_db.idenity.name}` : "کاربر مهمان",
+                user_image: `files/${selected_user_from_db?.avatar?.avatar || "11990.png"}`,
+                user_anim:  `files/${selected_user_from_db?.avatar?.table || "a2e11.lottie"}`,
             }
         })
+        console.log({player_clean_list});
         return player_clean_list
     },
 
