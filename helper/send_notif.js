@@ -15,6 +15,7 @@ const send_notif = async ({ users, msg, title }) => {
         let s_user = users_data.find(e => e.uid == user)
         if(!s_user)continue
         let token = s_user?.notif_token
+        console.log({token});
         if (!token || token === "not_fond") continue
         var message = {
             android: {
