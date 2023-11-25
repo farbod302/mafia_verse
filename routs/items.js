@@ -6,7 +6,8 @@ const reject = require("../helper/reject_handler")
 const sha256 = require("sha256")
 const static_vars = require("../games/tv/static_vars")
 const fs = require("fs")
-const Transaction=require("../db/transaction")
+const Transaction = require("../db/transaction")
+const ItemTransaction = require("../db/item_transaction")
 router.get("/items_list", async (req, res) => {
 
 
@@ -48,7 +49,7 @@ router.post("/items_list", async (req, res) => {
     gold_pack = gold_pack.map(e => {
         return {
             ...e,
-            price_after_off: e.price - (e.price * e.off /100 )
+            price_after_off: e.price - (e.price * e.off / 100)
         }
     })
     const types = ["animation", "avatar"]
@@ -57,8 +58,8 @@ router.post("/items_list", async (req, res) => {
         const clean__category_items = category_items.map(i => {
             return {
                 ...i._doc,
-                image:"files/"+i._doc.image,
-                file:"files/"+i._doc.file,
+                image: "files/" + i._doc.image,
+                file: "files/" + i._doc.file,
                 active_for_user: s_user.items.includes(i._id)
             }
         })
@@ -112,7 +113,7 @@ router.post("/buy", async (req, res) => {
     const user = req.body.user
     if (!user) return reject(1, res)
     const s_user = await User.findOne({ uid: user.uid })
-    const { gold,uid } = s_user
+    const { gold, uid } = s_user
     const { item } = req.body
     let s_item = await Items.findById(item)
 
@@ -122,17 +123,16 @@ router.post("/buy", async (req, res) => {
         $push: { items: mongoose.Types.ObjectId(item) }
     })
 
-
+    const { type, id } = s_item
     const new_transaction = {
         user_id: uid,
-        price: 0,
+        item_id: id,
         gold: s_item.price * -1,
-        token: "",
         device: "App",
-        note: "خرید آیتم از فروشگاه",
+        note: `خرید ${type === "avatar" ? "آواتار" : "انیمیشن"} `
     }
 
-    new Transaction(new_transaction).save()
+    new ItemTransaction(new_transaction).save()
 
 
     res.json({

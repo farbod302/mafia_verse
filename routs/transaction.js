@@ -10,6 +10,7 @@ router.post("/confirm_transaction", async (req, res) => {
     if (!user) return reject(3, res)
     const { uid } = user
     const { tr_token, plan, price, gold } = req.body
+    console.log({tr_token, plan, price, gold});
     //check transaction from bazar
     const { purchaseState } =await Tr.check_transaction_result(plan, tr_token)
     console.log({purchaseState});
@@ -22,7 +23,7 @@ router.post("/confirm_transaction", async (req, res) => {
         date: Date.now(),
         plan, token: tr_token,
         price, gold, success: purchaseState === 0 ? true : false,
-        device:req.body.device|| "Web",note:"افزایش اعتبار"
+        device:req.body.device|| "app",note:"افزایش اعتبار"
     }
     await new Transaction(new_transaction).save()
     await User.findOneAndUpdate({ uid }, { $inc: { gold } })

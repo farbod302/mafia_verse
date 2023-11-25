@@ -4,7 +4,7 @@ const reject = require("../helper/reject_handler")
 const router = express.Router()
 const Pay = require("../db/pay")
 const sha256 = require("sha256")
-const Transaction=require("../db/transaction")
+const Transaction = require("../db/transaction")
 const { default: mongoose } = require("mongoose")
 const { uid: uuid } = require("uid")
 const UserChannelConfig = require("../db/user_channel_config")
@@ -12,6 +12,7 @@ const online_users_handler = require("../socket/online_users_handler")
 const Voice = require("../helper/live_kit_handler")
 const GameHistory = require("../db/game_history")
 const UserReport = require("../db/user_report")
+const ItemTransaction = require("../db/item_transaction")
 //fetch data
 router.post("/land_screen_data", async (req, res) => {
     const { uid } = req.body.user
@@ -247,17 +248,20 @@ router.post("/shop_finalize", async (req, res) => {
             $push: { items: { $each: user_with_items[0].cart } }
         }
     )
-    const new_transaction = {
-        user_id: uid,
-        price: 0,
-        gold: selected_item_price * -1,
-        token: "",
-        device: "Web",
-        note: "خرید آیتم از فروشگاه",
-    }
 
-    new Transaction(new_transaction).save()
 
+    user_with_items[0].user_cart.forEach(item => {
+        const { type, price, id } = item
+        const new_transaction = {
+            user_id: uid,
+            gold: price * -1,
+            date: Date.now(),
+            item_id: id,
+            note: `خرید ${type === "avatar" ? "آواتار" : "انیمیشن"}`,
+            device: "web"
+        }
+        new ItemTransaction(new_transaction).save()
+    })
 
 
     res.json({
@@ -270,14 +274,14 @@ router.post("/shop_finalize", async (req, res) => {
 
 
 
-router.post("/test_room",async (req,res)=>{
-    const {name}=req.body
+router.post("/test_room", async (req, res) => {
+    const { name } = req.body
     await Voice.start_room("test_voice")
-    const token=Voice.join_room(name,"test_voice")
+    const token = Voice.join_room(name, "test_voice")
     res.json({
-        status:false,
-        msg:"",
-        data:{token}
+        status: false,
+        msg: "",
+        data: { token }
     })
 
 })
@@ -380,29 +384,48 @@ router.post("/edit_profile", async (req, res) => {
 })
 
 
-router.post("/user_transactions", (req, res) => {
+router.post("/user_transactions", async (req, res) => {
     const user = req.body.user
     if (!user) return reject(3, res)
-    const user_pays = Pay.find({ user: user.uid })
-    let player_transactions = user_pays.map(e => {
-        let p_date = new Date(e.date)
-        p_date = p_date.toLocaleDateString("fa-IR")
-        return {
-            ...e,
-            date: p_date
+    const { uid } = user
+    const payment_transaction = await Transaction.find({ user_id: uid })
+    const item_transaction = await ItemTransaction.aggregate([{ $match: { user_id: uid } }, {
+        $lookup: {
+            from: "items",
+            foreignField: "id",
+            localField: "item_id",
+            as: "item"
         }
-    })
-    player_transactions=player_transactions.map(e=>{
-        return{
-            ...e,
-            price:`${e.price}`
+    }])
+    const all_transactions = []
+    payment_transaction.forEach((tr) => {
+        const new_tr = {
+            type: "gold",
+            gold: tr.gold,
+            price: tr.price,
+            data: tr.date,
+            item: null,
+            device: tr.device,
+            note: tr.note
         }
+        all_transactions.push(new_tr)
     })
-    res.json({
-        status: true,
-        msg: "",
-        data: { transactions: player_transactions }
+    item_transaction.forEach(it => {
+        s
+        const new_tr = {
+            type: "item",
+            gold: it.gold * -1,
+            price: 0,
+            data: it.date,
+            item: it.item,
+            device: tr.device,
+            note: it.note
+        }
+        all_transactions.push(new_tr)
+
     })
+
+    console.log({ all_transactions });
 
 })
 
@@ -527,13 +550,13 @@ router.post("/find_match_gold", async (req, res) => {
 
 
 
-router.post("/support",(req,res)=>{
+router.post("/support", (req, res) => {
     const user = req.body.user
     if (!user) return reject(3, res)
-    const {msg}=req.body
-    const new_report={
-        user_id:user.uid,
-        date:Date.now(),
+    const { msg } = req.body
+    const new_report = {
+        user_id: user.uid,
+        date: Date.now(),
         msg
     }
 
