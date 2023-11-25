@@ -1,9 +1,9 @@
-// var admin = require("firebase-admin");
-// var fcm = require('fcm-notification');
-// var serviceAccount = require("../notif_key.json");
-// const User = require("../db/user");
-// const certPath = admin.credential.cert(serviceAccount);
-// var FCM = new fcm(certPath);
+var admin = require("firebase-admin");
+var fcm = require('fcm-notification');
+var serviceAccount = require("../notif_key.json");
+const User = require("../db/user");
+const certPath = admin.credential.cert(serviceAccount);
+var FCM = new fcm(certPath);
 
 
 
