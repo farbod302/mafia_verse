@@ -28,7 +28,6 @@ router.post("/confirm_transaction", async (req, res) => {
     }
     await new Transaction(new_transaction).save()
     await User.findOneAndUpdate({ uid }, { $inc: { gold } })
-    send_notif({users:[uid],msg:`خرید ${gold} سکه با موفقیت انجام شد`,title:"خرید انجام شد"})
     res.json({
         status: true,
         msg: `خرید ${gold} سکه با موفقیت انجام شد`,
@@ -36,6 +35,7 @@ router.post("/confirm_transaction", async (req, res) => {
             gold
         }
     })
+    await send_notif({users:[uid],msg:`خرید ${gold} سکه با موفقیت انجام شد`,title:"خرید انجام شد"})
 })
 
 
