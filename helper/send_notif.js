@@ -9,7 +9,6 @@
 
 const send_notif = async ({ users, msg, title }) => {
 
-    return true
     let users_data = await User.find({ uid: { $in: users } })
 
     for (let user of users) {

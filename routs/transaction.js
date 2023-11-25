@@ -4,6 +4,7 @@ const reject = require("../helper/reject_handler")
 const Transaction = require("../db/transaction")
 const User = require("../db/user")
 const Tr = require("../helper/transaction")
+const send_notif = require("../helper/send_notif")
 
 router.post("/confirm_transaction", async (req, res) => {
     const user = req.body.user
@@ -27,6 +28,7 @@ router.post("/confirm_transaction", async (req, res) => {
     }
     await new Transaction(new_transaction).save()
     await User.findOneAndUpdate({ uid }, { $inc: { gold } })
+    send_notif({users:[uid],msg:`خرید ${gold} سکه با موفقیت انجام شد`,title:"خرید انجام شد"})
     res.json({
         status: true,
         msg: `خرید ${gold} سکه با موفقیت انجام شد`,
