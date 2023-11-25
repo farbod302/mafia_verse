@@ -1,18 +1,18 @@
 [
     {
-        "id": "test_2",
+        "id": "test_gold_plan_1",
         "price": 20000,
         "off": 10,
         "gold": 100
     },
     {
-        "id": "test_2",
+        "id": "test_gold_plan_2",
         "price": 40000,
         "off": 7,
         "gold": 200
     },
     {
-        "id": "test_2",
+        "id": "test_gold_plan_3",
         "price": 80000,
         "off": 5,
         "gold": 300
