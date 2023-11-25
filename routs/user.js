@@ -273,7 +273,7 @@ router.post("/shop_finalize", async (req, res) => {
 router.post("/test_room",async (req,res)=>{
     const {name}=req.body
     await Voice.start_room("test_voice")
-    const token=Voice.join_room(name,test_voice)
+    const token=Voice.join_room(name,"test_voice")
     res.json({
         status:false,
         msg:"",
