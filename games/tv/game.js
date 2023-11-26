@@ -34,7 +34,6 @@ const Game = class {
         return function () {
             try {
                 console.log(f);
-                // f.apply(this, arguments)
                 f()
             } catch {
                 console.log("GAME ABANDON");
@@ -50,8 +49,7 @@ const Game = class {
         this.game_vars.edit_event("edit", "cur_event", next_event)
         const abandon=()=>{this.game_handlers.abandon()}
         const next_event_func=()=>{this[next_event]()}
-        next_event_func()
-        this.try_catch(next_event_func,abandon )
+        this.try_catch(next_event_func,abandon )()
     }
 
 
