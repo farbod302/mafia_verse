@@ -411,21 +411,25 @@ router.post("/user_transactions", async (req, res) => {
         all_transactions.push(new_tr)
     })
     item_transaction.forEach(it => {
-        s
+
         const new_tr = {
             type: "item",
             gold: it.gold * -1,
             price: 0,
             data: it.date,
-            item: it.item,
-            device: tr.device,
+            item: "files/"+it.item[0].image,
+            device: it.device,
             note: it.note
         }
         all_transactions.push(new_tr)
 
     })
 
-    console.log({ all_transactions });
+    res.json({
+        status: true,
+        msg: "",
+        data: { transactions: all_transactions }
+    })
 
 })
 

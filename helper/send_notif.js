@@ -13,7 +13,6 @@ console.log({users});
 
     for (let user of users) {
 
-        console.log({user});
         let s_user = users_data.find(e => e.uid == user)
         if(!s_user)continue
         let token = s_user?.notif_token
