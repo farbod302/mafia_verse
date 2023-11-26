@@ -441,7 +441,7 @@ router.post("/user_transactions", async (req, res) => {
     res.json({
         status: true,
         msg: "",
-        data: { transactions: all_transactions }
+        data:  all_transactions 
     })
 
 })
