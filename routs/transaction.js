@@ -14,7 +14,7 @@ router.post("/confirm_transaction", async (req, res) => {
     const { tr_token, plan } = req.body
     //check transaction from bazar
     const all_plans = fs.readFileSync(`${__dirname}/../gold_pack.json`)
-    const plan_js = JSON.stringify(all_plans.toString())
+    const plan_js = JSON.parse(all_plans.toString())
     const selected_plan = plan_js.find(e => e.id === plan)
     const {gold,price}=selected_plan
     const { purchaseState } = await Tr.check_transaction_result(plan, tr_token)
