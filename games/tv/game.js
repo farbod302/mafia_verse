@@ -44,8 +44,8 @@ const Game = class {
     mainCycle() {
         const next_event = this.game_vars.next_event
         this.game_vars.edit_event("edit", "cur_event", next_event)
-        console.log({ next_event });
-        this.try_catch(this[next_event], this.game_handlers.abandon())
+        const abandon=()=>{this.game_handlers.abandon()}
+        this.try_catch(this[next_event],abandon )
     }
 
 
