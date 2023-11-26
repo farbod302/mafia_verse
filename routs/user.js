@@ -170,6 +170,19 @@ router.post("/profile", async (req, res) => {
 })
 
 
+router.post("/others_profile", async (req, res) => {
+    const { user_id } = req.body
+    const selected_user = await User.findOne({ uid: user_id })
+    if (!selected_user) return reject(1, res)
+    const { idenity, avatar, points, games_result, session_rank } = selected_user
+
+    const data = {
+        idenity: idenity.name,
+        avatar, points, games_result, session_rank
+    }
+
+    res.json({ status: true, msg: "", data: { data } })
+})
 
 
 
@@ -417,7 +430,7 @@ router.post("/user_transactions", async (req, res) => {
             gold: it.gold * -1,
             price: 0,
             data: it.date,
-            item: "files/"+it.item[0].image,
+            item: "files/" + it.item[0].image,
             device: it.device,
             note: it.note
         }

@@ -4,17 +4,20 @@ const reject = require("../helper/reject_handler")
 const Transaction = require("../db/transaction")
 const User = require("../db/user")
 const Tr = require("../helper/transaction")
+const fs = require("fs")
 const send_notif = require("../helper/send_notif")
 
 router.post("/confirm_transaction", async (req, res) => {
     const user = req.body.user
     if (!user) return reject(3, res)
     const { uid } = user
-    const { tr_token, plan, price, gold } = req.body
-    console.log({tr_token, plan, price, gold});
+    const { tr_token, plan } = req.body
     //check transaction from bazar
-    const { purchaseState } =await Tr.check_transaction_result(plan, tr_token)
-    console.log({purchaseState});
+    const all_plans = fs.readFileSync(`${__dirname}/../gold_pack.json`)
+    const plan_js = JSON.stringify(all_plans.toString())
+    const selected_plan = plan_js.find(e => e.id === plan)
+    const {gold,price}=selected_plan
+    const { purchaseState } = await Tr.check_transaction_result(plan, tr_token)
     if (purchaseState !== 0) return reject(3, res)
     //check used
     const is_exist = await Transaction.findOne({ token: tr_token })
@@ -24,7 +27,7 @@ router.post("/confirm_transaction", async (req, res) => {
         date: Date.now(),
         plan, token: tr_token,
         price, gold, success: purchaseState === 0 ? true : false,
-        device:req.body.device|| "app",note:"افزایش اعتبار"
+        device: req.body.device || "app", note: "افزایش اعتبار"
     }
     await new Transaction(new_transaction).save()
     await User.findOneAndUpdate({ uid }, { $inc: { gold } })
@@ -35,7 +38,7 @@ router.post("/confirm_transaction", async (req, res) => {
             gold
         }
     })
-    await send_notif({users:[uid],msg:`خرید ${gold} سکه با موفقیت انجام شد`,title:"خرید انجام شد"})
+    await send_notif({ users: [uid], msg: `خرید ${gold} سکه با موفقیت انجام شد`, title: "خرید انجام شد" })
 })
 
 
