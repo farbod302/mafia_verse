@@ -45,6 +45,7 @@ const Game = class {
 
 
     mainCycle() {
+        console.log("run");
         const next_event = this.game_vars.next_event
         this.game_vars.edit_event("edit", "cur_event", next_event)
         const abandon=()=>{this.game_handlers.abandon()}
