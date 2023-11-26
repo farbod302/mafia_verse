@@ -416,7 +416,7 @@ router.post("/user_transactions", async (req, res) => {
             type: "gold",
             gold: tr.gold,
             price: tr.price,
-            data: tr.date,
+            date: tr.date,
             item: null,
             device: tr.device,
             note: tr.note
@@ -429,7 +429,7 @@ router.post("/user_transactions", async (req, res) => {
             type: "item",
             gold: it.gold * -1,
             price: 0,
-            data: it.date,
+            date: it.date,
             item: "files/" + it.item[0].image,
             device: it.device,
             note: it.note
