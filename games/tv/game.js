@@ -47,7 +47,7 @@ const Game = class {
         const next_event = this.game_vars.next_event
         this.game_vars.edit_event("edit", "cur_event", next_event)
         const abandon=()=>{
-            this.edit_event("edit","next_event","finish")
+            this.game_vars.edit_event("edit","next_event","finish")
             this.game_handlers.abandon_game(this.socket)
         }
         const next_event_func=()=>{this[next_event]()}
@@ -1534,7 +1534,7 @@ const Game = class {
         this.game_handlers.submit_finish_game(game_id)
         const new_users = this.users.map(e => { return { ...e, is_alive: "dead" } })
         this.users = new_users
-        //finish game
+        this.game_vars.edit_event("edit","next_event","finish")
     }
 
 
