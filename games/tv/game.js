@@ -46,7 +46,7 @@ const Game = class {
         console.log("run");
         const next_event = this.game_vars.next_event
         this.game_vars.edit_event("edit", "cur_event", next_event)
-        const abandon=()=>{this.game_handlers.abandon_game()}
+        const abandon=()=>{this.game_handlers.abandon_game(this.socket)}
         const next_event_func=()=>{this[next_event]()}
         this.try_catch(next_event_func,abandon )()
     }
