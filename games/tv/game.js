@@ -29,29 +29,18 @@ const Game = class {
         this.socket_finder = online_users_handler.get_user_socket_id
     }
 
-    get try() {
-        return new Proxy(this, {
-            // Intercept method getter
-            get(target, name) {
-                if (typeof target[name] === 'function') {
-                    return function () {
-                        try {
-                            return target[name].apply(target, arguments)
-                        } catch (e) {
-                            this.game_handlers.abandon()
-                        }
-                    }
-                }
-                return target[name];
-            }
-        });
-    }
+    
 
     mainCycle() {
-        const next_event = this.game_vars.next_event
-        this.game_vars.edit_event("edit", "cur_event", next_event)
-        console.log({ next_event });
-        this.try[next_event]()
+        try {
+            const next_event = this.game_vars.next_event
+            this.game_vars.edit_event("edit", "cur_event", next_event)
+            console.log({ next_event });
+            this[next_event]()
+        } catch (err) {
+            console.log(err, next_event, "err");
+            this.game_handlers.abandon()
+        }
     }
 
     submit_user_disconnect({ client }) {
@@ -173,12 +162,12 @@ const Game = class {
             const new_users = [...this.users]
             new_users[index].is_alive = "dead"
             this.users = new_users
-            const game_result = night.check_next_day({ game_vars: this.game_vars })
+            const game_result=night.check_next_day({ game_vars: this.game_vars })
             if (game_result === 1 || game_result === 2) {
                 this.game_vars.edit_event("edit", "winner", game_result == 2 ? "mafia" : "citizen")
                 this.game_vars.edit_event("edit", "next_event", "end_game")
             }
-
+            
         }
 
     }

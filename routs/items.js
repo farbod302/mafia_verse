@@ -16,7 +16,8 @@ router.get("/items_list", async (req, res) => {
     gold_pack = gold_pack.map(e => {
         return {
             ...e,
-            price_after_off: e.price - (e.price * e.off / 100)
+            price_after_off: e.price - Math.floor((e.price * e.off / 100)),
+
         }
     })
     const items = await Items.find({ active: true })
@@ -49,7 +50,7 @@ router.post("/items_list", async (req, res) => {
     gold_pack = gold_pack.map(e => {
         return {
             ...e,
-            price_after_off: e.price - (e.price * e.off / 100)
+            price_after_off: e.price - Math.floor((e.price * e.off / 100))
         }
     })
     const types = ["animation", "avatar"]
