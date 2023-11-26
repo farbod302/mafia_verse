@@ -35,6 +35,7 @@ const Game = class {
             try {
                 f.apply(this, arguments)
             } catch {
+                console.log("GAME ABANDON");
                 abandon()
             }
         }
