@@ -33,8 +33,7 @@ const Game = class {
     try_catch(f, abandon) {
         return function () {
             try {
-                console.log(f);
-                f()
+                f.apply(this, arguments)
             } catch {
                 console.log("GAME ABANDON");
                 abandon()
