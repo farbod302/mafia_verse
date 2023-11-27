@@ -2,13 +2,13 @@
     {
         "id": "test_gold_plan_1",
         "price": 10,
-        "off": 10,
+        "off": 0,
         "gold": 100
     },
     {
         "id": "test_gold_plan_2",
         "price": 15,
-        "off": 7,
+        "off": 0,
         "gold": 200
     },
     {
