@@ -8,9 +8,6 @@ const cors = require("cors")
 const bodyParser = require("body-parser");
 const imports = require('./container/imports');
 const mongoose = require("mongoose");
-const { createAdapter } = require("@socket.io/cluster-adapter");
-const { setupWorker } = require("@socket.io/sticky");
-
 const SocketProvider = require("./socket");
 const Jwt = require('./helper/jwt');
 const reject = require('./helper/reject_handler');
@@ -48,12 +45,6 @@ const io = new Server(server, {
         origin: "*",
     }
 });
-
-
-
-io.adapter(createAdapter());
-setupWorker(io);
-
 let socket = new SocketProvider(io)
 socket.lunch()
 

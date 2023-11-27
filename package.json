@@ -9,8 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@socket.io/cluster-adapter": "^0.2.2",
-    "@socket.io/sticky": "^1.0.4",
     "axios": "^1.4.0",
     "cors": "^2.8.5",
     "cron": "^3.0.0",
@@ -25,7 +23,6 @@
     "qrcode": "^1.5.3",
     "sha256": "^0.2.0",
     "simple-encryptor": "^4.0.0",
-    "socket-io": "^1.0.0",
     "socket.io": "^4.6.1",
     "trez-sms-client": "^1.0.4",
     "uid": "^2.0.2"
