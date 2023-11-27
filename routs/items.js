@@ -8,6 +8,7 @@ const static_vars = require("../games/tv/static_vars")
 const fs = require("fs")
 const Transaction = require("../db/transaction")
 const ItemTransaction = require("../db/item_transaction")
+const mongoose = require("mongoose")
 router.get("/items_list", async (req, res) => {
 
 
@@ -61,7 +62,7 @@ router.post("/items_list", async (req, res) => {
                 ...i._doc,
                 image: "files/" + i._doc.image,
                 file: "files/" + i._doc.file,
-                active_for_user: s_user.items.includes(i._id)
+                active_for_user: !s_user.items.includes(new mongoose.Types.ObjectId(i._id))
             }
         })
         return {
