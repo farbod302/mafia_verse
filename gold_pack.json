@@ -8,13 +8,13 @@
     {
         "id": "test_gold_plan_2",
         "price": 44900,
-        "off": 0,
+        "off": 5,
         "gold": 500
     },
     {
         "id": "test_gold_plan_3",
         "price": 87900,
-        "off": 5,
+        "off": 10,
         "gold": 1000
     }
 ]
