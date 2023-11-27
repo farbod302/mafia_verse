@@ -17,7 +17,7 @@ router.get("/items_list", async (req, res) => {
     gold_pack = gold_pack.map(e => {
         return {
             ...e,
-            price_after_off: e.price - Math.floor((e.price * e.off / 100))-100,
+            price_after_off: e.price - Math.floor((e.price * e.off / 100))-200,
 
         }
     })
@@ -51,7 +51,7 @@ router.post("/items_list", async (req, res) => {
     gold_pack = gold_pack.map(e => {
         return {
             ...e,
-            price_after_off: e.price - Math.floor((e.price * e.off / 100))-100
+            price_after_off: e.price - Math.floor((e.price * e.off / 100))-200
         }
     })
     const types = ["animation", "avatar"]
