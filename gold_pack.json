@@ -1,7 +1,7 @@
 [
     {
         "id": "test_gold_plan_1",
-        "price": 10000,
+        "price": 20000,
         "off": 0,
         "gold": 200
     },
