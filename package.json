@@ -9,6 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@socket.io/cluster-adapter": "^0.2.2",
+    "@socket.io/sticky": "^1.0.4",
     "axios": "^1.4.0",
     "cors": "^2.8.5",
     "cron": "^3.0.0",
