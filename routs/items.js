@@ -116,13 +116,13 @@ router.post("/buy", async (req, res) => {
     if (!user) return reject(1, res)
     const s_user = await User.findOne({ uid: user.uid })
     const { gold, uid } = s_user
-    const { item } = req.body
-    let s_item = await Items.findById(item)
+    const { item_id} = req.body
+    let s_item = await Items.findById(item_id)
 
     if (gold < s_item.price) return reject(13, res)
     await User.findOneAndUpdate({ uid: s_user.uid }, {
         $inc: { gold: s_item.price * -1 },
-        $push: { items: mongoose.Types.ObjectId(item) }
+        $push: { items: mongoose.Types.ObjectId(item_id) }
     })
 
     const { type, id } = s_item
