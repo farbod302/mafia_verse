@@ -381,7 +381,7 @@ router.post("/change_user_name", async (req, res) => {
     if (gold < 500) return reject(19, res)
     const { new_name } = req.body
     if (idenity.name === new_name) return reject(4, res)
-    await User.findOneAndUpdate({ uid: user.id }, { $set: { "idenity.name": new_name }, $inc: { gold: -500 } })
+    await User.findOneAndUpdate({ uid: user.uid }, { $set: { "idenity.name": new_name }, $inc: { gold: -500 } })
     res.json({
         status: true,
         msg: "نام کاربری تغییر کرد",
