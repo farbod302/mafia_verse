@@ -362,6 +362,15 @@ router.post("/pin_channel", async (req, res) => {
     })
 })
 
+router.post("/check_new_user_name",async (req,res)=>{
+    const {new_name}=req.body
+    const is_exist=await User.findOne({"idenity.name":new_name})
+    res.json({
+        status:is_exist?false:true,
+        msg:is_exist?"نام کاربری توسط کاربر دیگر استفاده شده":"نام کاربری جدید مورد تایید است",
+        data:{}
+    })
+})
 
 
 router.post("/change_user_name", async (req, res) => {
@@ -372,13 +381,16 @@ router.post("/change_user_name", async (req, res) => {
     if (gold < 500) return reject(4, res)
     const { new_name } = req.body
     if (idenity.name === new_name) return reject(4, res)
-    await User.findOneAndUpdate({ uid: user.id }, { $set: { "idenity.name": new_name }, $inc: { gold: -300 } })
+    await User.findOneAndUpdate({ uid: user.id }, { $set: { "idenity.name": new_name }, $inc: { gold: -500 } })
     res.json({
         status: true,
         msg: "نام کاربری تغییر کرد",
         data: {}
     })
 })
+
+
+
 
 
 router.post("/edit_profile", async (req, res) => {
