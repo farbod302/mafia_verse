@@ -119,7 +119,7 @@ router.post("/buy", async (req, res) => {
     const { item_id} = req.body
     let s_item = await Items.findById(item_id)
 
-    if (gold < s_item.price) return reject(13, res)
+    if (gold < s_item.price) return reject(15, res)
     await User.findOneAndUpdate({ uid: s_user.uid }, {
         $inc: { gold: s_item.price * -1 },
         $push: { items: new mongoose.Types.ObjectId(item_id) }

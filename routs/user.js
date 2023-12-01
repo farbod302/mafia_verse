@@ -173,7 +173,7 @@ router.post("/profile", async (req, res) => {
 router.post("/others_profile", async (req, res) => {
     const { user_id } = req.body
     const selected_user = await User.findOne({ uid: user_id })
-    if (!selected_user) return reject(1, res)
+    if (!selected_user) return reject(20, res)
     const { idenity, avatar, points, games_result, session_rank } = selected_user
 
     const data = {
@@ -551,7 +551,7 @@ router.post("/spin_lucky_wheel", async (req, res) => {
     ]
     const random_num = Math.floor(Math.random() * 100)
     console.log({ random_num });
-    const index = chance.findLastIndex(e => e.num >= random_num)
+    const index = chance.findIndex(e => e.num >= random_num)
     const gold = chance[index] || 10
     const next_spin = 1000 * 60 * 60 * 12
     await User.findOneAndUpdate({ uid }, { $inc: { gold: gold.gold }, $set: { lucky_wheel_status: now + next_spin } })
