@@ -151,11 +151,11 @@ router.post("/items_list", async (req, res) => {
         }
     }])
     let items_list = user_with_items[0].user_items
-    items_list=items_list.map(i=>{
-        return{
+    items_list = items_list.map(i => {
+        return {
             ...i,
-            image:"files/"+i.image,
-            file:"files/"+i.file,
+            image: "files/" + i.image,
+            file: "files/" + i.file,
         }
     })
     res.json({
@@ -170,9 +170,17 @@ router.post("/profile", async (req, res) => {
     const user = req.body.user
     if (!user) return reject(1, res)
     const s_user = await User.findOne({ uid: user.uid })
+    const { avatar } = s_user
+    const clean_data={
+        ...s_user,
+        avatar:{
+            avatar:"files/"+avatar.avatar,
+            table:"files/"+avatar.table,
+        }
+    }
     res.json({
         status: true,
-        data: s_user
+        data: clean_data
     })
 })
 
@@ -182,7 +190,10 @@ router.post("/others_profile", async (req, res) => {
     const selected_user = await User.findOne({ uid: user_id })
     if (!selected_user) return reject(20, res)
     const { idenity, avatar, points, games_result, session_rank } = selected_user
-
+    const new_avatar={
+        avatar:"files/"+avatar.avatar,
+        table:"files/"+avatar.table,
+    }
     const data = {
         idenity: idenity.name,
         avatar, points, games_result, session_rank
@@ -369,13 +380,13 @@ router.post("/pin_channel", async (req, res) => {
     })
 })
 
-router.post("/check_new_user_name",async (req,res)=>{
-    const {new_name}=req.body
-    const is_exist=await User.findOne({"idenity.name":new_name})
+router.post("/check_new_user_name", async (req, res) => {
+    const { new_name } = req.body
+    const is_exist = await User.findOne({ "idenity.name": new_name })
     res.json({
-        status:is_exist?false:true,
-        msg:is_exist?"نام کاربری توسط کاربر دیگر استفاده شده":"نام کاربری جدید مورد تایید است",
-        data:{}
+        status: is_exist ? false : true,
+        msg: is_exist ? "نام کاربری توسط کاربر دیگر استفاده شده" : "نام کاربری جدید مورد تایید است",
+        data: {}
     })
 })
 
@@ -460,7 +471,7 @@ router.post("/user_transactions", async (req, res) => {
     res.json({
         status: true,
         msg: "",
-        data:  all_transactions 
+        data: all_transactions
     })
 
 })
