@@ -150,7 +150,14 @@ router.post("/items_list", async (req, res) => {
             as: "user_items"
         }
     }])
-    const items_list = user_with_items[0].user_items
+    let items_list = user_with_items[0].user_items
+    items_list=items_list.map(i=>{
+        return{
+            ...i,
+            image:"files/"+i.image,
+            file:"files/"+i.file,
+        }
+    })
     res.json({
         status: true,
         msg: "",
