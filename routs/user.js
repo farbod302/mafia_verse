@@ -172,7 +172,7 @@ router.post("/profile", async (req, res) => {
     const s_user = await User.findOne({ uid: user.uid })
     const { avatar } = s_user
     const clean_data={
-        ...s_user,
+        ...s_user._doc,
         avatar:{
             avatar:"files/"+avatar.avatar,
             table:"files/"+avatar.table,
