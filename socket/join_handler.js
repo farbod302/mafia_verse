@@ -1,6 +1,7 @@
 
 const Jwt = require("../helper/jwt")
 const { uid: uuid } = require("uid")
+const fs=require("fs")
 const online_users_handler = require("./online_users_handler")
 const User = require("../db/user")
 const join_handler = async ({ token, db, client, socket }) => {
