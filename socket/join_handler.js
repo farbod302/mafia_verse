@@ -5,13 +5,13 @@ const online_users_handler = require("./online_users_handler")
 const User = require("../db/user")
 const join_handler = async ({ token, db, client, socket }) => {
     const user = Jwt.verify(token)
-    console.log({token});
+    console.log({ token });
     if (!user) return
+    const version = fs.readFileSync(`${__dirname}/../version.json`)
+    const { v } = JSON.parse(version.toString())
     const { uid } = user
-    console.log({uid});
     const online_users = online_users_handler.get_online_users()
-    const is_online=online_users.find(e=>e.user_id === uid && e.token !== token.slice(-10))
-    console.log({is_online});
+    const is_online = online_users.find(e => e.user_id === uid && e.token !== token.slice(-10))
     if (is_online) {
         client.emit("force_exit")
         return
@@ -26,7 +26,7 @@ const join_handler = async ({ token, db, client, socket }) => {
         name: s_user.idenity.name,
         image: `files/${s_user.avatar.avatar}`
     }
-    online_users_handler.add_user(uid, client.id,token)
+    online_users_handler.add_user(uid, client.id, token)
     let user_exist_game = db.getOne("disconnect", "user_id", uid)
     if (user_exist_game) {
         console.log({ user_exist_game, socket_id: client.id });
@@ -50,7 +50,7 @@ const join_handler = async ({ token, db, client, socket }) => {
         party_id: user_party,
         users: [idenity]
     })
-    socket.to(client.id).emit("join_status", { data: { user_id: uid, auth: (s_user.age && s_user.age > 16) ? true : false } })
+    socket.to(client.id).emit("join_status", { data: { user_id: uid, auth: (s_user.age && s_user.age > 16) ? true : false ,v} })
 }
 
 module.exports = join_handler

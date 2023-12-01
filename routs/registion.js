@@ -6,6 +6,7 @@ const User = require("../db/user")
 const Helper = require("../helper/helper")
 const Jwt = require("../helper/jwt")
 const RegistSmsHandler = require("../helper/regist_sms_handler")
+const fs = require("fs")
 const reject = require("../helper/reject_handler")
 const default_avatar = {
     avatar: "11990.png",
@@ -97,7 +98,7 @@ router.post("/sign_up_confirm_phone", async (req, res) => {
         }
     }
     new User(new_player).save()
-
+   
     res.json({
         status: true,
         msg: "ثبت نام با موفقیت انجام شد",
