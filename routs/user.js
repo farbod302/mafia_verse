@@ -196,7 +196,7 @@ router.post("/others_profile", async (req, res) => {
     }
     const data = {
         idenity: idenity.name,
-        avatar, points, games_result, session_rank
+        avatar:new_avatar, points, games_result, session_rank
     }
 
     res.json({ status: true, msg: "", data: { data } })
