@@ -1,7 +1,7 @@
 
 const Jwt = require("../helper/jwt")
 const { uid: uuid } = require("uid")
-const fs=require("fs")
+const fs = require("fs")
 const online_users_handler = require("./online_users_handler")
 const User = require("../db/user")
 const join_handler = async ({ token, db, client, socket }) => {
@@ -32,6 +32,7 @@ const join_handler = async ({ token, db, client, socket }) => {
     if (user_exist_game) {
         console.log({ user_exist_game, socket_id: client.id });
         let s_game = db.getOne("games", "game_id", user_exist_game.game_id)
+        if (s_game) return
         const { carts } = s_game.game_class.game_vars
         let user_char = carts.find(e => e.user_id === uid) || null
         socket.to(client.id).emit("reconnect_notification", {
@@ -51,7 +52,7 @@ const join_handler = async ({ token, db, client, socket }) => {
         party_id: user_party,
         users: [idenity]
     })
-    socket.to(client.id).emit("join_status", { data: { user_id: uid, auth: (s_user.age && s_user.age > 16) ? true : false ,v,server_update:false} })
+    socket.to(client.id).emit("join_status", { data: { user_id: uid, auth: (s_user.age && s_user.age > 16) ? true : false, v, server_update: false } })
 }
 
 module.exports = join_handler

@@ -8,7 +8,8 @@ const data_handler = require("../games_temp_data/data_handler")
 const LocalGame = require("../games/local")
 const { uid } = require("uid")
 const Jwt = require("../helper/jwt")
-const fs=require("fs")
+const fs = require("fs")
+const monitoring = require("../container/monitoring")
 
 const SocketProvider = class {
 
@@ -22,6 +23,10 @@ const SocketProvider = class {
 
         channel_socket_handler.set_online_games()
         online_users_handler.reset()
+        setInterval(() => {
+            const games=this.db.getAll("games")
+            monitoring.set_games(games.length)
+        }, 2000)
         this.io.on("connection", (client) => {
             client.on("join", ({ token }) => { join_handler({ token, db: this.db, client, socket: this.io }) })
             client.on("find_match", ({ auth }) => { find_match.find_robot_game({ senario: "nato", client, db: this.db, socket: this.io, auth }) })
@@ -102,13 +107,13 @@ const SocketProvider = class {
                 }, 1000 * 60 * 2)
             })
 
-            client.on("monitoring",({token})=>{
-                const user_data=Jwt.verify(token)
-                if(user_data){
-                    const {uid}=user_data
-                    const admins_list=fs.readFileSync(`${__dirname}/../helper/admins.json`)
-                    const admins=JSON.parse(admins_list.toString())
-                    if(admins.includes(uid)){
+            client.on("monitoring", ({ token }) => {
+                const user_data = Jwt.verify(token)
+                if (user_data) {
+                    const { uid } = user_data
+                    const admins_list = fs.readFileSync(`${__dirname}/../helper/admins.json`)
+                    const admins = JSON.parse(admins_list.toString())
+                    if (admins.includes(uid)) {
                         client.join("monitoring")
                     }
                 }
@@ -118,16 +123,16 @@ const SocketProvider = class {
                 const { idenity } = client
                 const game_id = uid(4)
                 client.local_game_id = game_id
-                const new_local_game = new LocalGame(idenity, +player_count, this.io, game_id,this.db)
+                const new_local_game = new LocalGame(idenity, +player_count, this.io, game_id, this.db)
                 this.db.add_data("local_game", { game_class: new_local_game, local_game_id: game_id })
             })
 
             client.on("handle_local_game", ({ op, data }) => {
-                console.log({op, data});
+                console.log({ op, data });
                 if (data?.game_id) client.local_game_id = data.game_id
                 const { local_game_id } = client
                 const s_game = this.db.getOne("local_game", "local_game_id", local_game_id)
-                if (!s_game) return client.emit("error",{data:{msg:"شناسه بازی نامعتبر است"}})
+                if (!s_game) return client.emit("error", { data: { msg: "شناسه بازی نامعتبر است" } })
                 s_game.game_class.game_handler(client, op, data)
             })
 
