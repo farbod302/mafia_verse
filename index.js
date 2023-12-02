@@ -17,6 +17,7 @@ const Session = require('./session');
 const { CronJob } = require("cron");
 const Transaction = require('./helper/transaction');
 const send_notif = require('./helper/send_notif');
+const monitoring = require('./container/monitoring');
 const token_handler = (req, res, next) => {
     const { token } = req.body
     if (!token) return next()
@@ -48,6 +49,7 @@ const io = new Server(server, {
 });
 let socket = new SocketProvider(io)
 socket.lunch()
+monitoring.init(io)
 
 const middle = (req, res, next) => {
     // const need_socket=req.body.socket
