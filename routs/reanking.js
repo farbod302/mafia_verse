@@ -53,7 +53,7 @@ router.post("/", async (req, res) => {
 
 router.get("/overall", async (req, res) => {
 
-    const users_ranking = await User.find({}).sort({ "ranking.rank": -1 }).limit(10)
+    const users_ranking = await User.find({},{idenity:1,avatar:1,ranking}).sort({ "ranking.rank": -1 }).limit(10)
     res.json({
         status:true,
         msg:"",
