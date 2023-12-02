@@ -6,7 +6,7 @@ const fs = require("fs")
 router.post("/", async (req, res) => {
     const user = req.body.user
     if (!user) return reject(3, res)
-    const { uid:req_user_id } = user
+    const { uid: req_user_id } = user
     const sessions = ["day", "week", "session"]
     const session_json = fs.readFileSync(`${__dirname}/../session.json`)
     const json = JSON.parse(session_json.toString())
@@ -22,7 +22,7 @@ router.post("/", async (req, res) => {
                 idenity, session_rank: session_rank[session], ranking, avatar: {
                     avatar: "files/" + avatar.avatar,
                     tabel: "files/" + avatar.tabel,
-                }, win, lose, user_id: uid, rate: index + 1,prize:10
+                }, win, lose, user_id: uid, rate: index + 1, prize: 10
             }
         })
         const user_self = ranking.findIndex(e => e.uid === req_user_id)
@@ -37,7 +37,7 @@ router.post("/", async (req, res) => {
                 idenity, session_rank: session_rank[session], ranking: user_rank, avatar: {
                     avatar: "files/" + avatar.avatar,
                     tabel: "files/" + avatar.tabel,
-                }, win, lose, user_id: uid, rate: user_self + 1,prize:10
+                }, win, lose, user_id: uid, rate: user_self + 1, prize: 10
             }
         })
     }
@@ -45,6 +45,19 @@ router.post("/", async (req, res) => {
         status: true,
         msg: "",
         data: { ranking: ranking_res }
+    })
+
+})
+
+
+
+router.get("/overall", async (req, res) => {
+
+    const users_ranking = await User.find({}).sort({ "ranking.rank": -1 }).limit(10)
+    res.json({
+        status:true,
+        msg:"",
+        data:{ranking:users_ranking}
     })
 
 })
