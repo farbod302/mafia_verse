@@ -7,6 +7,8 @@ const online_users_handler = require("./online_users_handler")
 const data_handler = require("../games_temp_data/data_handler")
 const LocalGame = require("../games/local")
 const { uid } = require("uid")
+const Jwt = require("../helper/jwt")
+const fs=require("fs")
 
 const SocketProvider = class {
 
@@ -100,7 +102,17 @@ const SocketProvider = class {
                 }, 1000 * 60 * 2)
             })
 
-
+            client.on("monitoring",({token})=>{
+                const user_data=Jwt.verify(token)
+                if(user_data){
+                    const {uid}=user_data
+                    const admins_list=fs.readFileSync(`${__dirname}/../helper/admins.json`)
+                    const admins=JSON.parse(admins_list.toString())
+                    if(admins.includes(uid)){
+                        client.join("monitoring")
+                    }
+                }
+            })
 
             client.on("create_local_game", ({ player_count }) => {
                 const { idenity } = client
