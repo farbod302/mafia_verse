@@ -27,7 +27,6 @@ const monitoring = {
             this.get_system_info()
             this.get_users_info()
             this.socket.to("monitoring").emit("new_data", { data: this.data })
-            console.log(this.data);
         }, 3000)
     },
     set_games(num){
