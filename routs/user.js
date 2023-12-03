@@ -2,7 +2,7 @@ const express = require("express")
 const User = require("../db/user")
 const reject = require("../helper/reject_handler")
 const router = express.Router()
-const Pay = require("../db/pay")
+const Item = require("../db/item")
 const sha256 = require("sha256")
 const Transaction = require("../db/transaction")
 const { default: mongoose } = require("mongoose")
@@ -165,7 +165,7 @@ router.post("/items_list", async (req, res) => {
         const { original_file } = i
         return {
             ...i,
-            active:( original_file === table || original_file === image)
+            active: (original_file === table || original_file === image)
         }
 
     })
@@ -429,8 +429,9 @@ router.post("/edit_profile", async (req, res) => {
     const { section, item_id } = req.body
     let is_valid_item = await User.findOne({ uid: user.uid, items: item_id })
     if (!is_valid_item) return reject(4, res)
-    let key = `${avatar}.${section}`
-    await User.findOneAndUpdate({ uid: user.uid }, { $set: { [key]: item_id } })
+    const selected_item = await Item.findOne({ id:item_id })
+    let key = `avatar.${section}`
+    await User.findOneAndUpdate({ uid: user.uid }, { $set: { [key]: selected_item.file } })
     res.json({
         status: true,
         msg: "آیتم تغییر کرد",
