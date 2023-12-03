@@ -156,12 +156,23 @@ router.post("/items_list", async (req, res) => {
             ...i,
             image: "files/" + i.image,
             file: "files/" + i.file,
+            original_file: file,
         }
+    })
+    const { avatar } = user_with_items
+    const { table, avatar: image } = avatar
+    const clean_list = items_list.map(i => {
+        const { original_file } = i
+        return {
+            ...i,
+            selected:( original_file === table || original_file === image)
+        }
+
     })
     res.json({
         status: true,
         msg: "",
-        data: { items: items_list }
+        data: { items: clean_list }
     })
 
 })
@@ -171,14 +182,14 @@ router.post("/profile", async (req, res) => {
     if (!user) return reject(1, res)
     const s_user = await User.findOne({ uid: user.uid })
     const { avatar } = s_user
-    const clean_data={
+    const clean_data = {
         ...s_user._doc,
-        avatar:{
-            avatar:"files/"+avatar.avatar,
-            table:"files/"+avatar.table,
+        avatar: {
+            avatar: "files/" + avatar.avatar,
+            table: "files/" + avatar.table,
         }
     }
-    console.log({clean_data});
+    console.log({ clean_data });
     res.json({
         status: true,
         data: clean_data
@@ -191,13 +202,13 @@ router.post("/others_profile", async (req, res) => {
     const selected_user = await User.findOne({ uid: user_id })
     if (!selected_user) return reject(20, res)
     const { idenity, avatar, points, games_result, session_rank } = selected_user
-    const new_avatar={
-        avatar:"files/"+avatar.avatar,
-        table:"files/"+avatar.table,
+    const new_avatar = {
+        avatar: "files/" + avatar.avatar,
+        table: "files/" + avatar.table,
     }
     const data = {
         idenity: idenity.name,
-        avatar:new_avatar, points, games_result, session_rank
+        avatar: new_avatar, points, games_result, session_rank
     }
 
     res.json({ status: true, msg: "", data: { data } })

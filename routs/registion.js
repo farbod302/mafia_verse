@@ -9,6 +9,7 @@ const RegistSmsHandler = require("../helper/regist_sms_handler")
 const fs = require("fs")
 const reject = require("../helper/reject_handler")
 const send_notif = require("../helper/send_notif")
+const { default: mongoose } = require("mongoose")
 const default_avatar = {
     avatar: "11990.png",
     table: "a2e11.lottie",
@@ -110,6 +111,10 @@ router.post("/sign_up_confirm_phone", async (req, res) => {
         gold: inter ? 400 : 200,
         avatar: default_avatar,
         notif_token: temp.notif_token,
+        items:[
+            new mongoose.Types.ObjectId("655da85c36fbec15db8bd959"),
+            new mongoose.Types.ObjectId("655da8c536fbec15db8bd95c")
+        ],
         session_rank: {
             day: 125,
             week: 875,
