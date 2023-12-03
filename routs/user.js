@@ -165,7 +165,7 @@ router.post("/items_list", async (req, res) => {
         const { original_file } = i
         return {
             ...i,
-            selected:( original_file === table || original_file === image)
+            active:( original_file === table || original_file === image)
         }
 
     })
