@@ -11,7 +11,7 @@ const reject = require("../helper/reject_handler")
 const send_notif = require("../helper/send_notif")
 const default_avatar = {
     avatar: "11990.png",
-    tabel: "a2e11.lottie",
+    table: "a2e11.lottie",
     rols: []
 }
 
