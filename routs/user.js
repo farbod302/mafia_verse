@@ -156,7 +156,7 @@ router.post("/items_list", async (req, res) => {
             ...i,
             image: "files/" + i.image,
             file: "files/" + i.file,
-            original_file: file,
+            original_file: i.file,
         }
     })
     const { avatar } = user_with_items
