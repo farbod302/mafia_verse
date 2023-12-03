@@ -427,11 +427,11 @@ router.post("/edit_profile", async (req, res) => {
     const user = req.body.user
     if (!user) return reject(3, res)
     const { section, item_id } = req.body
-    console.log({ item_id });
     const selected_item = await Item.findOne({ id: item_id })
     let is_valid_item = await User.findOne({ uid: user.uid, items: new mongoose.Types.ObjectId(selected_item._id) })
     if (!is_valid_item) return reject(4, res)
     let key = `avatar.${section}`
+    console.log({ key });
     await User.findOneAndUpdate({ uid: user.uid }, { $set: { [key]: selected_item.file } })
     res.json({
         status: true,
