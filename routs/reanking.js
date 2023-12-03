@@ -21,7 +21,7 @@ router.post("/", async (req, res) => {
             return {
                 idenity, session_rank: session_rank[session], ranking, avatar: {
                     avatar: "files/" + avatar.avatar,
-                    tabel: "files/" + avatar.tabel,
+                    table: "files/" + avatar.table,
                 }, win, lose, user_id: uid, rate: index + 1, prize: 10
             }
         })
@@ -36,7 +36,7 @@ router.post("/", async (req, res) => {
             user_self: {
                 idenity, session_rank: session_rank[session], ranking: user_rank, avatar: {
                     avatar: "files/" + avatar.avatar,
-                    tabel: "files/" + avatar.tabel,
+                    table: "files/" + avatar.table,
                 }, win, lose, user_id: uid, rate: user_self + 1, prize: 10
             }
         })
