@@ -178,6 +178,7 @@ router.post("/profile", async (req, res) => {
             table:"files/"+avatar.table,
         }
     }
+    console.log({clean_data});
     res.json({
         status: true,
         data: clean_data
