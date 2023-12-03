@@ -32,11 +32,20 @@ const token_handler = (req, res, next) => {
 app.use(cors())
 app.use(bodyParser.json())
 app.use(token_handler)
+const middle = (req, res, next) => {
+    // const need_socket=req.body.socket
+    const need_socket = true
+    if (need_socket) req._socket = io
+    next()
+}
+
+app.use(middle)
+
+
+
+
+
 mongoose.connect(process.env.DB_SERVER)
-
-
-
-
 let keys = Object.keys(imports)
 
 
@@ -46,19 +55,10 @@ const io = new Server(server, {
     cors: {
         origin: "*",
     }
-});
+})
 let socket = new SocketProvider(io)
 socket.lunch()
 monitoring.init(io)
-
-const middle = (req, res, next) => {
-    // const need_socket=req.body.socket
-    const need_socket = true
-    if (need_socket) req.socket = io
-    next()
-}
-
-app.use(middle)
 
 
 

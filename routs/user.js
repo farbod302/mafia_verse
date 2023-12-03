@@ -426,6 +426,7 @@ router.post("/change_user_name", async (req, res) => {
 router.post("/edit_profile", async (req, res) => {
     const user = req.body.user
     if (!user) return reject(3, res)
+    
     const { section, item_id } = req.body
     const selected_item = await Item.findOne({ id: item_id })
     let is_valid_item = await User.findOne({ uid: user.uid, items: new mongoose.Types.ObjectId(selected_item._id) })
