@@ -159,7 +159,7 @@ router.post("/items_list", async (req, res) => {
             original_file: i.file,
         }
     })
-    const { avatar } = user_with_items
+    const { avatar } = user_with_items[0]
     const { table, avatar: image } = avatar
     const clean_list = items_list.map(i => {
         const { original_file } = i
