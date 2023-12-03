@@ -8,6 +8,7 @@ const Jwt = require("../helper/jwt")
 const RegistSmsHandler = require("../helper/regist_sms_handler")
 const fs = require("fs")
 const reject = require("../helper/reject_handler")
+const send_notif = require("../helper/send_notif")
 const default_avatar = {
     avatar: "11990.png",
     tabel: "a2e11.lottie",
@@ -77,18 +78,36 @@ router.post("/sign_up", async (req, res) => {
 })
 
 router.post("/sign_up_confirm_phone", async (req, res) => {
-    const { code, phone } = req.body
+    const { code, phone, introducer } = req.body
     let temp = await TempSms.findOne({ code: code, phone: phone, used: false })
     if (!temp) return reject(1, res)
     const name = temp.name
 
     let player_uid = uid(4)
+
+
+    let inter = false
+
+    if (introducer) {
+        const selected_user = await User.findOne({ "idenity.name": introducer })
+        if (selected_user) {
+            await User.findOneAndUpdate({ uid: selected_user.uid }, { $inc: { gold: 200 } })
+            send_notif({
+                users: [selected_user.uid],
+                msg: ` کاربر: ${name} با کد معرفی شما به مافیاورس پیوست.شما ۲۰۰ سکه جایزه گرفتی `,
+                title: "یکی از دوستات به بازی مافیاورس پیوست"
+            })
+            inter = true
+        }
+    }
+
     const new_player = {
         idenity: {
             name: name || "",
             phone: phone
         },
         uid: player_uid,
+        gold: inter ? 400 : 200,
         avatar: default_avatar,
         notif_token: temp.notif_token,
         session_rank: {
@@ -98,7 +117,9 @@ router.post("/sign_up_confirm_phone", async (req, res) => {
         }
     }
     new User(new_player).save()
-   
+
+
+
     res.json({
         status: true,
         msg: "ثبت نام با موفقیت انجام شد",
