@@ -46,12 +46,12 @@ const Game = class {
         console.log("run");
         const next_event = this.game_vars.next_event
         this.game_vars.edit_event("edit", "cur_event", next_event)
-        const abandon=()=>{
-            this.game_vars.edit_event("edit","next_event","finish")
+        const abandon = () => {
+            this.game_vars.edit_event("edit", "next_event", "finish")
             this.game_handlers.abandon_game(this.socket)
         }
-        const next_event_func=()=>{this[next_event]()}
-        this.try_catch(next_event_func,abandon )()
+        const next_event_func = () => { this[next_event]() }
+        this.try_catch(next_event_func, abandon)()
     }
 
 
@@ -1286,11 +1286,7 @@ const Game = class {
     async night_results() {
         const { day } = this.game_vars
         const night_records = this.db.getOne("night_records", "night", day)
-        let users_disconnected = this.game_vars.player_status.filter(e => !e.user_status.is_connected)
-        let prv_abandon_queue = this.game_vars.abandon_queue
-        this.game_vars.edit_event("edit", "abandon_queue", [...prv_abandon_queue, ...users_disconnected])
-        // this.check_for_abandon()
-        night.night_results({
+        await night.night_results({
             game_vars: this.game_vars,
             records: night_records.events,
             users: this.users,
@@ -1483,7 +1479,7 @@ const Game = class {
 
     }
 
-    async finish(){
+    async finish() {
         return
     }
 
@@ -1534,7 +1530,7 @@ const Game = class {
         this.game_handlers.submit_finish_game(game_id)
         const new_users = this.users.map(e => { return { ...e, is_alive: "dead" } })
         this.users = new_users
-        this.game_vars.edit_event("edit","next_event","finish")
+        this.game_vars.edit_event("edit", "next_event", "finish")
     }
 
 
