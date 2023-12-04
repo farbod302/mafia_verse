@@ -298,6 +298,7 @@ const Game = class {
             }
             case ("accept_challenge"): {
                 const { user_id } = data
+                console.log({ user_id });
                 const { game_id } = this
                 let index = this.users.findIndex(user => user.user_id === user_id)
                 start.accept_cahllenge({
@@ -776,7 +777,7 @@ const Game = class {
             let player_roule = carts.find(c => c.user_id === user_id)
             const { name, id } = player_roule
             let mafia_roles = ["godfather", "nato", "hostage_taker"]
-            const msg = `بازیکن شماره ${queue[turn - 1].user_index} با ساید ${mafia_roles.includes(name) ? "مافیا" : "شهروندی"} از بازی خارج شد`
+            const msg = `بازیکن شماره ${queue[turn].user_index} با ساید ${mafia_roles.includes(name) ? "مافیا" : "شهروندی"} از بازی خارج شد`
             this.socket.to(game_id).emit("report", { data: { user_id, msg, timer: 5 } })
             this.game_vars.edit_event("edit", "player_reval", null)
             const contnue_func = () => {
@@ -1324,11 +1325,13 @@ const Game = class {
             this.game_vars.edit_event("edit", "custom_queue", [])
             this.game_vars.edit_event("edit", "next_event", "start_speech")
         }
-        gun_status.forEach(gun => {
-            const user_to_emit = befor_start.pick_player_from_user_id({ users: this.users, user_id: gun.user_id })
-            let socket_id = this.socket_finder(user_to_emit.user_id)
-            this.socket.to(socket_id).emit("gun_status", { data: { gun_enable: true } })
-        })
+        setTimeout(() => {
+            gun_status.forEach(gun => {
+                const user_to_emit = befor_start.pick_player_from_user_id({ users: this.users, user_id: gun.user_id })
+                let socket_id = this.socket_finder(user_to_emit.user_id)
+                this.socket.to(socket_id).emit("gun_status", { data: { gun_enable: true } })
+            })
+        }, 10000)
         await Helper.delay(5)
         this.mainCycle()
     }
