@@ -1308,6 +1308,7 @@ const Game = class {
                 const { user_id, } = user
                 let token = Voice.join_room(user_id, this.game_id)
                 const mafia_socket=this.get_user_socket_id(user_id)
+                console.log({mafia_socket});
                 this.socket.to(mafia_socket).emit("livekit_token", { token })
             }
             this.game_vars.edit_event("edit", "mafia_need_token", [])
