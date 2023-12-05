@@ -1303,6 +1303,7 @@ const Game = class {
 
 
         const { mafia_need_token } = this.game_vars
+        console.log({mafia_need_token});
         if (mafia_need_token.length) {
             for (let user of mafia_need_token) {
                 const { user_id, socket_id } = user
