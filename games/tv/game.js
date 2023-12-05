@@ -764,7 +764,7 @@ const Game = class {
 
 
     async next_player_speech() {
-        await Helper.delay(0.5)
+        await Helper.delay(1.5)
         this.game_vars.edit_event("edit", "turn", "plus")
         const { game_id } = this
         const { queue, turn, can_take_challenge, speech_type, reval, player_reval, carts, player_status, second_chance } = this.game_vars
