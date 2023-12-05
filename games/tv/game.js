@@ -961,7 +961,7 @@ const Game = class {
             game_id: this.game_id
         })
         const { carts } = this.game_vars
-        const mafia_acts = ["mafia", "nato", "hostage_taker"]
+        const mafia_acts = ["godfather", "nato", "hostage_taker"]
         const city = carts.filter(e => !mafia_acts.includes(e.name))
         city.forEach(e => {
             const user_socket = this.socket_finder(e.user_id)
@@ -1307,7 +1307,7 @@ const Game = class {
             for (let user of mafia_need_token) {
                 const { user_id, } = user
                 let token = Voice.join_room(user_id, this.game_id)
-                const mafia_socket=this.get_user_socket_id(user_id)
+                const mafia_socket=this.socket_finder(user_id)
                 console.log({mafia_socket});
                 this.socket.to(mafia_socket).emit("livekit_token", { token })
             }
