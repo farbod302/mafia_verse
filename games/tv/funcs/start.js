@@ -31,7 +31,7 @@ const start = {
             socket.to(socket_id).emit("mafia_speech", { token, timer: 20, teammate: teammate.user_id })
             setTimeout(() => {
                 socket.to(socket_id).emit("mafia_speech_end")
-            }, 5000)
+            }, 25000)
         }
 
     },
@@ -184,9 +184,7 @@ const start = {
                 kind: gun_type
             }
         })
-        console.log({gun_type});
         if (gun_type === "fighter") {
-            console.log({user_resive_shot});
             game_vars.edit_event("push", "dead_list", user_resive_shot)
             const { turn } = game_vars
             let prv_queue = [...game_vars.queue]
@@ -200,7 +198,6 @@ const start = {
                 user_index: index
             }
             prv_queue.splice(turn + 1, 0, clean_user)
-            console.log({prv_queue});
             // prv_queue = prv_queue.filter((e) => {
             //     if (e.user_id === user_resive_shot && e.speech_status !== "challenge") return false
             //     return true

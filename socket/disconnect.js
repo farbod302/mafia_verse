@@ -21,7 +21,6 @@ const handel_disconnect = async ({ client, db, socket }) => {
     const user_id = client.idenity?.user_id
     const prv_channel = client.channel_data
     if (!user_id || !prv_channel) return
-    console.log({user_id,prv_channel});
     await UserChannelConfig.updateOne({ user_id, channel_id: prv_channel.channel_id }, { $set: { last_visit: Date.now() } })
 
     if(client.local_game_data){

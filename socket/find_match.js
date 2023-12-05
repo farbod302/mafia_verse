@@ -36,8 +36,6 @@ const find_match = {
         let seleced_game = games[senario]
         let game_players_count = seleced_game.static_vars.player_count
         let available_games = db.filterModel("games_queue", "auth", auth)
-        console.log({available_games});
-        console.log({auth,party_players_count});
         let choosen_game = available_games.find(e => e.remain >= party_players_count)
         if (!choosen_game) {
             //create game queue
@@ -95,7 +93,6 @@ const find_match = {
                 user_image: user_avatar
             }
         })
-        console.log({mod_game_users:users});
         users = await Promise.all(users)
         users=users.filter(e => e.user_id !== creator)
         let game_id = uuid(4)
@@ -144,7 +141,6 @@ const find_match = {
             console.log("REPLACE");
             db.replaceOne("games_queue", "game_id", game_id, updated_game)
         }
-        console.log({ gamessss: db.getAll("games_queue") });
         for (let party of partys) {
             socket.to(party).emit("find_match", { data: users_after_leave.map((user) => { return { user_image: user.user_image, user_id: user.user_id } }) })
         }

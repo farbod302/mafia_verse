@@ -8,7 +8,6 @@ var FCM = new fcm(certPath);
 
 
 const send_notif = async ({ users, msg, title }) => {
-console.log({users});
     let users_data = await User.find({ uid: { $in: users } })
 
     for (let user of users) {
@@ -16,7 +15,6 @@ console.log({users});
         let s_user = users_data.find(e => e.uid == user)
         if(!s_user)continue
         let token = s_user?.notif_token
-        console.log({token});
         if (!token || token === "not_fond") continue
         var message = {
             android: {

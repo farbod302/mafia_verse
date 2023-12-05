@@ -75,7 +75,6 @@ const Game = class {
             const abandon_func = (index, abandon_user) => {
                 const cur_status = this.game_vars.player_status
                 const s_player = cur_status[index]
-                console.log("status:", !s_player.user_status.is_connected);
                 if (!s_player.user_status.is_connected) abandon_user()
             }
             setTimeout(() => {
@@ -298,7 +297,6 @@ const Game = class {
             }
             case ("accept_challenge"): {
                 const { user_id } = data
-                console.log({ user_id });
                 const { game_id } = this
                 let index = this.users.findIndex(user => user.user_id === user_id)
                 start.accept_cahllenge({
@@ -1216,7 +1214,7 @@ const Game = class {
         this.game_vars.edit_event("edit", "mafia_talking", false)
 
         this.game_vars.edit_event("edit", "next_event", "check_mafia_decision")
-        await Helper.delay(5)
+        await Helper.delay(25)
         this.socket.to(game_id).emit("action_end")
         this.mainCycle()
     }

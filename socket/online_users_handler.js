@@ -14,7 +14,6 @@ const online_users_handler = {
         fs.writeFileSync(`${__dirname}/online_users.json`, JSON.stringify(json_file))
     },
     remove_user(user_id) {
-        console.log({ user_id });
         let json_file = fs.readFileSync(`${__dirname}/online_users.json`)
         json_file = JSON.parse(json_file.toString())
         json_file = json_file.filter(e => e.user_id != user_id)

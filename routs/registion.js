@@ -155,7 +155,6 @@ router.post("/log_in_confirm_phone", async (req, res) => {
     if (!is_exist) return reject(4, res)
     const { uid: user_id } = is_exist
     let token = Jwt.sign({ uid: user_id })
-    console.log({ token });
     res.json({
         status: true,
         msg: "",

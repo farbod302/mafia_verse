@@ -64,7 +64,7 @@ const night = {
             game_vars.edit_event("edit", "mafia_speak", true)
             game_vars.edit_event("edit", "mafia_need_token", speech_list)
         }
-        await delay(5)
+        await delay(25)
         game_vars.edit_event("next_event", "check_mafia_decision")
     },
 

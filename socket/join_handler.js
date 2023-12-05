@@ -6,7 +6,6 @@ const online_users_handler = require("./online_users_handler")
 const User = require("../db/user")
 const join_handler = async ({ token, db, client, socket }) => {
     const user = Jwt.verify(token)
-    console.log({ token });
     if (!user) return
     const version = fs.readFileSync(`${__dirname}/../version.json`)
     const { v } = JSON.parse(version.toString())
@@ -30,7 +29,6 @@ const join_handler = async ({ token, db, client, socket }) => {
     online_users_handler.add_user(uid, client.id, token)
     let user_exist_game = db.getOne("disconnect", "user_id", uid)
     if (user_exist_game) {
-        console.log({ user_exist_game, socket_id: client.id });
         let s_game = db.getOne("games", "game_id", user_exist_game.game_id)
         if (!s_game) return
         const { carts } = s_game.game_class.game_vars

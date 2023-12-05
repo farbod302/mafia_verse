@@ -49,7 +49,6 @@ const reconnect = ({ game_vars, client, game_id, users }) => {
 
 
 const game_event_finder = (event) => {
-    console.log({ event });
     const all_events = [
 
         {

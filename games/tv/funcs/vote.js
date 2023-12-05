@@ -8,7 +8,6 @@ const vote = {
     async start_vote({ game_vars }) {
 
         await delay(3)
-        console.log({ votes: game_vars.votes_status });
         game_vars.edit_event("edit", "votes_status", [])
         const { defenders_queue, vote_type, custom_queue } = game_vars
         let custom = defenders_queue?.length ? defenders_queue : custom_queue
@@ -54,7 +53,6 @@ const vote = {
         let new_vote_status = [...votes_status]
         new_vote_status[turn].users.push(client.idenity.user_id)
         game_vars.edit_event("edit", "votes_status", new_vote_status)
-        console.log({ new_vote_status });
         // socket.to(game_id).emit("vote", { data: new_vote_status[turn] })
     },
 
@@ -119,7 +117,6 @@ const vote = {
     count_exit_vote({ game_vars, users, socket, game_id, socket_finder }) {
         const { votes_status } = game_vars
         let user_to_exit = votes_status.sort((a, b) => { return b.users.length - a.users.length })
-        console.log({ final_vote_status: user_to_exit });
         user_to_exit = user_to_exit[0]
         let exit_vote_count = user_to_exit.users.length
         const live_users = start.pick_live_users({ game_vars })

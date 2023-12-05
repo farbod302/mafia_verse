@@ -15,7 +15,6 @@ const LocalGame = class {
         this.users = []
         this.turn = -1
         this.game_id = game_id
-        console.log({game_id});
         const remove_game = () => {
             db.removeOne("local_game", "game_id", game_id)
         }

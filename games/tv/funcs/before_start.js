@@ -22,7 +22,6 @@ const befor_start = {
         let users_from_db = await Users.find({ uid: { $in: users_user_id } })
         const player_clean_list = users.map((user, index) => {
             let selected_user_from_db = users_from_db.find(d_user => user.user_id === d_user.uid)
-            console.log({selected_user_from_db:selected_user_from_db});
             return {
                 index,
                 user_id: user.user_id,
@@ -31,7 +30,6 @@ const befor_start = {
                 user_anim:  `files/${selected_user_from_db?.avatar?.table || "a2e11.lottie"}`,
             }
         })
-        console.log({player_clean_list});
         return player_clean_list
     },
 
