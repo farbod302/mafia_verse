@@ -90,7 +90,7 @@ router.post("/sign_up_confirm_phone", async (req, res) => {
     let inter = false
 
     if (introducer) {
-        const selected_user = await User.findOne({ "idenity.name": introducer })
+        const selected_user = await User.findOne({ uid: introducer })
         if (selected_user) {
             await User.findOneAndUpdate({ uid: selected_user.uid }, { $inc: { gold: 200 } })
             send_notif({
