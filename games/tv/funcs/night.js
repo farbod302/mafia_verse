@@ -63,7 +63,6 @@ const night = {
             await this.generate_room_for_mafia({ game_vars, users, socket })
             game_vars.edit_event("edit", "mafia_speak", true)
             game_vars.edit_event("edit", "mafia_need_token", speech_list)
-            console.log(speech_list);
 
         }
         await delay(25)
