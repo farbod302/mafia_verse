@@ -91,7 +91,7 @@ const start = {
             if (speech_code === cur_speech_code) {
                 let user = befor_start.pick_player_from_user_id({ users, user_id: player_to_set_timer })
                 const { socket_id } = user
-                socket.to(socket_id).emit("speech_time_up",{ data: { user_id: user.user_id} })
+                socket.to(socket_id).emit("speech_time_up", { data: { user_id: user.user_id } })
                 func()
             }
         }
@@ -99,8 +99,6 @@ const start = {
     },
 
     accept_cahllenge({ game_vars, user_id, users, socket }) {
-        console.log({users});
-        console.log({user_id});
         const { queue, turn } = game_vars
         let speeching_user_index = turn + 1
         let challenge_user = befor_start.pick_player_from_user_id({ users, user_id })
@@ -111,14 +109,15 @@ const start = {
             pass: false,
             challenge_used: true
         }
-        console.log({challenge_user});
         let prv_queue = [...game_vars.queue]
+        console.log({ queue_before_challenge: prv_queue });
         let current_user = queue[turn]
-        console.log({current_user});
         let user_in_queue_index = prv_queue.findIndex(user => user.user_id === current_user.user_id)
         prv_queue[user_in_queue_index].challenge_used = true
         prv_queue.splice(speeching_user_index, 0, user_to_add_queue)
         game_vars.edit_event("edit", "queue", prv_queue)
+        console.log({ queue_after_challenge: prv_queue });
+
         socket.to(challenge_user.socket_id).emit("accept_challenge")
     },
 
