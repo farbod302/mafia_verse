@@ -102,10 +102,10 @@ const start = {
         const { queue, turn } = game_vars
         let speeching_user_index = turn + 1
         let challenge_user = befor_start.pick_player_from_user_id({ users, user_id })
-        console.log({challenge_user});
+        const user_index=users.findIndex(e=>e.user_id === user_id)
         let user_to_add_queue = {
-            user_id: challenge_user.user_index,
-            user_index: challenge_user.id,
+            user_id: challenge_user.user_id,
+            user_index: user_index,
             speech_status: "challenge",
             pass: false,
             challenge_used: true
