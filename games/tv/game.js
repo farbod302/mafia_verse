@@ -80,6 +80,8 @@ const Game = class {
                 abandon_func(index, abandon_user)
             }, 1000 * 60 * 3)
 
+        } else {
+            this.game_vars.edit_event("push", "dc_queue", { ...client.idenity })
         }
         if (this.mod && this.mod === user_id) return true
         return false
@@ -665,7 +667,7 @@ const Game = class {
         this.socket.to(game_id).emit("mod_data", mod ? { data: mod_data[0] } : { data: null })
         await Helper.delay(2)
 
-
+        console.log({ dc_users: this.game_vars.dc_queue });
 
         if (mod) {
             let mod_socket = this.socket_finder(mod)

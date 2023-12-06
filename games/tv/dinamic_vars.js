@@ -16,6 +16,7 @@ const dinamic_vars = class {
         this.join_status_second_phase = []
         this.game_go_live = false
         this.w8 = []
+        this.dc_queue=[]
         this.reval = false
         this.vote_type = "pre_vote"
         this.speech_type = "introduction"
