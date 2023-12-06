@@ -55,11 +55,8 @@ const Game = class {
 
 
     submit_user_disconnect({ client }) {
-        console.log({client});
         const { user_id } = client.idenity
         let index = this.users.findIndex(user => user.user_id === user_id)
-        console.log({index});
-        console.log({status:this.game_vars.player_status});
         if (index > -1 && this.game_vars.player_status) {
             start.edit_game_action({
                 index,
