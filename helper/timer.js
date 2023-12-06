@@ -1,6 +1,11 @@
 const run_timer=async (time,func)=>{
     await new Promise(resolve=>{setTimeout(resolve,time *1000)})
-    func()
+    try{
+        func()
+    }
+    catch{
+        return
+    }
 }
 
 
