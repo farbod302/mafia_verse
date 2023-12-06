@@ -23,6 +23,7 @@ const reconnect = ({ game_vars, client, game_id, users }) => {
     let live_kit_token = Voice.join_room(user_id, game_id)
     const { cur_event: game_event } = game_vars
     let game_action = [...game_vars.player_status]
+    console.log({game_action});
     let in_game_turn_speech = []
     if (game_event === "start_speech" || game_event === "next_player_speech") {
         in_game_turn_speech = [...game_vars.queue]
