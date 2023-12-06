@@ -197,6 +197,7 @@ const Game = class {
 
 
     async player_action({ op, data, client }) {
+       try{
         let user_call_idenity = client.idenity
         switch (op) {
             case ("ready_to_choose"): {
@@ -616,6 +617,11 @@ const Game = class {
                 break
             }
         }
+       }
+       catch(err){
+        console.log(err);
+        this.abandon()
+       }
     }
 
 
@@ -817,8 +823,8 @@ const Game = class {
         if (queue.length === turn) {
             this.game_vars.edit_event("edit", "second_chance", [])
 
-            //todo abendon
             const index = this.users.findIndex(e => e.user_id === queue[turn - 1].user_id)
+            if(index === -1)return this.abandon()
             start.edit_game_action({
                 index,
                 prime_event: "user_status",
