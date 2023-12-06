@@ -667,7 +667,11 @@ const Game = class {
         this.socket.to(game_id).emit("mod_data", mod ? { data: mod_data[0] } : { data: null })
         await Helper.delay(2)
 
-        console.log({ dc_users: this.game_vars.dc_queue });
+        this.game_vars.dc_queue.map(user => {
+            this.submit_user_disconnect({ client: user })
+        })
+        await Helper.delay(2)
+
 
         if (mod) {
             let mod_socket = this.socket_finder(mod)
