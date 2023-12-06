@@ -102,7 +102,7 @@ const start = {
         const { queue, turn } = game_vars
         let speeching_user_index = turn + 1
         let challenge_user = befor_start.pick_player_from_user_id({ users, user_id })
-        const user_index=users.findIndex(e=>e.user_id === user_id)
+        const user_index = users.findIndex(e => e.user_id === user_id)
         let user_to_add_queue = {
             user_id: challenge_user.user_id,
             user_index: user_index,
@@ -169,7 +169,7 @@ const start = {
         let mafia_rols = ["nato", "godfather", "hostage_taker"]
         let mafia_death = dead_list.filter(dead => {
             let role = carts.find(cart => cart.user_id === dead.user_id)
-            if (mafia_rols.includes(role.name)) return true
+            if (role && mafia_rols.includes(role.name)) return true
             return false
         })
         return `از بازی ${mafia_death.length} مافیا و ${dead_list.length - mafia_death.length} شهروند از بازی خارج شده`
