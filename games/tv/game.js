@@ -668,7 +668,7 @@ const Game = class {
         await Helper.delay(2)
 
         this.game_vars.dc_queue.map(user => {
-            this.submit_user_disconnect({ client: user })
+            this.submit_user_disconnect({ client: { idenity: user } })
         })
         await Helper.delay(2)
 
