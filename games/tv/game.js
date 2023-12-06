@@ -126,6 +126,7 @@ const Game = class {
             const { player_status } = this.game_vars
             this.socket.to(game_id).emit("game_action", { data: [player_status[index]] })
             this.game_vars.edit_event("pull", "abandon_queue", client.user_id)
+          
         }
     }
 
