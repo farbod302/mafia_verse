@@ -685,11 +685,12 @@ const Game = class {
         this.socket.to(game_id).emit("game_event", { data: { game_event: time } })
         befor_start.player_status_generate({ game_vars: this.game_vars })
         await Helper.delay(3)
+        let status_list = game_vars.player_status
+        this.socket.to(game_id).emit("game_action", { data: status_list })
+        await Helper.delay(1)
         this.game_vars.dc_queue.map(user => {
             this.submit_user_disconnect({ client: { idenity: user } })
         })
-        let status_list = game_vars.player_status
-        this.socket.to(game_id).emit("game_action", { data: status_list })
         this.socket.to(game_id).emit("report", { data: { msg: "روز معارفه", timer: 3 } })
         await Helper.delay(3)
         this.game_vars.edit_event("edit", "next_event", "start_speech")
