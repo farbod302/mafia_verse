@@ -43,7 +43,6 @@ const Game = class {
 
 
     mainCycle() {
-        console.log("run");
         const next_event = this.game_vars.next_event
         this.game_vars.edit_event("edit", "cur_event", next_event)
         const abandon = () => {
@@ -297,7 +296,7 @@ const Game = class {
             }
             case ("accept_challenge"): {
                 const { user_id } = data
-                console.log({user_accepted:user_id});
+                console.log({ user_accepted: user_id });
                 const { game_id } = this
                 let index = this.users.findIndex(user => user.user_id === user_id)
                 start.accept_cahllenge({
@@ -734,15 +733,19 @@ const Game = class {
         })
     }
 
-    wait_to_join_second_phase() {
-        const func = () => {
+    async wait_to_join_second_phase() {
+        const func = async () => {
             const { game_go_live } = this.game_vars
             if (!game_go_live) {
-                this.go_live()
+                await this.go_live()
+                const { player_status } = this.game_vars
+
+                const dc_users = player_status.filter(e => !e.user_status.is_connected)
+                console.log({ dc_users });
                 //todo :emit dc users
             }
         }
-        run_timer(20, func)
+        await run_timer(20, func)
     }
 
 
@@ -1307,8 +1310,8 @@ const Game = class {
             for (let user of mafia_need_token) {
                 const { user_id, } = user
                 let token = Voice.join_room(user_id, this.game_id)
-                const mafia_socket=this.socket_finder(user_id)
-                console.log({mafia_socket});
+                const mafia_socket = this.socket_finder(user_id)
+                console.log({ mafia_socket });
                 this.socket.to(mafia_socket).emit("livekit_token", { token })
             }
             this.game_vars.edit_event("edit", "mafia_need_token", [])
