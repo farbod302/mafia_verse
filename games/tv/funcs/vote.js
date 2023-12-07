@@ -84,11 +84,11 @@ const vote = {
 
             socket.to(game_id).emit("report", {
                 data: {
-                    msg: `${defender_index.length === 1?"بازیکن":"بازیکنان"} ${defender_index.join(" و ") } به دفاعیه میروند`, timer: 2
+                    msg: `${defender_index.length === 1?"بازیکن":"بازیکنان"} ${defender_index.join(" و ") } به دفاعیه میروند`, timer: 4
                 }
             })
 
-            await Helper.delay(3)
+            await Helper.delay(5)
             defenders_queue.forEach(user => game_vars.edit_event("push", "defence_history", user.user_id))
             game_vars.edit_event("edit", "can_take_challenge", false)
             game_vars.edit_event("edit", "turn", -1)

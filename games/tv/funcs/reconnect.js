@@ -40,7 +40,8 @@ const reconnect = ({ game_vars, client, game_id, users }) => {
         },
         join_type: "player",
         roles: [],
-        mafia_list
+        mafia_list,
+        game_id
 
     }
 }

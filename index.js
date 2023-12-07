@@ -39,7 +39,7 @@ const middle = (req, res, next) => {
     next()
 }
 
-app.use(middle)
+// app.use(middle)
 
 
 
