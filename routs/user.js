@@ -517,13 +517,34 @@ router.post("/game_history", async (req, res) => {
     if (!user) return reject(3, res)
     const { uid } = user
     const games = await GameHistory.find({ users: uid })
+    const games_list = games.map(g => {
+        const { game_id, winner, game_info } = g
+        const player_role = game_info.users.find(u => u.user_id === uid)
+        const { point, role } = player_role
+        return {
+            game_id, winner, point, role
+        }
+    })
+
     res.json({
         status: true,
         msg: "",
-        data: { games: games.reverse().slice(0, 25) }
+        data: games_list
     })
 })
 
+
+
+router.post("/game_detail", async (req, res) => {
+    const { game_id } = req.body
+    const selected_game = await GameHistory.findOne({ game_id })
+    if (!selected_game) return reject(18, res)
+    res.json({
+        status: true,
+        msg: "",
+        data: { ...selected_game.game_info,winner:selected_game.winner }
+    })
+})
 
 
 
