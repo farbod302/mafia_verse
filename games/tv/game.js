@@ -1157,7 +1157,7 @@ const Game = class {
 
 
     async count_exit_vote() {
-        game_vars.edit_event("edit", "speech_type", "turn")
+        this.game_vars.edit_event("edit", "speech_type", "turn")
         const { game_id, socket } = this
         const user_to_exit = vote.count_exit_vote({ game_vars: this.game_vars, game_id, socket, users: this.users, socket_finder: this.socket_finder, game_id: this.game_id })
         if (user_to_exit) {

@@ -76,8 +76,10 @@ const vote = {
         if (defenders_queue.length) {
 
 
-            console.log({defenders_queue});
-            const defender_index=defenders_queue.map(e=>e.user_index)
+            const defender_index=defenders_queue.map(e=>{
+                const index=users.findIndex(s=>s.user_id === e.user_id)
+                return index+1
+            })
 
 
             socket.to(game_id).emit("report", {
