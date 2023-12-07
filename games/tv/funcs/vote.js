@@ -76,7 +76,7 @@ const vote = {
         if (defenders_queue.length) {
 
 
-
+            console.log({defenders_queue});
             const defender_index=defenders_queue.map(e=>e.user_index)
 
 
