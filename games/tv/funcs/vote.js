@@ -40,6 +40,12 @@ const vote = {
                     msg: `رای گیری برای بازیکن شماره ${index + 1}`, timer: 2
                 }
             })
+        }else{
+            socket.to(game_id).emit("report", {
+                data: {
+                    msg: `آیا شهر استعلام می خواهد؟`, timer: 2
+                }
+            })
         }
         await Helper.delay(2)
         user_to_vote.forEach(user => {
@@ -59,7 +65,7 @@ const vote = {
     // A1V4Nymz9ovZ91iM8O
 
 
-    arange_defence({ game_vars, users }) {
+   async arange_defence({ game_vars, users,socket,game_id }) {
         const { votes_status } = game_vars
         const live_users = start.pick_live_users({ game_vars })
         const live_users_count = live_users.length
@@ -68,11 +74,25 @@ const vote = {
         let defenders_queue = users.filter(user => defender_ids.includes(user.user_id))
         game_vars.edit_event("edit", "defenders_queue", defenders_queue)
         if (defenders_queue.length) {
+
+
+
+            const defender_index=defenders_queue.map(e=>e.user_index)
+
+
+            socket.to(game_id).emit("report", {
+                data: {
+                    msg: `${defender_index.length === 1?"بازیکن":"بازیکنان"} ${defender_index.join(" و ") } به دفاعیه میروند`, timer: 2
+                }
+            })
+
+            await Helper.delay(3)
             defenders_queue.forEach(user => game_vars.edit_event("push", "defence_history", user.user_id))
             game_vars.edit_event("edit", "can_take_challenge", false)
             game_vars.edit_event("edit", "turn", -1)
             game_vars.edit_event("edit", "cur_event", "defence")
             game_vars.edit_event("edit", "vote_type", "defence")
+            game_vars.edit_event("edit", "speech_type", "defence")
             // if (defenders_queue.length >= 3) {
             game_vars.edit_event("edit", "custom_queue", defenders_queue)
             game_vars.edit_event("edit", "next_event", "start_speech")

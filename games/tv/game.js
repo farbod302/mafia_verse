@@ -126,7 +126,7 @@ const Game = class {
             const { player_status } = this.game_vars
             this.socket.to(game_id).emit("game_action", { data: [player_status[index]] })
             this.game_vars.edit_event("pull", "abandon_queue", client.user_id)
-          
+
         }
     }
 
@@ -197,317 +197,359 @@ const Game = class {
 
 
     async player_action({ op, data, client }) {
-       try{
-        let user_call_idenity = client.idenity
-        switch (op) {
-            case ("ready_to_choose"): {
-                this.game_vars.edit_event("push", "join_status", user_call_idenity)
-                let connected_users_length = this.game_vars.join_status.length
-                if (connected_users_length == static_vars.player_count) {
-                    const game_id = this.game_id
-                    this.socket.to(game_id).emit("game_started")
-                    this.game_vars.edit_event("edit", "next_event", "pick_cart_phase", "user connection")
-                    this.game_vars.edit_event("edit", "start", true, "user connection")
+        try {
+            let user_call_idenity = client.idenity
+            switch (op) {
+                case ("ready_to_choose"): {
+                    this.game_vars.edit_event("push", "join_status", user_call_idenity)
+                    let connected_users_length = this.game_vars.join_status.length
+                    if (connected_users_length == static_vars.player_count) {
+                        const game_id = this.game_id
+                        this.socket.to(game_id).emit("game_started")
+                        this.game_vars.edit_event("edit", "next_event", "pick_cart_phase", "user connection")
+                        this.game_vars.edit_event("edit", "start", true, "user connection")
+                        this.mainCycle()
+                    }
+                }
+                    break
+
+                case ("selected_character"): {
+                    const { turn } = this.game_vars
+                    const { index } = data
+                    let contnue_func = () => { this.mainCycle() }
+                    befor_start.submit_cart_pick({
+                        contnue_func, game_vars: this.game_vars, cart: index, users: this.users, turn
+                    })
+                }
+                    break
+
+                case ("ready_to_game"): {
+                    this.game_vars.edit_event("push", "join_status_second_phase", user_call_idenity)
+                    let connected_users_length = this.game_vars.join_status_second_phase.length
+                    if (connected_users_length === static_vars.player_count + (this.mod ? 1 : 0) && !this.game_vars.is_live) {
+                        this.go_live()
+                        this.game_vars.edit_event("edit", "game_go_live", true)
+                    }
+
+                    break
+                }
+                case ("reconnect"): {
+                    this.re_connect({ client: client.idenity })
+                    break
+                }
+                case ("next_speech"): {
                     this.mainCycle()
+                    break
                 }
-            }
-                break
+                case ("vote"): {
+                    let index = this.users.findIndex(user => user.user_id === client.idenity.user_id)
+                    const { cur_event } = this.game_vars
+                    let event_to_change = cur_event === "target_cover" ? "target_cover_hand_rise" : "hand_rise"
+                    const { game_id } = this
+                    start.edit_game_action({
+                        index,
+                        prime_event: "user_action",
+                        second_event: event_to_change,
+                        new_value: true,
+                        game_vars: this.game_vars
+                    })
+                    const { player_status } = this.game_vars
+                    this.socket.to(game_id).emit("game_action", { data: [player_status[index]] })
+                    start.edit_game_action({
+                        index,
+                        prime_event: "user_action",
+                        second_event: event_to_change,
+                        new_value: false,
+                        game_vars: this.game_vars
+                    })
 
-            case ("selected_character"): {
-                const { turn } = this.game_vars
-                const { index } = data
-                let contnue_func = () => { this.mainCycle() }
-                befor_start.submit_cart_pick({
-                    contnue_func, game_vars: this.game_vars, cart: index, users: this.users, turn
-                })
-            }
-                break
-
-            case ("ready_to_game"): {
-                this.game_vars.edit_event("push", "join_status_second_phase", user_call_idenity)
-                let connected_users_length = this.game_vars.join_status_second_phase.length
-                if (connected_users_length === static_vars.player_count + (this.mod ? 1 : 0) && !this.game_vars.is_live) {
-                    this.go_live()
-                    this.game_vars.edit_event("edit", "game_go_live", true)
+                    vote.submit_vote({
+                        client,
+                        socket: this.socket,
+                        game_id: this.game_id,
+                        game_vars: this.game_vars
+                    })
+                    break
                 }
+                case ("user_action"): {
 
-                break
-            }
-            case ("reconnect"): {
-                this.re_connect({ client: client.idenity })
-                break
-            }
-            case ("next_speech"): {
-                this.mainCycle()
-                break
-            }
-            case ("vote"): {
-                let index = this.users.findIndex(user => user.user_id === client.idenity.user_id)
-                const { cur_event } = this.game_vars
-                let event_to_change = cur_event === "target_cover" ? "target_cover_hand_rise" : "hand_rise"
-                const { game_id } = this
-                start.edit_game_action({
-                    index,
-                    prime_event: "user_action",
-                    second_event: event_to_change,
-                    new_value: true,
-                    game_vars: this.game_vars
-                })
-                const { player_status } = this.game_vars
-                this.socket.to(game_id).emit("game_action", { data: [player_status[index]] })
-                start.edit_game_action({
-                    index,
-                    prime_event: "user_action",
-                    second_event: event_to_change,
-                    new_value: false,
-                    game_vars: this.game_vars
-                })
+                    const { speech_type } = this.game_vars
+                    if (speech_type !== "turn" && speech_type !== "introduction") return
+                    const { action } = data
+                    const { user_id } = client.idenity
+                    const { game_id } = this
+                    let index = this.users.findIndex(user => user.user_id === user_id)
+                    start.edit_game_action({
+                        index,
+                        prime_event: "user_action",
+                        second_event: action,
+                        new_value: true,
+                        game_vars: this.game_vars,
+                    })
+                    const { player_status } = this.game_vars
+                    this.socket.to(game_id).emit("game_action", { data: [player_status[index]] })
 
-                vote.submit_vote({
-                    client,
-                    socket: this.socket,
-                    game_id: this.game_id,
-                    game_vars: this.game_vars
-                })
-                break
-            }
-            case ("user_action"): {
+                    start.edit_game_action({
+                        index,
+                        prime_event: "user_action",
+                        second_event: action,
+                        new_value: false,
+                        game_vars: this.game_vars,
+                    })
+                    break
+                }
+                case ("accept_challenge"): {
+                    const { user_id } = data
+                    console.log({ user_accepted: user_id });
+                    const { game_id } = this
+                    let index = this.users.findIndex(user => user.user_id === user_id)
+                    start.accept_cahllenge({
+                        game_vars: this.game_vars,
+                        user_id,
+                        users: this.users,
+                        socket: this.socket
+                    })
+                    start.edit_game_action({
+                        index,
+                        prime_event: "user_action",
+                        second_event: "accepted_challenge_request",
+                        new_value: true,
+                        game_vars: this.game_vars,
+                    })
+                    const { player_status } = this.game_vars
+                    this.socket.to(game_id).emit("game_action", { data: [player_status[index]] })
 
-                const { speech_type } = this.game_vars
-                if (speech_type !== "turn" && speech_type !== "introduction") return
-                const { action } = data
-                const { user_id } = client.idenity
-                const { game_id } = this
-                let index = this.users.findIndex(user => user.user_id === user_id)
-                start.edit_game_action({
-                    index,
-                    prime_event: "user_action",
-                    second_event: action,
-                    new_value: true,
-                    game_vars: this.game_vars,
-                })
-                const { player_status } = this.game_vars
-                this.socket.to(game_id).emit("game_action", { data: [player_status[index]] })
+                    start.edit_game_action({
+                        index,
+                        prime_event: "user_action",
+                        second_event: "accepted_challenge_request",
+                        new_value: false,
+                        game_vars: this.game_vars,
+                    })
 
-                start.edit_game_action({
-                    index,
-                    prime_event: "user_action",
-                    second_event: action,
-                    new_value: false,
-                    game_vars: this.game_vars,
-                })
-                break
-            }
-            case ("accept_challenge"): {
-                const { user_id } = data
-                console.log({ user_accepted: user_id });
-                const { game_id } = this
-                let index = this.users.findIndex(user => user.user_id === user_id)
-                start.accept_cahllenge({
-                    game_vars: this.game_vars,
-                    user_id,
-                    users: this.users,
-                    socket: this.socket
-                })
-                start.edit_game_action({
-                    index,
-                    prime_event: "user_action",
-                    second_event: "accepted_challenge_request",
-                    new_value: true,
-                    game_vars: this.game_vars,
-                })
-                const { player_status } = this.game_vars
-                this.socket.to(game_id).emit("game_action", { data: [player_status[index]] })
-
-                start.edit_game_action({
-                    index,
-                    prime_event: "user_action",
-                    second_event: "accepted_challenge_request",
-                    new_value: false,
-                    game_vars: this.game_vars,
-                })
-
-                break
-            }
-            case ("night_act"): {
-                const { role, users } = data
-                const { day } = this.game_vars
-                let cur_night_events = this.db.getOne("night_records", "night", day)
-                let prv_events = [...cur_night_events.events]
-                users.forEach(target => {
-                    prv_events.push({
+                    break
+                }
+                case ("night_act"): {
+                    const { role, users } = data
+                    const { day } = this.game_vars
+                    let cur_night_events = this.db.getOne("night_records", "night", day)
+                    let prv_events = [...cur_night_events.events]
+                    users.forEach(target => {
+                        prv_events.push({
+                            act: role,
+                            target: target.user_id,
+                            info: target.act
+                        })
+                    })
+                    cur_night_events.events = prv_events
+                    this.db.replaceOne("night_records", "night", day, cur_night_events)
+                    night.night_act_handler({
+                        user_id: client.idenity.user_id,
+                        game_vars: this.game_vars,
                         act: role,
-                        target: target.user_id,
-                        info: target.act
+                        socket: this.socket,
+                        idenity: client.idenity,
+                        users: this.users,
+                        targets: users
                     })
-                })
-                cur_night_events.events = prv_events
-                this.db.replaceOne("night_records", "night", day, cur_night_events)
-                night.night_act_handler({
-                    user_id: client.idenity.user_id,
-                    game_vars: this.game_vars,
-                    act: role,
-                    socket: this.socket,
-                    idenity: client.idenity,
-                    users: this.users,
-                    targets: users
-                })
 
-                //first msg
-                night.emit_to_mod({
-                    game_vars: this.game_vars,
-                    socket_finder: this.socket_finder,
-                    mod: this.mod,
-                    event: null,
-                    msg: `اکت ${Helper.character_translator(role)}`,
-                    socket: this.socket
-                })
-                await Helper.delay(2)
-                //second msg
-                night.emit_to_mod({
-                    game_vars: this.game_vars,
-                    socket_finder: this.socket_finder,
-                    mod: this.mod,
-                    event: {
-                        from: client.idenity.user_id,
-                        to: users
-                    },
-                    msg: null,
-                    socket: this.socket
-                })
-                break
-            }
-            case ("mafia_decision"): {
-                const { shot } = data
-                let decision = shot ? "mafia_shot" : "use_nato"
-                this.game_vars.edit_event("edit", "next_event", decision)
-                if (decision === "use_nato") {
-                    this.game_vars.edit_event("edit", "nato_act", true)
-                }
-                night.emit_to_mod({
-                    game_vars: this.game_vars,
-                    socket_finder: this.socket_finder,
-                    mod: this.mod,
-                    event: null,
-                    msg: `مافیا تصمیم به ${decision === "mafia_shot" ? "شلیک" : "ناتویی"}گرفت`,
-                    socket: this.socket
-                })
-
-                this.mainCycle()
-                break
-            }
-            case ("mafia_shot"): {
-                const { users } = data
-                const { day } = this.game_vars
-                let cur_night_events = this.db.getOne("night_records", "night", day)
-                let prv_events = [...cur_night_events.events]
-                users.forEach(target => {
-                    prv_events.push({
-                        act: "mafia_shot",
-                        target: target.user_id,
+                    //first msg
+                    night.emit_to_mod({
+                        game_vars: this.game_vars,
+                        socket_finder: this.socket_finder,
+                        mod: this.mod,
+                        event: null,
+                        msg: `اکت ${Helper.character_translator(role)}`,
+                        socket: this.socket
                     })
-                })
-                cur_night_events.events = prv_events
-                this.db.replaceOne("night_records", "night", day, cur_night_events)
-
-                night.emit_to_mod({
-                    game_vars: this.game_vars,
-                    socket_finder: this.socket_finder,
-                    mod: this.mod,
-                    event: null,
-                    msg: `شات مافیا`,
-                    socket: this.socket
-                })
-                await Helper.delay(2)
-
-                night.emit_to_mod({
-                    game_vars: this.game_vars,
-                    socket_finder: this.socket_finder,
-                    mod: this.mod,
-                    event: {
-                        from: client.idenity.user_id,
-                        to: users
-                    },
-                    msg: null,
-                    socket: this.socket
-                })
-
-
-                break
-            }
-            case ("using_speech_options"): {
-                const { using_option } = data
-                const { game_id } = this
-                const { target_cover_queue } = this.game_vars
-                let turn = target_cover_queue.findIndex(q => !q.comp)
-                let new_target_cover_queue = [...target_cover_queue]
-                new_target_cover_queue[turn].permission = using_option
-                this.game_vars.edit_event("edit", "target_cover_queue", new_target_cover_queue)
-                if (using_option) {
-                    this.socket.to(game_id).emit("user_request_speech_options", { data: { requester_id: client.idenity.user_id, timer: 5 } })
+                    await Helper.delay(2)
+                    //second msg
+                    night.emit_to_mod({
+                        game_vars: this.game_vars,
+                        socket_finder: this.socket_finder,
+                        mod: this.mod,
+                        event: {
+                            from: client.idenity.user_id,
+                            to: users
+                        },
+                        msg: null,
+                        socket: this.socket
+                    })
+                    break
                 }
-                this.mainCycle()
-                break
-            }
-            case ("volunteer"): {
-                const { user_id } = data
-                const { target_cover_queue } = this.game_vars
-                let turn = target_cover_queue.findIndex(q => !q.comp)
-                let new_target_cover_queue = [...target_cover_queue]
-                new_target_cover_queue[turn].users_select.push(user_id)
-                if (new_target_cover_queue[turn].users_select.length === new_target_cover_queue[turn].users_select_length) {
-                    new_target_cover_queue[turn].comp = true
+                case ("mafia_decision"): {
+                    const { shot } = data
+                    let decision = shot ? "mafia_shot" : "use_nato"
+                    this.game_vars.edit_event("edit", "next_event", decision)
+                    if (decision === "use_nato") {
+                        this.game_vars.edit_event("edit", "nato_act", true)
+                    }
+                    night.emit_to_mod({
+                        game_vars: this.game_vars,
+                        socket_finder: this.socket_finder,
+                        mod: this.mod,
+                        event: null,
+                        msg: `مافیا تصمیم به ${decision === "mafia_shot" ? "شلیک" : "ناتویی"}گرفت`,
+                        socket: this.socket
+                    })
+
+                    this.mainCycle()
+                    break
                 }
-                this.game_vars.edit_event("edit", "target_cover_queue", new_target_cover_queue)
-                let index = this.users.findIndex(e => e.user_id === user_id)
-                start.edit_game_action({
-                    index,
-                    prime_event: "user_action",
-                    second_event: "target_cover_accepted",
-                    new_value: true,
-                    edit_others: false,
-                    game_vars: this.game_vars
-                })
-                const { game_id } = this
-                let status_list = this.game_vars.player_status
-                this.socket.to(game_id).emit("game_action", { data: [status_list[index]] })
-                start.edit_game_action({
-                    index,
-                    prime_event: "user_action",
-                    second_event: "target_cover_accepted",
-                    new_value: false,
-                    edit_others: false,
-                    game_vars: this.game_vars
+                case ("mafia_shot"): {
+                    const { users } = data
+                    const { day } = this.game_vars
+                    let cur_night_events = this.db.getOne("night_records", "night", day)
+                    let prv_events = [...cur_night_events.events]
+                    users.forEach(target => {
+                        prv_events.push({
+                            act: "mafia_shot",
+                            target: target.user_id,
+                        })
+                    })
+                    cur_night_events.events = prv_events
+                    this.db.replaceOne("night_records", "night", day, cur_night_events)
 
-                })
-                this.mainCycle()
-                break
-            }
-            case ("rifle_gun_shot"): {
-                const { user_id } = data
-                start.use_gun({
-                    game_vars: this.game_vars,
-                    user_shot: client.idenity.user_id,
-                    user_resive_shot: user_id,
-                    game_id: this.game_id,
-                    users: this.game_vars.users_comp_list,
-                    socket: this.socket
-                })
-                break
-            }
-            case ("day_using_gun"): {
-                const { user_id } = data
-                this.users.forEach(user => {
-                    const { user_id: uid } = user
-                    let socket_id = this.socket_finder(uid)
-                    if (user.user_id !== user_id) this.socket.to(socket_id).emit("day_using_gun", { data: { user_id } })
+                    night.emit_to_mod({
+                        game_vars: this.game_vars,
+                        socket_finder: this.socket_finder,
+                        mod: this.mod,
+                        event: null,
+                        msg: `شات مافیا`,
+                        socket: this.socket
+                    })
+                    await Helper.delay(2)
 
-                })
-                break
-            }
-            case ("chaos_vote"): {
-                const is_last = this.game_vars.is_last_decision
-                if (is_last) {
+                    night.emit_to_mod({
+                        game_vars: this.game_vars,
+                        socket_finder: this.socket_finder,
+                        mod: this.mod,
+                        event: {
+                            from: client.idenity.user_id,
+                            to: users
+                        },
+                        msg: null,
+                        socket: this.socket
+                    })
+
+
+                    break
+                }
+                case ("using_speech_options"): {
+                    const { using_option } = data
+                    const { game_id } = this
+                    const { target_cover_queue } = this.game_vars
+                    let turn = target_cover_queue.findIndex(q => !q.comp)
+                    let new_target_cover_queue = [...target_cover_queue]
+                    new_target_cover_queue[turn].permission = using_option
+                    this.game_vars.edit_event("edit", "target_cover_queue", new_target_cover_queue)
+                    if (using_option) {
+                        this.socket.to(game_id).emit("user_request_speech_options", { data: { requester_id: client.idenity.user_id, timer: 5 } })
+                    }
+                    this.mainCycle()
+                    break
+                }
+                case ("volunteer"): {
+                    const { user_id } = data
+                    const { target_cover_queue } = this.game_vars
+                    let turn = target_cover_queue.findIndex(q => !q.comp)
+                    let new_target_cover_queue = [...target_cover_queue]
+                    new_target_cover_queue[turn].users_select.push(user_id)
+                    if (new_target_cover_queue[turn].users_select.length === new_target_cover_queue[turn].users_select_length) {
+                        new_target_cover_queue[turn].comp = true
+                    }
+                    this.game_vars.edit_event("edit", "target_cover_queue", new_target_cover_queue)
+                    let index = this.users.findIndex(e => e.user_id === user_id)
+                    start.edit_game_action({
+                        index,
+                        prime_event: "user_action",
+                        second_event: "target_cover_accepted",
+                        new_value: true,
+                        edit_others: false,
+                        game_vars: this.game_vars
+                    })
+                    const { game_id } = this
+                    let status_list = this.game_vars.player_status
+                    this.socket.to(game_id).emit("game_action", { data: [status_list[index]] })
+                    start.edit_game_action({
+                        index,
+                        prime_event: "user_action",
+                        second_event: "target_cover_accepted",
+                        new_value: false,
+                        edit_others: false,
+                        game_vars: this.game_vars
+
+                    })
+                    this.mainCycle()
+                    break
+                }
+                case ("rifle_gun_shot"): {
+                    const { user_id } = data
+                    start.use_gun({
+                        game_vars: this.game_vars,
+                        user_shot: client.idenity.user_id,
+                        user_resive_shot: user_id,
+                        game_id: this.game_id,
+                        users: this.game_vars.users_comp_list,
+                        socket: this.socket
+                    })
+                    break
+                }
+                case ("day_using_gun"): {
+                    const { user_id } = data
+                    this.users.forEach(user => {
+                        const { user_id: uid } = user
+                        let socket_id = this.socket_finder(uid)
+                        if (user.user_id !== user_id) this.socket.to(socket_id).emit("day_using_gun", { data: { user_id } })
+
+                    })
+                    break
+                }
+                case ("chaos_vote"): {
+                    const is_last = this.game_vars.is_last_decision
+                    if (is_last) {
+                        const { user_id } = data
+                        const mafia_roles = ["godfather", "nato", "hostage_taker"]
+                        const { user_id: player_selected } = client.idenity
+                        const { carts } = this.game_vars
+                        let winner = null
+                        let player_selected_role = carts.find(e => e.user_id == player_selected)
+                        let player_chosen_role = carts.find(e => e.user_id == user_id)
+                        if (mafia_roles.includes(player_chosen_role.name)) {
+                            winner = "mafia"
+                        } else {
+                            winner = "citizen"
+                        }
+                        if (mafia_roles.includes(player_selected_role.name)) winner = "mafia"
+                        this.game_vars.edit_event("new_value", "winner", winner)
+                        this.game_vars.edit_event("edit", "next_event", "end_game")
+                        this.mainCycle()
+                        break
+                    } else {
+
+                        const { user_id } = data
+                        this.game_vars.edit_event("push", "chaos_vots", user_id)
+                        const { user_id: user_voted } = client.idenity
+                        const { game_id } = this
+                        this.socket.to(game_id).emit("chaos_vote_result", { data: { from_user: user_voted, to_user: user_id } })
+                        this.mainCycle()
+                        break
+                    }
+                }
+                case ("chaos_user_speech"): {
+                    const { user_id, talking } = data
+                    const { game_id } = this
+                    const { chaos_speech_all_status } = this.game_vars
+                    let new_speech_status = [...chaos_speech_all_status]
+                    let user_index = new_speech_status.findIndex(e => e.user_id === user_id)
+                    new_speech_status[user_index].talking = talking
+                    this.game_vars.edit_event("edit", "chaos_speech_all_status", new_speech_status)
+                    this.socket.to(game_id).emit("chaos_user_speech", {
+                        data: new_speech_status
+                    })
+                    break
+                }
+                case ("last_decision"): {
                     const { user_id } = data
                     const mafia_roles = ["godfather", "nato", "hostage_taker"]
                     const { user_id: player_selected } = client.idenity
@@ -525,103 +567,61 @@ const Game = class {
                     this.game_vars.edit_event("edit", "next_event", "end_game")
                     this.mainCycle()
                     break
-                } else {
-
-                    const { user_id } = data
-                    this.game_vars.edit_event("push", "chaos_vots", user_id)
-                    const { user_id: user_voted } = client.idenity
+                }
+                case ("end_game_free_speech"): {
+                    const { user_id, is_talking } = data
                     const { game_id } = this
-                    this.socket.to(game_id).emit("chaos_vote_result", { data: { from_user: user_voted, to_user: user_id } })
-                    this.mainCycle()
+                    let prv_speech_status = [...this.game_vars.end_game_speech]
+                    let index = prv_speech_status.findIndex(e => e.user_id === user_id)
+                    prv_speech_status[index].is_talking = is_talking
+                    this.game_vars.edit_event("edit", "end_game_speech", prv_speech_status)
+                    this.socket.to(game_id).emit("end_game_free_speech", { data: prv_speech_status })
+                    break
+                }
+                case ("mod_speaking"): {
+                    const { speaking } = data
+                    const { game_id } = this
+
+
+                    this.socket.to(game_id).emit("mod_status", {
+                        data: {
+                            connected: this.game_vars.mod_status.connected,
+                            speaking
+                        }
+                    })
+                    break
+                }
+
+                case ("mod_kick"): {
+                    const { user_id } = data
+                    const { turn } = this.game_vars
+                    let index = this.users.findIndex(user => user.user_id === user_id)
+                    start.edit_game_action({
+                        index,
+                        prime_event: "user_status",
+                        second_event: "is_alive",
+                        new_value: false,
+                        game_vars: this.game_vars
+                    })
+                    const { game_id } = this
+                    let status_list = this.game_vars.player_status
+                    this.socket.to(game_id).emit("game_action", { data: [status_list[index]] })
+                    let new_queue = [...this.game_vars.queue]
+                    if (new_queue[turn].user_id === user_id) {
+                        this.mainCycle()
+                    }
+                    else {
+                        new_queue = new_queue.filter(e => e.user_id !== user_id)
+                        this.game_vars.edit_event("edit", "queue", new_queue)
+                    }
                     break
                 }
             }
-            case ("chaos_user_speech"): {
-                const { user_id, talking } = data
-                const { game_id } = this
-                const { chaos_speech_all_status } = this.game_vars
-                let new_speech_status = [...chaos_speech_all_status]
-                let user_index = new_speech_status.findIndex(e => e.user_id === user_id)
-                new_speech_status[user_index].talking = talking
-                this.game_vars.edit_event("edit", "chaos_speech_all_status", new_speech_status)
-                this.socket.to(game_id).emit("chaos_user_speech", {
-                    data: new_speech_status
-                })
-                break
-            }
-            case ("last_decision"): {
-                const { user_id } = data
-                const mafia_roles = ["godfather", "nato", "hostage_taker"]
-                const { user_id: player_selected } = client.idenity
-                const { carts } = this.game_vars
-                let winner = null
-                let player_selected_role = carts.find(e => e.user_id == player_selected)
-                let player_chosen_role = carts.find(e => e.user_id == user_id)
-                if (mafia_roles.includes(player_chosen_role.name)) {
-                    winner = "mafia"
-                } else {
-                    winner = "citizen"
-                }
-                if (mafia_roles.includes(player_selected_role.name)) winner = "mafia"
-                this.game_vars.edit_event("new_value", "winner", winner)
-                this.game_vars.edit_event("edit", "next_event", "end_game")
-                this.mainCycle()
-                break
-            }
-            case ("end_game_free_speech"): {
-                const { user_id, is_talking } = data
-                const { game_id } = this
-                let prv_speech_status = [...this.game_vars.end_game_speech]
-                let index = prv_speech_status.findIndex(e => e.user_id === user_id)
-                prv_speech_status[index].is_talking = is_talking
-                this.game_vars.edit_event("edit", "end_game_speech", prv_speech_status)
-                this.socket.to(game_id).emit("end_game_free_speech", { data: prv_speech_status })
-                break
-            }
-            case ("mod_speaking"): {
-                const { speaking } = data
-                const { game_id } = this
-
-
-                this.socket.to(game_id).emit("mod_status", {
-                    data: {
-                        connected: this.game_vars.mod_status.connected,
-                        speaking
-                    }
-                })
-                break
-            }
-
-            case ("mod_kick"): {
-                const { user_id } = data
-                const { turn } = this.game_vars
-                let index = this.users.findIndex(user => user.user_id === user_id)
-                start.edit_game_action({
-                    index,
-                    prime_event: "user_status",
-                    second_event: "is_alive",
-                    new_value: false,
-                    game_vars: this.game_vars
-                })
-                const { game_id } = this
-                let status_list = this.game_vars.player_status
-                this.socket.to(game_id).emit("game_action", { data: [status_list[index]] })
-                let new_queue = [...this.game_vars.queue]
-                if (new_queue[turn].user_id === user_id) {
-                    this.mainCycle()
-                }
-                else {
-                    new_queue = new_queue.filter(e => e.user_id !== user_id)
-                    this.game_vars.edit_event("edit", "queue", new_queue)
-                }
-                break
-            }
         }
-       }
-       catch(err){
-        console.log(err);
-        this.abandon()
-       }
+        catch (err) {
+            console.log(err);
+            this.abandon()
+        }
     }
 
 
@@ -672,7 +672,7 @@ const Game = class {
         this.socket.to(game_id).emit("users_data", { data: user_data })
         await Helper.delay(2)
         this.socket.to(game_id).emit("mod_data", mod ? { data: mod_data[0] } : { data: null })
-        
+
         await Helper.delay(2)
 
 
@@ -824,7 +824,7 @@ const Game = class {
             this.game_vars.edit_event("edit", "second_chance", [])
 
             const index = this.users.findIndex(e => e.user_id === queue[turn - 1].user_id)
-            if(index === -1)return this.abandon()
+            if (index === -1) return this.abandon()
             start.edit_game_action({
                 index,
                 prime_event: "user_status",
@@ -1051,8 +1051,8 @@ const Game = class {
         }
     }
 
-    arange_defence() {
-        vote.arange_defence({ game_vars: this.game_vars, users: this.users })
+    async arange_defence() {
+        await vote.arange_defence({ game_vars: this.game_vars, users: this.users, socket: this.socket, game_id: this.game_id })
         this.mainCycle()
     }
 
@@ -1157,6 +1157,7 @@ const Game = class {
 
 
     async count_exit_vote() {
+        game_vars.edit_event("edit", "speech_type", "turn")
         const { game_id, socket } = this
         const user_to_exit = vote.count_exit_vote({ game_vars: this.game_vars, game_id, socket, users: this.users, socket_finder: this.socket_finder, game_id: this.game_id })
         if (user_to_exit) {
@@ -1173,6 +1174,7 @@ const Game = class {
         }
         else {
             this.game_vars.edit_event("edit", "next_event", "start_night")
+
         }
         this.game_vars.edit_event("edit", "defenders_queue", [])
         await Helper.delay(3)
