@@ -28,6 +28,9 @@ const reconnect = ({ game_vars, client, game_id, users }) => {
         in_game_turn_speech = [...game_vars.queue]
     }
 
+
+    console.log({ player_data_on_reconnect: players_compleate_list });
+
     return {
         character: user_character?.name || "not_found",
         users_data: players_compleate_list,

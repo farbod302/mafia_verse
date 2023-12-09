@@ -669,6 +669,7 @@ const Game = class {
             mod_socket: this.socket_finder(mod)
         })
         this.game_vars.edit_event("edit", "players_compleate_list", user_data)
+        console.log({player_data_before_dc:user_data});
 
         this.game_vars.edit_event("edit", "is_live", true)
         //handel_reconnect queue
