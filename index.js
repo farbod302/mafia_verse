@@ -54,8 +54,12 @@ const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
         origin: "*",
-    }
+    },
+    
 })
+
+
+
 let socket = new SocketProvider(io)
 socket.lunch()
 monitoring.init(io)

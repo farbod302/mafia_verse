@@ -115,7 +115,7 @@ const Game = class {
             })
             let user_socket = this.socket_finder(client.user_id)
             this.socket.to(user_socket).emit("reconnect_data", { data })
-            let index = this.users.findIndex(e => e.user_id == client.user_id)
+            let index =this.game_vars.player_status.findIndex(e => e.user_id == client.user_id)
             await Helper.delay(3)
             start.edit_game_action({
                 index,
@@ -126,8 +126,10 @@ const Game = class {
                 game_vars: this.game_vars
             })
             let prv_users = this.users
+            console.log({prv_users,index});
             prv_users[index].socket_id = user_socket
             this.users = prv_users
+            console.log(this.users);
             const { player_status } = this.game_vars
             this.socket.to(game_id).emit("game_action", { data: [player_status[index]] })
             this.game_vars.edit_event("pull", "abandon_queue", client.user_id)
@@ -232,6 +234,7 @@ const Game = class {
                     this.game_vars.edit_event("push", "join_status_second_phase", user_call_idenity)
                     let connected_users_length = this.game_vars.join_status_second_phase.length
                     if (connected_users_length === static_vars.player_count + (this.mod ? 1 : 0) && !this.game_vars.is_live) {
+                        console.log("GO LIVE CALL");
                         this.go_live()
                         this.game_vars.edit_event("edit", "game_go_live", true)
                     }

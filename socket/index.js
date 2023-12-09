@@ -32,8 +32,8 @@ const SocketProvider = class {
             client.on("find_match", ({ auth }) => { find_match.find_robot_game({ senario: "nato", client, db: this.db, socket: this.io, auth }) })
             client.on("leave_find", () => { find_match.leave_find({ client, db: this.db, socket: this.io }) })
             client.on("game_handle", ({ op, data }) => {
-                let game_id = client.game_id
-                if (!client.idenity) return client.emit("abandon")
+                try{
+                    let game_id = client.game_id
                 let user_game = null
                 if (game_id) { user_game = this.db.getOne("games", "game_id", game_id) }
                 else {
@@ -54,6 +54,10 @@ const SocketProvider = class {
                 if (!user_game) return
                 data_handler.add_data(user_game.game_id, { user: client.idenity.user_id, op, received_data: data })
                 user_game.game_class.player_action({ op, data, client })
+                }
+                catch{
+                    client.emit("abandon")
+                }
             })
             client.on("channel_handle", ({ op, data }) => {
                 channel_socket_handler[op]({ data: data, socket: this.io, client })
