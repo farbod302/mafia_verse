@@ -27,7 +27,7 @@ const Game = class {
         this.game_handlers = game_handlers
         this.mainCycle()
         this.socket_finder = online_users_handler.get_user_socket_id
-        this.play_voice = (user_id, voice_id) => {
+        this.play_voice = (voice_id, user_id) => {
             const socket_id = user_id ? online_users_handler.get_user_socket_id(user_id) : game_id
             socket.to(socket_id).emit("play_voice", { data: { voice_id } })
         }
@@ -700,6 +700,7 @@ const Game = class {
             this.submit_user_disconnect({ client: { idenity: user } })
         })
         this.socket.to(game_id).emit("report", { data: { msg: "روز معارفه", timer: 3 } })
+        this.play_voice("0")
         await Helper.delay(3)
         this.game_vars.edit_event("edit", "next_event", "start_speech")
         const { reconnect_queue } = this.game_vars
@@ -779,7 +780,6 @@ const Game = class {
 
 
     async next_player_speech() {
-        await Helper.delay(1)
         this.game_vars.edit_event("edit", "turn", "plus")
         const { game_id } = this
         const { queue, turn, can_take_challenge, speech_type, reval, player_reval, carts, player_status, second_chance } = this.game_vars
@@ -794,7 +794,7 @@ const Game = class {
             const msg = `بازیکن شماره ${queue[turn].user_index} با ساید ${mafia_roles.includes(name) ? "مافیا" : "شهروندی"} از بازی خارج شد`
             this.socket.to(game_id).emit("report", { data: { user_id, msg, timer: 5 } })
             this.game_vars.edit_event("edit", "player_reval", null)
-            const contnue_func = () => {
+            const contnue_func = async () => {
                 start.edit_game_action({
                     index: queue[turn - 1].user_index,
                     prime_event: "user_status",
@@ -816,11 +816,12 @@ const Game = class {
                 this.socket.to(game_id).emit("current_speech_end", { data: { user_id: queue[turn - 1]?.user_id } })
                 const player_socket = this.socket_finder(user_id)
                 this.socket.to(player_socket).emit("speech_time_up", { data: { user_id: queue[turn - 1]?.user_id } })
+                await Helper.delay(1)
 
                 this.mainCycle()
 
             }
-            run_timer(5, contnue_func)
+            await run_timer(5, contnue_func)
             return
         }
 
@@ -843,6 +844,8 @@ const Game = class {
             this.socket.to(game_id).emit("current_speech_end", { data: { user_id: queue[turn - 1]?.user_id } })
             const last_player_socket = this.socket_finder(this.users[index].user_id)
             this.socket.to(last_player_socket).emit("speech_time_up", { data: { user_id: queue[turn - 1]?.user_id } })
+            await Helper.delay(1)
+
             if (speech_type === "chaos") {
                 this.game_vars.edit_event("edit", "next_event", "chaos_speech_second_phase")
                 this.mainCycle()
@@ -882,7 +885,10 @@ const Game = class {
             }
         }
         // emit current_speech
+
         this.socket.to(game_id).emit("current_speech_end", { data: { user_id: queue[turn - 1]?.user_id } })
+        await Helper.delay(1)
+
         let cur_speech = queue[turn]
         const cur_user_status = player_status.find(e => e.user_id === cur_speech.user_id)
         if (!cur_user_status.user_status.is_connected) {
