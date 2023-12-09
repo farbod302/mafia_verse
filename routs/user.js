@@ -522,7 +522,7 @@ router.post("/game_history", async (req, res) => {
         const player_role = game_info[0].users.find(u => u.user_id === uid)
         const { point, role } = player_role
         return {
-            game_id, winner: point > 0 ? true : false, point, role
+            game_id, is_winner: point > 0 ? true : false, winner, point, role,date:game_info[0].free_speech_timer
         }
     })
 
