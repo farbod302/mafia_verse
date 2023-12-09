@@ -38,7 +38,8 @@ const Game = class {
         return function () {
             try {
                 f.apply(this, arguments)
-            } catch {
+            } catch (err){
+                console.log({err});
                 console.log("GAME ABANDON");
                 abandon()
             }

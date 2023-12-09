@@ -3,7 +3,8 @@ const run_timer=async (time,func)=>{
     try{
         func()
     }
-    catch{
+    catch(err){
+        console.log({err});
         return
     }
 }
