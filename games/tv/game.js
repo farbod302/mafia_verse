@@ -27,6 +27,10 @@ const Game = class {
         this.game_handlers = game_handlers
         this.mainCycle()
         this.socket_finder = online_users_handler.get_user_socket_id
+        this.play_voice = (user_id, voice_id) => {
+            const socket_id = user_id ? online_users_handler.get_user_socket_id(user_id) : game_id
+            socket.to(socket_id).emit("play_voice", { data: { voice_id } })
+        }
     }
 
 

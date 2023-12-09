@@ -19,8 +19,6 @@ const SocketProvider = class {
     }
 
     lunch() {
-
-
         channel_socket_handler.set_online_games()
         online_users_handler.reset()
         setInterval(() => {

@@ -522,7 +522,7 @@ router.post("/game_history", async (req, res) => {
         const player_role = game_info[0].users.find(u => u.user_id === uid)
         const { point, role } = player_role
         return {
-            game_id, winner, point, role
+            game_id, winner: point > 0 ? true : false, point, role
         }
     })
 
@@ -542,7 +542,7 @@ router.post("/game_detail", async (req, res) => {
     res.json({
         status: true,
         msg: "",
-        data: { ...selected_game.game_info[0],winner:selected_game.winner }
+        data: { ...selected_game.game_info[0], winner: selected_game.winner }
     })
 })
 
