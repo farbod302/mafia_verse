@@ -542,7 +542,7 @@ router.post("/game_detail", async (req, res) => {
     res.json({
         status: true,
         msg: "",
-        data: { ...selected_game.game_info[0], winner: selected_game.winner }
+        data: { ...selected_game.game_info[0], winner: selected_game.winner ,date:selected_game.game_info[0].free_speech_timer}
     })
 })
 
