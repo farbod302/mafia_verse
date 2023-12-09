@@ -33,7 +33,6 @@ const SocketProvider = class {
             client.on("leave_find", () => { find_match.leave_find({ client, db: this.db, socket: this.io }) })
             client.on("game_handle", ({ op, data }) => {
                 let game_id = client.game_id
-                console.log({client:client.idenity});
                 if (!client.idenity) return client.emit("abandon")
                 let user_game = null
                 if (game_id) { user_game = this.db.getOne("games", "game_id", game_id) }
