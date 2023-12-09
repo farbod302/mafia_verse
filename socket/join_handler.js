@@ -5,6 +5,7 @@ const fs = require("fs")
 const online_users_handler = require("./online_users_handler")
 const User = require("../db/user")
 const join_handler = async ({ token, db, client, socket }) => {
+    console.log({token});
     const user = Jwt.verify(token)
     if (!user) return
     const version = fs.readFileSync(`${__dirname}/../version.json`)
