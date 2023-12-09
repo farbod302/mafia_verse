@@ -18,11 +18,13 @@ const SocketProvider = class {
         this.db = new TempDb()
     }
 
+
+
     lunch() {
         channel_socket_handler.set_online_games()
         online_users_handler.reset()
         setInterval(() => {
-            const games=this.db.getAll("games")
+            const games = this.db.getAll("games")
             monitoring.set_games(games.length)
         }, 2000)
         this.io.on("connection", (client) => {
@@ -31,6 +33,7 @@ const SocketProvider = class {
             client.on("leave_find", () => { find_match.leave_find({ client, db: this.db, socket: this.io }) })
             client.on("game_handle", ({ op, data }) => {
                 let game_id = client.game_id
+                if (!client.idenity) return
                 let user_game = null
                 if (game_id) { user_game = this.db.getOne("games", "game_id", game_id) }
                 else {
