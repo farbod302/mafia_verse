@@ -167,7 +167,10 @@ const start = {
     inquiry({ game_vars }) {
         const { dead_list, carts } = game_vars
         let mafia_rols = ["nato", "godfather", "hostage_taker"]
+        console.log({dead_list});
         let mafia_death = dead_list.filter(dead => {
+            console.log({dead});
+            console.log({carts});
             let role = carts.find(cart => cart.user_id === dead.user_id)
             if (role && mafia_rols.includes(role.name)) return true
             return false

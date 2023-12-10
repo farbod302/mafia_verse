@@ -719,7 +719,7 @@ const Game = class {
         this.mainCycle()
         const { users } = this
         const users_id = users.map(e => e.user_id)
-        await User.updateMany({ uid: { $in: users_id } }, { $inc: { gold: -20 } })
+        await User.updateMany({ uid: { $in: users_id } }, { $inc: { gold: -100 } })
     }
 
 
@@ -792,11 +792,13 @@ const Game = class {
         if (user_index && !player_status[user_index]?.user_status?.is_alive) return this.mainCycle()
         //check player reval
         if (player_reval && player_reval.turn === turn) {
+            
             const { user_id } = player_reval
+            const user_main_index=this.users.findIndex(e=>e.user_id === user_id)
             let player_roule = carts.find(c => c.user_id === user_id)
             const { name, id } = player_roule
             let mafia_roles = ["godfather", "nato", "hostage_taker"]
-            const msg = `بازیکن شماره ${queue[turn].user_index} با ساید ${mafia_roles.includes(name) ? "مافیا" : "شهروندی"} از بازی خارج شد`
+            const msg = `بازیکن شماره ${user_main_index} با ساید ${mafia_roles.includes(name) ? "مافیا" : "شهروندی"} از بازی خارج شد`
             this.socket.to(game_id).emit("report", { data: { user_id, msg, timer: 5 } })
             this.game_vars.edit_event("edit", "player_reval", null)
             const contnue_func = async () => {
@@ -826,7 +828,7 @@ const Game = class {
                 this.mainCycle()
 
             }
-            await run_timer(5, contnue_func)
+            await run_timer(4, contnue_func)
             return
         }
 
