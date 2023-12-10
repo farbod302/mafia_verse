@@ -353,12 +353,12 @@ const Game = class {
                     if (role === "nato" && users.length) {
                         const nato_target = users[0]
                         console.log({ nato_target });
-                        const { user_id, info } = nato_target
-                        console.log({ user_id, info });
+                        const { user_id, act } = nato_target
+                        console.log({ user_id, act });
                         let user_true_role = this.game_vars.carts.find(cart => cart.user_id === user_id)
                         user_true_role = user_true_role.name
                         console.log({ user_true_role });
-                        if (info === user_true_role) {
+                        if (act === user_true_role) {
                             prv_events.push({
                                 act: "hostage_taker",
                                 target: user_id,
