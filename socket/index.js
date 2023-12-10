@@ -10,7 +10,7 @@ const { uid } = require("uid")
 const Jwt = require("../helper/jwt")
 const fs = require("fs")
 const monitoring = require("../container/monitoring")
-
+const User = require("../db/user")
 const SocketProvider = class {
 
     constructor(io) {
@@ -142,6 +142,24 @@ const SocketProvider = class {
 
             client.on("test", ({ data }) => {
                 io.emit("test_res", { data })
+            })
+
+
+            client.on("user_gold", async ({ token }) => {
+                const user = Jwt.verify(token)
+                const { uid } = user
+                const selected_user = await User.findOne({ uid })
+                if (selected_user) {
+                    const { gold } = selected_user
+                    client.emit("user_gold", { data: { gold } })
+                }
+
+            })
+
+            client.on("app_detail", () => {
+                const version = fs.readFileSync(`${__dirname}/../version.json`)
+                const { v } = JSON.parse(version.toString())
+                client.emit("app_data", { v, server_update: false })
             })
 
         })
