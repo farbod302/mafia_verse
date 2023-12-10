@@ -349,15 +349,15 @@ const Game = class {
                             info: target.act
                         })
                     })
-                    console.log({role});
+                    console.log({ role });
                     if (role === "nato" && users.length) {
                         const nato_target = users[0]
-                        console.log({nato_target});
+                        console.log({ nato_target });
                         const { user_id, info } = nato_target
-                        console.log({user_id,info});
+                        console.log({ user_id, info });
                         let user_true_role = this.game_vars.carts.find(cart => cart.user_id === user_id)
                         user_true_role = user_true_role.name
-                        console.log({user_true_role});
+                        console.log({ user_true_role });
                         if (info === user_true_role) {
                             prv_events.push({
                                 act: "hostage_taker",
@@ -993,7 +993,7 @@ const Game = class {
         start.set_timer_to_contnue_speech_queue({
             func: contnue_func,
             game_vars: this.game_vars,
-            time,
+            time: time - 1,
             users: this.users,
             socket: this.socket,
             speech_code,
