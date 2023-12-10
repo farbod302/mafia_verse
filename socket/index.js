@@ -32,30 +32,30 @@ const SocketProvider = class {
             client.on("find_match", ({ auth }) => { find_match.find_robot_game({ senario: "nato", client, db: this.db, socket: this.io, auth }) })
             client.on("leave_find", () => { find_match.leave_find({ client, db: this.db, socket: this.io }) })
             client.on("game_handle", ({ op, data }) => {
-                try{
+                try {
                     let game_id = client.game_id
-                let user_game = null
-                if (game_id) { user_game = this.db.getOne("games", "game_id", game_id) }
-                else {
-                    const games = this.db.getAll("games")
-                    user_game = games.find(game => {
-                        let users = game.game_class.get_users()
-                        users = users.filter(e => !e.is_alive || e.is_alive !== "dead")
-                        let ids = users.map(user => user.user_id)
-                        if (game.mod) {
-                            ids = ids.concat(game.mod)
-                        }
-                        if (ids.includes(client.idenity.user_id)) {
-                            client.game_id = game.game_id
-                            return true
-                        }
-                    })
+                    let user_game = null
+                    if (game_id) { user_game = this.db.getOne("games", "game_id", game_id) }
+                    else {
+                        const games = this.db.getAll("games")
+                        user_game = games.find(game => {
+                            let users = game.game_class.get_users()
+                            users = users.filter(e => !e.is_alive || e.is_alive !== "dead")
+                            let ids = users.map(user => user.user_id)
+                            if (game.mod) {
+                                ids = ids.concat(game.mod)
+                            }
+                            if (ids.includes(client.idenity.user_id)) {
+                                client.game_id = game.game_id
+                                return true
+                            }
+                        })
+                    }
+                    if (!user_game) return
+                    data_handler.add_data(user_game.game_id, { user: client.idenity.user_id, op, received_data: data })
+                    user_game.game_class.player_action({ op, data, client })
                 }
-                if (!user_game) return
-                data_handler.add_data(user_game.game_id, { user: client.idenity.user_id, op, received_data: data })
-                user_game.game_class.player_action({ op, data, client })
-                }
-                catch{
+                catch {
                     client.emit("abandon")
                 }
             })
@@ -138,6 +138,10 @@ const SocketProvider = class {
                 const s_game = this.db.getOne("local_game", "local_game_id", local_game_id)
                 if (!s_game) return client.emit("error", { data: { msg: "شناسه بازی نامعتبر است" } })
                 s_game.game_class.game_handler(client, op, data)
+            })
+
+            client.on("test", ({ data }) => {
+                io.emit("test_res", { data })
             })
 
         })
