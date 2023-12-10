@@ -159,7 +159,7 @@ const SocketProvider = class {
             client.on("app_detail", () => {
                 const version = fs.readFileSync(`${__dirname}/../version.json`)
                 const { v } = JSON.parse(version.toString())
-                client.emit("app_detail", { v, server_update: false })
+                client.emit("app_detail", { data: { v, server_update: false } })
             })
 
         })
