@@ -993,7 +993,7 @@ const Game = class {
         start.set_timer_to_contnue_speech_queue({
             func: contnue_func,
             game_vars: this.game_vars,
-            time: time - 1,
+            time: time + 2,
             users: this.users,
             socket: this.socket,
             speech_code,
