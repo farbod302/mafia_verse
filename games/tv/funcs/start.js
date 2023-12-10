@@ -171,7 +171,7 @@ const start = {
         let mafia_death = dead_list.filter(dead => {
             console.log({dead});
             console.log({carts});
-            let role = carts.find(cart => cart.user_id === dead.user_id)
+            let role = carts.find(cart => cart.user_id === dead)
             if (role && mafia_rols.includes(role.name)) return true
             return false
         })

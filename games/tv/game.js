@@ -38,8 +38,8 @@ const Game = class {
         return function () {
             try {
                 f.apply(this, arguments)
-            } catch (err){
-                console.log({err});
+            } catch (err) {
+                console.log({ err });
                 console.log("GAME ABANDON");
                 abandon()
             }
@@ -115,7 +115,7 @@ const Game = class {
             })
             let user_socket = this.socket_finder(client.user_id)
             this.socket.to(user_socket).emit("reconnect_data", { data })
-            let index =this.game_vars.player_status.findIndex(e => e.user_id == client.user_id)
+            let index = this.game_vars.player_status.findIndex(e => e.user_id == client.user_id)
             await Helper.delay(3)
             start.edit_game_action({
                 index,
@@ -126,7 +126,7 @@ const Game = class {
                 game_vars: this.game_vars
             })
             let prv_users = this.users
-            console.log({prv_users,index});
+            console.log({ prv_users, index });
             prv_users[index].socket_id = user_socket
             this.users = prv_users
             console.log(this.users);
@@ -340,7 +340,7 @@ const Game = class {
                 case ("night_act"): {
                     const { role, users } = data
                     const { day } = this.game_vars
-                    let cur_night_events = this.db.getOne("night_records", "night", day)
+                    let cur_night_events = { ...this.db.getOne("night_records", "night", day) }
                     let prv_events = [...cur_night_events.events]
                     users.forEach(target => {
                         prv_events.push({
@@ -349,7 +349,21 @@ const Game = class {
                             info: target.act
                         })
                     })
+                    if (role === "nato" && users.length) {
+                        const nato_target = users[0]
+                        const { user_id, info } = nato_target
+                        let user_true_role = this.game_vars.carts.find(cart => cart.user_id === user_id)
+                        user_true_role = user_true_role.name
+                        if (info === user_true_role) {
+                            prv_events.push({
+                                act: "hostage_taker",
+                                target: user_id,
+                                info: nato_target.act
+                            })
+                        }
+                    }
                     cur_night_events.events = prv_events
+
                     this.db.replaceOne("night_records", "night", day, cur_night_events)
                     night.night_act_handler({
                         user_id: client.idenity.user_id,
@@ -673,7 +687,7 @@ const Game = class {
             mod_socket: this.socket_finder(mod)
         })
         this.game_vars.edit_event("edit", "players_compleate_list", user_data)
-        console.log({player_data_before_dc:user_data});
+        console.log({ player_data_before_dc: user_data });
 
         this.game_vars.edit_event("edit", "is_live", true)
         //handel_reconnect queue
@@ -792,14 +806,14 @@ const Game = class {
         if (user_index && !player_status[user_index]?.user_status?.is_alive) return this.mainCycle()
         //check player reval
         if (player_reval && player_reval.turn === turn) {
-            
+
             const { user_id } = player_reval
-            const user_main_index=this.users.findIndex(e=>e.user_id === user_id)
+            const user_main_index = this.users.findIndex(e => e.user_id === user_id)
             let player_roule = carts.find(c => c.user_id === user_id)
             const { name, id } = player_roule
             let mafia_roles = ["godfather", "nato", "hostage_taker"]
             const msg = `بازیکن شماره ${user_main_index} با ساید ${mafia_roles.includes(name) ? "مافیا" : "شهروندی"} از بازی خارج شد`
-            this.socket.to(game_id).emit("report", { data: { user_id, msg, timer: 5 } })
+            this.socket.to(game_id).emit("report", { data: { user_id, msg, timer: 4 } })
             this.game_vars.edit_event("edit", "player_reval", null)
             const contnue_func = async () => {
                 start.edit_game_action({
@@ -828,7 +842,7 @@ const Game = class {
                 this.mainCycle()
 
             }
-            await run_timer(4, contnue_func)
+            await run_timer(5, contnue_func)
             return
         }
 
@@ -1288,7 +1302,7 @@ const Game = class {
             game_vars: this.game_vars,
             users: this.users,
             socket: this.socket,
-            game_id: this.game_id
+            game_id: this.game_id,
         })
         this.game_vars.edit_event("edit", "next_event", "other_acts")
 
