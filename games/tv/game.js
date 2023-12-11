@@ -816,7 +816,7 @@ const Game = class {
             let player_roule = carts.find(c => c.user_id === user_id)
             const { name, id } = player_roule
             let mafia_roles = ["godfather", "nato", "hostage_taker"]
-            const msg = `بازیکن شماره ${user_main_index} با ساید ${mafia_roles.includes(name) ? "مافیا" : "شهروندی"} از بازی خارج شد`
+            const msg = `بازیکن شماره ${user_main_index + 1} با ساید ${mafia_roles.includes(name) ? "مافیا" : "شهروندی"} از بازی خارج شد`
             this.socket.to(game_id).emit("report", { data: { user_id, msg, timer: 4 } })
             this.game_vars.edit_event("edit", "player_reval", null)
             const contnue_func = async () => {
@@ -912,7 +912,9 @@ const Game = class {
         // emit current_speech
 
         this.socket.to(game_id).emit("current_speech_end", { data: { user_id: queue[turn - 1]?.user_id } })
-        this.play_voice("1")
+        if (turn !== 0) {
+            this.play_voice("1")
+        }
         await Helper.delay(1)
         let cur_speech = queue[turn]
         const cur_user_status = player_status.find(e => e.user_id === cur_speech.user_id)

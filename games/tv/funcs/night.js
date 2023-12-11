@@ -335,7 +335,7 @@ const night = {
                     event: "night_result",
                     msg: !game_vars.comondo_true_shot ?
                         "دیشب یک نفر از بازی خداحافظی کرد" :
-                        "آفرین به نکاور این شهر.از بازی یک نفر خارج شد"
+                        "آفرین به نکاور این شهر,از بازی یک نفر خارج شد"
                 })
             game_vars.edit_event("edit", "comondo_true_shot", false)
         }
