@@ -1024,6 +1024,7 @@ const Game = class {
     }
 
     async pre_vote() {
+        this.play_voice("4")
         const { gun_status } = this.game_vars
         gun_status.forEach(gun => {
             const user_to_emit = befor_start.pick_player_from_user_id({ users: this.users, user_id: gun.user_id })
