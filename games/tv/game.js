@@ -913,7 +913,7 @@ const Game = class {
 
         this.socket.to(game_id).emit("current_speech_end", { data: { user_id: queue[turn - 1]?.user_id } })
         await Helper.delay(1)
-
+        this.play_voice("1")
         let cur_speech = queue[turn]
         const cur_user_status = player_status.find(e => e.user_id === cur_speech.user_id)
         if (!cur_user_status.user_status.is_connected) {
