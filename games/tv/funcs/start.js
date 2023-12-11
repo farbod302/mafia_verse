@@ -167,10 +167,10 @@ const start = {
     inquiry({ game_vars }) {
         const { dead_list, carts } = game_vars
         let mafia_rols = ["nato", "godfather", "hostage_taker"]
-        console.log({dead_list});
+        console.log({ dead_list });
         let mafia_death = dead_list.filter(dead => {
-            console.log({dead});
-            console.log({carts});
+            console.log({ dead });
+            console.log({ carts });
             let role = carts.find(cart => cart.user_id === dead)
             if (role && mafia_rols.includes(role.name)) return true
             return false
@@ -196,7 +196,8 @@ const start = {
             const { turn } = game_vars
             let prv_queue = [...game_vars.queue]
             let user_to_add_queue = befor_start.pick_player_from_user_id({ users, user_id: user_resive_shot })
-            const { user_id, index } = user_to_add_queue
+            const index = users.findIndex(e => e.user_id === user_resive_shot)
+            const { user_id } = user_to_add_queue
             let clean_user = {
                 speech_status: "challenge",
                 pass: false,

@@ -511,6 +511,7 @@ const Game = class {
                 }
                 case ("rifle_gun_shot"): {
                     const { user_id } = data
+                    console.log({ user_resive_shot: user_id });
                     start.use_gun({
                         game_vars: this.game_vars,
                         user_shot: client.idenity.user_id,
@@ -1017,6 +1018,7 @@ const Game = class {
             const user_socket = this.socket_finder(e.user_id)
             this.socket.to(user_socket).emit("report", { data: { msg: "مافیا در حال شناخت هم تییمی های خود هستند", timer: 3 } })
         })
+        this.play_voice("2")
         await Helper.delay(8)
         this.mainCycle()
     }
@@ -1371,6 +1373,7 @@ const Game = class {
             socket: this.socket,
             game_id: this.game_id
         })
+        this.play_voice("3")
         await Helper.delay(5)
         const { inquiry_used, gun_status } = this.game_vars
         if (inquiry_used < 2) this.game_vars.edit_event("edit", "next_event", "check_for_inquiry")
