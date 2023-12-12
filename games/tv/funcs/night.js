@@ -116,7 +116,7 @@ const night = {
         let nato = carts.find(cart => cart.name === "nato")
         const { user_id } = nato
         let { availabel_users } = this.pick_user_for_act({ game_vars, act: "nato", user_id })
-        this.emit_to_act({ user_id, availabel_users, users, socket, can_act: true, game_vars,max_count:1 })
+        this.emit_to_act({ user_id, availabel_users, users, socket, can_act: true, game_vars, max_count: 1 })
         socket.to(game_id).emit("report", { data: { msg: "مافیا اعلام ناتویی کرده است", timer: 3 } })
     },
 
@@ -215,7 +215,7 @@ const night = {
                 let live_users = start.pick_live_users({ game_vars })
                 live_users = live_users.filter(user => user.user_id !== user_id)
                 return {
-                    availabel_users: live_users,
+                    availabel_users: live_users.map(e => e.user_id),
                     max_count: live_users.length + 1 >= 8 ? 2 : 1
                 }
             }
