@@ -216,7 +216,7 @@ const night = {
                 live_users = live_users.filter(user => user.user_id !== user_id)
                 return {
                     availabel_users: live_users,
-                    max_count: availabel_users.length + 1 >= 8 ? 2 : 1
+                    max_count: live_users.length + 1 >= 8 ? 2 : 1
                 }
             }
 
