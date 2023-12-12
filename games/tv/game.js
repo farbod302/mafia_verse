@@ -304,11 +304,19 @@ const Game = class {
                         new_value: false,
                         game_vars: this.game_vars,
                     })
+                    const { queue, turn } = this.game_vars
+                    this.game_vars.edit_event(
+                        "push",
+                        "challenge_time_status",
+                        {
+                            speech_user: queue[turn].user_id,
+                            user_challenge: user_id
+                        }
+                    )
                     break
                 }
                 case ("accept_challenge"): {
                     const { user_id } = data
-                    console.log({ user_accepted: user_id });
                     const { game_id } = this
                     let index = this.users.findIndex(user => user.user_id === user_id)
                     start.accept_cahllenge({

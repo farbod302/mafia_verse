@@ -46,6 +46,7 @@ const dinamic_vars = class {
         this.winner = null
         this.second_chance = []
         this.mafia_need_token=[]
+        this.challenge_time_status=[]
     }
     edit_event(op, event, value, from) {
         switch (op) {

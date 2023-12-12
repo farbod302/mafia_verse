@@ -26,7 +26,7 @@ const night = {
         game_vars.edit_event("edit", "gun_status", [])
     },
 
-    emit_to_act({ user_id, availabel_users, users, socket, can_act, msg, game_vars }) {
+    emit_to_act({ user_id, availabel_users, users, socket, can_act, msg, game_vars, max_count }) {
         const { player_status } = game_vars
         const s_user = player_status.find(e => e.user_id === user_id)
         if (!s_user || !s_user.user_status?.is_alive) return
@@ -34,7 +34,7 @@ const night = {
         if (!selected_user) return
         //check alive
         const { socket_id } = selected_user
-        socket.to(socket_id).emit("use_ability", { data: { max_count: 1, availabel_users, can_act, msg: msg || "", timer: 10 } })
+        socket.to(socket_id).emit("use_ability", { data: { max_count: max_count || 1, availabel_users, can_act, msg: msg || "", timer: 10 } })
         //todo add max count 
 
     },
@@ -46,9 +46,9 @@ const night = {
             let user = carts.find(cart => cart.name === act)
             if (!user?.user_id) continue
             const { user_id } = user
-            let availabel_users = this.pick_user_for_act({ game_vars, act, user_id })
+            let { availabel_users, max_count } = this.pick_user_for_act({ game_vars, act, user_id })
             this.emit_to_act({
-                user_id, availabel_users, users, socket, can_act: true, msg: "", game_vars
+                user_id, availabel_users, users, socket, can_act: true, msg: "", game_vars, max_count
             })
         }
     },
@@ -103,10 +103,11 @@ const night = {
     mafia_shot({ game_vars, socket, socket_finder }) {
         let { user_id } = game_vars.user_to_shot
         const socket_id = socket_finder(user_id)
+        const { availabel_users } = this.pick_user_for_act({ game_vars, act: "mafia", user_id })
         socket.to(socket_id).emit("mafia_shot", {
             timer: 15,
             max: 1,
-            availabel_users: this.pick_user_for_act({ game_vars, act: "mafia", user_id })
+            availabel_users
         })
     },
 
@@ -114,8 +115,8 @@ const night = {
         const { carts } = game_vars
         let nato = carts.find(cart => cart.name === "nato")
         const { user_id } = nato
-        let availabel_users = this.pick_user_for_act({ game_vars, act: "nato", user_id })
-        this.emit_to_act({ user_id, availabel_users, users, socket, can_act: true, game_vars })
+        let { availabel_users } = this.pick_user_for_act({ game_vars, act: "nato", user_id })
+        this.emit_to_act({ user_id, availabel_users, users, socket, can_act: true, game_vars,max_count:1 })
         socket.to(game_id).emit("report", { data: { msg: "مافیا اعلام ناتویی کرده است", timer: 3 } })
     },
 
@@ -127,8 +128,8 @@ const night = {
         for (let act of users_remain) {
             let { can_act, msg } = this.check_act({ records, act, game_vars })
             let { user_id, name } = act
-            let availabel_users = this.pick_user_for_act({ game_vars, act: name, user_id })
-            this.emit_to_act({ user_id, availabel_users, users, socket, can_act, msg, game_vars })
+            let { availabel_users, max_count } = this.pick_user_for_act({ game_vars, act: name, user_id })
+            this.emit_to_act({ user_id, availabel_users, users, socket, can_act, msg, game_vars, max_count })
         }
     },
 
@@ -184,31 +185,45 @@ const night = {
         switch (act) {
             case ("doctor"): {
                 let live_users = start.pick_live_users({ game_vars })
+                let live_count = start.pick_live_users({ game_vars })
                 const { doctor_self_save } = game_vars
                 if (doctor_self_save) {
                     live_users = live_users.filter(user => user.user_id !== user_id)
                 }
-                return live_users.map(user => user.user_id)
+                return {
+                    availabel_users: live_users.map(user => user.user_id),
+                    max_count: live_count.length >= 8 ? 2 : 1
+                }
             }
             case ("mafia"): {
                 const { mafia_list } = game_vars
                 let mafia_ids = mafia_list.map(user => user.user_id)
                 let live_users = start.pick_live_users({ game_vars })
                 live_users = live_users.filter(user => !mafia_ids.includes(user.user_id))
-                return live_users.map(e => e.user_id)
+                return { availabel_users: live_users.map(e => e.user_id), max_count: 1 }
             }
 
             case ("detective"): {
                 const { users_gurd_check } = game_vars
                 let live_users = start.pick_live_users({ game_vars })
                 live_users = live_users.filter(user => user.user_id !== user_id && !users_gurd_check.includes(user.user_id))
-                return live_users.map(user => user.user_id)
+                return { availabel_users: live_users.map(user => user.user_id), max_count: 1 }
+            }
+
+
+            case ("guard"): {
+                let live_users = start.pick_live_users({ game_vars })
+                live_users = live_users.filter(user => user.user_id !== user_id)
+                return {
+                    availabel_users: live_users,
+                    max_count: availabel_users.length + 1 >= 8 ? 2 : 1
+                }
             }
 
             default: {
                 let live_users = start.pick_live_users({ game_vars })
                 live_users = live_users.filter(user => user.user_id !== user_id)
-                return live_users.map(user => user.user_id)
+                return { availabel_users: live_users.map(user => user.user_id), max_count: 1 }
             }
         }
     },

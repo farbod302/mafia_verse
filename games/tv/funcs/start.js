@@ -99,7 +99,13 @@ const start = {
     },
 
     accept_cahllenge({ game_vars, user_id, users, socket }) {
-        const { queue, turn } = game_vars
+        const { queue, turn, challenge_time_status } = game_vars
+
+
+        const user_request_challenge = challenge_time_status.find(e => e.user_challenge === user_id)
+        const cur_player_speech = queue[turn]
+        if (cur_player_speech.user_id !== user_request_challenge.speech_user) return
+
         let speeching_user_index = turn + 1
         let challenge_user = befor_start.pick_player_from_user_id({ users, user_id })
         const user_index = users.findIndex(e => e.user_id === user_id)
@@ -111,7 +117,6 @@ const start = {
             challenge_used: true
         }
         let prv_queue = [...game_vars.queue]
-        console.log({ queue_before_challenge: prv_queue });
         let current_user = queue[turn]
         let user_in_queue_index = prv_queue.findIndex(user => user.user_id === current_user.user_id)
         prv_queue[user_in_queue_index].challenge_used = true
