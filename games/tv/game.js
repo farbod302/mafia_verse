@@ -305,14 +305,16 @@ const Game = class {
                         game_vars: this.game_vars,
                     })
                     const { queue, turn } = this.game_vars
-                    this.game_vars.edit_event(
-                        "push",
-                        "challenge_time_status",
-                        {
-                            speech_user: queue[turn].user_id,
-                            user_challenge: user_id
-                        }
-                    )
+                    if (action === "challenge_request") {
+                        this.game_vars.edit_event(
+                            "push",
+                            "challenge_time_status",
+                            {
+                                speech_user: queue[turn]?.user_id,
+                                user_challenge: user_id
+                            }
+                        )
+                    }
                     break
                 }
                 case ("accept_challenge"): {
@@ -655,7 +657,8 @@ const Game = class {
         }
         catch (err) {
             console.log(err);
-            this.abandon()
+            this.game_vars.edit_event("edit", "next_event", "finish")
+            this.game_handlers.abandon_game(this.socket)
         }
     }
 
