@@ -103,6 +103,7 @@ const start = {
 
 
         const user_request_challenge = challenge_time_status.find(e => e.user_challenge === user_id)
+        if (user_request_challenge) return
         const cur_player_speech = queue[turn]
         if (cur_player_speech.user_id !== user_request_challenge.speech_user) return
 
