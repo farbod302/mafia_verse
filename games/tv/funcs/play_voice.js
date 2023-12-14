@@ -161,7 +161,7 @@ const _play_voice = {
         if (voices.length === 1) return voices[0]
         if (index) return voices[index]
         const random_index = Math.floor(Math.random() * voices.length)
-        return voice[random_index]
+        return voices[random_index]
     }
 
 }
