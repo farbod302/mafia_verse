@@ -4,6 +4,7 @@ const befor_start = require("./before_start")
 const { delay } = require("../../../helper/helper")
 const { character_translator } = require("../../../helper/helper")
 const data_handler = require("../../../games_temp_data/data_handler")
+const _play_voice = require("./play_voice")
 
 const night = {
 
@@ -26,7 +27,7 @@ const night = {
         game_vars.edit_event("edit", "gun_status", [])
     },
 
-    emit_to_act({ user_id, availabel_users, users, socket, can_act, msg, game_vars, max_count }) {
+    emit_to_act({ user_id, availabel_users, users, socket, can_act, msg, game_vars, max_count, play_voice }) {
         const { player_status } = game_vars
         const s_user = player_status.find(e => e.user_id === user_id)
         if (!s_user || !s_user.user_status?.is_alive) return
@@ -34,23 +35,27 @@ const night = {
         if (!selected_user) return
         //check alive
         const { socket_id } = selected_user
+        play_voice(_play_voice.play_voice("act_time"), user_id)
         socket.to(socket_id).emit("use_ability", { data: { max_count: max_count || 1, availabel_users, can_act, msg: msg || "", timer: 10 } })
         //todo add max count 
 
     },
 
-    guard_and_hostage_taker_act({ game_vars, users, socket }) {
+    guard_and_hostage_taker_act({ game_vars, users, socket, play_voice }) {
         const users_to_act = ["hostage_taker", "guard"]
+        play_voice(_play_voice.play_voice("guard_hostage_taker_act_time"))
         const { carts } = game_vars
-        for (let act of users_to_act) {
-            let user = carts.find(cart => cart.name === act)
-            if (!user?.user_id) continue
-            const { user_id } = user
-            let { availabel_users, max_count } = this.pick_user_for_act({ game_vars, act, user_id })
-            this.emit_to_act({
-                user_id, availabel_users, users, socket, can_act: true, msg: "", game_vars, max_count
-            })
-        }
+        setTimeout(() => {
+            for (let act of users_to_act) {
+                let user = carts.find(cart => cart.name === act)
+                if (!user?.user_id) continue
+                const { user_id } = user
+                let { availabel_users, max_count } = this.pick_user_for_act({ game_vars, act, user_id })
+                this.emit_to_act({
+                    user_id, availabel_users, users, socket, can_act: true, msg: "", game_vars, max_count, play_voice
+                })
+            }
+        }, 3000)
     },
 
     async mafia_speech({ game_vars, users, socket }) {
@@ -69,7 +74,7 @@ const night = {
         game_vars.edit_event("next_event", "check_mafia_decision")
     },
 
-    check_mafia_decision({ game_vars, users, socket }) {
+    check_mafia_decision({ game_vars, users, socket, play_voice }) {
 
         const { mafia_list, dead_list } = game_vars
         let act_sort = ["godfather", "nato", "hostage_taker"]
@@ -88,6 +93,8 @@ const night = {
         game_vars.edit_event("edit", "user_to_shot", user_to_emit)
         if (can_use_nato) {
             socket.to(socket_id).emit("mafia_decision", { nato_availabel: true, timer: 7 })
+            play_voice(_play_voice.play_voice("godfather_chosen"), user_id)
+
         }
         // else {
         //     socket.to(socket_id).emit("mafia_shot", {
@@ -111,16 +118,19 @@ const night = {
         })
     },
 
-    use_nato({ game_vars, users, socket, game_id }) {
+    use_nato({ game_vars, users, socket, game_id, play_voice }) {
         const { carts } = game_vars
         let nato = carts.find(cart => cart.name === "nato")
         const { user_id } = nato
         let { availabel_users } = this.pick_user_for_act({ game_vars, act: "nato", user_id })
-        this.emit_to_act({ user_id, availabel_users, users, socket, can_act: true, game_vars, max_count: 1 })
         socket.to(game_id).emit("report", { data: { msg: "مافیا اعلام ناتویی کرده است", timer: 3 } })
+        this.play_voice(_play_voice.play_voice("announce_natoe"))
+        setTimeout(() => {
+            this.emit_to_act({ user_id, availabel_users, users, socket, can_act: true, game_vars, max_count: 1, play_voice })
+        }, 4000)
     },
 
-    other_acts({ game_vars, users, socket, records }) {
+    other_acts({ game_vars, users, socket, records, play_voice }) {
         let acts_used = ["guard", "nato", "godfather", "hostage_taker", "citizen"]
         const { carts } = game_vars
         let users_remain = carts.filter(cart => !acts_used.includes(cart.name))
@@ -129,7 +139,7 @@ const night = {
             let { can_act, msg } = this.check_act({ records, act, game_vars })
             let { user_id, name } = act
             let { availabel_users, max_count } = this.pick_user_for_act({ game_vars, act: name, user_id })
-            this.emit_to_act({ user_id, availabel_users, users, socket, can_act, msg, game_vars, max_count })
+            this.emit_to_act({ user_id, availabel_users, users, socket, can_act, msg, game_vars, max_count, play_voice })
         }
     },
 

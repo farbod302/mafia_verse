@@ -16,6 +16,7 @@ const User = require("../../db/user")
 const data_handler = require("../../games_temp_data/data_handler")
 const GameHistory = require("../../db/game_history")
 const Voice = require("../../helper/live_kit_handler")
+const _play_voice = require("./funcs/play_voice")
 const Game = class {
     constructor({ game_id, users, socket, game_handlers, mod }) {
         this.socket = socket
@@ -521,7 +522,6 @@ const Game = class {
                 }
                 case ("rifle_gun_shot"): {
                     const { user_id } = data
-                    console.log({ user_resive_shot: user_id });
                     start.use_gun({
                         game_vars: this.game_vars,
                         user_shot: client.idenity.user_id,
@@ -537,6 +537,7 @@ const Game = class {
                     this.users.forEach(user => {
                         const { user_id: uid } = user
                         let socket_id = this.socket_finder(uid)
+                        this.play_voice(_play_voice.play_voice("day_gun"))
                         if (user.user_id !== user_id) this.socket.to(socket_id).emit("day_using_gun", { data: { user_id } })
 
                     })
@@ -703,7 +704,6 @@ const Game = class {
             mod_socket: this.socket_finder(mod)
         })
         this.game_vars.edit_event("edit", "players_compleate_list", user_data)
-        console.log({ player_data_before_dc: user_data });
 
         this.game_vars.edit_event("edit", "is_live", true)
         //handel_reconnect queue
@@ -735,7 +735,7 @@ const Game = class {
             this.submit_user_disconnect({ client: { idenity: user } })
         })
         this.socket.to(game_id).emit("report", { data: { msg: "روز معارفه", timer: 3 } })
-        this.play_voice("0")
+        this.play_voice(_play_voice.play_voice("intro"))
         await Helper.delay(3)
         this.game_vars.edit_event("edit", "next_event", "start_speech")
         const { reconnect_queue } = this.game_vars
@@ -799,6 +799,9 @@ const Game = class {
 
     start_speech() {
         let { speech_type, can_take_challenge, custom_queue } = this.game_vars
+        if(speech_type === "defence"){
+            this.play_voice(_play_voice.play_voice("defence_speech"))
+        }
         const { game_id } = this
         let queue = start.generate_queue({
             type: speech_type,
@@ -926,7 +929,7 @@ const Game = class {
 
         this.socket.to(game_id).emit("current_speech_end", { data: { user_id: queue[turn - 1]?.user_id } })
         if (turn !== 0) {
-            this.play_voice("1")
+            this.play_voice(_play_voice.play_voice("next"))
         }
         await Helper.delay(1)
         let cur_speech = queue[turn]
@@ -1017,6 +1020,8 @@ const Game = class {
     }
 
     async mafia_reval() {
+        this.play_voice(_play_voice.play_voice("day_sleep"))
+        await Helper.delay(5)
         start.mafia_reval({
             game_vars: this.game_vars,
             users: this.users,
@@ -1030,13 +1035,14 @@ const Game = class {
             const user_socket = this.socket_finder(e.user_id)
             this.socket.to(user_socket).emit("report", { data: { msg: "مافیا در حال شناخت هم تییمی های خود هستند", timer: 3 } })
         })
-        this.play_voice("2")
+        this.play_voice(_play_voice.play_voice("mafia_visit"))
         await Helper.delay(8)
+        this.play_voice(_play_voice.play_voice("next_day"))
         this.mainCycle()
     }
 
     async pre_vote() {
-        this.play_voice("4")
+        this.play_voice(_play_voice.play_voice("to_vote"))
         const { gun_status } = this.game_vars
         gun_status.forEach(gun => {
             const user_to_emit = befor_start.pick_player_from_user_id({ users: this.users, user_id: gun.user_id })
@@ -1099,6 +1105,7 @@ const Game = class {
                 game_id: this.game_id,
                 users: this.users,
                 cycle,
+                play_voice: this.play_voice
             })
         }
     }
@@ -1211,7 +1218,7 @@ const Game = class {
     async count_exit_vote() {
         this.game_vars.edit_event("edit", "speech_type", "turn")
         const { game_id, socket } = this
-        const user_to_exit = vote.count_exit_vote({ game_vars: this.game_vars, game_id, socket, users: this.users, socket_finder: this.socket_finder, game_id: this.game_id })
+        const user_to_exit = vote.count_exit_vote({ game_vars: this.game_vars, game_id, socket, users: this.users, socket_finder: this.socket_finder, game_id: this.game_id, play_voice: this.play_voice })
         if (user_to_exit) {
             const game_result_check = night.check_next_day({ game_vars: this.game_vars })
             if (game_result_check === 4) this.game_vars.edit_event("edit", "next_event", "start_night")
@@ -1263,7 +1270,8 @@ const Game = class {
         night.guard_and_hostage_taker_act({
             game_vars: this.game_vars,
             users: this.users,
-            socket: this.socket
+            socket: this.socket,
+            play_voice: this.play_voice
         })
         let mainCycle = () => { this.mainCycle() }
         this.game_vars.edit_event("edit", "next_event", "mafia_speech")
@@ -1291,7 +1299,8 @@ const Game = class {
         night.check_mafia_decision({
             game_vars: this.game_vars,
             users: this.users,
-            socket: this.socket
+            socket: this.socket,
+            play_voice: this.play_voice
         })
         const timer_func = () => {
             const { next_event } = this.game_vars
@@ -1324,6 +1333,7 @@ const Game = class {
             users: this.users,
             socket: this.socket,
             game_id: this.game_id,
+            play_voice: this.play_voice
         })
         this.game_vars.edit_event("edit", "next_event", "other_acts")
 
@@ -1343,7 +1353,8 @@ const Game = class {
             game_vars: this.game_vars,
             users: this.users,
             socket: this.socket,
-            records
+            records,
+            play_voice: this.play_voice
         })
         this.game_vars.edit_event("edit", "next_event", "night_results")
         let mainCycle = () => { this.mainCycle() }

@@ -2,6 +2,7 @@ const Helper = require("../../../helper/helper")
 const { delay } = require("../../../helper/helper")
 const run_timer = require("../../../helper/timer")
 const befor_start = require("./before_start")
+const _play_voice = require("./play_voice")
 const start = require("./start")
 
 const vote = {
@@ -17,7 +18,7 @@ const vote = {
         game_vars.edit_event("edit", "next_event", "next_player_vote_time")
 
     },
-    async next_player_vote_turn({ game_vars, socket, game_id, cycle, users }) {
+    async next_player_vote_turn({ game_vars, socket, game_id, cycle, users, play_voice }) {
         const { queue, turn, vote_type, custom_queue } = game_vars
         let new_vote_record = { user_id: queue[turn].user_id, available_users: [], users: [], vote_type, timer: 5 }
         game_vars.edit_event("push", "votes_status", new_vote_record)
@@ -37,21 +38,24 @@ const vote = {
         if (index > -1) {
             socket.to(game_id).emit("report", {
                 data: {
-                    msg: `رای گیری برای بازیکن شماره ${index + 1}`, timer: 2
+                    msg: `رای ${vote_type === "defence" ? "خروج" : "گیری"} برای بازیکن شماره ${index + 1}`, timer: 2
                 }
             })
-        }else{
+            play_voice(_play_voice.play_voice(`${vote_type === "defence" ? "exit_" : ""}vote_to`, index))
+        } else {
             socket.to(game_id).emit("report", {
                 data: {
                     msg: `آیا شهر استعلام می خواهد؟`, timer: 2
                 }
             })
+            play_voice(_play_voice.play_voice("need_inquiry"))
+
         }
         await Helper.delay(2)
         user_to_vote.forEach(user => {
             socket.to(user.socket_id).emit("vote", { data: new_vote_record })
         })
-        run_timer(6, cycle)
+        run_timer(10, cycle)
     },
     submit_vote({ client, socket, game_vars, game_id }) {
         const { votes_status } = game_vars
@@ -65,7 +69,7 @@ const vote = {
     // A1V4Nymz9ovZ91iM8O
 
 
-   async arange_defence({ game_vars, users,socket,game_id }) {
+    async arange_defence({ game_vars, users, socket, game_id }) {
         const { votes_status } = game_vars
         const live_users = start.pick_live_users({ game_vars })
         const live_users_count = live_users.length
@@ -76,15 +80,15 @@ const vote = {
         if (defenders_queue.length) {
 
 
-            const defender_index=defenders_queue.map(e=>{
-                const index=users.findIndex(s=>s.user_id === e.user_id)
-                return index+1
+            const defender_index = defenders_queue.map(e => {
+                const index = users.findIndex(s => s.user_id === e.user_id)
+                return index + 1
             })
 
 
             socket.to(game_id).emit("report", {
                 data: {
-                    msg: `${defender_index.length === 1?"بازیکن":"بازیکنان"} ${defender_index.join(" و ") } به دفاعیه میروند`, timer: 4
+                    msg: `${defender_index.length === 1 ? "بازیکن" : "بازیکنان"} ${defender_index.join(" و ")} به دفاعیه ${defenders_queue.length === 1 ? "میرود" : "میروند"}`, timer: 4
                 }
             })
 
@@ -136,7 +140,7 @@ const vote = {
 
     },
 
-    count_exit_vote({ game_vars, users, socket, game_id, socket_finder }) {
+    count_exit_vote({ game_vars, users, socket, game_id, socket_finder, play_voice }) {
         const { votes_status } = game_vars
         let user_to_exit = votes_status.sort((a, b) => { return b.users.length - a.users.length })
         user_to_exit = user_to_exit[0]
@@ -182,7 +186,7 @@ const vote = {
                         msg: `از بازی کسی خارج نشد.بازیکن شماره ${index + 1} با نقش شهروندی به بازی ادامه خواهد داد و قابل ناتویی نیست.`
                     })
 
-
+                play_voice(_play_voice.play_voice("moved_out", index))
 
             } else {
                 let index = game_vars.player_status.findIndex(user => user.user_id === user_id)
@@ -194,6 +198,7 @@ const vote = {
                     game_vars
                 })
                 game_vars.edit_event("push", "dead_list", user_id)
+
                 const { player_status } = game_vars
                 socket.to(game_id).emit("game_action", { data: [player_status[index]] })
 
@@ -201,7 +206,7 @@ const vote = {
                     {
                         user_id: user_id,
                         event: "exit_vote",
-                        msg: "از بازی یک نفر با رای بازیکنان خارج شد "
+                        msg: `بازیکن شماره ${index + 1} از بازی خارج شد`
                     })
             }
             start.generate_report({
