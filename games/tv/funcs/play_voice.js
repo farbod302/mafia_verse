@@ -156,15 +156,15 @@ const _play_voice = {
 
 
     play_voice(event, index) {
-        console.log({index});
+        console.log({ index });
         const voice = this.voice_list.find(e => e.voice_id === event)
         const { voices } = voice
         if (voices.length === 1) return voices[0]
-        if (index) return voices[index]
+        if (index !== undefined) return voices[index]
         const random_index = Math.floor(Math.random() * voices.length)
         return voices[random_index]
     }
 
 }
 
-module.exports=_play_voice
+module.exports = _play_voice
