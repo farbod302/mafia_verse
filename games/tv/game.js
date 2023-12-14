@@ -1297,6 +1297,7 @@ const Game = class {
     }
 
     check_mafia_decision() {
+        this.play_voice(_play_voice.play_voice("mafia_think"))
         night.check_mafia_decision({
             game_vars: this.game_vars,
             users: this.users,
