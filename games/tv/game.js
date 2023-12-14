@@ -799,7 +799,7 @@ const Game = class {
 
     start_speech() {
         let { speech_type, can_take_challenge, custom_queue } = this.game_vars
-        if(speech_type === "defence"){
+        if (speech_type === "defence") {
             this.play_voice(_play_voice.play_voice("defence_speech"))
         }
         const { game_id } = this
@@ -1031,6 +1031,7 @@ const Game = class {
         const { carts } = this.game_vars
         const mafia_acts = ["godfather", "nato", "hostage_taker"]
         const city = carts.filter(e => !mafia_acts.includes(e.name))
+        await Helper.delay(3)
         city.forEach(e => {
             const user_socket = this.socket_finder(e.user_id)
             this.socket.to(user_socket).emit("report", { data: { msg: "مافیا در حال شناخت هم تییمی های خود هستند", timer: 3 } })
