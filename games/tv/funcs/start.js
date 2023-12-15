@@ -179,7 +179,7 @@ const start = {
             if (role && mafia_rols.includes(role.name)) return true
             return false
         })
-        return `از بازی ${mafia_death.length} مافیا و ${dead_list.length - mafia_death.length} شهروند از بازی خارج شده`
+        return `از بازی شما ${mafia_death.length} مافیا و ${dead_list.length - mafia_death.length} شهروند از بازی خارج شده`
 
     },
 
