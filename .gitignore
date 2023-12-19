@@ -3,3 +3,4 @@ games_temp_data/games/*
 *.zip
 /files/*
 socket/online_users.json
+/sessions_result/*
