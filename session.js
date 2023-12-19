@@ -13,7 +13,7 @@ const Session = {
         }
 
         //give prize
-
+        console.log(this.prize_pool);
         const { prize } = this.prize_pool.find(e => e.range === range)
         const more_than_4 = result.slice(3)
         const ids = more_than_4.map(e => e.uid)
