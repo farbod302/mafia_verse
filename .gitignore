@@ -4,3 +4,4 @@ games_temp_data/games/*
 /files/*
 socket/online_users.json
 /sessions_result/*
+session.json
