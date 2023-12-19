@@ -55,7 +55,7 @@ const io = new Server(server, {
     cors: {
         origin: "*",
     },
-    
+
 })
 
 
@@ -104,14 +104,15 @@ check_last_msgs()
 
 const create_daily_session = new CronJob("0 0 * * *", () => { Session.create_session("day") })
 const create_weekly_session = new CronJob("0 0 * * 6", () => { Session.create_session("week") })
-const create_sessional_session_1 = new CronJob("0 0 21 3 *", () => { Session.create_session("session") })
-const create_sessional_session_2 = new CronJob("0 0 21 6 *", () => { Session.create_session("session") })
-const create_sessional_session_3 = new CronJob("0 0 21 9 *", () => { Session.create_session("session") })
-const create_sessional_session_4 = new CronJob("0 0 21 12 *", () => { Session.create_session("session") })
+const create_monthly_session = new CronJob("0 0 1 * *", () => { Session.create_session("month") })
 
-// Session.create_session("day")
-// Session.create_session("week")
-// Session.create_session("session")
+Session.create_session("day")
+Session.create_session("week")
+Session.create_session("session")
+
+create_daily_session.start()
+create_weekly_session.start()
+create_monthly_session.start()
 
 Transaction.refresh_token()
 const refresh_api_token_job = new CronJob("58 * * * *", Transaction.refresh_token)

@@ -92,7 +92,7 @@ router.post("/sign_up_confirm_phone", async (req, res) => {
     if (introducer) {
         const selected_user = await User.findOne({ uid: introducer })
         if (selected_user) {
-            await User.findOneAndUpdate({ uid: selected_user.uid }, { $inc: { gold: 200 } })
+            await User.findOneAndUpdate({ uid: selected_user.uid }, { $inc: { gold: 300 } })
             send_notif({
                 users: [selected_user.uid],
                 msg: ` کاربر: ${name} با کد معرفی شما به مافیاورس پیوست.شما ۲۰۰ سکه جایزه گرفتی `,
@@ -108,10 +108,10 @@ router.post("/sign_up_confirm_phone", async (req, res) => {
             phone: phone
         },
         uid: player_uid,
-        gold: inter ? 400 : 200,
+        gold: inter ? 600 : 300,
         avatar: default_avatar,
         notif_token: temp.notif_token,
-        items:[
+        items: [
             new mongoose.Types.ObjectId("655da85c36fbec15db8bd959"),
             new mongoose.Types.ObjectId("655da8c536fbec15db8bd95c")
         ],
