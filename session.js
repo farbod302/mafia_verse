@@ -14,23 +14,18 @@ const Session = {
 
         //give prize
         const { prize } = this.prize_pool.find(e => e.range === range)
+        console.log({ prize });
         const more_than_4 = result.slice(3)
         const ids = more_than_4.map(e => e.uid)
+        console.log({ ids });
         const promises = [
-            () => {
-                return User.findOneAndUpdate({ uid: result[0].uid }, { $inc: { gold: prize[0] } })
-            },
-            () => {
-                return User.findOneAndUpdate({ uid: result[1].uid }, { $inc: { gold: prize[1] } })
-            },
-            () => {
-                return User.findOneAndUpdate({ uid: result[2].uid }, { $inc: { gold: prize[2] } })
-            },
-            () => {
-                return User.updateMany({ uid: { $in: ids } }, { $inc: { gold: prize[3] } })
-            },
+            User.findOneAndUpdate({ uid: result[0].uid }, { $inc: { gold: prize[0] } }),
+            User.findOneAndUpdate({ uid: result[1].uid }, { $inc: { gold: prize[1] } }),
+            User.findOneAndUpdate({ uid: result[2].uid }, { $inc: { gold: prize[2] } }),
+            User.updateMany({ uid: { $in: ids } }, { $inc: { gold: prize[3] } }),
         ]
-        await Promise.all(promises)
+        const res = await Promise.all(promises)
+        console.log({ res });
 
 
         const start = Date.now()
