@@ -7,7 +7,7 @@ router.post("/", async (req, res) => {
     const user = req.body.user
     if (!user) return reject(3, res)
     const { uid: req_user_id } = user
-    const sessions = ["day", "week", "session"]
+    const sessions = ["day", "week", "month"]
     const session_json = fs.readFileSync(`${__dirname}/../session.json`)
     const json = JSON.parse(session_json.toString())
     let ranking_res = []
