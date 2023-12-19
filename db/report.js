@@ -4,7 +4,7 @@ const mongoose = require("mongoose")
 
 const report = mongoose.Schema({
 
-    report_type: Number,
+    report_type: String,
     user_reported: String,
     user_submitted: String,
     game_id: String,

@@ -175,6 +175,7 @@ const Game = class {
                 game_vars: this.game_vars
             })
             let status_list = this.game_vars.player_status
+            if (!status_list) return
             this.socket.to(game_id).emit("game_action", { data: [status_list[index]] })
             this.game_vars.edit_event("push", "dead_list", client.user_id)
             this.socket.to(game_id).emit("report", { data: { msg: `بازیکن ${client.user_id} به دست خدا کشته شد` } })

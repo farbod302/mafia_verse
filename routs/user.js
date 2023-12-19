@@ -10,6 +10,7 @@ const { uid: uuid } = require("uid")
 const UserChannelConfig = require("../db/user_channel_config")
 const online_users_handler = require("../socket/online_users_handler")
 const Voice = require("../helper/live_kit_handler")
+const Report = require("../db/report")
 const GameHistory = require("../db/game_history")
 const UserReport = require("../db/user_report")
 const ItemTransaction = require("../db/item_transaction")
@@ -181,13 +182,25 @@ router.post("/profile", async (req, res) => {
     const user = req.body.user
     if (!user) return reject(1, res)
     const s_user = await User.findOne({ uid: user.uid })
+    const user_games = await GameHistory.find({ users: user.uid }).sort({ _id: 1 }).limit(25)
+    const game_id = user_games.map(e => e.game_id)
+    const user_reports = await Report.find({ user_reported: user.uid, game_id: { $in: game_id } })
+
+    const reports = {
+        "abdon": 0,
+        "com_report": 0,
+        "role_report": 0,
+        "age_report": 0
+    }
+    user_reports.forEach(e => reports[e.report_type] += 1)
     const { avatar } = s_user
     const clean_data = {
         ...s_user._doc,
         avatar: {
             avatar: "files/" + avatar.avatar,
             table: "files/" + avatar.table,
-        }
+        },
+        user_last_reports: user_reports
     }
     res.json({
         status: true,
@@ -522,7 +535,7 @@ router.post("/game_history", async (req, res) => {
         const player_role = game_info[0].users.find(u => u.user_id === uid)
         const { point, role } = player_role
         return {
-            game_id, is_winner: point > 0 ? true : false, winner, point, role,date:game_info[0].free_speech_timer
+            game_id, is_winner: point > 0 ? true : false, winner, point, role, date: game_info[0].free_speech_timer
         }
     })
 
@@ -542,7 +555,7 @@ router.post("/game_detail", async (req, res) => {
     res.json({
         status: true,
         msg: "",
-        data: { ...selected_game.game_info[0], winner: selected_game.winner ,date:selected_game.game_info[0].free_speech_timer}
+        data: { ...selected_game.game_info[0], winner: selected_game.winner, date: selected_game.game_info[0].free_speech_timer }
     })
 })
 
