@@ -9,22 +9,20 @@ const Session = {
         switch (range) {
             case ("day"): range_time = 1000 * 60 * 60 * 24; default_rank = 125; break
             case ("week"): range_time = 1000 * 60 * 60 * 24 * 7; default_rank = 875; break
-            case ("month"): range_time = 1000 * 60 * 60 * 24 * 7 * 4; default_rank = 3000; break
+            case ("month"): range_time = ((1000 * 60 * 60 * 24 * 7 * 4) + (1000 * 60 * 60 * 24 * 2)); default_rank = 3000; break
         }
 
         //give prize
         const { prize } = this.prize_pool.find(e => e.range === range)
-        console.log({ prize });
         const more_than_4 = result.slice(3)
         const ids = more_than_4.map(e => e.uid)
-        console.log({ ids });
         const promises = [
             User.findOneAndUpdate({ uid: result[0].uid }, { $inc: { gold: prize[0] } }),
             User.findOneAndUpdate({ uid: result[1].uid }, { $inc: { gold: prize[1] } }),
             User.findOneAndUpdate({ uid: result[2].uid }, { $inc: { gold: prize[2] } }),
             User.updateMany({ uid: { $in: ids } }, { $inc: { gold: prize[3] } }),
         ]
-       await Promise.all(promises)
+        await Promise.all(promises)
         const start = Date.now()
         const end = start + range_time
         const preview_session_start = start - range_time
