@@ -387,7 +387,7 @@ router.post("/has_enough_gold", async (req, res) => {
     const { uid } = user
     const { gold } = req.body
     let s_user = await User.findOne({ uid: uid })
-    if (s_user && s_user.gold > gold) { return res.json({ status: true }) }
+    if (s_user ) { return res.json({ status: true }) }
     res.json({ status: false, })
 })
 
