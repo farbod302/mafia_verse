@@ -855,7 +855,9 @@ const Game = class {
                     this.game_vars.edit_event("edit", "winner", game_result == 2 ? "mafia" : "citizen")
                     this.game_vars.edit_event("edit", "next_event", "end_game")
                 }
-                this.socket.to(game_id).emit("current_speech_end", { data: { user_id: queue[turn - 1]?.user_id } })
+                if (queue[turn - 1]?.user_id) {
+                    this.socket.to(game_id).emit("current_speech_end", { data: { user_id: queue[turn - 1]?.user_id } })
+                }
                 const player_socket = this.socket_finder(user_id)
                 this.socket.to(player_socket).emit("speech_time_up", { data: { user_id: queue[turn - 1]?.user_id } })
                 await Helper.delay(1)
@@ -883,7 +885,9 @@ const Game = class {
             this.game_vars.edit_event("edit", "speech_code", "")
             const { player_status } = this.game_vars
             this.socket.to(game_id).emit("game_action", { data: [player_status[index]] })
-            this.socket.to(game_id).emit("current_speech_end", { data: { user_id: queue[turn - 1]?.user_id } })
+            if(queue[turn - 1]?.user_id){
+                this.socket.to(game_id).emit("current_speech_end", { data: { user_id: queue[turn - 1]?.user_id } })
+            }
             const last_player_socket = this.socket_finder(this.users[index].user_id)
             this.socket.to(last_player_socket).emit("speech_time_up", { data: { user_id: queue[turn - 1]?.user_id } })
             await Helper.delay(1)
@@ -927,8 +931,9 @@ const Game = class {
             }
         }
         // emit current_speech
-
-        this.socket.to(game_id).emit("current_speech_end", { data: { user_id: queue[turn - 1]?.user_id } })
+        if( queue[turn - 1]?.user_id){
+            this.socket.to(game_id).emit("current_speech_end", { data: { user_id: queue[turn - 1]?.user_id } })
+        }
         if (turn !== 0) {
             this.play_voice(_play_voice.play_voice("next"))
         }
