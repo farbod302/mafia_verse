@@ -346,7 +346,7 @@ const Game = class {
                         new_value: false,
                         game_vars: this.game_vars,
                     })
-
+                    this.game_vars.edit_event("edit","speech_type","challenge")
                     break
                 }
                 case ("night_act"): {
@@ -1030,6 +1030,9 @@ const Game = class {
         const contnue_func = () => { this.mainCycle(); }
         let speech_code = uid(4)
         this.game_vars.edit_event("edit", "speech_code", speech_code)
+        if(this.game_vars.speech_type === "challenge"){
+            this.game_vars.edit_event("edit","speech_type","turn")
+        }
         start.set_timer_to_contnue_speech_queue({
             func: contnue_func,
             game_vars: this.game_vars,
