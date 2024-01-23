@@ -1057,8 +1057,9 @@ const Game = class {
         const mafia_acts = ["godfather", "nato", "hostage_taker"]
         const city = carts.filter(e => !mafia_acts.includes(e.name))
         await Helper.delay(3)
-        city.forEach(e => {
+        const game_id=this.game_id
         this.socket.to(game_id).emit("game_event", { data: { game_event: "none" } })
+        city.forEach(e => {
             const user_socket = this.socket_finder(e.user_id)
             this.socket.to(user_socket).emit("report", { data: { msg: "مافیا در حال شناخت هم تییمی های خود هستند", timer: 3, mafia_visitation: true } })
         })
