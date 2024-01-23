@@ -35,13 +35,15 @@ const vote = {
                 game_vars: game_vars
             })
         }
-        start.edit_game_action({
-            index: turn,
-            prime_event: "user_status",
-            second_event: "on_vote",
-            new_value: true,
-            game_vars: game_vars
-        })
+        if (queue[turn].user_id) {
+            start.edit_game_action({
+                index: turn,
+                prime_event: "user_status",
+                second_event: "on_vote",
+                new_value: true,
+                game_vars: game_vars
+            })
+        }
         let { player_status } = game_vars
         socket.to(game_id).emit("game_action", { data: turn === 0 ? [player_status[0]] : [player_status[turn - 1], player_status[turn]] })
 
@@ -63,9 +65,10 @@ const vote = {
             })
             play_voice(_play_voice.play_voice(`${vote_type === "defence" ? "exit_" : ""}vote_to`, index))
         } else {
+            const remain_inq = 2 - game_vars.inquiry_used
             socket.to(game_id).emit("report", {
                 data: {
-                    msg: `آیا شهر استعلام می خواهد؟`, timer: 2
+                    msg: `استعلام باقی مانده:${remain_inq} آیا شهر استعلام می خواهد؟`, timer: 2
                 }
             })
             play_voice(_play_voice.play_voice("need_inquiry"))

@@ -346,7 +346,7 @@ const Game = class {
                         new_value: false,
                         game_vars: this.game_vars,
                     })
-                    this.game_vars.edit_event("edit","speech_type","challenge")
+                    this.game_vars.edit_event("edit", "speech_type", "challenge")
                     break
                 }
                 case ("night_act"): {
@@ -1030,8 +1030,8 @@ const Game = class {
         const contnue_func = () => { this.mainCycle(); }
         let speech_code = uid(4)
         this.game_vars.edit_event("edit", "speech_code", speech_code)
-        if(this.game_vars.speech_type === "challenge"){
-            this.game_vars.edit_event("edit","speech_type","turn")
+        if (this.game_vars.speech_type === "challenge") {
+            this.game_vars.edit_event("edit", "speech_type", "turn")
         }
         start.set_timer_to_contnue_speech_queue({
             func: contnue_func,
@@ -1058,8 +1058,9 @@ const Game = class {
         const city = carts.filter(e => !mafia_acts.includes(e.name))
         await Helper.delay(3)
         city.forEach(e => {
+        this.socket.to(game_id).emit("game_event", { data: { game_event: "none" } })
             const user_socket = this.socket_finder(e.user_id)
-            this.socket.to(user_socket).emit("report", { data: { msg: "مافیا در حال شناخت هم تییمی های خود هستند", timer: 3 } })
+            this.socket.to(user_socket).emit("report", { data: { msg: "مافیا در حال شناخت هم تییمی های خود هستند", timer: 3, mafia_visitation: true } })
         })
         this.play_voice(_play_voice.play_voice("mafia_visit"))
         await Helper.delay(8)
