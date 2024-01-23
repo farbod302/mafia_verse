@@ -884,9 +884,9 @@ const Game = class {
             })
             start.edit_game_action({
                 index,
-                prime_event: "user_status",
+                prime_event: "user_action",
                 second_event: "speech_type",
-                new_value: null,
+                new_value: "none",
                 game_vars: this.game_vars,
                 edit_others: false
             })
@@ -1014,7 +1014,7 @@ const Game = class {
         })
         start.edit_game_action({
             index,
-            prime_event: "user_status",
+            prime_event: "user_action",
             second_event: "speech_type",
             new_value: befor_start.translate_speech_type({ game_vars: this.game_vars }),
             game_vars: this.game_vars,
