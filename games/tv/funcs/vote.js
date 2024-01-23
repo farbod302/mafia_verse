@@ -42,8 +42,8 @@ const vote = {
             new_value: true,
             game_vars: game_vars
         })
-        let { player_status } = this.game_vars
-        this.socket.to(game_id).emit("game_action", { data: turn === 0 ? [player_status[0]] : [player_status[turn - 1], player_status[turn]] })
+        let { player_status } = game_vars
+        socket.to(game_id).emit("game_action", { data: turn === 0 ? [player_status[0]] : [player_status[turn - 1], player_status[turn]] })
 
 
         const index = users.findIndex(e => e.user_id === cur_player.user_id)
