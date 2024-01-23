@@ -882,6 +882,14 @@ const Game = class {
                 game_vars: this.game_vars,
                 edit_others: false
             })
+            start.edit_game_action({
+                index,
+                prime_event: "user_status",
+                second_event: "speech_type",
+                new_value: null,
+                game_vars: this.game_vars,
+                edit_others: false
+            })
             this.game_vars.edit_event("edit", "speech_code", "")
             const { player_status } = this.game_vars
             this.socket.to(game_id).emit("game_action", { data: [player_status[index]] })
@@ -1001,6 +1009,14 @@ const Game = class {
             prime_event: "user_status",
             second_event: "is_talking",
             new_value: true,
+            game_vars: this.game_vars,
+            edit_others: true
+        })
+        start.edit_game_action({
+            index,
+            prime_event: "user_status",
+            second_event: "speech_type",
+            new_value: this.game_vars.speech_type,
             game_vars: this.game_vars,
             edit_others: true
         })
