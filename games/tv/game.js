@@ -950,6 +950,14 @@ const Game = class {
                 game_vars: this.game_vars,
                 edit_others: false
             })
+            start.edit_game_action({
+                index:player_index,
+                prime_event: "user_status",
+                second_event: "is_talking",
+                new_value: false,
+                game_vars: this.game_vars,
+                edit_others: false
+            })
             let status_list = this.game_vars.player_status
             this.socket.to(game_id).emit("game_action", { data: [status_list[player_index]] })
 
