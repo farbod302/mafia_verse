@@ -941,6 +941,18 @@ const Game = class {
         // emit current_speech
         if (queue[turn - 1]?.user_id) {
             this.socket.to(game_id).emit("current_speech_end", { data: { user_id: queue[turn - 1]?.user_id } })
+            const player_index = this.users.findIndex(e => e.user_id === queue[turn - 1]?.user_id)
+            start.edit_game_action({
+                index:player_index,
+                prime_event: "user_action",
+                second_event: "speech_type",
+                new_value: "none",
+                game_vars: this.game_vars,
+                edit_others: false
+            })
+            let status_list = this.game_vars.player_status
+            this.socket.to(game_id).emit("game_action", { data: [status_list[player_index]] })
+
         }
         if (turn !== 0) {
             this.play_voice(_play_voice.play_voice("next"))
@@ -1057,7 +1069,7 @@ const Game = class {
         const mafia_acts = ["godfather", "nato", "hostage_taker"]
         const city = carts.filter(e => !mafia_acts.includes(e.name))
         await Helper.delay(3)
-        const game_id=this.game_id
+        const game_id = this.game_id
         this.socket.to(game_id).emit("game_event", { data: { game_event: "none" } })
         city.forEach(e => {
             const user_socket = this.socket_finder(e.user_id)
