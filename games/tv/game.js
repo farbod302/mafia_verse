@@ -286,6 +286,7 @@ const Game = class {
                     const { speech_type } = this.game_vars
                     if (speech_type !== "turn" && speech_type !== "introduction") return
                     const { action } = data
+                    console.log({action});
                     const { user_id } = client.idenity
                     const { game_id } = this
                     let index = this.users.findIndex(user => user.user_id === user_id)
@@ -361,7 +362,6 @@ const Game = class {
                             info: target.act
                         })
                     })
-                    console.log({ role });
                     if (role === "nato" && users.length) {
                         const nato_target = users[0]
                         console.log({ nato_target });
@@ -1030,7 +1030,7 @@ const Game = class {
             second_event: "speech_type",
             new_value: befor_start.translate_speech_type({ game_vars: this.game_vars }),
             game_vars: this.game_vars,
-            edit_others: true
+            edit_others: false
         })
         let status_list = this.game_vars.player_status
         this.socket.to(game_id).emit("game_action", { data: [status_list[index]] })
