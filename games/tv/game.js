@@ -880,7 +880,7 @@ const Game = class {
                 second_event: "is_talking",
                 new_value: false,
                 game_vars: this.game_vars,
-                edit_others: false
+                edit_others: true
             })
             start.edit_game_action({
                 index,
