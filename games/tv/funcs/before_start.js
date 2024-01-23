@@ -73,6 +73,20 @@ const befor_start = {
         return carts
     },
 
+
+    translate_speech_type({game_vars}){
+        const {speech_type}=game_vars
+        switch(speech_type){
+            case("introduction"):return "معارفه"
+            case("turn"):return "نوبت صحبت"
+            case("challenge"):return "چالش"
+            case("defence"):return "دفاعیه"
+            case("chaos"):return "هرج و مرج"
+            case("final_words"):return "وصیت"
+            default:return "نوبت صحبت"
+        }
+    },
+
     pick_cart_phase({ game_vars, users }) {
         let carts = this.shuffel_carts()
         game_vars.edit_event("new_value", "carts", carts.map((cart, index) => { return { name: cart, selected_by: "not", selected: false, id: index } }))

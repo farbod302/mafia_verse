@@ -893,7 +893,7 @@ const Game = class {
             this.game_vars.edit_event("edit", "speech_code", "")
             const { player_status } = this.game_vars
             this.socket.to(game_id).emit("game_action", { data: [player_status[index]] })
-            if(queue[turn - 1]?.user_id){
+            if (queue[turn - 1]?.user_id) {
                 this.socket.to(game_id).emit("current_speech_end", { data: { user_id: queue[turn - 1]?.user_id } })
             }
             const last_player_socket = this.socket_finder(this.users[index].user_id)
@@ -939,7 +939,7 @@ const Game = class {
             }
         }
         // emit current_speech
-        if( queue[turn - 1]?.user_id){
+        if (queue[turn - 1]?.user_id) {
             this.socket.to(game_id).emit("current_speech_end", { data: { user_id: queue[turn - 1]?.user_id } })
         }
         if (turn !== 0) {
@@ -1016,7 +1016,7 @@ const Game = class {
             index,
             prime_event: "user_status",
             second_event: "speech_type",
-            new_value: this.game_vars.speech_type,
+            new_value: befor_start.translate_speech_type({ game_vars: this.game_vars }),
             game_vars: this.game_vars,
             edit_others: true
         })

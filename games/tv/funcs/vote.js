@@ -26,6 +26,26 @@ const vote = {
         // vote to player
         let cur_player = queue[turn]
 
+        if (turn !== 0) {
+            start.edit_game_action({
+                index: turn - 1,
+                prime_event: "user_status",
+                second_event: "on_vote",
+                new_value: false,
+                game_vars: game_vars
+            })
+        }
+        start.edit_game_action({
+            index: turn,
+            prime_event: "user_status",
+            second_event: "on_vote",
+            new_value: true,
+            game_vars: game_vars
+        })
+        let { player_status } = this.game_vars
+        this.socket.to(game_id).emit("game_action", { data: turn === 0 ? [player_status[0]] : [player_status[turn - 1], player_status[turn]] })
+
+
         const index = users.findIndex(e => e.user_id === cur_player.user_id)
         let dead_users = game_vars.player_status.filter(e => !e.user_status.is_alive)
         dead_users = dead_users.map(e => e.user_id)
