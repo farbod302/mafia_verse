@@ -44,6 +44,7 @@ const befor_start = {
                     is_connected: true,
                     is_alive: true,
                     is_talking: false,
+                    on_vote:false
                 },
                 user_action: {
                     speech_type: "none",
