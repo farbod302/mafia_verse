@@ -54,7 +54,6 @@ const befor_start = {
                     hand_rise: false,
                     target_cover_hand_rise: false,
                     target_cover_accepted: false,
-                    on_vote:false
                 }
             }
         })
