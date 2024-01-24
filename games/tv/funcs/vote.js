@@ -76,7 +76,7 @@ const vote = {
         }
         await Helper.delay(2)
         user_to_vote.forEach(user => {
-            socket.to(user.socket_id).emit("vote", { data: new_vote_record })
+            socket.to(user.socket_id).emit("vote", { data: new_vote_record,timer:3 })
         })
         run_timer(10, cycle)
     },
