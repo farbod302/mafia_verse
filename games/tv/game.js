@@ -940,7 +940,6 @@ const Game = class {
         }
         // emit current_speech
         if (queue[turn - 1]?.user_id) {
-            this.socket.to(game_id).emit("current_speech_end", { data: { user_id: queue[turn - 1]?.user_id } })
             const player_index = this.users.findIndex(e => e.user_id === queue[turn - 1]?.user_id)
             start.edit_game_action({
                 index: player_index,
@@ -960,6 +959,7 @@ const Game = class {
             })
             let status_list = this.game_vars.player_status
             this.socket.to(game_id).emit("game_action", { data: [status_list[player_index]] })
+            this.socket.to(game_id).emit("current_speech_end", { data: { user_id: queue[turn - 1]?.user_id } })
 
         }
         if (turn !== 0) {
