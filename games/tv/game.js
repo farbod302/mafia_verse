@@ -286,7 +286,7 @@ const Game = class {
                     const { speech_type } = this.game_vars
                     if (speech_type !== "turn" && speech_type !== "introduction") return
                     const { action } = data
-                    console.log({action});
+                    console.log({ action });
                     const { user_id } = client.idenity
                     const { game_id } = this
                     let index = this.users.findIndex(user => user.user_id === user_id)
@@ -943,7 +943,7 @@ const Game = class {
             this.socket.to(game_id).emit("current_speech_end", { data: { user_id: queue[turn - 1]?.user_id } })
             const player_index = this.users.findIndex(e => e.user_id === queue[turn - 1]?.user_id)
             start.edit_game_action({
-                index:player_index,
+                index: player_index,
                 prime_event: "user_action",
                 second_event: "speech_type",
                 new_value: "none",
@@ -951,7 +951,7 @@ const Game = class {
                 edit_others: false
             })
             start.edit_game_action({
-                index:player_index,
+                index: player_index,
                 prime_event: "user_status",
                 second_event: "is_talking",
                 new_value: false,
@@ -1124,6 +1124,18 @@ const Game = class {
         this.game_vars.edit_event("edit", "turn", "plus")
         const { turn, queue, vote_type } = this.game_vars
         if (turn == queue.length) {
+
+            start.edit_game_action({
+                index: this.users.findIndex(e => e.user_id === queue[queue.length-1].user_id),
+                prime_event: "user_status",
+                second_event: "on_vote",
+                new_value: false,
+                game_vars: this.game_vars
+            })
+
+            let { player_status } = game_vars
+            socket.to(game_id).emit("game_action", { data: [player_status[queue.length - 1]] })
+
             if (vote_type === "inquiry") {
                 let live_users = start.pick_live_users({ game_vars: this.game_vars })
                 const { votes_status } = this.game_vars

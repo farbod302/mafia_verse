@@ -156,7 +156,6 @@ const _play_voice = {
 
 
     play_voice(event, index) {
-        console.log({ index });
         const voice = this.voice_list.find(e => e.voice_id === event)
         const { voices } = voice
         if (voices.length === 1) return voices[0]

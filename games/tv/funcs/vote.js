@@ -28,7 +28,7 @@ const vote = {
 
         if (turn !== 0) {
             start.edit_game_action({
-                index: turn - 1,
+                index:users.findIndex(e => e.user_id === queue[turn-1].user_id),
                 prime_event: "user_status",
                 second_event: "on_vote",
                 new_value: false,
@@ -37,7 +37,7 @@ const vote = {
         }
         if (queue[turn].user_id) {
             start.edit_game_action({
-                index: turn,
+                index: users.findIndex(e => e.user_id === queue[turn].user_id),
                 prime_event: "user_status",
                 second_event: "on_vote",
                 new_value: true,
@@ -76,7 +76,7 @@ const vote = {
         }
         await Helper.delay(2)
         user_to_vote.forEach(user => {
-            socket.to(user.socket_id).emit("vote", { data: new_vote_record,timer:3 })
+            socket.to(user.socket_id).emit("vote", { data: new_vote_record, timer: 3 })
         })
         run_timer(10, cycle)
     },
