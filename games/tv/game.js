@@ -1133,7 +1133,7 @@ const Game = class {
                 game_vars: this.game_vars
             })
 
-            let { player_status } = game_vars
+            let { player_status } = this.game_vars
             socket.to(game_id).emit("game_action", { data: [player_status[queue.length - 1]] })
 
             if (vote_type === "inquiry") {
