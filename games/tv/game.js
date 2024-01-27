@@ -1134,7 +1134,7 @@ const Game = class {
             })
 
             let { player_status } = this.game_vars
-            this.socket.to(game_id).emit("game_action", { data: [player_status[queue.length - 1]] })
+            this.socket.to(this.game_id).emit("game_action", { data: [player_status[queue.length - 1]] })
 
             if (vote_type === "inquiry") {
                 let live_users = start.pick_live_users({ game_vars: this.game_vars })
