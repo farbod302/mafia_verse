@@ -1550,7 +1550,7 @@ const Game = class {
     chaos_result_first_phase() {
         const { game_id } = this
 
-        this.socket.to(game_id).emit("report",{data:{msg:"به رای گیری کیاس می رویم",timer:3}})
+        this.socket.to(game_id).emit("report", { data: { msg: "به رای گیری کیاس می رویم", timer: 3 } })
         this.game_vars.edit_event("edit", "next_event", "next_player_chaos_vote")
         this.game_vars.edit_event("edit", "turn", -1)
         start.generate_queue({
@@ -1578,11 +1578,13 @@ const Game = class {
         this.socket.to(game_id).emit("turn_to_shake", { data: { user_id: user_id } })
         let player = befor_start.pick_player_from_user_id({ users: this.users, user_id })
         let socket_id = this.socket_finder(user_id)
-        this.socket.to(socket_id).emit("chaos_vote", { data: { available_users: av_users.map(e => e.user_id) } })
+        this.socket.to(socket_id).emit("chaos_vote", { data: { available_users: av_users.map(e => e.user_id) }, timer: 14 })
         let restart_vote = (game_vars, require_vote, mainCycle) => {
             const { chaos_vots } = game_vars
             if (chaos_vots.length < Number(require_vote)) {
                 game_vars.edit_event("edit", "next_event", "chaos")
+                this.socket.to(game_id).emit("turn_to_shake", { data: { user_id: null } })
+
                 mainCycle()
 
             }
