@@ -1282,8 +1282,7 @@ const Game = class {
         const { game_id, socket } = this
         const user_to_exit = vote.count_exit_vote({ game_vars: this.game_vars, game_id, socket, users: this.users, socket_finder: this.socket_finder, game_id: this.game_id, play_voice: this.play_voice })
         if (user_to_exit) {
-            // const game_result_check = night.check_next_day({ game_vars: this.game_vars })
-            const game_result_check = 4
+            const game_result_check = night.check_next_day({ game_vars: this.game_vars })
             if (game_result_check === 4) this.game_vars.edit_event("edit", "next_event", "start_night")
             if (game_result_check === 1 || game_result_check === 2) {
                 let winner = game_result_check === 2 ? "mafia" : "citizen"
