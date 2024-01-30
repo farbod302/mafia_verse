@@ -1551,7 +1551,7 @@ const Game = class {
     chaos_result_first_phase() {
         const { game_id } = this
 
-        this.socket.to(game_id).emit("chaos_notif_vote_time")
+        this.socket.to(game_id).emit("report",{data:{msg:"به رای گیری کیاس می رویم",timer:3}})
         this.game_vars.edit_event("edit", "next_event", "next_player_chaos_vote")
         this.game_vars.edit_event("edit", "turn", -1)
         start.generate_queue({
