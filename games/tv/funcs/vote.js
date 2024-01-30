@@ -123,16 +123,16 @@ const vote = {
             game_vars.edit_event("edit", "vote_type", "defence")
             game_vars.edit_event("edit", "speech_type", "defence")
             socket.to(game_id).emit("game_event",{data:{game_event:"none"}})
-            // if (defenders_queue.length >= 3) {
+            if (defenders_queue.length >= 3) {
             game_vars.edit_event("edit", "custom_queue", defenders_queue)
             game_vars.edit_event("edit", "next_event", "start_speech")
             return
-            // }
-            // else {
-            //     game_vars.edit_event("edit", "queue", defenders_queue)
-            //     game_vars.edit_event("edit", "next_event", "enable_target_cover")
-            //     game_vars.edit_event("edit", "turn", -1)
-            // }
+            }
+            else {
+                game_vars.edit_event("edit", "queue", defenders_queue)
+                game_vars.edit_event("edit", "next_event", "enable_target_cover")
+                game_vars.edit_event("edit", "turn", -1)
+            }
 
 
         }

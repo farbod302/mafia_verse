@@ -482,12 +482,13 @@ const Game = class {
                     new_target_cover_queue[turn].permission = using_option
                     this.game_vars.edit_event("edit", "target_cover_queue", new_target_cover_queue)
                     if (using_option) {
-                        this.socket.to(game_id).emit("user_request_speech_options", { data: { requester_id: client.idenity.user_id, timer: 5 } })
+                        // this.socket.to(game_id).emit("user_request_speech_options", { data: { requester_id: client.idenity.user_id, timer: 5 } })
+                        this.socket.to(game_id).emit("report", { data: { user_id: client.idenity.user_id, timer: 5, msg: "درخواست تارگت کاور برای بازیکن شماره :::" } })
                     }
                     this.mainCycle()
                     break
                 }
-                case ("volunteer"): {
+                case ("select_volunteer"): {
                     const { user_id } = data
                     const { target_cover_queue } = this.game_vars
                     let turn = target_cover_queue.findIndex(q => !q.comp)
@@ -1126,7 +1127,7 @@ const Game = class {
         if (turn == queue.length) {
 
             start.edit_game_action({
-                index: this.users.findIndex(e => e.user_id === queue[queue.length-1].user_id),
+                index: this.users.findIndex(e => e.user_id === queue[queue.length - 1].user_id),
                 prime_event: "user_status",
                 second_event: "on_vote",
                 new_value: false,
@@ -1199,7 +1200,7 @@ const Game = class {
         if (target_cover_queue[turn].permission === null) {
             this.socket.to(socket_id).emit("using_speech_options", {
                 data:
-                    { msg: `آیا درخواست ${target_cover_queue.length === 1 ? "تارگت کاور" : "درباره"} دارید؟`, timer: 7 }
+                    { msg: `آیا درخواست ${target_cover_queue.length === 1 ? "تارگت کاور" : "درباره"} دارید؟`, timer: 14 }
             })
             //set timer to move
 
@@ -1212,7 +1213,7 @@ const Game = class {
                     this.mainCycle()
                 }
             }
-            run_timer(8, () => { continue_func(target_cover_queue, turn) })
+            run_timer(15, () => { continue_func(target_cover_queue, turn) })
             return
         }
         if (target_cover_queue[turn].permission === false) {
@@ -1235,20 +1236,20 @@ const Game = class {
                 }
             }
 
-            this.socket.to(socket_id).emit("speech_option_msg",
+            this.socket.to(socket_id).emit("report",
                 {
                     data: {
-                        msg: `از بین بازیکنان یک نفر را برای ${translate()} انتخاب کنید`, timer: 10
+                        msg: `از بین بازیکنان یک نفر را برای ${translate()} انتخاب کنید`, timer: 2
                     }
                 })
 
-            this.socket.to(socket_id).emit("grant_permission", { data: { grant: true } })
+            this.socket.to(socket_id).emit("grant_permission", { grant: true })
 
-            this.socket.to(game_id).emit("request_speech_options", {
+            this.socket.to(game_id).emit("become_volunteer", {
                 data: {
                     requester_id: user.user_id,
                     option: choose_type,
-                    timer: 7
+                    timer: 10
                 }
             })
 
@@ -1260,6 +1261,7 @@ const Game = class {
                     let q = [...this.game_vars.target_cover_queue]
                     q[turn].comp = true
                     this.game_vars.edit_event("edit", "target_cover_queue", q)
+                    this.socket.to(socket_id).emit("grant_permission", { grant: false })
                     this.mainCycle()
                 }
 
