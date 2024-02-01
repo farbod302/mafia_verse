@@ -178,7 +178,7 @@ const Game = class {
             if (!status_list) return
             this.socket.to(game_id).emit("game_action", { data: [status_list[index]] })
             this.game_vars.edit_event("push", "dead_list", client.user_id)
-            this.socket.to(game_id).emit("report", { data: { msg: `بازیکن ${client.user_id} به دست خدا کشته شد`,timer:4 } })
+            this.socket.to(game_id).emit("report", { data: { msg: `بازیکن ${client.user_id} به دست خدا کشته شد`, timer: 4 } })
             this.game_handlers.submit_player_abandon({ user_id: client.user_id })
             // const new_users = this.users.filter(e => e.user_id !== client.user_id)
             const new_users = [...this.users]
@@ -540,7 +540,7 @@ const Game = class {
                         const { user_id: uid } = user
                         let socket_id = this.socket_finder(uid)
                         this.play_voice(_play_voice.play_voice("day_gun"))
-                        if (user.user_id !== user_id) this.socket.to(socket_id).emit("day_using_gun", { data: { user_id } })
+                        if (user.user_id !== user_id) this.socket.to(socket_id).emit("report", { data: { user_id ,timer:2,msg:"اعلام اصلحه"} })
 
                     })
                     break
@@ -1521,7 +1521,7 @@ const Game = class {
         live_users.forEach(user => {
             const { user_id } = user
             let socket_id = this.socket_finder(user_id)
-            this.socket.to(socket_id).emit("chaos_all_speech",{timer:9})
+            this.socket.to(socket_id).emit("chaos_all_speech", { timer: 9 })
         })
         let chaos_speech_all_status = live_users.map(user => {
             return {
@@ -1613,8 +1613,11 @@ const Game = class {
             let other_players = live_users.filter(e => e.user_id !== user_id).map(u => u.user_id)
             this.game_vars.edit_event("new_value", "last_decision", null)
             let socket_id = this.socket_finder(user_id)
-            this.socket.to(socket_id).emit("report", { data: { msg: "تصمیم نهایی با شماست.شهروند خود را انتخاب کنید", timer: 3 } })
-            this.socket.to(socket_id).emit("last_decision", { data: { available_users: other_players } })
+            this.socket.to(socket_id).emit("last_decision", { data: { available_users: other_players, timer: 14 } })
+            for (let player of other_players) {
+                const user_socket = this.socket_finder(player.user_id)
+                this.socket.to(user_socket).emit("report", { data: { msg: `تصمیم نهایی با بازیکن شماره ${selected_user.user_index}`, user_id } })
+            }
             const timer_func = () => {
                 if (!this.game_vars.winner) {
                     this.game_vars.edit_event("new_value", "is_last_decision", false)

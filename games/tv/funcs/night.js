@@ -392,7 +392,6 @@ const night = {
 
 
     check_next_day({ game_vars }) {
-        // return 4
         let live_users = start.pick_live_users({ game_vars })
         const { carts } = game_vars
         let mafia_rols = ["godfather", "nato", "hostage_taker"]
@@ -408,7 +407,7 @@ const night = {
         let city = live_users_with_role.filter(user => !mafia_rols.includes(user.role))
         if (!mafia_remain.length) return 1
         if (city.length <= mafia_remain.length) return 2
-        if (live_users.length === 3) return 3
+        if (live_users.length === 3) return 4
         return 4
     },
 
