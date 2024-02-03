@@ -1253,14 +1253,22 @@ const Game = class {
 
             this.socket.to(socket_id).emit("grant_permission", { grant: true })
 
-            this.socket.to(game_id).emit("become_volunteer", {
-                data: {
-                    requester_id: user.user_id,
-                    option: choose_type,
-                    timer: 10
-                }
+            const live_users=start.pick_live_users({game_vars:this.game_vars})
+            const user_self=live_users.filter(e=>e.user_id !==user.user_id )
+
+            live_users.forEach(e=>{
+                const socket_id=this.socket_finder(e.user_id)
+                this.socket.to(socket_id).emit("become_volunteer", {
+                    data: {
+                        requester_id: user.user_id,
+                        option: choose_type,
+                        timer: 10
+                    }
+                })
+    
             })
 
+           
             const timer_func = ({ cur_selected, turn }) => {
 
                 let target_cover_queue = this.game_vars.target_cover_queue[turn]
