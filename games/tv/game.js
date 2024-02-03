@@ -257,7 +257,7 @@ const Game = class {
                     let event_to_change = null
                     console.log({cur_event});
                     if(cur_event === "target_cover")event_to_change="target_cover_hand_rise"
-                    else cur_event="hand_rise"
+                    else event_to_change="hand_rise"
                     const { game_id } = this
                     start.edit_game_action({
                         index,
