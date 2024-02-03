@@ -481,9 +481,10 @@ const Game = class {
                     let new_target_cover_queue = [...target_cover_queue]
                     new_target_cover_queue[turn].permission = using_option
                     this.game_vars.edit_event("edit", "target_cover_queue", new_target_cover_queue)
+                    const selected_user=this.users.find(e=>e.user_id === client. client.idenity.user_id)
                     if (using_option) {
                         // this.socket.to(game_id).emit("user_request_speech_options", { data: { requester_id: client.idenity.user_id, timer: 5 } })
-                        this.socket.to(game_id).emit("report", { data: { user_id: client.idenity.user_id, timer: 5, msg: "درخواست تارگت کاور برای بازیکن شماره :::" } })
+                        this.socket.to(game_id).emit("report", { data: { user_id: client.idenity.user_id, timer: 5, msg: `درخواست تارگت کاور برای بازیکن شماره ${selected_user.user_index}` } })
                     }
                     this.mainCycle()
                     break
@@ -1138,7 +1139,7 @@ const Game = class {
             this.socket.to(this.game_id).emit("game_action", { data: [player_status[queue.length - 1]] })
 
             if (vote_type === "inquiry") {
-                this.socket.to(game_id).emit("game_event", { data: { game_event: "day" } })
+                this.socket.to(this.game_id).emit("game_event", { data: { game_event: "day" } })
 
                 let live_users = start.pick_live_users({ game_vars: this.game_vars })
                 const { votes_status } = this.game_vars
