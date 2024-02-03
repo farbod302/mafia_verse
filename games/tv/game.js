@@ -254,7 +254,10 @@ const Game = class {
                 case ("vote"): {
                     let index = this.users.findIndex(user => user.user_id === client.idenity.user_id)
                     const { cur_event } = this.game_vars
-                    let event_to_change = cur_event === "target_cover" ? "target_cover_hand_rise" : "hand_rise"
+                    let event_to_change = null
+                    console.log({cur_event});
+                    if(cur_event === "target_cover")event_to_change="target_cover_hand_rise"
+                    else cur_event="hand_rise"
                     const { game_id } = this
                     start.edit_game_action({
                         index,
@@ -1191,7 +1194,7 @@ const Game = class {
         this.mainCycle()
     }
 
-    next_player_target_cover() {
+   async next_player_target_cover() {
         const { game_id } = this
         const { target_cover_queue } = this.game_vars
         let turn = target_cover_queue.findIndex(q => !q.comp)
@@ -1206,6 +1209,7 @@ const Game = class {
         let user = befor_start.pick_player_from_user_id({ users: this.users, user_id })
         let socket_id = this.socket_finder(user.user_id)
         if (target_cover_queue[turn].permission === null) {
+            await Helper.delay(4)
             this.socket.to(socket_id).emit("using_speech_options", {
                 data:
                     { msg: `آیا درخواست ${target_cover_queue.length === 1 ? "تارگت کاور" : "درباره"} دارید؟`, timer: 14 }
@@ -1221,7 +1225,7 @@ const Game = class {
                     this.mainCycle()
                 }
             }
-            run_timer(15, () => { continue_func(target_cover_queue, turn) })
+            run_timer(19, () => { continue_func(target_cover_queue, turn) })
             return
         }
         if (target_cover_queue[turn].permission === false) {
@@ -1256,7 +1260,7 @@ const Game = class {
             const live_users=start.pick_live_users({game_vars:this.game_vars})
             const user_self=live_users.filter(e=>e.user_id !==user.user_id )
 
-            live_users.forEach(e=>{
+            user_self.forEach(e=>{
                 const socket_id=this.socket_finder(e.user_id)
                 this.socket.to(socket_id).emit("become_volunteer", {
                     data: {
