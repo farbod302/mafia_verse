@@ -481,7 +481,7 @@ const Game = class {
                     let new_target_cover_queue = [...target_cover_queue]
                     new_target_cover_queue[turn].permission = using_option
                     this.game_vars.edit_event("edit", "target_cover_queue", new_target_cover_queue)
-                    const selected_user = this.users.find(e => e.user_id === client.client.idenity.user_id)
+                    const selected_user = this.users.find(e => e.user_id === client.idenity.user_id)
                     if (using_option) {
                         let av_users = start.pick_live_users({ game_vars: this.game_vars })
                         av_users = av_users.filter(e => e.user_id !== selected_user.user_id)
