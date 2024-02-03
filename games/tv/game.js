@@ -253,11 +253,10 @@ const Game = class {
                 }
                 case ("vote"): {
                     let index = this.users.findIndex(user => user.user_id === client.idenity.user_id)
-                    const { cur_event } = this.game_vars
+                    const { custom_cur_event } = this.game_vars
                     let event_to_change = null
-                    console.log({cur_event});
-                    if(cur_event === "target_cover")event_to_change="target_cover_hand_rise"
-                    else event_to_change="hand_rise"
+                    if (custom_cur_event === "target_cover") event_to_change = "target_cover_hand_rise"
+                    else event_to_change = "hand_rise"
                     const { game_id } = this
                     start.edit_game_action({
                         index,
@@ -485,6 +484,7 @@ const Game = class {
                     new_target_cover_queue[turn].permission = using_option
                     this.game_vars.edit_event("edit", "target_cover_queue", new_target_cover_queue)
                     const selected_user = this.users.find(e => e.user_id === client.idenity.user_id)
+                    console.log({selected_user});
                     if (using_option) {
                         let av_users = start.pick_live_users({ game_vars: this.game_vars })
                         av_users = av_users.filter(e => e.user_id !== selected_user.user_id)
@@ -1190,11 +1190,11 @@ const Game = class {
     enable_target_cover() {
         targetCover.enable_target_cover({ game_vars: this.game_vars, user: this.users })
         this.game_vars.edit_event("edit", "next_event", "next_player_target_cover")
-        this.game_vars.edit_event("edit", "cur_event", "target_cover")
+        this.game_vars.edit_event("edit", "custom_cur_event", "target_cover")
         this.mainCycle()
     }
 
-   async next_player_target_cover() {
+    async next_player_target_cover() {
         const { game_id } = this
         const { target_cover_queue } = this.game_vars
         let turn = target_cover_queue.findIndex(q => !q.comp)
@@ -1202,6 +1202,7 @@ const Game = class {
             //end target cover
             vote.arrange_queue_after_target_cover({ game_vars: this.game_vars, users: this.users })
             this.game_vars.edit_event("edit", "cur_event", "speech")
+            this.game_vars.edit_event("edit", "custom_cur_event", "speech")
             this.mainCycle()
             return
         }
@@ -1257,11 +1258,11 @@ const Game = class {
 
             this.socket.to(socket_id).emit("grant_permission", { grant: true })
 
-            const live_users=start.pick_live_users({game_vars:this.game_vars})
-            const user_self=live_users.filter(e=>e.user_id !==user.user_id )
-
-            user_self.forEach(e=>{
-                const socket_id=this.socket_finder(e.user_id)
+            const live_users = start.pick_live_users({ game_vars: this.game_vars })
+            const user_self = live_users.filter(e => e.user_id !== user.user_id)
+            await Helper.delay(5)
+            user_self.forEach(e => {
+                const socket_id = this.socket_finder(e.user_id)
                 this.socket.to(socket_id).emit("become_volunteer", {
                     data: {
                         requester_id: user.user_id,
@@ -1269,10 +1270,10 @@ const Game = class {
                         timer: 10
                     }
                 })
-    
+
             })
 
-           
+
             const timer_func = ({ cur_selected, turn }) => {
 
                 let target_cover_queue = this.game_vars.target_cover_queue[turn]
