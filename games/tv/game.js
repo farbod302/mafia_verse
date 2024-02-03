@@ -540,7 +540,7 @@ const Game = class {
                         const { user_id: uid } = user
                         let socket_id = this.socket_finder(uid)
                         this.play_voice(_play_voice.play_voice("day_gun"))
-                        if (user.user_id !== user_id) this.socket.to(socket_id).emit("report", { data: { user_id ,timer:2,msg:"اعلام اصلحه"} })
+                        if (user.user_id !== user_id) this.socket.to(socket_id).emit("report", { data: { user_id, timer: 2, msg: "اعلام اصلحه" } })
 
                     })
                     break
@@ -1138,6 +1138,8 @@ const Game = class {
             this.socket.to(this.game_id).emit("game_action", { data: [player_status[queue.length - 1]] })
 
             if (vote_type === "inquiry") {
+                this.socket.to(game_id).emit("game_event", { data: { game_event: "day" } })
+
                 let live_users = start.pick_live_users({ game_vars: this.game_vars })
                 const { votes_status } = this.game_vars
                 let users_voted = votes_status[0].users.length
@@ -1460,7 +1462,7 @@ const Game = class {
             socket: this.socket,
             game_id: this.game_id
         })
-        this.play_voice("3")
+        this.play_voice("next_day")
         await Helper.delay(5)
         const { inquiry_used, gun_status } = this.game_vars
         if (inquiry_used < 2) this.game_vars.edit_event("edit", "next_event", "check_for_inquiry")
