@@ -1462,7 +1462,7 @@ const Game = class {
             socket: this.socket,
             game_id: this.game_id
         })
-        this.play_voice("next_day")
+        this.play_voice(_play_voice.play_voice("next_day"))
         await Helper.delay(5)
         const { inquiry_used, gun_status } = this.game_vars
         if (inquiry_used < 2) this.game_vars.edit_event("edit", "next_event", "check_for_inquiry")
