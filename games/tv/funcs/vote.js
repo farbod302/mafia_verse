@@ -60,7 +60,7 @@ const vote = {
         if (index > -1) {
             socket.to(game_id).emit("report", {
                 data: {
-                    msg: `رای ${vote_type === "defence" ? "خروج" : "گیری"} برای بازیکن شماره ${index + 1}`, timer: 2
+                    msg: `رای ${vote_type === "defence" ? "خروج" : "گیری"} برای بازیکن شماره ${index + 1}`, timer: 3
                 }
             })
             play_voice(_play_voice.play_voice(`${vote_type === "defence" ? "exit_" : ""}vote_to`, index))
@@ -68,13 +68,13 @@ const vote = {
             const remain_inq = 2 - game_vars.inquiry_used
             socket.to(game_id).emit("report", {
                 data: {
-                    msg: `استعلام باقی مانده:${remain_inq} آیا شهر استعلام می خواهد؟`, timer: 2
+                    msg: `استعلام باقی مانده:${remain_inq} آیا شهر استعلام می خواهد؟`, timer: 3
                 }
             })
             play_voice(_play_voice.play_voice("need_inquiry"))
 
         }
-        await Helper.delay(2)
+        await Helper.delay(3)
         user_to_vote.forEach(user => {
             socket.to(user.socket_id).emit("vote", { data: new_vote_record, timer: 3 })
         })

@@ -481,10 +481,15 @@ const Game = class {
                     let new_target_cover_queue = [...target_cover_queue]
                     new_target_cover_queue[turn].permission = using_option
                     this.game_vars.edit_event("edit", "target_cover_queue", new_target_cover_queue)
-                    const selected_user=this.users.find(e=>e.user_id === client. client.idenity.user_id)
+                    const selected_user = this.users.find(e => e.user_id === client.client.idenity.user_id)
                     if (using_option) {
+                        let av_users = start.pick_live_users({ game_vars: this.game_vars })
+                        av_users = av_users.filter(e => e.user_id !== selected_user.user_id)
                         // this.socket.to(game_id).emit("user_request_speech_options", { data: { requester_id: client.idenity.user_id, timer: 5 } })
-                        this.socket.to(game_id).emit("report", { data: { user_id: client.idenity.user_id, timer: 5, msg: `درخواست تارگت کاور برای بازیکن شماره ${selected_user.user_index}` } })
+                        av_users.forEach(user => {
+                            const socket_id = this.socket_finder(user.user_id)
+                            this.socket.to(socket_id).emit("report", { data: { user_id: client.idenity.user_id, timer: 5, msg: `درخواست تارگت کاور برای بازیکن شماره ${selected_user.user_index}` } })
+                        })
                     }
                     this.mainCycle()
                     break
@@ -1113,7 +1118,7 @@ const Game = class {
         this.game_vars.edit_event("edit", "turn", -1)
         this.game_vars.edit_event("edit", "vote_type", "inquiry")
         const { game_id } = this
-        this.socket.to(game_id).emit("day_inquiry", { data: { timer: 5 } })
+        // this.socket.to(game_id).emit("report", { data: { msg:"آیا شهر استعلام می خواهد",timer: 5 } })
         this.socket.to(game_id).emit("game_event", { data: { game_event: "vote" } })
         await vote.start_vote({ game_vars: this.game_vars })
         this.mainCycle()
@@ -1331,8 +1336,8 @@ const Game = class {
         this.db.add_data("night_records", { night: day, events: [] })
         this.mainCycle()
     }
-    guard_and_hostage_taker_act() {
-        night.guard_and_hostage_taker_act({
+    async guard_and_hostage_taker_act() {
+        await night.guard_and_hostage_taker_act({
             game_vars: this.game_vars,
             users: this.users,
             socket: this.socket,
@@ -1340,12 +1345,14 @@ const Game = class {
         })
         let mainCycle = () => { this.mainCycle() }
         this.game_vars.edit_event("edit", "next_event", "mafia_speech")
-        run_timer(25, mainCycle)
+        run_timer(15, mainCycle)
     }
 
     async mafia_speech() {
         const { game_id } = this
         this.socket.to(game_id).emit("report", { data: { msg: "زمان هم فکری مافیا", timer: 3 } })
+        this.play_voice(_play_voice.play_voice("mafia_think"))
+
         this.game_vars.edit_event("edit", "mafia_talking", true)
         await night.mafia_speech({
             game_vars: this.game_vars,
@@ -1361,7 +1368,6 @@ const Game = class {
     }
 
     check_mafia_decision() {
-        this.play_voice(_play_voice.play_voice("mafia_think"))
         night.check_mafia_decision({
             game_vars: this.game_vars,
             users: this.users,

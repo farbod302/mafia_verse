@@ -5,6 +5,7 @@ const { delay } = require("../../../helper/helper")
 const { character_translator } = require("../../../helper/helper")
 const data_handler = require("../../../games_temp_data/data_handler")
 const _play_voice = require("./play_voice")
+const Helper = require("../../../helper/helper")
 
 const night = {
 
@@ -41,7 +42,8 @@ const night = {
 
     },
 
-    guard_and_hostage_taker_act({ game_vars, users, socket, play_voice }) {
+   async guard_and_hostage_taker_act({ game_vars, users, socket, play_voice }) {
+    await Helper.delay(3)
         const users_to_act = ["hostage_taker", "guard"]
         play_voice(_play_voice.play_voice("guard_hostage_taker_act_time"))
         const { carts } = game_vars
