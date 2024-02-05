@@ -155,6 +155,7 @@ const Game = class {
                 }
             })
             let user_socket = this.socket_finder(client.user_id)
+            console.log({user_socket});
             this.socket.to(user_socket).emit("reconnect_data", { data: { ...data, roles, join_type: "moderator" } })
         }
     }
