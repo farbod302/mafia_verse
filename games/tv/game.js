@@ -1329,7 +1329,7 @@ const Game = class {
         this.game_vars.edit_event("edit", "inquiry_used", "plus")
         let inquiry_res = start.inquiry({ game_vars: this.game_vars })
         const { game_id } = this
-        this.socket.to(game_id).emit("day_inquiry_result", { data: { msg: inquiry_res, timer: 7 } })
+        this.socket.to(game_id).emit("report", { data: { msg: inquiry_res, timer: 7 } })
         await Helper.delay(5)
         this.game_vars.edit_event("edit", "custom_queue", [])
         this.game_vars.edit_event("edit", "next_event", "start_speech")
