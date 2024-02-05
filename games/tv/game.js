@@ -99,6 +99,7 @@ const Game = class {
     }
 
     async re_connect({ client }) {
+        console.log("RECONNECT CALL");
         const { is_live } = this.game_vars
         const { game_id } = this
         const { user_id } = client
@@ -115,6 +116,7 @@ const Game = class {
                 users: this.users
             })
             let user_socket = this.socket_finder(client.user_id)
+            console.log({user_socket});
             this.socket.to(user_socket).emit("reconnect_data", { data })
             let index = this.game_vars.player_status.findIndex(e => e.user_id == client.user_id)
             await Helper.delay(3)
@@ -127,10 +129,8 @@ const Game = class {
                 game_vars: this.game_vars
             })
             let prv_users = this.users
-            console.log({ prv_users, index });
             prv_users[index].socket_id = user_socket
             this.users = prv_users
-            console.log(this.users);
             const { player_status } = this.game_vars
             this.socket.to(game_id).emit("game_action", { data: [player_status[index]] })
             this.game_vars.edit_event("pull", "abandon_queue", client.user_id)
@@ -155,7 +155,6 @@ const Game = class {
                 }
             })
             let user_socket = this.socket_finder(client.user_id)
-            console.log({user_socket});
             this.socket.to(user_socket).emit("reconnect_data", { data: { ...data, roles, join_type: "moderator" } })
         }
     }
