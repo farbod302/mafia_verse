@@ -21,6 +21,7 @@ const dinamic_vars = class {
         this.vote_type = "pre_vote"
         this.speech_type = "introduction"
         this.can_take_challenge = false
+        this.can_act=true
         this.custom_queue = []
         this.votes_status = []
         this.gun_status = []

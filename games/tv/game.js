@@ -883,6 +883,7 @@ const Game = class {
 
         if (queue.length === turn) {
             this.game_vars.edit_event("edit", "second_chance", [])
+        this.game_vars.edit_event("edit", "can_act", true)
 
             const index = this.users.findIndex(e => e.user_id === queue[turn - 1].user_id)
             if (index === -1) return this.abandon()
@@ -1032,7 +1033,7 @@ const Game = class {
         this.socket.to(socket_id).emit("start_speech")
         other_users.forEach(u => {
             const s_user_socket = this.socket_finder(u.user_id)
-            this.socket.to(s_user_socket).emit("game_event", { data: { game_event: "action" } })
+            this.socket.to(s_user_socket).emit("game_event", { data: { game_event: this.game_vars.can_act ?"action":"none" } })
         })
         // edit game action
         const index = this.users.findIndex(e => e.user_id === user_id)
@@ -1193,6 +1194,7 @@ const Game = class {
         targetCover.enable_target_cover({ game_vars: this.game_vars, user: this.users })
         this.game_vars.edit_event("edit", "next_event", "next_player_target_cover")
         this.game_vars.edit_event("edit", "custom_cur_event", "target_cover")
+        this.game_vars.edit_event("edit", "can_act", false)
         this.mainCycle()
     }
 
