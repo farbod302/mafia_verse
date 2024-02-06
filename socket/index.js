@@ -81,6 +81,8 @@ const SocketProvider = class {
                 let s_game = this.db.getOne("games", "game_id", game_id)
                 if (!s_game) return client.emit("game_is_end")
                 else {
+                    console.log("reonnect to game");
+
                     client.join(game_id)
                 }
             })
