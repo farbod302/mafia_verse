@@ -100,7 +100,6 @@ const Game = class {
 
     async re_connect({ client }) {
         console.log("RECONNECT CALL");
-        client.join(this.game_id)
         const { is_live } = this.game_vars
         const { game_id } = this
         const { user_id } = client
@@ -245,6 +244,7 @@ const Game = class {
                     break
                 }
                 case ("reconnect"): {
+                    client.join(this.game_id)
                     this.re_connect({ client: client.idenity })
                     break
                 }
