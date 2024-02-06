@@ -16,12 +16,12 @@ const dinamic_vars = class {
         this.join_status_second_phase = []
         this.game_go_live = false
         this.w8 = []
-        this.dc_queue=[]
+        this.dc_queue = []
         this.reval = false
         this.vote_type = "pre_vote"
         this.speech_type = "introduction"
         this.can_take_challenge = false
-        this.can_act=true
+        this.can_act = true
         this.custom_queue = []
         this.votes_status = []
         this.gun_status = []
@@ -36,6 +36,7 @@ const dinamic_vars = class {
         this.doctor_self_save = false
         this.nato_act = false
         this.mafia_speak = false
+        this.mafia_reval = false
         this.comondo_gun_used = false
         this.user_to_shot = null
         this.users_gurd_check = []
@@ -46,8 +47,8 @@ const dinamic_vars = class {
         this.player_reval = null
         this.winner = null
         this.second_chance = []
-        this.mafia_need_token=[]
-        this.challenge_time_status=[]
+        this.mafia_need_token = []
+        this.challenge_time_status = []
     }
     edit_event(op, event, value, from) {
         switch (op) {

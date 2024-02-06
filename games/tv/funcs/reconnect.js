@@ -6,7 +6,7 @@ const reconnect = ({ game_vars, client, game_id, users }) => {
     let mafia_list = []
     const mafia_acts = ["godfather", "nato", "hostage_taker"]
     const user_char = user_character.name
-    if (mafia_acts.includes(user_char)) {
+    if (mafia_acts.includes(user_char) && game_vars.mafia_reval) {
         let users_pick_mafia = carts.filter(user => mafia_acts.includes(user.name))
         let users_pick_mafia_ids = users_pick_mafia.map(user => user.user_id)
         let mafia = users.filter(user => users_pick_mafia_ids.includes(user.user_id))
@@ -38,9 +38,7 @@ const reconnect = ({ game_vars, client, game_id, users }) => {
         game_event: game_vars.mafia_talking ? "night" : chaos_run_count ? "chaos" : game_event_finder(game_event),
         game_action,
         in_game_turn_speech,
-        in_game_status: {
-            has_gun: gun_status.findIndex(e => e.user_id === user_id) > -1
-        },
+        gun_status:gun_status.findIndex(e => e.user_id === user_id) > -1,
         join_type: "player",
         roles: [],
         mafia_list,

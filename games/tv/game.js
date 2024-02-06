@@ -116,7 +116,7 @@ const Game = class {
                 users: this.users
             })
             let user_socket = this.socket_finder(client.user_id)
-            console.log({user_socket});
+            console.log({ user_socket });
             this.socket.to(user_socket).emit("reconnect_data", { data })
             let index = this.game_vars.player_status.findIndex(e => e.user_id == client.user_id)
             await Helper.delay(3)
@@ -485,15 +485,15 @@ const Game = class {
                     new_target_cover_queue[turn].permission = using_option
                     this.game_vars.edit_event("edit", "target_cover_queue", new_target_cover_queue)
                     const selected_user = this.users.find(e => e.user_id === client.idenity.user_id)
-                    const user_index=this.users.findIndex(e => e.user_id === client.idenity.user_id)
-                    console.log({selected_user});
+                    const user_index = this.users.findIndex(e => e.user_id === client.idenity.user_id)
+                    console.log({ selected_user });
                     if (using_option) {
                         let av_users = start.pick_live_users({ game_vars: this.game_vars })
                         av_users = av_users.filter(e => e.user_id !== selected_user.user_id)
                         // this.socket.to(game_id).emit("user_request_speech_options", { data: { requester_id: client.idenity.user_id, timer: 5 } })
                         av_users.forEach(user => {
                             const socket_id = this.socket_finder(user.user_id)
-                            this.socket.to(socket_id).emit("report", { data: { user_id: client.idenity.user_id, timer: 5, msg: `درخواست تارگت کاور برای بازیکن شماره ${user_index+1}` } })
+                            this.socket.to(socket_id).emit("report", { data: { user_id: client.idenity.user_id, timer: 5, msg: `درخواست تارگت کاور برای بازیکن شماره ${user_index + 1}` } })
                         })
                     }
                     this.mainCycle()
@@ -883,7 +883,7 @@ const Game = class {
 
         if (queue.length === turn) {
             this.game_vars.edit_event("edit", "second_chance", [])
-        this.game_vars.edit_event("edit", "can_act", true)
+            this.game_vars.edit_event("edit", "can_act", true)
 
             const index = this.users.findIndex(e => e.user_id === queue[turn - 1].user_id)
             if (index === -1) return this.abandon()
@@ -1033,7 +1033,7 @@ const Game = class {
         this.socket.to(socket_id).emit("start_speech")
         other_users.forEach(u => {
             const s_user_socket = this.socket_finder(u.user_id)
-            this.socket.to(s_user_socket).emit("game_event", { data: { game_event: this.game_vars.can_act ?"action":"none" } })
+            this.socket.to(s_user_socket).emit("game_event", { data: { game_event: this.game_vars.can_act ? "action" : "none" } })
         })
         // edit game action
         const index = this.users.findIndex(e => e.user_id === user_id)
@@ -1096,6 +1096,7 @@ const Game = class {
             const user_socket = this.socket_finder(e.user_id)
             this.socket.to(user_socket).emit("report", { data: { msg: "مافیا در حال شناخت هم تییمی های خود هستند", timer: 3, mafia_visitation: true } })
         })
+        this.game_vars.edit_event("edit", "mafia_reval", true)
         this.play_voice(_play_voice.play_voice("mafia_visit"))
         await Helper.delay(8)
         this.play_voice(_play_voice.play_voice("next_day"))
@@ -1221,6 +1222,12 @@ const Game = class {
             })
             //set timer to move
 
+            const other_players = start.pick_live_users()
+            const selected = other_players.filter(e => e.user_id !== user.user_id)
+            selected.forEach(e=>{
+                const socket_id=this.socket_finder(e.user_id)
+                this.socket.to(socket_id).emit(`بازیکن شماره ${befor_start.index} درحال تصمیم گیری برای تارگت کاور است`)
+            })
 
             const continue_func = (target_cover_queue, turn) => {
                 if (target_cover_queue[turn].permission === null) {
