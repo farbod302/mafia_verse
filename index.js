@@ -4,6 +4,7 @@ const fs = require("fs")
 const app = express();
 require('dotenv').config()
 const http = require('http');
+const https = require('https');
 const { Server } = require("socket.io");
 const cors = require("cors")
 const bodyParser = require("body-parser");
@@ -49,8 +50,13 @@ mongoose.connect(process.env.DB_SERVER)
 let keys = Object.keys(imports)
 
 
+const conf = {
+    key: fs.readFileSync("/etc/letsencrypt/live/mafia.altf1.ir/privkey.pem"),
+    cert: fs.readFileSync("/etc/letsencrypt/live/mafia.altf1.ir/fullchain.pem")
+}
 
-const server = http.createServer(app);
+
+const server = https.createServer(conf,app);
 const io = new Server(server, {
     cors: {
         origin: "*",
