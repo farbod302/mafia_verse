@@ -22,7 +22,7 @@ const game_result = {
                 ...user,
                 point: 25 * (side === winner ? 1 : -1),
                 side,
-                role: character_translator(user_char),
+                role:user_char,
                 xp: side === winner ? 100 : 50,
                 winner: side === winner,
                 item_giveaway,

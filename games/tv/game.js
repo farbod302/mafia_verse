@@ -84,7 +84,7 @@ const Game = class {
             }
             setTimeout(() => {
                 abandon_func(index, abandon_user)
-            }, 1000 * 10)
+            }, 1000 * 60 * 3)
 
         } else {
             this.game_vars.edit_event("push", "dc_queue", { ...client.idenity })
@@ -177,7 +177,7 @@ const Game = class {
             if (!status_list) return
             this.socket.to(game_id).emit("game_action", { data: [status_list[index]] })
             this.game_vars.edit_event("push", "dead_list", client.user_id)
-            this.socket.to(game_id).emit("report", { data: { msg: `بازیکن ${client.user_id} به دست خدا کشته شد`, timer: 4 } })
+            this.socket.to(game_id).emit("report", { data: { msg: `بازیکن ${index} به دست خدا کشته شد`, timer: 4 } })
             this.game_handlers.submit_player_abandon({ user_id: client.user_id })
             // const new_users = this.users.filter(e => e.user_id !== client.user_id)
             const new_users = [...this.users]
@@ -974,7 +974,7 @@ const Game = class {
             this.socket.to(game_id).emit("current_speech_end", { data: { user_id: queue[turn - 1]?.user_id } })
 
         }
-        
+
         await Helper.delay(1)
         let cur_speech = queue[turn]
         const cur_user_status = player_status.find(e => e.user_id === cur_speech.user_id)
@@ -1224,8 +1224,8 @@ const Game = class {
 
             const other_players = start.pick_live_users()
             const selected = other_players.filter(e => e.user_id !== user.user_id)
-            selected.forEach(e=>{
-                const socket_id=this.socket_finder(e.user_id)
+            selected.forEach(e => {
+                const socket_id = this.socket_finder(e.user_id)
                 this.socket.to(socket_id).emit(`بازیکن شماره ${befor_start.index} درحال تصمیم گیری برای تارگت کاور است`)
             })
 
