@@ -84,7 +84,7 @@ const Game = class {
             }
             setTimeout(() => {
                 abandon_func(index, abandon_user)
-            }, 1000 * 60 * 3)
+            }, 1000 * 10)
 
         } else {
             this.game_vars.edit_event("push", "dc_queue", { ...client.idenity })
@@ -99,7 +99,6 @@ const Game = class {
     }
 
     async re_connect({ client }) {
-        console.log("RECONNECT CALL");
         const { is_live } = this.game_vars
         const { game_id } = this
         const { user_id } = client
@@ -975,9 +974,7 @@ const Game = class {
             this.socket.to(game_id).emit("current_speech_end", { data: { user_id: queue[turn - 1]?.user_id } })
 
         }
-        if (turn !== 0) {
-            this.play_voice(_play_voice.play_voice("next"))
-        }
+        
         await Helper.delay(1)
         let cur_speech = queue[turn]
         const cur_user_status = player_status.find(e => e.user_id === cur_speech.user_id)
@@ -990,6 +987,9 @@ const Game = class {
             }
             this.mainCycle()
             return
+        }
+        if (turn !== 0) {
+            this.play_voice(_play_voice.play_voice("next"))
         }
         let time = static_vars.speech_time[speech_type]
         this.socket.to(game_id).emit("current_speech", {
