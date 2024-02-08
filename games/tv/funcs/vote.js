@@ -167,30 +167,33 @@ const vote = {
     count_exit_vote({ game_vars, users, socket, game_id, socket_finder, play_voice }) {
         const { votes_status } = game_vars
         let user_to_exit = votes_status.sort((a, b) => { return b.users.length - a.users.length })
+        console.log({user_to_exit});
         user_to_exit = user_to_exit[0]
         let exit_vote_count = user_to_exit.users.length
+        console.log({exit_vote_count});
         const live_users = start.pick_live_users({ game_vars })
         const live_users_count = live_users.length
         if (exit_vote_count < Math.floor(live_users_count / 2)) return
         //todo count exit vote
         let users_with_same_vote = votes_status.filter(user => user.users.length === exit_vote_count)
+        console.log({users_with_same_vote});
         user_to_exit = null
         if (users_with_same_vote.length === 1) {
             user_to_exit = users_with_same_vote[0]
         }
-        else {
-            let { defence_history } = game_vars
-            let users_with_def_history = users_with_same_vote.filter(user => {
-                return defence_history.includes(user.user_id)
-            })
-            if (!users_with_def_history.length) return
-            if (users_with_def_history.length === 1) user_to_exit = users_with_def_history[0]
-            if (users_with_def_history.length > 1) {
-                let rand = Math.floor(Math.random() * users_with_def_history.length)
-                user_to_exit = users_with_def_history[rand]
-            }
+        // else {
+        //     let { defence_history } = game_vars
+        //     let users_with_def_history = users_with_same_vote.filter(user => {
+        //         return defence_history.includes(user.user_id)
+        //     })
+        //     if (!users_with_def_history.length) return
+        //     if (users_with_def_history.length === 1) user_to_exit = users_with_def_history[0]
+        //     if (users_with_def_history.length > 1) {
+        //         let rand = Math.floor(Math.random() * users_with_def_history.length)
+        //         user_to_exit = users_with_def_history[rand]
+        //     }
 
-        }
+        // }
         if (user_to_exit) {
             const { user_id } = user_to_exit
             //check if guard
