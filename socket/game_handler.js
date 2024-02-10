@@ -38,9 +38,14 @@ const game_handler = {
         db.add_data("games", { ...new_game, game_class: game })
         data_handler.create_game(game_id)
         users.forEach(user => {
-            let user_socket = online_users_handler.get_user_socket_id(user.user_id)
-            socket.sockets.sockets.get(user_socket).join(game_id);
-            socket.to(user_socket).emit("game_found", { data: { game_id, is_creator: false } })
+            try {
+                let user_socket = online_users_handler.get_user_socket_id(user.user_id)
+                socket.sockets.sockets.get(user_socket).join(game_id);
+                socket.to(user_socket).emit("game_found", { data: { game_id, is_creator: false } })
+            }
+            catch {
+                return
+            }
         })
         if (mod) {
             let mod_socket = online_users_handler.get_user_socket_id(mod)
