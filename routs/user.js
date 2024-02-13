@@ -170,6 +170,7 @@ router.post("/items_list", async (req, res) => {
         }
 
     })
+    console.log({clean_list});
     res.json({
         status: true,
         msg: "",
