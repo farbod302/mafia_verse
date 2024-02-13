@@ -159,6 +159,7 @@ const Game = class {
     }
 
     player_abandon({ client }) {
+        return
         const { is_live } = this.game_vars
         const { game_id } = this
         if (!is_live) {
@@ -1222,7 +1223,7 @@ const Game = class {
             })
             //set timer to move
 
-            const other_players = start.pick_live_users({game_vars:this.game_vars})
+            const other_players = start.pick_live_users({ game_vars: this.game_vars })
             const selected = other_players.filter(e => e.user_id !== user.user_id)
             selected.forEach(e => {
                 const socket_id = this.socket_finder(e.user_id)
