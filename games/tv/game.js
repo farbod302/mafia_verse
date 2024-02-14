@@ -504,6 +504,7 @@ const Game = class {
                     let turn = target_cover_queue.findIndex(q => !q.comp)
                     let new_target_cover_queue = [...target_cover_queue]
                     new_target_cover_queue[turn].users_select.push(user_id)
+                    this.game_vars.edit_event("push", "target_cover_disable", user_id)
                     if (new_target_cover_queue[turn].users_select.length === new_target_cover_queue[turn].users_select_length) {
                         new_target_cover_queue[turn].comp = true
                     }
@@ -1196,6 +1197,7 @@ const Game = class {
         this.game_vars.edit_event("edit", "next_event", "next_player_target_cover")
         this.game_vars.edit_event("edit", "custom_cur_event", "target_cover")
         this.game_vars.edit_event("edit", "can_act", false)
+        this.game_vars.edit_event("edit", "target_cover_disable", [])
         this.mainCycle()
     }
 
@@ -1270,7 +1272,8 @@ const Game = class {
             this.socket.to(socket_id).emit("grant_permission", { grant: true })
 
             const live_users = start.pick_live_users({ game_vars: this.game_vars })
-            const user_self = live_users.filter(e => e.user_id !== user.user_id)
+            let user_self = live_users.filter(e => e.user_id !== user.user_id)
+            user_self = user_self.filter(e => !this.game_vars.target_cover_disable.includes(e.user_id))
             await Helper.delay(5)
             user_self.forEach(e => {
                 const socket_id = this.socket_finder(e.user_id)

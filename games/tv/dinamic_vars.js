@@ -37,6 +37,7 @@ const dinamic_vars = class {
         this.nato_act = false
         this.mafia_speak = false
         this.mafia_reval = false
+        this.target_cover_disable = []
         this.comondo_gun_used = false
         this.user_to_shot = null
         this.users_gurd_check = []
