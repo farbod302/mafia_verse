@@ -1273,7 +1273,7 @@ const Game = class {
 
             const live_users = start.pick_live_users({ game_vars: this.game_vars })
             let user_self = live_users.filter(e => e.user_id !== user.user_id)
-            user_self = user_self.filter(e => !this.game_vars.target_cover_disable.includes(e.user_id))
+            user_self = user_self.filter(e => !this.game_vars.target_cover_disable?.includes(e.user_id))
             await Helper.delay(5)
             user_self.forEach(e => {
                 const socket_id = this.socket_finder(e.user_id)
