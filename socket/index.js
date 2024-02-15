@@ -126,10 +126,13 @@ const SocketProvider = class {
                 }
             })
 
-            client.on("create_local_game", ({ player_count }) => {
+            client.on("create_local_game", (data) => {
+                const { player_count }=data
+                console.log({data});
                 const { idenity } = client
                 const game_id = uid(4)
                 client.local_game_id = game_id
+
                 const new_local_game = new LocalGame(idenity, +player_count, this.io, game_id, this.db)
                 this.db.add_data("local_game", { game_class: new_local_game, local_game_id: game_id })
             })
