@@ -164,6 +164,7 @@ router.post("/items_list", async (req, res) => {
     const { table, avatar: image } = avatar
     const clean_list = items_list.map(i => {
         const { original_file } = i
+        console.log({original_file,image});
         return {
             ...i,
             active: (original_file === table || original_file === image)
