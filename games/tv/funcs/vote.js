@@ -68,7 +68,7 @@ const vote = {
             const remain_inq = 2 - game_vars.inquiry_used
             socket.to(game_id).emit("report", {
                 data: {
-                    msg: `استعلام باقی مانده:${remain_inq} آیا شهر استعلام می خواهد؟`, timer: 3
+                    msg: `استعلام باقی مانده:${remain_inq} آیا شهر استعلام می خواد؟`, timer: 3
                 }
             })
             play_voice(_play_voice.play_voice("need_inquiry"))
@@ -111,7 +111,7 @@ const vote = {
 
             socket.to(game_id).emit("report", {
                 data: {
-                    msg: `${defender_index.length === 1 ? "بازیکن" : "بازیکنان"} ${defender_index.join(" و ")} به دفاعیه ${defenders_queue.length === 1 ? "میرود" : "میروند"}`, timer: 4
+                    msg: `${defender_index.length === 1 ? "بازیکن" : "بازیکنان"} ${defender_index.join(" و ")} به دفاعیه ${defenders_queue.length === 1 ? "میره" : "میرن"}`, timer: 4
                 }
             })
 

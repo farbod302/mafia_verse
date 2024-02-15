@@ -177,7 +177,7 @@ const Game = class {
             if (!status_list) return
             this.socket.to(game_id).emit("game_action", { data: [status_list[index]] })
             this.game_vars.edit_event("push", "dead_list", client.user_id)
-            // this.socket.to(game_id).emit("report", { data: { msg: `بازیکن ${index} به دست خدا کشته شد`, timer: 4 } })
+            this.socket.to(game_id).emit("low_level_report", { msg: `بازیکن ${index} به دست خدا کشته شد` })
             this.game_handlers.submit_player_abandon({ user_id: client.user_id })
             // const new_users = this.users.filter(e => e.user_id !== client.user_id)
             const new_users = [...this.users]
@@ -1228,7 +1228,7 @@ const Game = class {
             const selected = other_players.filter(e => e.user_id !== user.user_id)
             selected.forEach(e => {
                 const socket_id = this.socket_finder(e.user_id)
-                this.socket.to(socket_id).emit(`بازیکن شماره ${befor_start.index} درحال تصمیم گیری برای تارگت کاور است`)
+                this.socket.to(socket_id).emit(`بازیکن شماره ${befor_start.index + 1} درحال تصمیم گیری برای تارگت کاور است`)
             })
 
             const continue_func = (target_cover_queue, turn) => {
@@ -1265,7 +1265,7 @@ const Game = class {
             this.socket.to(socket_id).emit("report",
                 {
                     data: {
-                        msg: `از بین بازیکنان یک نفر را برای ${translate()} انتخاب کنید`, timer: 2
+                        msg: `از بین بازیکنا یکی رو برای ${translate()} انتخاب کن`, timer: 2
                     }
                 })
 
@@ -1536,7 +1536,7 @@ const Game = class {
 
         this.socket.to(game_id).emit("game_event", { data: { game_event: "chaos" } })
         // this.socket.to(game_id).emit("game_action", { data: user_status })
-        this.socket.to(game_id).emit("report", { data: { msg: "زمان هرج و مرج زمان صحبت نوبتی", timer: 3 } })
+        this.socket.to(game_id).emit("report", { data: { msg: "زمان هرج و مرج, زمان صحبت نوبتی", timer: 3 } })
 
         await Helper.delay(5)
         this.game_vars.edit_event("edit", "custom_queue", [])
@@ -1586,7 +1586,7 @@ const Game = class {
     chaos_result_first_phase() {
         const { game_id } = this
 
-        this.socket.to(game_id).emit("report", { data: { msg: "به رای گیری کیاس می رویم", timer: 3 } })
+        this.socket.to(game_id).emit("report", { data: { msg: "به رای گیری کیاس میریم", timer: 3 } })
         this.game_vars.edit_event("edit", "next_event", "next_player_chaos_vote")
         this.game_vars.edit_event("edit", "turn", -1)
         start.generate_queue({
@@ -1652,7 +1652,7 @@ const Game = class {
             this.socket.to(socket_id).emit("last_decision", { data: { available_users: other_players, timer: 14 } })
             for (let player of other_players) {
                 const user_socket = this.socket_finder(player.user_id)
-                this.socket.to(user_socket).emit("report", { data: { msg: `تصمیم نهایی با بازیکن شماره ${selected_user.user_index}`, user_id } })
+                this.socket.to(user_socket).emit("report", { data: { msg: `تصمیم نهایی با بازیکن شماره ${selected_user.user_index + 1}`, user_id } })
             }
             const timer_func = () => {
                 if (!this.game_vars.winner) {

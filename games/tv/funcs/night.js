@@ -125,7 +125,7 @@ const night = {
         let nato = carts.find(cart => cart.name === "nato")
         const { user_id } = nato
         let { availabel_users } = this.pick_user_for_act({ game_vars, act: "nato", user_id })
-        socket.to(game_id).emit("report", { data: { msg: "مافیا اعلام ناتویی کرده است", timer: 3 } })
+        socket.to(game_id).emit("report", { data: { msg: "مافیا اعلام ناتویی کرده", timer: 3 } })
         play_voice(_play_voice.play_voice("announce_natoe"))
         setTimeout(() => {
             this.emit_to_act({ user_id, availabel_users, users, socket, can_act: true, game_vars, max_count: 1, play_voice })
