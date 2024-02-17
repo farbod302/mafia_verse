@@ -65,6 +65,8 @@ const LocalGame = class {
                 break
             }
             case ("leave_local_game"): {
+                console.log("Leave call");
+                console.log({ client: client.local_game_data });
                 const { user_id } = client.local_game_data
                 this.users_leave(user_id)
             }
