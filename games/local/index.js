@@ -48,7 +48,7 @@ const LocalGame = class {
             }
 
             case ("join_local_game"): {
-                console.log({client});
+                console.log({client:client.idenity});
                 if (this.users.length === this.player_count) return this.socket.to(client.id).emit("error", { data: { msg: "ظرفیت تکمیل است" } })
                 const { name } = data
                 client.join(this.game_id)
@@ -60,7 +60,7 @@ const LocalGame = class {
                     user_id,
                     name,
                     socket_id: client.id,
-                    avatar:client.idenity.image
+                    avatar:client.idenity?.image || `files/11990.png`
                 })
                 const { socket_id } = this.mod
                 this.socket.to(socket_id).emit("users_join", { data: { users: this.users, can_start: this.player_count === this.users.length } })
