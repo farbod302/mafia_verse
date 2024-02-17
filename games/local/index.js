@@ -48,8 +48,9 @@ const LocalGame = class {
             }
 
             case ("join_local_game"): {
-                console.log({client:client.idenity});
+                console.log({ client: client.idenity });
                 if (this.users.length === this.player_count) return this.socket.to(client.id).emit("error", { data: { msg: "ظرفیت تکمیل است" } })
+                if (client.idenity && this.users.some(e => e.user_main_id === client.idenity.user_id)) return
                 const { name } = data
                 client.join(this.game_id)
                 const user_id = uid(3)
@@ -58,11 +59,11 @@ const LocalGame = class {
                 this.users.push({
                     cart: null,
                     user_id,
+                    user_main_id: client.idenity.user_id,
                     name,
                     socket_id: client.id,
-                    avatar:client.idenity?.image || `files/11990.png`
+                    avatar: client.idenity?.image || `files/11990.png`
                 })
-                console.log({users:this.users});
                 const { socket_id } = this.mod
                 this.socket.to(socket_id).emit("users_join", { data: { users: this.users, can_start: this.player_count === this.users.length } })
                 break
