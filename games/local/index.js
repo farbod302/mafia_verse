@@ -62,6 +62,7 @@ const LocalGame = class {
                     socket_id: client.id,
                     avatar:client.idenity?.image || `files/11990.png`
                 })
+                console.log({users:this.users});
                 const { socket_id } = this.mod
                 this.socket.to(socket_id).emit("users_join", { data: { users: this.users, can_start: this.player_count === this.users.length } })
                 break
