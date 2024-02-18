@@ -43,7 +43,8 @@ const game_handler = {
                 socket.sockets.sockets.get(user_socket).join(game_id);
                 socket.to(user_socket).emit("game_found", { data: { game_id, is_creator: false } })
             }
-            catch {
+            catch(err) {
+                console.log("find match error",err);
                 return
             }
         })
