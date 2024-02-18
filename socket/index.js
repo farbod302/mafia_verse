@@ -28,6 +28,7 @@ const SocketProvider = class {
             monitoring.set_games(games.length)
         }, 2000)
         this.io.on("connection", (client) => {
+            console.log("Connect");
             client.on("join", ({ token }) => { join_handler({ token, db: this.db, client, socket: this.io }) })
             client.on("find_match", ({ auth }) => { find_match.find_robot_game({ senario: "nato", client, db: this.db, socket: this.io, auth }) })
             client.on("leave_find", () => { find_match.leave_find({ client, db: this.db, socket: this.io }) })
