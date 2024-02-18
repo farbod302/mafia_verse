@@ -93,9 +93,9 @@ const night = {
         let user_to_emit = befor_start.pick_player_from_user_id({ users, user_id })
         const { socket_id } = user_to_emit
         game_vars.edit_event("edit", "user_to_shot", user_to_emit)
+        play_voice(_play_voice.play_voice("godfather_chosen"))
         if (can_use_nato) {
             socket.to(socket_id).emit("mafia_decision", { nato_availabel: true, timer: 7 })
-            play_voice(_play_voice.play_voice("godfather_chosen"), user_id)
 
         }
         // else {

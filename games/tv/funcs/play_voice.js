@@ -143,15 +143,7 @@ const _play_voice = {
                 "guard_hostage_taker_act_time",
             ]
         },
-        {
-            voice_id: "guard_hostage_taker_act_time",
-            voices: [
-                "guard_hostage_taker_act_time",
-            ]
-        },
-
-
-
+       
     ],
 
 
