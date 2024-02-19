@@ -1698,7 +1698,7 @@ const Game = class {
 
             const day_key = `session_games_result.day.${update.winner ? "win" : "lose"}`
             const week_key = `session_games_result.week.${update.winner ? "win" : "lose"}`
-            const mounth_key = `session_games_result.mounth.${update.winner ? "win" : "lose"}`
+            const mounth_key = `session_games_result.month.${update.winner ? "win" : "lose"}`
             return User.findOneAndUpdate({ uid: update.user_id }, {
                 $inc: {
                     "ranking.rank": update.point,
