@@ -552,7 +552,7 @@ const Game = class {
                         const { user_id: uid } = user
                         let socket_id = this.socket_finder(uid)
                         this.play_voice(_play_voice.play_voice("day_gun"))
-                        if (user.user_id !== user_id) this.socket.to(socket_id).emit("report", { data: { user_id, timer: 2, msg: "اعلام اصلحه" } })
+                        if (user.user_id !== user_id) this.socket.to(socket_id).emit("report", { data: { user_id, timer: 2, msg: "اعلام اسلحه" } })
 
                     })
                     break
