@@ -16,8 +16,8 @@ router.post("/", async (req, res) => {
         const ranking = await User.find({}).sort({ [key]: -1 })
         const first_50 = [...ranking].slice(0, 50)
         const clean_ranking = first_50.map((user, index) => {
-            const { idenity, session_rank, ranking, avatar, points, uid } = user
-            const { win, lose } = points
+            const { idenity, session_rank, ranking, avatar, points, uid, session_games_result } = user
+            const { win, lose } = session_games_result[session]
             return {
                 idenity, session_rank: session_rank[session], ranking, avatar: {
                     avatar: "files/" + avatar.avatar,
@@ -53,11 +53,11 @@ router.post("/", async (req, res) => {
 
 router.get("/overall", async (req, res) => {
 
-    const users_ranking = await User.find({},{idenity:1,avatar:1,ranking}).sort({ "ranking.rank": -1 }).limit(10)
+    const users_ranking = await User.find({}, { idenity: 1, avatar: 1, ranking }).sort({ "ranking.rank": -1 }).limit(10)
     res.json({
-        status:true,
-        msg:"",
-        data:{ranking:users_ranking}
+        status: true,
+        msg: "",
+        data: { ranking: users_ranking }
     })
 
 })

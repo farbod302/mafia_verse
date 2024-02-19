@@ -22,6 +22,13 @@ const user = mongoose.Schema({
         }
     },
     games_result: { type: Object, default: { game_as_mafia: 0, win_as_mafia: 0, game_as_citizen: 0, win_as_citizen: 0 } },
+    session_games_result: {
+        type: Object, default: {
+            day: { win: 0, lose: 0 },
+            week: { win: 0, lose: 0 },
+            month: { win: 0, lose: 0 },
+        }
+    },
     ranking: { type: Object, default: { xp: 0, rank: 1500, medal: 0 } },
     session_rank: Object,
     achivments: { type: Array, default: [] },

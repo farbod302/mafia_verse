@@ -1695,6 +1695,10 @@ const Game = class {
             let key = update.winner ? "points.win" : "points.lose"
             const game_result_key = `games_result.game_as_${update.side}`
             const game_result_win_key = `games_result.win_as_${update.side}`
+
+            const day_key = `session_games_result.day.${update.winner ? "win" : "lose"}`
+            const week_key = `session_games_result.week.${update.winner ? "win" : "lose"}`
+            const mounth_key = `session_games_result.mounth.${update.winner ? "win" : "lose"}`
             return User.findOneAndUpdate({ uid: update.user_id }, {
                 $inc: {
                     "ranking.rank": update.point,
@@ -1702,6 +1706,9 @@ const Game = class {
                     "session_rank.week": update.point,
                     "session_rank.session": update.point,
                     "ranking.xp": update.xp,
+                    [day_key]: 1,
+                    [week_key]: 1,
+                    [mounth_key]: 1,
                     [key]: 1,
                     [game_result_key]: 1,
                     [game_result_win_key]: update.winner ? 1 : 0
