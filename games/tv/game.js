@@ -1673,7 +1673,7 @@ const Game = class {
             this.socket.to(game_id).emit("clear_chaos_record")
             this.socket.to(socket_id).emit("last_decision", { data: { available_users: other_players, timer: 14 } })
             for (let player of other_players) {
-                const user_socket = this.socket_finder(player.user_id)
+                const user_socket = this.socket_finder(player)
                 console.log({ user_socket });
                 this.socket.to(user_socket).emit("report", { data: { msg: `تصمیم نهایی با بازیکن شماره ${selected_user.user_index + 1}`, user_id } })
             }
