@@ -208,6 +208,7 @@ const Game = class {
     async player_action({ op, data, client }) {
         try {
             let user_call_idenity = client.idenity
+            console.log({op,data});
             switch (op) {
                 case ("ready_to_choose"): {
                     console.log(`ready to choose from ${client.id}`)
@@ -1521,10 +1522,12 @@ const Game = class {
 
 
     async chaos() {
+        console.log("Chaos run");
         const { game_id } = this
         this.socket.to(game_id).emit("action_end")
         const { chaos_run_count } = this.game_vars
         this.game_vars.edit_event("edit", "chaos_vots", [])
+        console.log({chaos_run_count:this.game_vars.chaos_run_count});
         if (chaos_run_count === 2) {
             console.log("random call");
             //random user
@@ -1538,7 +1541,6 @@ const Game = class {
         }
         this.game_vars.edit_event("edit", "chaos_run_count", "plus")
         console.log("INC");
-        console.log({chaos_run_count:this.game_vars.chaos_run_count});
         this.socket.to(game_id).emit("game_event", { data: { game_event: "chaos" } })
         // this.socket.to(game_id).emit("game_action", { data: user_status })
         this.socket.to(game_id).emit("report", { data: { msg: "زمان کی آس, زمان صحبت نوبتی", timer: 3 } })
@@ -1622,10 +1624,10 @@ const Game = class {
         this.socket.to(socket_id).emit("chaos_vote", { data: { available_users: av_users.map(e => e.user_id) }, timer: 14 })
         let restart_vote = (game_vars, require_vote, mainCycle) => {
             const { chaos_vots } = game_vars
+            console.log({require_vote},"call chaos");
             if (chaos_vots.length < Number(require_vote)) {
                 game_vars.edit_event("edit", "next_event", "chaos")
                 this.socket.to(game_id).emit("turn_to_shake", { data: { user_id: null } })
-
                 mainCycle()
 
             }
