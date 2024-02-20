@@ -177,7 +177,7 @@ const Game = class {
             if (!status_list) return
             this.socket.to(game_id).emit("game_action", { data: [status_list[index]] })
             this.game_vars.edit_event("push", "dead_list", client.user_id)
-            this.socket.to(game_id).emit("low_level_report", { msg: `بازیکن ${index} به دست خداااااا کشته شد` })
+            this.socket.to(game_id).emit("low_level_report", { msg: `بازیکن ${index} به دست خدا کشته شد` })
             this.game_handlers.submit_player_abandon({ user_id: client.user_id })
             // const new_users = this.users.filter(e => e.user_id !== client.user_id)
             const new_users = [...this.users]
@@ -1229,7 +1229,7 @@ const Game = class {
             console.log({ selected });
             selected.forEach(e => {
                 const socket_id = this.socket_finder(e.user_id)
-                this.socket.to(socket_id).emit("report", { data: { msg: `بازیکن شماره ${befor_start.index + 1} درحال تصمیم گیری برای تارگت کاور است`, timer: 4 } })
+                this.socket.to(socket_id).emit("report", { data: { msg: `بازیکن شماره ${user.index + 1} درحال تصمیم گیری برای تارگت کاور است`, timer: 4 } })
             })
 
             const continue_func = (target_cover_queue, turn) => {

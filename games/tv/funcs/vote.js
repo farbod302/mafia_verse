@@ -78,7 +78,7 @@ const vote = {
         user_to_vote.forEach(user => {
             socket.to(user.socket_id).emit("vote", { data: new_vote_record, timer: 3 })
         })
-        run_timer(10, cycle)
+        run_timer(6, cycle)
     },
     submit_vote({ client, socket, game_vars, game_id }) {
         const { votes_status } = game_vars
