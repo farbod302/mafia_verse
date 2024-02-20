@@ -560,7 +560,6 @@ const Game = class {
                 }
                 case ("chaos_vote"): {
                     const is_last = this.game_vars.is_last_decision
-                    console.log({is_last});
                     if (is_last) {
                         const { user_id } = data
                         const mafia_roles = ["godfather", "nato", "hostage_taker"]
@@ -580,9 +579,9 @@ const Game = class {
                         this.mainCycle()
                         break
                     } else {
-
                         const { user_id } = data
                         this.game_vars.edit_event("push", "chaos_vots", user_id)
+                        console.log({chaos_vots:this.game_vars.chaos_vots});
                         const { user_id: user_voted } = client.idenity
                         const { game_id } = this
                         this.socket.to(game_id).emit("chaos_vote_result", { data: { from_user: user_voted, to_user: user_id } })
