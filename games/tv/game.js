@@ -560,6 +560,7 @@ const Game = class {
                 }
                 case ("chaos_vote"): {
                     const is_last = this.game_vars.is_last_decision
+                    console.log({is_last});
                     if (is_last) {
                         const { user_id } = data
                         const mafia_roles = ["godfather", "nato", "hostage_taker"]
@@ -1624,8 +1625,8 @@ const Game = class {
         this.socket.to(socket_id).emit("chaos_vote", { data: { available_users: av_users.map(e => e.user_id) }, timer: 14 })
         let restart_vote = (game_vars, require_vote, mainCycle) => {
             const { chaos_vots } = game_vars
-            console.log({require_vote},"call chaos");
-            if (chaos_vots.length < Number(require_vote)) {
+            console.log({require_vote,chaos_vots},"call chaos");
+            if (chaos_vots.length < +require_vote) {
                 game_vars.edit_event("edit", "next_event", "chaos")
                 this.socket.to(game_id).emit("turn_to_shake", { data: { user_id: null } })
                 mainCycle()
