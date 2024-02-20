@@ -409,7 +409,7 @@ const night = {
         let city = live_users_with_role.filter(user => !mafia_rols.includes(user.role))
         if (!mafia_remain.length) return 1
         if (city.length <= mafia_remain.length) return 2
-        if (live_users.length === 3) return 4
+        if (live_users.length === 3) return 3
         return 4
     },
 
