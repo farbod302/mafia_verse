@@ -177,7 +177,7 @@ const Game = class {
             if (!status_list) return
             this.socket.to(game_id).emit("game_action", { data: [status_list[index]] })
             this.game_vars.edit_event("push", "dead_list", client.user_id)
-            this.socket.to(game_id).emit("low_level_report", { msg: `بازیکن ${index} به دست خدا کشته شد` })
+            this.socket.to(game_id).emit("low_level_report", { msg: `بازیکن ${index} به دست خداااااا کشته شد` })
             this.game_handlers.submit_player_abandon({ user_id: client.user_id })
             // const new_users = this.users.filter(e => e.user_id !== client.user_id)
             const new_users = [...this.users]
