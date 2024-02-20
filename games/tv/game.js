@@ -164,6 +164,7 @@ const Game = class {
         const { is_live } = this.game_vars
         const { game_id } = this
         if (!is_live) {
+            console.log("ADD TO ABANDON QUEUE");
             this.game_event.edit_event("push", "abandon_queue", client)
         } else {
             let index = this.users.findIndex(e => e.user_id == client.user_id)
