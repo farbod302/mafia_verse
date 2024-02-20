@@ -1227,6 +1227,10 @@ const Game = class {
         }
         const { user_id } = target_cover_queue[turn]
         let user = befor_start.pick_player_from_user_id({ users: this.users, user_id })
+        let live_users = start.pick_live_users({ game_vars: this.game_vars })
+
+        const _user=live_users.find(e=>e.user_id === user_id)
+        console.log({_user});
         let socket_id = this.socket_finder(user.user_id)
         if (target_cover_queue[turn].permission === null) {
             await Helper.delay(4)
@@ -1238,10 +1242,10 @@ const Game = class {
 
             const other_players = start.pick_live_users({ game_vars: this.game_vars })
             const selected = other_players.filter(e => e.user_id !== user.user_id)
-            console.log({ user });
+
             selected.forEach(e => {
                 const socket_id = this.socket_finder(e.user_id)
-                this.socket.to(socket_id).emit("report", { data: { msg: `بازیکن شماره ${user.index + 1} درحال تصمیم گیری برای تارگت کاور است`, timer: 4 } })
+                this.socket.to(socket_id).emit("report", { data: { msg: `بازیکن شماره ${_user.index + 1} درحال تصمیم گیری برای تارگت کاور است`, timer: 4 } })
             })
 
             const continue_func = (target_cover_queue, turn) => {
