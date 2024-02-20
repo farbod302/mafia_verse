@@ -61,6 +61,7 @@ const Game = class {
 
 
     submit_user_disconnect({ client }) {
+        console.log({ client_dc: client });
         const { user_id } = client.idenity
         let index = this.users.findIndex(user => user.user_id === user_id)
         if (index > -1 && this.game_vars.player_status) {
@@ -376,7 +377,7 @@ const Game = class {
                                 act: "hostage_taker",
                                 target: user_id,
                                 info: nato_target.act,
-                                force:true
+                                force: true
                             })
                         }
                     }
@@ -881,7 +882,7 @@ const Game = class {
             return
         }
 
-        if (queue.length === turn) {
+        if (queue.length >= turn) {
             this.game_vars.edit_event("edit", "second_chance", [])
             this.game_vars.edit_event("edit", "can_act", true)
 
@@ -979,6 +980,7 @@ const Game = class {
         await Helper.delay(1)
         let cur_speech = queue[turn]
         const cur_user_status = player_status.find(e => e.user_id === cur_speech.user_id)
+        if(!cur_user_status)return this.mainCycle()
         if (!cur_user_status.user_status.is_connected) {
             if (!second_chance.includes(cur_speech.user_id)) {
                 const new_queue = [...queue]
@@ -1098,7 +1100,7 @@ const Game = class {
         await Helper.delay(3)
         const game_id = this.game_id
         this.socket.to(game_id).emit("game_event", { data: { game_event: "none" } })
-        
+
         this.game_vars.edit_event("edit", "mafia_reval", true)
         await Helper.delay(8)
         this.play_voice(_play_voice.play_voice("next_day"))
