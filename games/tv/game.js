@@ -167,7 +167,7 @@ const Game = class {
         const { game_id } = this
         if (!this.game_vars.player_status) {
             console.log("ADD TO ABANDON QUEUE");
-            this.game_event.edit_event("push", "abandon_queue", client)
+            this.game_vars.edit_event("push", "abandon_queue", client)
         } else {
             let index = this.users.findIndex(e => e.user_id == client.user_id)
             if (index === -1) return
