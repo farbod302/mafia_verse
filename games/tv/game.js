@@ -1238,7 +1238,7 @@ const Game = class {
 
             const other_players = start.pick_live_users({ game_vars: this.game_vars })
             const selected = other_players.filter(e => e.user_id !== user.user_id)
-            console.log({ selected });
+            console.log({ user });
             selected.forEach(e => {
                 const socket_id = this.socket_finder(e.user_id)
                 this.socket.to(socket_id).emit("report", { data: { msg: `بازیکن شماره ${user.index + 1} درحال تصمیم گیری برای تارگت کاور است`, timer: 4 } })
