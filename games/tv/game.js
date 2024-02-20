@@ -88,6 +88,7 @@ const Game = class {
             }, 1000 * 60 * 3)
 
         } else {
+            console.log("ADD to queue");
             this.game_vars.edit_event("push", "dc_queue", { ...client.idenity })
         }
         if (this.mod && this.mod === user_id) return true
