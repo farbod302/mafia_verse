@@ -1244,7 +1244,7 @@ const Game = class {
 
             selected.forEach(e => {
                 const socket_id = this.socket_finder(e.user_id)
-                this.socket.to(socket_id).emit("report", { data: { msg: `بازیکن شماره ${_user.index + 1} درحال تصمیم گیری برای تارگت کاور است`, timer: 4 } })
+                this.socket.to(socket_id).emit("report", { data: { msg: `بازیکن شماره ${_user.user_index + 1} درحال تصمیم گیری برای تارگت کاور است`, timer: 4 } })
             })
 
             const continue_func = (target_cover_queue, turn) => {
@@ -1533,14 +1533,12 @@ const Game = class {
 
 
     async chaos() {
-        console.log("Chaos run");
         const { game_id } = this
         this.socket.to(game_id).emit("action_end")
         const { chaos_run_count } = this.game_vars
         this.game_vars.edit_event("edit", "chaos_vots", [])
-        console.log({chaos_run_count:this.game_vars.chaos_run_count});
+        this.socket.to(game_id).emit("clear_chaos_record")
         if (chaos_run_count === 2) {
-            console.log("random call");
             //random user
             const sides = ["mafia", "citizen"]
             const random_side = Math.floor(Math.random() * 2)
