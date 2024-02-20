@@ -107,7 +107,7 @@ const Game = class {
         if (this.mod && this.mod === user_id) {
             return this.re_connect_mod({ client })
         }
-        if (!is_live) {
+        if (!this.game_vars.player_status) {
             this.game_vars.edit_event("push", "reconnect_queue", { client, is_mod: false })
         } else {
             const data = reconnect({
@@ -840,6 +840,7 @@ const Game = class {
 
 
     async next_player_speech() {
+        console.log("NEXT PLAYER SPEECH");
         this.game_vars.edit_event("edit", "turn", "plus")
         this.game_vars.edit_event("edit", "challenge_time_status", [])
         const { game_id } = this
