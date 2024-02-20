@@ -1608,7 +1608,7 @@ const Game = class {
     next_player_chaos_vote() {
         this.game_vars.edit_event("edit", "turn", "plus")
         const { game_id } = this
-        const { queue, turn } = this.game_vars
+        const { queue, turn,chaos_run_count } = this.game_vars
         if (turn === queue.length) {
             this.socket.to(game_id).emit("turn_to_shake", { data: { user_id: null } })
             this.game_vars.edit_event("edit", "next_event", "chaos_result_second_phase")
@@ -1622,17 +1622,17 @@ const Game = class {
         let player = befor_start.pick_player_from_user_id({ users: this.users, user_id })
         let socket_id = this.socket_finder(user_id)
         this.socket.to(socket_id).emit("chaos_vote", { data: { available_users: av_users.map(e => e.user_id) }, timer: 14 })
-        let restart_vote = (game_vars, require_vote, mainCycle) => {
-            const { chaos_vots } = game_vars
+        let restart_vote = (game_vars, require_vote, mainCycle,run_count) => {
+            const { chaos_vots ,chaos_run_count} = game_vars
             console.log({require_vote,chaos_vots},"call chaos");
-            if (chaos_vots.length < +require_vote) {
+            if (chaos_vots.length < +require_vote && chaos_run_count===run_count) {
                 game_vars.edit_event("edit", "next_event", "chaos")
                 this.socket.to(game_id).emit("turn_to_shake", { data: { user_id: null } })
                 mainCycle()
 
             }
         }
-        run_timer(15, () => { restart_vote(this.game_vars, `${turn + 1}`, () => { this.mainCycle() }) })
+        run_timer(15, () => { restart_vote(this.game_vars, `${turn + 1}`, () => { this.mainCycle() },chaos_run_count) })
 
     }
 
