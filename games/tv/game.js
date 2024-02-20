@@ -1090,15 +1090,16 @@ const Game = class {
         const { carts } = this.game_vars
         const mafia_acts = ["godfather", "nato", "hostage_taker"]
         const city = carts.filter(e => !mafia_acts.includes(e.name))
-        await Helper.delay(3)
-        const game_id = this.game_id
-        this.socket.to(game_id).emit("game_event", { data: { game_event: "none" } })
         city.forEach(e => {
             const user_socket = this.socket_finder(e.user_id)
             this.socket.to(user_socket).emit("report", { data: { msg: "مافیا در حال شناخت هم تییمی های خود هستند", timer: 3, mafia_visitation: true } })
         })
-        this.game_vars.edit_event("edit", "mafia_reval", true)
         this.play_voice(_play_voice.play_voice("mafia_visit"))
+        await Helper.delay(3)
+        const game_id = this.game_id
+        this.socket.to(game_id).emit("game_event", { data: { game_event: "none" } })
+        
+        this.game_vars.edit_event("edit", "mafia_reval", true)
         await Helper.delay(8)
         this.play_voice(_play_voice.play_voice("next_day"))
         this.mainCycle()
