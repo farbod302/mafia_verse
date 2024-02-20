@@ -366,8 +366,8 @@ const Game = class {
                         })
                     })
                     if (role === "nato" && users.length) {
+                        console.log({nato_data:data});
                         const nato_target = users[0]
-                        console.log({ nato_target });
                         const { user_id, act } = nato_target
                         console.log({ user_id, act });
                         let user_true_role = this.game_vars.carts.find(cart => cart.user_id === user_id)
