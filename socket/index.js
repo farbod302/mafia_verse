@@ -88,6 +88,7 @@ const SocketProvider = class {
                 }
             })
             client.on("abandon", () => {
+                "client abandon"
                 let game_id = client.game_id
                 let user_game = null
                 if (game_id) { user_game = this.db.getOne("games", "game_id", game_id) }
@@ -102,6 +103,7 @@ const SocketProvider = class {
                 }
                 // console.log({user_game:user_game.game_id,op,data,client:client.idenity});
                 if (!user_game) return
+                console.log({user_game});
                 client.game_id = ""
                 user_game.game_class.player_abandon({ client: client.idenity })
             })

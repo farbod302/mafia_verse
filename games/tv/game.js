@@ -161,6 +161,8 @@ const Game = class {
     }
 
     player_abandon({ client }) {
+        console.log("player abandon");
+
         const { is_live } = this.game_vars
         const { game_id } = this
         if (!is_live) {
