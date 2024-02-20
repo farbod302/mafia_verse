@@ -747,6 +747,7 @@ const Game = class {
         this.socket.to(game_id).emit("game_action", { data: status_list })
         await Helper.delay(1)
         this.game_vars.dc_queue.map(user => {
+            console.log({user_dc});
             this.submit_user_disconnect({ client: { idenity: user } })
         })
         this.socket.to(game_id).emit("report", { data: { msg: "روز معارفه", timer: 3 } })
