@@ -152,9 +152,9 @@ const night = {
         hostage_taker_act = hostage_taker_act.map(target => target.target)
         let guard_act = records.events.filter(each_act => each_act.act === "guard")
         guard_act = guard_act.map(target => target.target)
-        const hostage_taker_id = game_vars.carts.find(e => e.name === "hostage_taker")
+        const hostage_taker_id = game_vars.carts.find(e => e.name === "hostage_taker" )
         if (guard_act.includes(hostage_taker_id)) hostage_taker_act = []
-        hostage_taker_act = hostage_taker_act.filter(e => !guard_act.includes(e))
+        hostage_taker_act = hostage_taker_act.filter(e => !guard_act.includes(e) && !e.force)
 
         switch (name) {
             case ("commando"): {

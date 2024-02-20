@@ -366,18 +366,17 @@ const Game = class {
                         })
                     })
                     if (role === "nato" && users.length) {
-                        console.log({nato_data:data});
+                        console.log(data);
                         const nato_target = users[0]
                         const { user_id, act } = nato_target
-                        console.log({ user_id, act });
                         let user_true_role = this.game_vars.carts.find(cart => cart.user_id === user_id)
                         user_true_role = user_true_role.name
-                        console.log({ user_true_role });
                         if (act === user_true_role) {
                             prv_events.push({
                                 act: "hostage_taker",
                                 target: user_id,
-                                info: nato_target.act
+                                info: nato_target.act,
+                                force:true
                             })
                         }
                     }
@@ -1443,7 +1442,7 @@ const Game = class {
             this.mainCycle()
 
         }
-        run_timer(7, timer_func)
+        run_timer(15, timer_func)
     }
 
 
