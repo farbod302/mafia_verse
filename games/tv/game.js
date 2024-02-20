@@ -882,7 +882,7 @@ const Game = class {
             return
         }
 
-        if (queue.length >= turn) {
+        if (queue.length <= turn) {
             this.game_vars.edit_event("edit", "second_chance", [])
             this.game_vars.edit_event("edit", "can_act", true)
 
