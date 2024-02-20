@@ -198,6 +198,7 @@ const Game = class {
 
     check_for_abandon() {
         const { is_live, abandon_queue } = this.game_vars
+        console.log({abandon_queue});
         if (!is_live) return
         for (let user of abandon_queue) {
             this.player_abandon({ client: user })
@@ -752,6 +753,7 @@ const Game = class {
             console.log({user_dc});
             this.submit_user_disconnect({ client: { idenity: user } })
         })
+        this.check_for_abandon()
         this.socket.to(game_id).emit("report", { data: { msg: "روز معارفه", timer: 3 } })
         this.play_voice(_play_voice.play_voice("intro"))
         await Helper.delay(3)
