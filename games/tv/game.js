@@ -165,7 +165,7 @@ const Game = class {
 
         const { is_live } = this.game_vars
         const { game_id } = this
-        if (!is_live) {
+        if (!this.game_vars.player_status) {
             console.log("ADD TO ABANDON QUEUE");
             this.game_event.edit_event("push", "abandon_queue", client)
         } else {
