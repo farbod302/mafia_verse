@@ -1537,10 +1537,11 @@ const Game = class {
             return
         }
         this.game_vars.edit_event("edit", "chaos_run_count", "plus")
-
+        console.log("INC");
+        console.log({chaos_run_count:this.game_vars.chaos_run_count});
         this.socket.to(game_id).emit("game_event", { data: { game_event: "chaos" } })
         // this.socket.to(game_id).emit("game_action", { data: user_status })
-        this.socket.to(game_id).emit("report", { data: { msg: "زمان هرج و مرج, زمان صحبت نوبتی", timer: 3 } })
+        this.socket.to(game_id).emit("report", { data: { msg: "زمان کی آس, زمان صحبت نوبتی", timer: 3 } })
 
         await Helper.delay(5)
         this.game_vars.edit_event("edit", "custom_queue", [])
@@ -1590,7 +1591,7 @@ const Game = class {
     chaos_result_first_phase() {
         const { game_id } = this
 
-        this.socket.to(game_id).emit("report", { data: { msg: "به رای گیری کیاس میریم", timer: 3 } })
+        this.socket.to(game_id).emit("report", { data: { msg: "به رای گیری کی آس میریم", timer: 3 } })
         this.game_vars.edit_event("edit", "next_event", "next_player_chaos_vote")
         this.game_vars.edit_event("edit", "turn", -1)
         start.generate_queue({

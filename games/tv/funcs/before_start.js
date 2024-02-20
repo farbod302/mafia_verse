@@ -81,7 +81,7 @@ const befor_start = {
             case("turn"):return "نوبت صحبت"
             case("challenge"):return "چالش"
             case("defence"):return "دفاعیه"
-            case("chaos"):return "هرج و مرج"
+            case("chaos"):return "کی آس"
             case("final_words"):return "وصیت"
             default:return "نوبت صحبت"
         }
