@@ -1088,7 +1088,8 @@ const Game = class {
             users: this.users,
             socket: this.socket,
             speech_code,
-            player_to_set_timer: user.user_id
+            player_to_set_timer: user.user_id,
+            game_id:this.game_id
         })
     }
 

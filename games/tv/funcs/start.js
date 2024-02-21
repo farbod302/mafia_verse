@@ -84,7 +84,7 @@ const start = {
         game_vars.edit_event("edit", "queue", new_queue)
     },
 
-    set_timer_to_contnue_speech_queue({ func, game_vars, time, socket, users, speech_code, player_to_set_timer }) {
+    set_timer_to_contnue_speech_queue({ func, game_vars, time, socket, users, speech_code, player_to_set_timer,game_id }) {
         const timer_func = () => {
             const { speech_code: cur_speech_code } = game_vars
 
@@ -95,6 +95,9 @@ const start = {
                 func()
             }
         }
+        run_timer(time - 2, () => {
+            socket.to(game_id).emit("game_event", { data: { game_event: "none" } })
+        })
         run_timer(time, timer_func)
     },
 
