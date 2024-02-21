@@ -1157,7 +1157,7 @@ const Game = class {
         if (turn == queue.length) {
 
             start.edit_game_action({
-                index: this.users.findIndex(e => e.user_id === queue[queue.length - 1].user_id),
+                index: this.users.findIndex(e => e.user_id === queue[queue.length - 1]?.user_id),
                 prime_event: "user_status",
                 second_event: "on_vote",
                 new_value: false,
