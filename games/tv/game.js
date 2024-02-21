@@ -567,7 +567,7 @@ const Game = class {
                     const is_last = this.game_vars.is_last_decision
                     if (is_last) {
                         const { user_id: user_voted } = client.idenity
-
+                        const { game_id } = this
                         const { user_id } = data
                         const mafia_roles = ["godfather", "nato", "hostage_taker"]
                         const { user_id: player_selected } = client.idenity
@@ -1638,7 +1638,7 @@ const Game = class {
         let restart_vote = (game_vars, require_vote, mainCycle, run_count) => {
             const { chaos_vots, chaos_run_count } = game_vars
             console.log({ require_vote, chaos_vots }, "call chaos");
-            if (chaos_vots.length < +require_vote && chaos_run_count === run_count) {
+            if (chaos_vots.length < +require_vote && chaos_run_count === run_count && !game_vars.is_end) {
                 game_vars.edit_event("edit", "next_event", "chaos")
                 this.socket.to(game_id).emit("turn_to_shake", { data: { user_id: null } })
                 mainCycle()
@@ -1674,8 +1674,7 @@ const Game = class {
             this.socket.to(socket_id).emit("last_decision", { data: { available_users: other_players, timer: 14 } })
             for (let player of other_players) {
                 const user_socket = this.socket_finder(player)
-                console.log({ user_socket });
-                this.socket.to(user_socket).emit("report", { data: { msg: `تصمیم نهایی با بازیکن شماره ${selected_user.user_index + 1}`, user_id } })
+                this.socket.to(user_socket).emit("report", { data: { msg: `تصمیم نهایی با بازیکن شماره ${selected_user.user_index + 1}`, user_id, timer: 3 } })
             }
             const timer_func = () => {
                 if (!this.game_vars.winner) {
