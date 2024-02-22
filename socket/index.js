@@ -148,7 +148,7 @@ const SocketProvider = class {
                 s_game.game_class.game_handler(client, op, data)
             })
 
-            client.on("test", ({ data }) => {
+            client.on("test", (data) => {
                 console.log({data});
                 this.io.emit("test_res", { data })
             })
