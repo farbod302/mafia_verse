@@ -1624,7 +1624,7 @@ const Game = class {
         const { game_id } = this
         const { queue, turn, chaos_run_count } = this.game_vars
         if (turn === queue.length) {
-            this.socket.to(game_id).emit("turn_to_shake", { data: { user_id: null } })
+            this.socket.to(game_id).emit("turn_to_shake", { data: { user_id: null ,timer:14} })
             this.game_vars.edit_event("edit", "next_event", "chaos_result_second_phase")
             this.mainCycle()
             return
@@ -1632,7 +1632,7 @@ const Game = class {
         }
         const av_users = [...queue].filter((u, i) => i !== turn)
         const { user_id } = queue[turn]
-        this.socket.to(game_id).emit("turn_to_shake", { data: { user_id: user_id } })
+        this.socket.to(game_id).emit("turn_to_shake", { data: { user_id: user_id,timer:14 } })
         let player = befor_start.pick_player_from_user_id({ users: this.users, user_id })
         let socket_id = this.socket_finder(user_id)
         this.socket.to(socket_id).emit("chaos_vote", { data: { available_users: av_users.map(e => e.user_id) }, timer: 14 })
@@ -1641,7 +1641,7 @@ const Game = class {
             console.log({ require_vote, chaos_vots }, "call chaos");
             if (chaos_vots.length < +require_vote && chaos_run_count === run_count && !game_vars.is_end) {
                 game_vars.edit_event("edit", "next_event", "chaos")
-                this.socket.to(game_id).emit("turn_to_shake", { data: { user_id: null } })
+                this.socket.to(game_id).emit("turn_to_shake", { data: { user_id: null,timer:14 } })
                 mainCycle()
 
             }

@@ -42,8 +42,8 @@ const night = {
 
     },
 
-   async guard_and_hostage_taker_act({ game_vars, users, socket, play_voice }) {
-    await Helper.delay(3)
+    async guard_and_hostage_taker_act({ game_vars, users, socket, play_voice }) {
+        await Helper.delay(3)
         const users_to_act = ["hostage_taker", "guard"]
         play_voice(_play_voice.play_voice("guard_hostage_taker_act_time"))
         const { carts } = game_vars
@@ -77,7 +77,7 @@ const night = {
     },
 
     check_mafia_decision({ game_vars, users, socket, play_voice }) {
-        
+
         const { mafia_list, dead_list } = game_vars
         let act_sort = ["godfather", "nato", "hostage_taker"]
         let mafia_list_in_order = act_sort.map(act => mafia_list.find(mafia => mafia.role === act))
@@ -93,7 +93,9 @@ const night = {
         let user_to_emit = befor_start.pick_player_from_user_id({ users, user_id })
         const { socket_id } = user_to_emit
         game_vars.edit_event("edit", "user_to_shot", user_to_emit)
-        play_voice(_play_voice.play_voice("godfather_chosen"))
+        if (can_use_nato) {
+            play_voice(_play_voice.play_voice("godfather_chosen"))
+        }
         if (can_use_nato) {
             socket.to(socket_id).emit("mafia_decision", { nato_availabel: true, timer: 7 })
 
@@ -152,7 +154,7 @@ const night = {
         hostage_taker_act = hostage_taker_act.map(target => target.target)
         let guard_act = records.events.filter(each_act => each_act.act === "guard")
         guard_act = guard_act.map(target => target.target)
-        const hostage_taker_id = game_vars.carts.find(e => e.name === "hostage_taker" )
+        const hostage_taker_id = game_vars.carts.find(e => e.name === "hostage_taker")
         if (guard_act.includes(hostage_taker_id)) hostage_taker_act = []
         hostage_taker_act = hostage_taker_act.filter(e => !guard_act.includes(e) && !e.force)
 
@@ -349,9 +351,11 @@ const night = {
                 new_value: false,
                 game_vars
             })
-            const { player_status } = game_vars
+            const { player_status, dead_list } = game_vars
             socket.to(game_id).emit("game_action", { data: [player_status[index]] })
-            game_vars.edit_event("push", "dead_list", user_to_kill)
+            if (!dead_list.includes(user_to_kill)) {
+                game_vars.edit_event("push", "dead_list", user_to_kill)
+            }
             let prv_player_status = [...game_vars.player_status]
             let user_index = prv_player_status.findIndex(u => u.user_id === user_to_kill)
             prv_player_status[user_index].user_status.is_alive = false

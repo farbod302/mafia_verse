@@ -28,7 +28,7 @@ const vote = {
 
         if (turn !== 0) {
             start.edit_game_action({
-                index:users.findIndex(e => e.user_id === queue[turn-1].user_id),
+                index: users.findIndex(e => e.user_id === queue[turn - 1].user_id),
                 prime_event: "user_status",
                 second_event: "on_vote",
                 new_value: false,
@@ -52,8 +52,12 @@ const vote = {
         let dead_users = game_vars.player_status.filter(e => !e.user_status.is_alive)
         dead_users = dead_users.map(e => e.user_id)
         let users_to_prevent_vote = dead_users.concat(cur_player.user_id)
+        console.log({custom_queue});
         if (custom_queue.length && custom_queue.length < 3) {
-            custom_queue.forEach(user => users_to_prevent_vote.push(user.user_id))
+            custom_queue.forEach(user => {
+                console.log(user.user_id,"PREVENT");
+                users_to_prevent_vote.push(user.user_id)
+            })
         }
         let user_to_vote = users.filter(user => !users_to_prevent_vote.includes(user.user_id))
         new_vote_record.available_users = user_to_vote.map(e => e.user_id)
@@ -122,11 +126,11 @@ const vote = {
             game_vars.edit_event("edit", "cur_event", "defence")
             game_vars.edit_event("edit", "vote_type", "defence")
             game_vars.edit_event("edit", "speech_type", "defence")
-            socket.to(game_id).emit("game_event",{data:{game_event:"none"}})
+            socket.to(game_id).emit("game_event", { data: { game_event: "none" } })
             if (defenders_queue.length >= 3) {
-            game_vars.edit_event("edit", "custom_queue", defenders_queue)
-            game_vars.edit_event("edit", "next_event", "start_speech")
-            return
+                game_vars.edit_event("edit", "custom_queue", defenders_queue)
+                game_vars.edit_event("edit", "next_event", "start_speech")
+                return
             }
             else {
                 game_vars.edit_event("edit", "queue", defenders_queue)
@@ -167,16 +171,16 @@ const vote = {
     count_exit_vote({ game_vars, users, socket, game_id, socket_finder, play_voice }) {
         const { votes_status } = game_vars
         let user_to_exit = votes_status.sort((a, b) => { return b.users.length - a.users.length })
-        console.log({user_to_exit});
+        console.log({ user_to_exit });
         user_to_exit = user_to_exit[0]
         let exit_vote_count = user_to_exit.users.length
-        console.log({exit_vote_count});
+        console.log({ exit_vote_count });
         const live_users = start.pick_live_users({ game_vars })
         const live_users_count = live_users.length
         if (exit_vote_count < Math.floor(live_users_count / 2)) return
         //todo count exit vote
         let users_with_same_vote = votes_status.filter(user => user.users.length === exit_vote_count)
-        console.log({users_with_same_vote});
+        console.log({ users_with_same_vote });
         user_to_exit = null
         if (users_with_same_vote.length === 1) {
             user_to_exit = users_with_same_vote[0]
@@ -197,7 +201,7 @@ const vote = {
         if (user_to_exit) {
             const { user_id } = user_to_exit
             //check if guard
-            const { carts } = game_vars
+            const { carts, dead_list } = game_vars
             let guard = carts.findIndex(cart => cart.name === "guard")
             if (guard !== -1 && carts[guard]?.user_id === user_id) {
                 let new_carts = [...carts]
@@ -213,7 +217,7 @@ const vote = {
                         msg: `از بازی کسی خارج نشد.بازیکن شماره ${index + 1} با نقش شهروندی به بازی ادامه خواهد داد و قابل ناتویی نیست.`
                     })
 
-                play_voice(_play_voice.play_voice("moved_out", index))
+                // play_voice(_play_voice.play_voice("moved_out", index))
 
             } else {
                 let index = game_vars.player_status.findIndex(user => user.user_id === user_id)
@@ -224,7 +228,9 @@ const vote = {
                     new_value: false,
                     game_vars
                 })
-                game_vars.edit_event("push", "dead_list", user_id)
+                if (!dead_list.includes(user_id)) {
+                    game_vars.edit_event("push", "dead_list", user_id)
+                }
 
                 const { player_status } = game_vars
                 socket.to(game_id).emit("game_action", { data: [player_status[index]] })

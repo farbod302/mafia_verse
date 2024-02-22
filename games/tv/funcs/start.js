@@ -177,21 +177,25 @@ const start = {
     inquiry({ game_vars }) {
         const { dead_list, carts } = game_vars
         let mafia_rols = ["nato", "godfather", "hostage_taker"]
-        console.log({ dead_list });
         let mafia_death = dead_list.filter(dead => {
-            console.log({ dead });
-            console.log({ carts });
+
             let role = carts.find(cart => cart.user_id === dead)
             if (role && mafia_rols.includes(role.name)) return true
             return false
         })
-        return `از بازی شما ${mafia_death.length} مافیا و ${dead_list.length - mafia_death.length} شهروند از بازی خارج شده`
+        const city_death = dead_list.filter(dead => {
+
+            let role = carts.find(cart => cart.user_id === dead)
+            if (role && !mafia_rols.includes(role.name)) return true
+            return false
+        })
+        return `از بازی شما ${mafia_death.length} مافیا و ${city_death.length} شهروند از بازی خارج شده`
 
     },
 
 
     use_gun({ game_vars, user_shot, user_resive_shot, socket, game_id, users }) {
-        const { gun_status } = game_vars
+        const { gun_status, dead_list } = game_vars
         let selected_gun = gun_status.findIndex(g => g.user_id === user_shot)
         const { gun_type } = gun_status[selected_gun]
         socket.to(game_id).emit("used_gun", {
@@ -202,7 +206,9 @@ const start = {
             }
         })
         if (gun_type === "fighter") {
-            game_vars.edit_event("push", "dead_list", user_resive_shot)
+            if (!dead_list.includes(user_resive_shot)) {
+                game_vars.edit_event("push", "dead_list", user_resive_shot)
+            }
             const { turn } = game_vars
             let prv_queue = [...game_vars.queue]
             let user_to_add_queue = befor_start.pick_player_from_user_id({ users, user_id: user_resive_shot })
