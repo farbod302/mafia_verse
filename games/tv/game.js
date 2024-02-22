@@ -1045,11 +1045,11 @@ const Game = class {
         let other_users = befor_start.pick_other_player_from_user_id({ users: this.users, user_id: user.user_id })
         const { user_id } = user
         let socket_id = this.socket_finder(user_id)
-        this.socket.to(socket_id).emit("start_speech")
         other_users.forEach(u => {
             const s_user_socket = this.socket_finder(u.user_id)
             this.socket.to(s_user_socket).emit("game_event", { data: { game_event: this.game_vars.can_act ? "action" : "none" } })
         })
+        this.socket.to(socket_id).emit("start_speech")
         // edit game action
         const index = this.users.findIndex(e => e.user_id === user_id)
         start.edit_game_action({

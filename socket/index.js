@@ -149,7 +149,7 @@ const SocketProvider = class {
             })
 
             client.on("test", ({ data }) => {
-                io.emit("test_res", { data })
+                this.io.emit("test_res", { data })
             })
 
 
