@@ -26,8 +26,8 @@ router.post("/", async (req, res) => {
             }
         })
         const user_self = ranking.findIndex(e => e.uid === req_user_id)
-        const { idenity, session_rank, ranking: user_rank, avatar, points, uid } = ranking[user_self]
-        const { win, lose } = points
+        const { idenity, session_rank, ranking: user_rank, avatar, uid ,session_games_result} = ranking[user_self]
+        const { win, lose } = session_games_result[session]
         const selected_session = json.find(e => e.range === session)
         ranking_res.push({
             session,
