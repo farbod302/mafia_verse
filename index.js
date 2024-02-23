@@ -112,9 +112,9 @@ const create_daily_session = new CronJob("0 0 * * *", () => { Session.create_ses
 const create_weekly_session = new CronJob("0 0 * * 6", () => { Session.create_session("week") })
 const create_monthly_session = new CronJob("0 0 1 * *", () => { Session.create_session("month") })
 
-// Session.create_session("day")
-// Session.create_session("week")
-// Session.create_session("month")
+Session.create_session("day")
+Session.create_session("week")
+Session.create_session("month")
 
 create_daily_session.start()
 create_weekly_session.start()
