@@ -1061,6 +1061,7 @@ const Game = class {
             game_vars: this.game_vars,
             edit_others: true
         })
+        console.log({queue,turn});
         const { type } = queue[turn]
         start.edit_game_action({
             index,
