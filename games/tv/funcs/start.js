@@ -227,6 +227,7 @@ const start = {
             //     return true
             // })
             game_vars.edit_event("edit", "queue", prv_queue)
+            game_vars.edit_event("edit", "speech_type", "final_words")
             game_vars.edit_event("edit", "player_reval", { user_id: user_resive_shot, turn: game_vars.turn + 2 })
         }
 

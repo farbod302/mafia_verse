@@ -843,7 +843,6 @@ const Game = class {
 
 
     async next_player_speech() {
-        console.log("NEXT PLAYER SPEECH");
         this.game_vars.edit_event("edit", "turn", "plus")
         this.game_vars.edit_event("edit", "challenge_time_status", [])
         const { game_id } = this
@@ -872,6 +871,7 @@ const Game = class {
                 const new_status = this.game_vars.player_status
                 this.socket.to(game_id).emit("game_action", { data: [new_status[queue[turn - 1].user_index]] })
                 this.game_vars.edit_event("edit", "turn", turn - 1)
+                this.game_vars.edit_event("edit", "speech_type", "speech")
                 const game_result = night.check_next_day({ game_vars: this.game_vars })
                 if (game_result === 3) {
                     this.game_vars.edit_event("edit", "next_event", "chaos")

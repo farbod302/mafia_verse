@@ -422,14 +422,14 @@ const night = {
         socket.to(game_id).emit("action_end")
         game_vars.edit_event("edit", "day", "plus")
         game_vars.edit_event("edit", "time", "day")
-        socket.to(game_id).emit("game_event", { data: { game_event: "day" } })
-        await delay(5)
         start.generate_report({
             game_vars,
             report_type: "day_report",
             socket,
             game_id
         })
+        await delay(5)
+        socket.to(game_id).emit("game_event", { data: { game_event: "day" } })
         game_vars.edit_event("edit", "custom_queue", [])
         game_vars.edit_event("edit", "votes_status", [])
         game_vars.edit_event("edit", "speech_type", "turn")

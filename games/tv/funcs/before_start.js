@@ -78,12 +78,12 @@ const befor_start = {
         const {speech_type}=game_vars
         switch(speech_type){
             case("introduction"):return "معارفه"
-            case("turn"):return "نوبت صحبت"
+            case("turn"):return "ترن"
             case("challenge"):return "چالش"
             case("defence"):return "دفاعیه"
             case("chaos"):return "کی آس"
             case("final_words"):return "وصیت"
-            default:return "نوبت صحبت"
+            default:return "ترن"
         }
     },
 
