@@ -74,7 +74,8 @@ const befor_start = {
     },
 
 
-    translate_speech_type({game_vars}){
+    translate_speech_type({game_vars,type}){
+        if(type)return type
         const {speech_type}=game_vars
         switch(speech_type){
             case("introduction"):return "معارفه"

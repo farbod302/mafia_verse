@@ -507,10 +507,10 @@ const Game = class {
                 }
                 case ("select_volunteer"): {
                     const { user_id } = data
-                    const { target_cover_queue } = this.game_vars
+                    const { target_cover_queue, choose_type } = this.game_vars
                     let turn = target_cover_queue.findIndex(q => !q.comp)
                     let new_target_cover_queue = [...target_cover_queue]
-                    new_target_cover_queue[turn].users_select.push(user_id)
+                    new_target_cover_queue[turn].users_select.push({ user_id, type: choose_type })
                     this.game_vars.edit_event("push", "target_cover_disable", user_id)
                     if (new_target_cover_queue[turn].users_select.length === new_target_cover_queue[turn].users_select_length) {
                         new_target_cover_queue[turn].comp = true
@@ -1060,11 +1060,12 @@ const Game = class {
             game_vars: this.game_vars,
             edit_others: true
         })
+        const { type } = queue[turn]
         start.edit_game_action({
             index,
             prime_event: "user_action",
             second_event: "speech_type",
-            new_value: befor_start.translate_speech_type({ game_vars: this.game_vars }),
+            new_value: befor_start.translate_speech_type({ game_vars: this.game_vars,type }),
             game_vars: this.game_vars,
             edit_others: false
         })
@@ -1089,7 +1090,7 @@ const Game = class {
             socket: this.socket,
             speech_code,
             player_to_set_timer: user.user_id,
-            game_id:this.game_id
+            game_id: this.game_id
         })
     }
 
@@ -1291,7 +1292,7 @@ const Game = class {
                 })
 
             this.socket.to(socket_id).emit("grant_permission", { grant: true })
-
+            this.game_vars.edit_event("edit", "choose_type", choose_type)
             const live_users = start.pick_live_users({ game_vars: this.game_vars })
             let user_self = live_users.filter(e => e.user_id !== user.user_id)
             user_self = user_self.filter(e => !this.game_vars.target_cover_disable?.includes(e.user_id))
@@ -1624,7 +1625,7 @@ const Game = class {
         const { game_id } = this
         const { queue, turn, chaos_run_count } = this.game_vars
         if (turn === queue.length) {
-            this.socket.to(game_id).emit("turn_to_shake", { data: { user_id: null ,timer:14} })
+            this.socket.to(game_id).emit("turn_to_shake", { data: { user_id: null, timer: 14 } })
             this.game_vars.edit_event("edit", "next_event", "chaos_result_second_phase")
             this.mainCycle()
             return
@@ -1632,7 +1633,7 @@ const Game = class {
         }
         const av_users = [...queue].filter((u, i) => i !== turn)
         const { user_id } = queue[turn]
-        this.socket.to(game_id).emit("turn_to_shake", { data: { user_id: user_id,timer:14 } })
+        this.socket.to(game_id).emit("turn_to_shake", { data: { user_id: user_id, timer: 14 } })
         let player = befor_start.pick_player_from_user_id({ users: this.users, user_id })
         let socket_id = this.socket_finder(user_id)
         this.socket.to(socket_id).emit("chaos_vote", { data: { available_users: av_users.map(e => e.user_id) }, timer: 14 })
@@ -1641,7 +1642,7 @@ const Game = class {
             console.log({ require_vote, chaos_vots }, "call chaos");
             if (chaos_vots.length < +require_vote && chaos_run_count === run_count && !game_vars.is_end) {
                 game_vars.edit_event("edit", "next_event", "chaos")
-                this.socket.to(game_id).emit("turn_to_shake", { data: { user_id: null,timer:14 } })
+                this.socket.to(game_id).emit("turn_to_shake", { data: { user_id: null, timer: 14 } })
                 mainCycle()
 
             }

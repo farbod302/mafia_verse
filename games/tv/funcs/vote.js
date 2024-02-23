@@ -159,9 +159,9 @@ const vote = {
                 speech_queue = speech_queue.concat(users_select)
             }
         })
-        speech_queue = speech_queue.map(user_id => {
+        speech_queue = speech_queue.map(({user_id,type}) => {
             let user = befor_start.pick_player_from_user_id({ users, user_id })
-            return user
+            return {...user,type}
         })
         game_vars.edit_event("edit", "custom_queue", speech_queue.reverse())
         game_vars.edit_event("edit", "next_event", "start_speech")
