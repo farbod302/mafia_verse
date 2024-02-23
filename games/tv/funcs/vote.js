@@ -52,10 +52,10 @@ const vote = {
         let dead_users = game_vars.player_status.filter(e => !e.user_status.is_alive)
         dead_users = dead_users.map(e => e.user_id)
         let users_to_prevent_vote = dead_users.concat(cur_player.user_id)
-        console.log({custom_queue});
+        console.log({ custom_queue });
         if (custom_queue.length && custom_queue.length < 3) {
             custom_queue.forEach(user => {
-                console.log(user.user_id,"PREVENT");
+                console.log(user.user_id, "PREVENT");
                 users_to_prevent_vote.push(user.user_id)
             })
         }
@@ -154,15 +154,17 @@ const vote = {
         let speech_queue = []
         target_cover_queue.forEach((user) => {
             const { users_select, users_select_length, user_id } = user
-            speech_queue.push(user_id)
+            console.log({ users_select });
+            speech_queue.push({ user_id, type: null })
             if (users_select.length === users_select_length) {
                 speech_queue = speech_queue.concat(users_select)
             }
         })
-        speech_queue = speech_queue.map(({user_id,type}) => {
+        speech_queue = speech_queue.map(({ user_id, type }) => {
             let user = befor_start.pick_player_from_user_id({ users, user_id })
-            return {...user,type}
+            return { ...user, type }
         })
+        console.log({speech_queue});
         game_vars.edit_event("edit", "custom_queue", speech_queue.reverse())
         game_vars.edit_event("edit", "next_event", "start_speech")
 

@@ -510,6 +510,7 @@ const Game = class {
                     const { target_cover_queue, choose_type } = this.game_vars
                     let turn = target_cover_queue.findIndex(q => !q.comp)
                     let new_target_cover_queue = [...target_cover_queue]
+                    console.log({choose_type});
                     new_target_cover_queue[turn].users_select.push({ user_id, type: choose_type })
                     this.game_vars.edit_event("push", "target_cover_disable", user_id)
                     if (new_target_cover_queue[turn].users_select.length === new_target_cover_queue[turn].users_select_length) {
