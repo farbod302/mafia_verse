@@ -347,6 +347,8 @@ const night = {
         await delay(3)
 
         if (user_to_kill) {
+            const { dead_list } = game_vars
+
             let index = users.findIndex(user => user.user_id === user_to_kill)
             setTimeout(() => {
                 start.edit_game_action({
@@ -356,7 +358,7 @@ const night = {
                     new_value: false,
                     game_vars
                 })
-                const { player_status, dead_list } = game_vars
+                const { player_status } = game_vars
                 socket.to(game_id).emit("game_action", { data: [player_status[index]] })
             }, 5000)
             if (!dead_list.includes(user_to_kill)) {
