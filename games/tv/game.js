@@ -373,7 +373,6 @@ const Game = class {
                         })
                     })
                     if (role === "nato" && users.length) {
-                        console.log(data);
                         const nato_target = users[0]
                         const { user_id, act } = nato_target
                         let user_true_role = this.game_vars.carts.find(cart => cart.user_id === user_id)
@@ -385,6 +384,9 @@ const Game = class {
                                 info: nato_target.act,
                                 force: true
                             })
+                            if (user_true_role === "guard") {
+                                this.game_vars.edit_event("edit", "nato_dif_guard", true)
+                            }
                         }
                     }
                     cur_night_events.events = prv_events
@@ -510,7 +512,7 @@ const Game = class {
                     const { target_cover_queue, choose_type } = this.game_vars
                     let turn = target_cover_queue.findIndex(q => !q.comp)
                     let new_target_cover_queue = [...target_cover_queue]
-                    console.log({choose_type});
+                    console.log({ choose_type });
                     new_target_cover_queue[turn].users_select.push({ user_id, type: choose_type })
                     this.game_vars.edit_event("push", "target_cover_disable", user_id)
                     if (new_target_cover_queue[turn].users_select.length === new_target_cover_queue[turn].users_select_length) {
@@ -1061,13 +1063,13 @@ const Game = class {
             game_vars: this.game_vars,
             edit_others: true
         })
-        console.log({queue,turn});
+        console.log({ queue, turn });
         const { type } = queue[turn]
         start.edit_game_action({
             index,
             prime_event: "user_action",
             second_event: "speech_type",
-            new_value: befor_start.translate_speech_type({ game_vars: this.game_vars,type }),
+            new_value: befor_start.translate_speech_type({ game_vars: this.game_vars, type }),
             game_vars: this.game_vars,
             edit_others: false
         })

@@ -150,9 +150,13 @@ const night = {
 
     check_act({ records, act, game_vars }) {
         const { name, user_id } = act
+        const { nato_dif_guard } = game_vars
         let hostage_taker_act = records.events.filter(each_act => each_act.act === "hostage_taker")
         hostage_taker_act = hostage_taker_act.map(target => target.target)
-        let guard_act = records.events.filter(each_act => each_act.act === "guard")
+        let guard_act = []
+        if (!nato_dif_guard) {
+            guard_act = records.events.filter(each_act => each_act.act === "guard")
+        }
         guard_act = guard_act.map(target => target.target)
         const hostage_taker_id = game_vars.carts.find(e => e.name === "hostage_taker")
         if (guard_act.includes(hostage_taker_id)) hostage_taker_act = []
@@ -344,15 +348,17 @@ const night = {
 
         if (user_to_kill) {
             let index = users.findIndex(user => user.user_id === user_to_kill)
-            start.edit_game_action({
-                index,
-                prime_event: "user_status",
-                second_event: "is_alive",
-                new_value: false,
-                game_vars
-            })
-            const { player_status, dead_list } = game_vars
-            socket.to(game_id).emit("game_action", { data: [player_status[index]] })
+            setTimeout(() => {
+                start.edit_game_action({
+                    index,
+                    prime_event: "user_status",
+                    second_event: "is_alive",
+                    new_value: false,
+                    game_vars
+                })
+                const { player_status, dead_list } = game_vars
+                socket.to(game_id).emit("game_action", { data: [player_status[index]] })
+            }, 5000)
             if (!dead_list.includes(user_to_kill)) {
                 game_vars.edit_event("push", "dead_list", user_to_kill)
             }
