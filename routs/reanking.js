@@ -51,7 +51,7 @@ router.post("/", async (req, res) => {
 
 
 router.get("/",async (req,res)=>{
-    const key = `session_rank.month`
+    const key = `ranking.rank`
 
     const ranking = await User.find({}).sort({ [key]: -1 })
     const first_20 = [...ranking].slice(0, 20)
