@@ -360,7 +360,7 @@ const night = {
                 })
                 const { player_status } = game_vars
                 socket.to(game_id).emit("game_action", { data: [player_status[index]] })
-            }, 5000)
+            }, 8000)
             if (!dead_list.includes(user_to_kill)) {
                 game_vars.edit_event("push", "dead_list", user_to_kill)
             }
