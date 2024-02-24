@@ -46,6 +46,7 @@ const find_match = {
         const not_enough = users_gold.filter(e => e < 100)
         if (not_enough.length > 0) {
             socket.to(party_id).emit("find_match_gold", { data: { msg: "شما گلد کافی ندارید" } })
+            return
         }
         let party_players_count = users.length
         let seleced_game = games[senario]
