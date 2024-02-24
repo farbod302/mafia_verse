@@ -50,6 +50,31 @@ router.post("/", async (req, res) => {
 })
 
 
+router.get("/",async (req,res)=>{
+    const key = `session_rank.month`
+
+    const ranking = await User.find({}).sort({ [key]: -1 })
+    const first_20 = [...ranking].slice(0, 20)
+    const clean_ranking = first_20.map((user, index) => {
+        const { idenity, session_rank, ranking, avatar, points, uid, session_games_result } = user
+        const { win, lose } = session_games_result[session]
+        return {
+            idenity, session_rank: session_rank[session], ranking, avatar: {
+                avatar: "files/" + avatar.avatar,
+                table: "files/" + avatar.table,
+            }, win, lose, user_id: uid, rate: index + 1, prize: 10
+        }
+    })
+    res.json({
+        status: true,
+        msg: "",
+        data: { ranking: clean_ranking }
+    })
+
+
+})
+
+
 
 router.get("/overall", async (req, res) => {
 
