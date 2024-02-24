@@ -1546,7 +1546,6 @@ const Game = class {
         const { game_id } = this
         this.socket.to(game_id).emit("action_end")
         const { chaos_run_count } = this.game_vars
-        this.socket.to(game_id).emit("turn_to_shake", { data: { user_id: null, timer: 14 } })
 
         this.game_vars.edit_event("edit", "chaos_vots", [])
         this.socket.to(game_id).emit("clear_chaos_record")
@@ -1645,12 +1644,10 @@ const Game = class {
         this.socket.to(socket_id).emit("chaos_vote", { data: { available_users: av_users.map(e => e.user_id) }, timer: 14 })
         let restart_vote = (game_vars, require_vote, mainCycle, run_count) => {
             const { chaos_vots, chaos_run_count } = game_vars
-            console.log({ require_vote, chaos_vots }, "call chaos");
             if (chaos_vots.length < +require_vote && chaos_run_count === run_count && !game_vars.is_end) {
                 game_vars.edit_event("edit", "next_event", "chaos")
                 this.socket.to(game_id).emit("turn_to_shake", { data: { user_id: null, timer: 14 } })
                 mainCycle()
-
             }
         }
         run_timer(15, () => { restart_vote(this.game_vars, `${turn + 1}`, () => { this.mainCycle() }, chaos_run_count) })
