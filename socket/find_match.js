@@ -13,11 +13,16 @@ const find_user_avatar = async (user_id) => {
     return "files/" + `${user?.avatar?.avatar || "11990.png"}`
 }
 
+const find_user_gold = async (user_id) => {
+    let user = await User.findOne({ uid: user_id })
+    return user.gold
+}
+
 const find_match = {
-    async find_robot_game({ senario, client, db, socket ,auth}) {
+    async find_robot_game({ senario, client, db, socket, auth }) {
         // senario = senario || "tv"
-        client.game_id=null
-        auth=auth?true:false
+        client.game_id = null
+        auth = auth ? true : false
         senario = "tv"
         const party_id = client.idenity?.party_id
         if (!party_id) return
@@ -32,6 +37,16 @@ const find_match = {
             }
         })
         users = await Promise.all(users)
+
+        let users_gold = users.map(async user => {
+            const gold = await find_user_gold(user.user_id)
+            return gold
+        })
+        users_gold = await Promise.all(users_gold)
+        const not_enough = users_gold.filter(e => e < 100)
+        if (not_enough.length > 0) {
+            socket.to(party_id).emit("find_match_gold", { data: { msg: "شما گلد کافی ندارید" } })
+        }
         let party_players_count = users.length
         let seleced_game = games[senario]
         let game_players_count = seleced_game.static_vars.player_count
@@ -46,7 +61,7 @@ const find_match = {
                 users: users,
                 partys: [party_id],
                 senario,
-                auth:auth?true:false
+                auth: auth ? true : false
             }
 
             db.add_data("games_queue", new_game)
@@ -94,7 +109,7 @@ const find_match = {
             }
         })
         users = await Promise.all(users)
-        users=users.filter(e => e.user_id !== creator)
+        users = users.filter(e => e.user_id !== creator)
         let game_id = uuid(4)
         let new_game = {
             game_id,
@@ -103,7 +118,7 @@ const find_match = {
             partys: [party_id],
             mod: creator,
             senario,
-            
+
         }
         db.add_data("games_queue", new_game)
         socket.to(party_id).emit("find_match", { data: users.map(user => { return { user_image: user.user_image, user_id: user.user_id } }) })
@@ -121,7 +136,7 @@ const find_match = {
         let users_ids = users.map(user => user.user_id)
         let game_to_leave = all_games.find(game => game.partys.includes(party_id))
         if (!game_to_leave) return
-        let { users: users_befor_leave, partys, remain, game_id ,auth} = game_to_leave
+        let { users: users_befor_leave, partys, remain, game_id, auth } = game_to_leave
         let users_after_leave = users_befor_leave.filter(user => !users_ids.includes(user.user_id))
         let new_party_lists = partys.filter(party => party !== party_id)
         let new_remain = remain + users.length
