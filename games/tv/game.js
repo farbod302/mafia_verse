@@ -1546,6 +1546,8 @@ const Game = class {
         const { game_id } = this
         this.socket.to(game_id).emit("action_end")
         const { chaos_run_count } = this.game_vars
+        this.socket.to(game_id).emit("turn_to_shake", { data: { user_id: null, timer: 14 } })
+
         this.game_vars.edit_event("edit", "chaos_vots", [])
         this.socket.to(game_id).emit("clear_chaos_record")
         if (chaos_run_count === 2) {
