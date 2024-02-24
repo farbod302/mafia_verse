@@ -19,7 +19,7 @@ router.post("/", async (req, res) => {
             const { idenity, session_rank, ranking, avatar, points, uid, session_games_result } = user
             const { win, lose } = session_games_result[session]
             return {
-                idenity:idenity.name, session_rank: session_rank[session], ranking, avatar: {
+                idenity:{name:idenity.name}, session_rank: session_rank[session], ranking, avatar: {
                     avatar: "files/" + avatar.avatar,
                     table: "files/" + avatar.table,
                 }, win, lose, user_id: uid, rate: index + 1, prize: 10
