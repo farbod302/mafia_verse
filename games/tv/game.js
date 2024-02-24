@@ -1729,7 +1729,7 @@ const Game = class {
                     "ranking.rank": update.point,
                     "session_rank.day": update.point,
                     "session_rank.week": update.point,
-                    "session_rank.session": update.point,
+                    "session_rank.month": update.point,
                     "ranking.xp": update.xp,
                     [day_key]: 1,
                     [week_key]: 1,
