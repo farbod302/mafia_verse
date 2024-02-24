@@ -34,7 +34,7 @@ router.post("/", async (req, res) => {
             session_end: selected_session.end,
             ranking_list: clean_ranking,
             user_self: {
-                idenity, session_rank: session_rank[session], ranking: user_rank, avatar: {
+                idenity:{name:idenity.name}, session_rank: session_rank[session], ranking: user_rank, avatar: {
                     avatar: "files/" + avatar.avatar,
                     table: "files/" + avatar.table,
                 }, win, lose, user_id: uid, rate: user_self + 1, prize: 10
