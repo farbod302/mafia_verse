@@ -130,7 +130,7 @@ const refresh_api_token_job = new CronJob("58 * * * *", Transaction.refresh_toke
 
 
 send_notif({
-    users:["32ca"],
+    users:["964b"],
     msg:"ji",
     title:"jo9"
 })
