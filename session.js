@@ -35,9 +35,9 @@ const Session = {
             result
         }
 
-        const session_win_lose_key=`session_games_result.${range}`
+        const session_win_lose_key = `session_games_result.${range}`
         fs.writeFileSync(`${__dirname}/sessions_result/${range}_${str_data}.json`, JSON.stringify(new_session_history))
-        await User.updateMany({}, { $set: { [key]: default_rank,[session_win_lose_key]:{win:0,lose:0} } })
+        await User.updateMany({}, { $set: { [key]: default_rank, [session_win_lose_key]: { win: 0, lose: 0 } } })
         const prv_sessions_record = fs.readFileSync(`${__dirname}/session.json`)
         const json = JSON.parse(prv_sessions_record.toLocaleString())
         const new_json = json.filter(e => e.range !== range)
@@ -52,28 +52,28 @@ const Session = {
         {
             range: "day",
             prize: [
-                500,
-                250,
-                125,
-                60
+                300,
+                200,
+                100,
+                50
             ]
         },
         {
             range: "week",
             prize: [
-                2000,
                 1000,
-                500,
-                250
+                400,
+                300,
+                100
             ]
         },
         {
             range: "month",
             prize: [
-                6000,
-                3000,
+                2500,
                 1500,
-                750
+                1000,
+                200
             ]
         }
     ]

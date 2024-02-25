@@ -3,6 +3,29 @@ const User = require("../db/user")
 const router = express.Router()
 const fs = require("fs")
 
+
+const prize_pool = {
+    day: [
+        300,
+        200,
+        100,
+        50
+    ],
+    week: [
+        1000,
+        400,
+        300,
+        100
+    ],
+    month: [
+        2500,
+        1500,
+        1000,
+        200
+    ]
+}
+
+
 router.post("/", async (req, res) => {
     const user = req.body.user
     if (!user) return reject(3, res)
@@ -19,14 +42,14 @@ router.post("/", async (req, res) => {
             const { idenity, session_rank, ranking, avatar, points, uid, session_games_result } = user
             const { win, lose } = session_games_result[session]
             return {
-                idenity:{name:idenity.name}, session_rank: session_rank[session], ranking, avatar: {
+                idenity: { name: idenity.name }, session_rank: session_rank[session], ranking, avatar: {
                     avatar: "files/" + avatar.avatar,
                     table: "files/" + avatar.table,
                 }, win, lose, user_id: uid, rate: index + 1, prize: 10
             }
         })
         const user_self = ranking.findIndex(e => e.uid === req_user_id)
-        const { idenity, session_rank, ranking: user_rank, avatar, uid ,session_games_result} = ranking[user_self]
+        const { idenity, session_rank, ranking: user_rank, avatar, uid, session_games_result } = ranking[user_self]
         const { win, lose } = session_games_result[session]
         const selected_session = json.find(e => e.range === session)
         ranking_res.push({
@@ -34,7 +57,7 @@ router.post("/", async (req, res) => {
             session_end: selected_session.end,
             ranking_list: clean_ranking,
             user_self: {
-                idenity:{name:idenity.name}, session_rank: session_rank[session], ranking: user_rank, avatar: {
+                idenity: { name: idenity.name }, session_rank: session_rank[session], ranking: user_rank, avatar: {
                     avatar: "files/" + avatar.avatar,
                     table: "files/" + avatar.table,
                 }, win, lose, user_id: uid, rate: user_self + 1, prize: 10
@@ -44,13 +67,13 @@ router.post("/", async (req, res) => {
     res.json({
         status: true,
         msg: "",
-        data: { ranking: ranking_res }
+        data: { ranking: ranking_res,available:false }
     })
 
 })
 
 
-router.get("/",async (req,res)=>{
+router.get("/", async (req, res) => {
     const key = `ranking.rank`
 
     const ranking = await User.find({}).sort({ [key]: -1 })
@@ -59,7 +82,7 @@ router.get("/",async (req,res)=>{
         const { idenity, session_rank, ranking, avatar, points, uid, session_games_result } = user
         const { win, lose } = session_games_result["month"]
         return {
-            idenity:idenity.name, session_rank: session_rank["month"], ranking, avatar: {
+            idenity: idenity.name, session_rank: session_rank["month"], ranking, avatar: {
                 avatar: "files/" + avatar.avatar,
                 table: "files/" + avatar.table,
             }, win, lose, user_id: uid, rate: index + 1, prize: 10
