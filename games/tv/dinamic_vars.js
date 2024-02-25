@@ -47,6 +47,7 @@ const dinamic_vars = class {
         this.chaos_run_count = 0
         this.player_reval = null
         this.winner = null
+        this.last_night_hostage=null
         this.second_chance = []
         this.mafia_need_token = []
         this.challenge_time_status = []

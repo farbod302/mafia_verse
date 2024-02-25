@@ -198,8 +198,6 @@ const night = {
     },
 
     pick_user_for_act({ game_vars, act, user_id }) {
-        const mafia_acts = ["mafia", "nato", "hostage_taker"]
-        if (mafia_acts.includes(act)) act = "mafia"
         switch (act) {
             case ("doctor"): {
                 let live_users = start.pick_live_users({ game_vars })
@@ -214,6 +212,14 @@ const night = {
                 }
             }
             case ("mafia"): {
+                const { mafia_list } = game_vars
+                let mafia_ids = mafia_list.map(user => user.user_id)
+                let live_users = start.pick_live_users({ game_vars })
+                live_users = live_users.filter(user => !mafia_ids.includes(user.user_id))
+                return { availabel_users: live_users.map(e => e.user_id), max_count: 1 }
+            }
+
+            case("nato"):{
                 const { mafia_list } = game_vars
                 let mafia_ids = mafia_list.map(user => user.user_id)
                 let live_users = start.pick_live_users({ game_vars })
@@ -236,6 +242,22 @@ const night = {
                     availabel_users: live_users.map(e => e.user_id),
                     max_count: live_users.length + 1 >= 8 ? 2 : 1
                 }
+            }
+            case ("hostage_taker"): {
+                const { last_night_hostage } = game_vars
+                let live_users = start.pick_live_users({ game_vars })
+                live_users = live_users.filter(user => user.user_id !== user_id && user.user_id !== last_night_hostage)
+                return { availabel_users: live_users.map(user => user.user_id), max_count: 1 }
+
+            }
+
+            case ("rifleman"): {
+                let live_users = start.pick_live_users({ game_vars })
+                return {
+                    availabel_users: live_users.map(e => e.user_id),
+                    max_count: live_users.length + 1 >= 8 ? 2 : 1
+                }
+
             }
 
             default: {
@@ -282,6 +304,13 @@ const night = {
             case ("commando"): {
                 game_vars.edit_event("edit", "comondo_gun_used", true)
                 return
+            }
+
+            case ("hostage_taker"): {
+                const target = targets[0]?.user_id
+                if (target) {
+                    game_vars.edit_event("edit", "last_night_hostage", target)
+                }
             }
         }
     },

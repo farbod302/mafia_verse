@@ -1398,7 +1398,20 @@ const Game = class {
         })
         let mainCycle = () => { this.mainCycle() }
         this.game_vars.edit_event("edit", "next_event", "mafia_speech")
-        run_timer(15, mainCycle)
+        const { last_night_hostage } = game_vars
+
+        const check_hostage = (cur_hostage, game_vars) => {
+            const { last_night_hostage } = game_vars
+            if (!last_night_hostage) return
+            if (last_night_hostage === cur_hostage) {
+                game_vars.edit_event("edit", "last_night_hostage", null)
+            }
+        }
+
+        run_timer(15, ()=>{
+            mainCycle()
+            check_hostage(last_night_hostage,this.game_vars)
+        })
     }
 
     async mafia_speech() {
