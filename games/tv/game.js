@@ -1380,6 +1380,7 @@ const Game = class {
 
 
     start_night() {
+        this.play_voice(_play_voice.play_voice("night"))
         night.start_night({
             game_vars: this.game_vars,
             socket: this.socket,
@@ -1408,9 +1409,9 @@ const Game = class {
             }
         }
 
-        run_timer(15, ()=>{
+        run_timer(15, () => {
             mainCycle()
-            check_hostage(last_night_hostage,this.game_vars)
+            check_hostage(last_night_hostage, this.game_vars)
         })
     }
 
@@ -1562,6 +1563,9 @@ const Game = class {
 
         this.game_vars.edit_event("edit", "chaos_vots", [])
         this.socket.to(game_id).emit("clear_chaos_record")
+        if(chaos_run_count === 0){
+            this.play_voice(_play_voice.play_voice("chaos"))
+        }
         if (chaos_run_count === 2) {
             //random user
             const sides = ["mafia", "citizen"]
@@ -1744,6 +1748,7 @@ const Game = class {
                     "session_rank.week": update.point,
                     "session_rank.month": update.point,
                     "ranking.xp": update.xp,
+                    gold: update.winner ? 100 : 0,
                     [day_key]: 1,
                     [week_key]: 1,
                     [mounth_key]: 1,

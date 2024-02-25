@@ -143,6 +143,19 @@ const _play_voice = {
                 "guard_hostage_taker_act_time",
             ]
         },
+        {
+            voice_id: "chaos",
+            voices: [
+                "chaos",
+            ]
+        },
+        {
+            voice_id: "night",
+            voices: [
+                "night_1",
+                "night_2",
+            ]
+        },
        
     ],
 
