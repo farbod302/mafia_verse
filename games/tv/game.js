@@ -1308,7 +1308,7 @@ const Game = class {
                 })
 
             this.socket.to(socket_id).emit("grant_permission", { grant: true })
-            this.game_vars.edit_event("edit", "choose_type", choose_type)
+            this.game_vars.edit_event("edit", "choose_type", translate())
             const live_users = start.pick_live_users({ game_vars: this.game_vars })
             let user_self = live_users.filter(e => e.user_id !== user.user_id)
             user_self = user_self.filter(e => !this.game_vars.target_cover_disable?.includes(e.user_id))
@@ -1549,8 +1549,7 @@ const Game = class {
             socket: this.socket,
             game_id: this.game_id
         })
-        this.play_voice(_play_voice.play_voice("next_day"))
-        await Helper.delay(5)
+        
         const { inquiry_used, gun_status } = this.game_vars
         if (inquiry_used < 2) this.game_vars.edit_event("edit", "next_event", "check_for_inquiry")
         else {
@@ -1563,8 +1562,9 @@ const Game = class {
                 let socket_id = this.socket_finder(user_to_emit.user_id)
                 this.socket.to(socket_id).emit("gun_status", { data: { gun_enable: true } })
             })
-        }, 10000)
-        await Helper.delay(5)
+        }, 4000)
+        await Helper.delay(6)
+        this.play_voice(_play_voice.play_voice("next_day"))
         this.mainCycle()
     }
 
