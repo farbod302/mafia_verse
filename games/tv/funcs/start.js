@@ -47,9 +47,9 @@ const start = {
         let live_users = users
         if (!live_users) live_users = start.pick_live_users({ game_vars })
         let queue = live_users.map(user => {
-            const { user_id, user_index, type } = user
+            const { user_id, user_index, type: custom_type } = user
             return {
-                user_id, user_index, speech_status: type, pass: false, challenge_used: false, type
+                user_id, user_index, speech_status: custom_type || type, pass: false, challenge_used: false, type
             }
         })
         return queue
