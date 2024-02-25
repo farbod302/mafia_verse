@@ -13,7 +13,8 @@ const game_result = {
             let user_char = carts.find(e => e.user_id === user_id)
             user_char = user_char.name
             let side = game_result.mafia_sides.includes(user_char) ? "mafia" : "citizen"
-            const giveaway = side === winner && spin()
+            // const giveaway = side === winner && spin()
+            const giveaway = false
             let item_giveaway = null
             if (giveaway) {
                 item_giveaway = await Helper.send_giveaway(user_id)
@@ -22,7 +23,7 @@ const game_result = {
                 ...user,
                 point: 25 * (side === winner ? 1 : -1),
                 side,
-                role:user_char,
+                role: user_char,
                 xp: side === winner ? 100 : 50,
                 winner: side === winner,
                 item_giveaway,
@@ -30,8 +31,8 @@ const game_result = {
             }
         })
         const list = await Promise.all(clean_list)
-        let now=Date.now()
-        now += (1000*60*1)
+        let now = Date.now()
+        now += (1000 * 60 * 1)
         return {
             winner,
             users: list,
