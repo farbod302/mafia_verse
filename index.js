@@ -128,9 +128,3 @@ const refresh_api_token_job = new CronJob("58 * * * *", Transaction.refresh_toke
 //3119103712
 //test_2
 
-
-send_notif({
-    users:["964b"],
-    msg:"ji",
-    title:"jo9"
-})
