@@ -1379,8 +1379,9 @@ const Game = class {
 
 
 
-    start_night() {
+    async start_night() {
         this.play_voice(_play_voice.play_voice("night"))
+        await Helper.delay(2)
         night.start_night({
             game_vars: this.game_vars,
             socket: this.socket,
