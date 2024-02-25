@@ -1,5 +1,5 @@
 const TrezSmsClient = require("trez-sms-client");
-const client = new TrezSmsClient("farbod302", "eefabass");
+const client = new TrezSmsClient("mistelo", "Mistelo4400233618");
 const multer = require('multer');
 const { uid } = require("uid");
 const userChannelConfig = require("../db/user_channel_config");
@@ -16,7 +16,7 @@ const Helper = {
         return Math.floor(Math.random() * (end - start + 1)) + start;
     },
     send_sms({ phone, msg }) {
-        // client.manualSendCode(phone, msg)
+        client.manualSendCode(phone, msg)
     },
 
     get_rooms({ room_id, users }) {
