@@ -553,17 +553,25 @@ const Game = class {
                         users: this.game_vars.users_comp_list,
                         socket: this.socket
                     })
+                    this.game_vars.edit_event("edit", "using_gun", false)
                     break
                 }
                 case ("day_using_gun"): {
-                    const { user_id } = data
-                    this.users.forEach(user => {
-                        const { user_id: uid } = user
-                        let socket_id = this.socket_finder(uid)
-                        this.play_voice(_play_voice.play_voice("day_gun"))
-                        if (user.user_id !== user_id) this.socket.to(socket_id).emit("report", { data: { user_id, timer: 2, msg: "اعلام اسلحه" } })
+                    const { using_gun } = this.game_vars
+                    if (using_gun) {
+                        this.socket.to(client.id).emit("low_level_report", { msg: "شخص دیگری در حال اسفتاده از گان هستش" })
 
-                    })
+                    } else {
+                        const { user_id } = data
+                        this.users.forEach(user => {
+                            const { user_id: uid } = user
+                            let socket_id = this.socket_finder(uid)
+                            this.play_voice(_play_voice.play_voice("day_gun"))
+                            if (user.user_id !== user_id) this.socket.to(socket_id).emit("report", { data: { user_id, timer: 2, msg: "اعلام اسلحه" } })
+
+                        })
+                        this.game_vars.edit_event("edit", "using_gun", true)
+                    }
                     break
                 }
                 case ("chaos_vote"): {
@@ -1564,8 +1572,12 @@ const Game = class {
 
         this.game_vars.edit_event("edit", "chaos_vots", [])
         this.socket.to(game_id).emit("clear_chaos_record")
-        if(chaos_run_count === 0){
+        if (chaos_run_count === 0) {
             this.play_voice(_play_voice.play_voice("chaos"))
+        }
+        if (chaos_run_count === 1) {
+            this.socket.to(game_id).emit("report", { data: { msg: "شهروند مشترکی پیدا نشد.صحبت مجدد", time: 3 } })
+            await Helper.delay(4)
         }
         if (chaos_run_count === 2) {
             //random user
