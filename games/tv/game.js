@@ -1088,7 +1088,7 @@ const Game = class {
                 let user_in_queue = queue.filter(u => u.user_id === user_id)
                 return {
                     user_id,
-                    status: user_in_queue.length === 10
+                    status:true
                 }
             })
             this.socket.to(game_id).emit("users_challenge_status", { data: status_list })
