@@ -1376,7 +1376,7 @@ const Game = class {
             game_id: this.game_id,
             play_voice: this.play_voice,
             final_word_maker: this.last_word,
-            mainCycle: this.mainCycle
+            mainCycle: ()=>{this.mainCycle()}
         })
         this.game_vars.edit_event("edit", "defenders_queue", [])
         this.game_vars.edit_event("edit", "can_take_challenge", true)
