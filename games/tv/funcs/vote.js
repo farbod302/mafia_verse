@@ -201,9 +201,11 @@ const vote = {
         // }
 
         if (user_to_exit) {
+            console.log({user_to_exit});
             const { user_id } = user_to_exit
             //check if guard
             const after_speech = () => {
+                console.log("IM RUN");
                 const { carts, dead_list } = game_vars
                 let guard = carts.findIndex(cart => cart.name === "guard")
                 if (guard !== -1 && carts[guard]?.user_id === user_id) {
