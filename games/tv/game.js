@@ -852,8 +852,8 @@ const Game = class {
         this.mainCycle()
     }
 
-    last_word({ user_to_talk, after_speech }) {
-        const live_users = start.pick_live_users({ game_vars: this.game_vars })
+    last_word({ user_to_talk, after_speech ,game_vars}) {
+        const live_users = start.pick_live_users({ game_vars })
         const selected_user = live_users.filter(e => e.user_id === user_to_talk)
         const queue = start.generate_queue({
             type: "وصیت",

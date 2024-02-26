@@ -255,7 +255,7 @@ const vote = {
             }
             game_vars.edit_event("edit", "vote_type", "pre_vote")
             game_vars.edit_event("edit", "custom_queue", [])
-            final_word_maker({ user_to_talk: user_to_exit.user_id, after_speech })
+            final_word_maker({ user_to_talk: user_to_exit.user_id, after_speech ,game_vars})
         }
         
         return user_to_exit?.user_id || null
