@@ -1370,6 +1370,8 @@ const Game = class {
         this.game_vars.edit_event("edit", "speech_type", "turn")
         const { game_id, socket } = this
         const user_to_exit = vote.count_exit_vote({ game_vars: this.game_vars, game_id, socket, users: this.users, socket_finder: this.socket_finder, game_id: this.game_id, play_voice: this.play_voice,final_word_maker:this.last_word })
+        this.game_vars.edit_event("edit", "defenders_queue", [])
+        this.game_vars.edit_event("edit", "can_take_challenge", true)
         if (user_to_exit) {
             const game_result_check = night.check_next_day({ game_vars: this.game_vars })
             if (game_result_check === 4) this.game_vars.edit_event("edit", "next_event", "start_night")
@@ -1384,11 +1386,10 @@ const Game = class {
         }
         else {
             this.game_vars.edit_event("edit", "next_event", "start_night")
+            this.mainCycle()
 
         }
-        this.game_vars.edit_event("edit", "defenders_queue", [])
-        await Helper.delay(3)
-        this.game_vars.edit_event("edit", "can_take_challenge", true)
+       
     }
 
     async inquiry() {
