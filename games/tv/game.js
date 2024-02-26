@@ -844,6 +844,7 @@ const Game = class {
             game_vars: this.game_vars,
             users: custom_queue.length ? custom_queue : null
         })
+        console.log({speech_queue});
         let timer = static_vars.speech_time[speech_type]
         this.game_vars.edit_event("edit", "turn", -1)
         this.game_vars.edit_event("edit", "queue", queue)
@@ -873,6 +874,7 @@ const Game = class {
         this.game_vars.edit_event("edit", "challenge_time_status", [])
         const { game_id } = this
         const { queue, turn, can_take_challenge, speech_type, reval, player_reval, carts, player_status, second_chance } = this.game_vars
+        console.log({queue, turn,  speech_type});
         const user_index = queue[turn]?.user_index;
         if (user_index && !player_status[user_index]?.user_status?.is_alive) return this.mainCycle()
         //check player reval
