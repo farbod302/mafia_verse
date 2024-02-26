@@ -873,9 +873,12 @@ const Game = class {
         this.game_vars.edit_event("edit", "challenge_time_status", [])
         const { game_id } = this
         const { queue, turn, can_take_challenge, speech_type, reval, player_reval, carts, player_status, second_chance } = this.game_vars
-        console.log({queue, turn,  speech_type});
+        console.log({queue, turn, can_take_challenge, speech_type, reval, player_reval, carts, player_status, second_chance});
         const user_index = queue[turn]?.user_index;
-        if (user_index && !player_status[user_index]?.user_status?.is_alive) return this.mainCycle()
+        if (user_index && !player_status[user_index]?.user_status?.is_alive){
+            console.log("IM CUS THIS");
+            return this.mainCycle()
+        }
         //check player reval
         if (player_reval && player_reval.turn === turn) {
             const { user_id } = player_reval
@@ -961,6 +964,7 @@ const Game = class {
             if (speech_type === "last_word_user") {
                 const { after_speech } = this.game_vars
                 after_speech()
+                await Helper.delay(3)
                 this.mainCycle()
                 return
             }
@@ -1025,6 +1029,9 @@ const Game = class {
         await Helper.delay(1)
         let cur_speech = queue[turn]
         const cur_user_status = player_status.find(e => e.user_id === cur_speech.user_id)
+        console.log({
+            cur_user_status,cur_speech
+        });
         if (!cur_user_status) return this.mainCycle()
         if (!cur_user_status.user_status.is_connected) {
             if (!second_chance.includes(cur_speech.user_id)) {
