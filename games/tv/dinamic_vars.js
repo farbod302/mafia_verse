@@ -54,6 +54,7 @@ const dinamic_vars = class {
         this.challenge_time_status = []
     }
     edit_event(op, event, value, from) {
+        console.log(op, event, value);
         switch (op) {
             case ("edit"): {
                 return this[event] = value == "plus" ? this[event] + 1 : value
