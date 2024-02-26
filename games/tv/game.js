@@ -844,7 +844,6 @@ const Game = class {
             game_vars: this.game_vars,
             users: custom_queue.length ? custom_queue : null
         })
-        console.log({speech_queue});
         let timer = static_vars.speech_time[speech_type]
         this.game_vars.edit_event("edit", "turn", -1)
         this.game_vars.edit_event("edit", "queue", queue)
