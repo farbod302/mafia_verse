@@ -923,25 +923,24 @@ const Game = class {
             this.game_vars.edit_event("edit", "second_chance", [])
             this.game_vars.edit_event("edit", "can_act", true)
 
-            const index = this.users.findIndex(e => e.user_id === queue[turn - 1]?.user_id)
-            if (index && index > -1) {
-                start.edit_game_action({
-                    index,
-                    prime_event: "user_status",
-                    second_event: "is_talking",
-                    new_value: false,
-                    game_vars: this.game_vars,
-                    edit_others: false
-                })
-                start.edit_game_action({
-                    index,
-                    prime_event: "user_action",
-                    second_event: "speech_type",
-                    new_value: "none",
-                    game_vars: this.game_vars,
-                    edit_others: false
-                })
-            }
+            const index = this.users.findIndex(e => e.user_id === queue[turn - 1].user_id)
+            if (index === -1) return this.abandon()
+            start.edit_game_action({
+                index,
+                prime_event: "user_status",
+                second_event: "is_talking",
+                new_value: false,
+                game_vars: this.game_vars,
+                edit_others: false
+            })
+            start.edit_game_action({
+                index,
+                prime_event: "user_action",
+                second_event: "speech_type",
+                new_value: "none",
+                game_vars: this.game_vars,
+                edit_others: false
+            })
             this.game_vars.edit_event("edit", "speech_code", "")
             const { player_status } = this.game_vars
             this.socket.to(game_id).emit("game_action", { data: [player_status[index]] })
@@ -1377,7 +1376,7 @@ const Game = class {
             game_id: this.game_id,
             play_voice: this.play_voice,
             final_word_maker: this.last_word,
-            mainCycle: () => { this.mainCycle() }
+            mainCycle: ()=>{this.mainCycle()}
         })
         this.game_vars.edit_event("edit", "defenders_queue", [])
         this.game_vars.edit_event("edit", "can_take_challenge", true)
