@@ -18,7 +18,8 @@ const static_vars={
         challenge:15,
         defence:30,
         chaos:10,
-        final_words:20
+        final_words:20,
+        last_word_user:20
     },
     scenario:"nato",
     to_dec:"price"
