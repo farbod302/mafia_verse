@@ -852,6 +852,21 @@ const Game = class {
         this.mainCycle()
     }
 
+    last_word({ user_to_talk, after_speech }) {
+        const live_users = start.pick_live_users({ game_vars: this.game_vars })
+        const selected_user = live_users.filter(e => e.user_id === user_to_talk)
+        const queue = start.generate_queue({
+            type: "وصیت",
+            game_vars: this.game_vars,
+            users: selected_user
+        })
+        this.game_vars.edit_event("edit", "custom_queue", queue)
+        this.game_vars.edit_event("edit", "after_speech", after_speech)
+        this.game_vars.edit_event("edit", "speech_type", "last_word_user")
+        this.game_vars.edit_event("edit", "next_event", "start_speech")
+        this.mainCycle()
+    }
+
 
     async next_player_speech() {
         this.game_vars.edit_event("edit", "turn", "plus")
@@ -862,7 +877,6 @@ const Game = class {
         if (user_index && !player_status[user_index]?.user_status?.is_alive) return this.mainCycle()
         //check player reval
         if (player_reval && player_reval.turn === turn) {
-
             const { user_id } = player_reval
             const user_main_index = this.users.findIndex(e => e.user_id === user_id)
             let player_roule = carts.find(c => c.user_id === user_id)
@@ -943,6 +957,12 @@ const Game = class {
                 return
             }
             //end speech
+            if (speech_type === "last_word_user") {
+                const { after_speech } = this.game_vars
+                after_speech()
+                this.mainCycle()
+                return
+            }
             if (speech_type === "final_words") {
                 let game_result_check = night.check_next_day({ game_vars: this.game_vars })
                 if (game_result_check === 4) {
@@ -954,7 +974,8 @@ const Game = class {
                 }
                 else if (game_result_check === 3) {
                     this.game_vars.edit_event("edit", "next_event", "chaos")
-
+                    this.mainCycle()
+                    return
                 }
                 else {
                     let winner = game_result_check === 2 ? "mafia" : "citizen"
@@ -1045,7 +1066,7 @@ const Game = class {
                 let user_in_queue = queue.filter(u => u.user_id === user_id)
                 return {
                     user_id,
-                    status: user_in_queue.length === 1
+                    status: user_in_queue.length === 10
                 }
             })
             this.socket.to(game_id).emit("users_challenge_status", { data: status_list })
@@ -1071,7 +1092,6 @@ const Game = class {
             game_vars: this.game_vars,
             edit_others: true
         })
-        console.log({ queue, turn });
         const { type } = queue[turn]
         start.edit_game_action({
             index,
@@ -1349,7 +1369,7 @@ const Game = class {
     async count_exit_vote() {
         this.game_vars.edit_event("edit", "speech_type", "turn")
         const { game_id, socket } = this
-        const user_to_exit = vote.count_exit_vote({ game_vars: this.game_vars, game_id, socket, users: this.users, socket_finder: this.socket_finder, game_id: this.game_id, play_voice: this.play_voice })
+        const user_to_exit = vote.count_exit_vote({ game_vars: this.game_vars, game_id, socket, users: this.users, socket_finder: this.socket_finder, game_id: this.game_id, play_voice: this.play_voice,final_word_maker:this.last_word })
         if (user_to_exit) {
             const game_result_check = night.check_next_day({ game_vars: this.game_vars })
             if (game_result_check === 4) this.game_vars.edit_event("edit", "next_event", "start_night")
@@ -1369,7 +1389,6 @@ const Game = class {
         this.game_vars.edit_event("edit", "defenders_queue", [])
         await Helper.delay(3)
         this.game_vars.edit_event("edit", "can_take_challenge", true)
-        this.mainCycle()
     }
 
     async inquiry() {
@@ -1540,7 +1559,7 @@ const Game = class {
             this.game_vars.edit_event("edit", "mafia_need_token", [])
         }
 
-       
+
         this.play_voice(_play_voice.play_voice("next_day"))
         await Helper.delay(5)
         await night.next_day({

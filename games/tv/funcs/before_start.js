@@ -44,7 +44,7 @@ const befor_start = {
                     is_connected: true,
                     is_alive: true,
                     is_talking: false,
-                    on_vote:false
+                    on_vote: false
                 },
                 user_action: {
                     speech_type: "none",
@@ -74,17 +74,17 @@ const befor_start = {
     },
 
 
-    translate_speech_type({game_vars,type}){
-        if(type)return type
-        const {speech_type}=game_vars
-        switch(speech_type){
-            case("introduction"):return "معارفه"
-            case("turn"):return "ترن"
-            case("challenge"):return "چالش"
-            case("defence"):return "دفاعیه"
-            case("chaos"):return "کی آس"
-            case("final_words"):return "وصیت"
-            default:return "ترن"
+    translate_speech_type({ game_vars, type }) {
+        let { speech_type } = game_vars
+        if (type) speech_type = type
+        switch (speech_type) {
+            case ("introduction"): return "معارفه"
+            case ("turn"): return "ترن"
+            case ("challenge"): return "چالش"
+            case ("defence"): return "دفاعیه"
+            case ("chaos"): return "کی آس"
+            case ("final_words"): return "وصیت"
+            default: return type
         }
     },
 

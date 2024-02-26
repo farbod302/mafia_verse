@@ -86,9 +86,9 @@ const start = {
 
     set_timer_to_contnue_speech_queue({ func, game_vars, time, socket, users, speech_code, player_to_set_timer, game_id }) {
         const timer_func = () => {
-            const { speech_code: cur_speech_code } = game_vars
+            const { speech_code: cur_speech_code, player_reval } = game_vars
 
-            if (speech_code === cur_speech_code) {
+            if (speech_code === cur_speech_code && !player_reval) {
                 let user = befor_start.pick_player_from_user_id({ users, user_id: player_to_set_timer })
                 const { socket_id } = user
                 socket.to(socket_id).emit("speech_time_up", { data: { user_id: user.user_id } })

@@ -219,7 +219,7 @@ const night = {
                 return { availabel_users: live_users.map(e => e.user_id), max_count: 1 }
             }
 
-            case("nato"):{
+            case ("nato"): {
                 const { mafia_list } = game_vars
                 let mafia_ids = mafia_list.map(user => user.user_id)
                 let live_users = start.pick_live_users({ game_vars })
@@ -244,11 +244,13 @@ const night = {
                 }
             }
             case ("hostage_taker"): {
+                const { mafia_list } = game_vars
                 const { last_night_hostage } = game_vars
+                let mafia_ids = mafia_list.map(user => user.user_id)
                 let live_users = start.pick_live_users({ game_vars })
                 live_users = live_users.filter(user => user.user_id !== user_id && user.user_id !== last_night_hostage)
+                live_users = live_users.filter(user => !mafia_ids.includes(user.user_id))
                 return { availabel_users: live_users.map(user => user.user_id), max_count: 1 }
-
             }
 
             case ("rifleman"): {

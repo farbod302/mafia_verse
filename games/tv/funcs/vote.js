@@ -52,8 +52,11 @@ const vote = {
         let dead_users = game_vars.player_status.filter(e => !e.user_status.is_alive)
         dead_users = dead_users.map(e => e.user_id)
         let users_to_prevent_vote = dead_users.concat(cur_player.user_id)
-        console.log({ custom_queue });
-        if (custom_queue.length && custom_queue.length < 3) {
+        const live_users = start.pick_live_users({ game_vars })
+        const live_users_count = live_users.length
+        let users_to_defence = votes_status.filter(user => user.users.length >= Math.floor(live_users_count / 2))
+        console.log({ users_to_defence });
+        if (custom_queue.length && users_to_defence.length < 3) {
             custom_queue.forEach(user => {
                 console.log(user.user_id, "PREVENT");
                 users_to_prevent_vote.push(user.user_id)
@@ -164,25 +167,22 @@ const vote = {
             let user = befor_start.pick_player_from_user_id({ users, user_id })
             return { ...user, type }
         })
-        console.log({speech_queue});
+        console.log({ speech_queue });
         game_vars.edit_event("edit", "custom_queue", speech_queue.reverse())
         game_vars.edit_event("edit", "next_event", "start_speech")
 
     },
 
-    count_exit_vote({ game_vars, users, socket, game_id, socket_finder, play_voice }) {
+    count_exit_vote({ game_vars, users, socket, game_id, socket_finder, final_word_maker }) {
         const { votes_status } = game_vars
         let user_to_exit = votes_status.sort((a, b) => { return b.users.length - a.users.length })
-        console.log({ user_to_exit });
         user_to_exit = user_to_exit[0]
         let exit_vote_count = user_to_exit.users.length
-        console.log({ exit_vote_count });
         const live_users = start.pick_live_users({ game_vars })
         const live_users_count = live_users.length
         if (exit_vote_count < Math.floor(live_users_count / 2)) return
         //todo count exit vote
         let users_with_same_vote = votes_status.filter(user => user.users.length === exit_vote_count)
-        console.log({ users_with_same_vote });
         user_to_exit = null
         if (users_with_same_vote.length === 1) {
             user_to_exit = users_with_same_vote[0]
@@ -200,60 +200,65 @@ const vote = {
         //     }
 
         // }
+
         if (user_to_exit) {
             const { user_id } = user_to_exit
             //check if guard
-            const { carts, dead_list } = game_vars
-            let guard = carts.findIndex(cart => cart.name === "guard")
-            if (guard !== -1 && carts[guard]?.user_id === user_id) {
-                let new_carts = [...carts]
-                new_carts[guard].name = "citizen"
-                game_vars.edit_event("edit", "carts", new_carts)
-                const index = users.findIndex(e => e.user_id === user_id)
-                const socket_id = socket_finder(user_id)
-                socket.to(socket_id).emit("player_show_character")
-                game_vars.edit_event("edit", "report_data",
-                    {
-                        user_id: user_id,
-                        event: "exit_vote",
-                        msg: `از بازی کسی خارج نشد.بازیکن شماره ${index + 1} با نقش شهروندی به بازی ادامه خواهد داد و قابل ناتویی نیست.`
+            const after_speech = () => {
+                const { carts, dead_list } = game_vars
+                let guard = carts.findIndex(cart => cart.name === "guard")
+                if (guard !== -1 && carts[guard]?.user_id === user_id) {
+                    let new_carts = [...carts]
+                    new_carts[guard].name = "citizen"
+                    game_vars.edit_event("edit", "carts", new_carts)
+                    const index = users.findIndex(e => e.user_id === user_id)
+                    const socket_id = socket_finder(user_id)
+                    socket.to(socket_id).emit("player_show_character")
+                    game_vars.edit_event("edit", "report_data",
+                        {
+                            user_id: user_id,
+                            event: "exit_vote",
+                            msg: `از بازی کسی خارج نشد.بازیکن شماره ${index + 1} با نقش شهروندی به بازی ادامه خواهد داد و قابل ناتویی نیست.`
+                        })
+
+                    // play_voice(_play_voice.play_voice("moved_out", index))
+
+                } else {
+                    let index = game_vars.player_status.findIndex(user => user.user_id === user_id)
+                    start.edit_game_action({
+                        index,
+                        prime_event: "user_status",
+                        second_event: "is_alive",
+                        new_value: false,
+                        game_vars
                     })
+                    if (!dead_list.includes(user_id)) {
+                        game_vars.edit_event("push", "dead_list", user_id)
+                    }
 
-                // play_voice(_play_voice.play_voice("moved_out", index))
+                    const { player_status } = game_vars
+                    socket.to(game_id).emit("game_action", { data: [player_status[index]] })
 
-            } else {
-                let index = game_vars.player_status.findIndex(user => user.user_id === user_id)
-                start.edit_game_action({
-                    index,
-                    prime_event: "user_status",
-                    second_event: "is_alive",
-                    new_value: false,
-                    game_vars
-                })
-                if (!dead_list.includes(user_id)) {
-                    game_vars.edit_event("push", "dead_list", user_id)
+                    game_vars.edit_event("edit", "report_data",
+                        {
+                            user_id: user_id,
+                            event: "exit_vote",
+                            msg: `بازیکن شماره ${index + 1} از بازی خارج شد`
+                        })
                 }
+                start.generate_report({
+                    game_vars,
+                    report_type: "vote_report",
+                    socket,
+                    game_id
+                })
 
-                const { player_status } = game_vars
-                socket.to(game_id).emit("game_action", { data: [player_status[index]] })
-
-                game_vars.edit_event("edit", "report_data",
-                    {
-                        user_id: user_id,
-                        event: "exit_vote",
-                        msg: `بازیکن شماره ${index + 1} از بازی خارج شد`
-                    })
             }
-            start.generate_report({
-                game_vars,
-                report_type: "vote_report",
-                socket,
-                game_id
-            })
-
+            game_vars.edit_event("edit", "vote_type", "pre_vote")
+            game_vars.edit_event("edit", "custom_queue", [])
+            final_word_maker({ user_to_talk: user_to_exit.user_id, after_speech })
         }
-        game_vars.edit_event("edit", "vote_type", "pre_vote")
-        game_vars.edit_event("edit", "custom_queue", [])
+        
         return user_to_exit?.user_id || null
 
 
