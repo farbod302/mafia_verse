@@ -50,6 +50,7 @@ const Game = class {
 
     mainCycle() {
         const next_event = this.game_vars.next_event
+        console.log({next_event});
         this.game_vars.edit_event("edit", "cur_event", next_event)
         const abandon = () => {
             this.game_vars.edit_event("edit", "next_event", "finish")
@@ -873,7 +874,6 @@ const Game = class {
         this.game_vars.edit_event("edit", "challenge_time_status", [])
         const { game_id } = this
         const { queue, turn, can_take_challenge, speech_type, reval, player_reval, carts, player_status, second_chance } = this.game_vars
-        console.log({queue, turn, can_take_challenge, speech_type, reval, player_reval, carts, player_status, second_chance});
         const user_index = queue[turn]?.user_index;
         if (user_index && !player_status[user_index]?.user_status?.is_alive){
             console.log("IM CUS THIS");
@@ -881,6 +881,7 @@ const Game = class {
         }
         //check player reval
         if (player_reval && player_reval.turn === turn) {
+            console.log("REVAL");
             const { user_id } = player_reval
             const user_main_index = this.users.findIndex(e => e.user_id === user_id)
             let player_roule = carts.find(c => c.user_id === user_id)
@@ -924,6 +925,7 @@ const Game = class {
         }
 
         if (queue.length <= turn) {
+            console.log("END OF QUEUE");
             this.game_vars.edit_event("edit", "second_chance", [])
             this.game_vars.edit_event("edit", "can_act", true)
 
@@ -1402,6 +1404,7 @@ const Game = class {
             }
         }
         else {
+            console.log("exit");
             this.game_vars.edit_event("edit", "next_event", "start_night")
             this.mainCycle()
 

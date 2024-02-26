@@ -201,7 +201,6 @@ const vote = {
         // }
 
         if (user_to_exit) {
-            game_vars.edit_event("edit", "turn",-1)
             const { user_id } = user_to_exit
             //check if guard
             const after_speech = () => {
