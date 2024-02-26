@@ -2,6 +2,7 @@ const Helper = require("../../../helper/helper")
 const { delay } = require("../../../helper/helper")
 const run_timer = require("../../../helper/timer")
 const befor_start = require("./before_start")
+const night = require("./night")
 const _play_voice = require("./play_voice")
 const start = require("./start")
 
@@ -19,7 +20,7 @@ const vote = {
 
     },
     async next_player_vote_turn({ game_vars, socket, game_id, cycle, users, play_voice }) {
-        const { queue, turn, vote_type, custom_queue ,votes_status} = game_vars
+        const { queue, turn, vote_type, custom_queue, votes_status } = game_vars
         let new_vote_record = { user_id: queue[turn].user_id, available_users: [], users: [], vote_type, timer: 5 }
         game_vars.edit_event("push", "votes_status", new_vote_record)
         // socket.to(game_id).emit("vote", { data: new_vote_record })
@@ -172,7 +173,7 @@ const vote = {
 
     },
 
-    count_exit_vote({ game_vars, users, socket, game_id, socket_finder, final_word_maker ,mainCycle}) {
+    count_exit_vote({ game_vars, users, socket, game_id, socket_finder, final_word_maker, mainCycle }) {
         const { votes_status } = game_vars
         let user_to_exit = votes_status.sort((a, b) => { return b.users.length - a.users.length })
         user_to_exit = user_to_exit[0]
@@ -203,7 +204,7 @@ const vote = {
         if (user_to_exit) {
             const { user_id } = user_to_exit
             //check if guard
-            const after_speech = () => {
+            const after_speech =async () => {
                 console.log("IM RUN");
                 const { carts, dead_list } = game_vars
                 let guard = carts.findIndex(cart => cart.name === "guard")
@@ -252,13 +253,25 @@ const vote = {
                     socket,
                     game_id
                 })
+                await Helper.delay(4)
+
+                const game_result_check = night.check_next_day({ game_vars:game_vars })
+                if (game_result_check === 4)game_vars.edit_event("edit", "next_event", "start_night")
+                if (game_result_check === 1 || game_result_check === 2) {
+                    let winner = game_result_check === 2 ? "mafia" : "citizen"
+                   game_vars.edit_event("edit", "winner", winner)
+                   game_vars.edit_event("edit", "next_event", "end_game")
+                }
+                if (game_result_check === 3) {
+                   game_vars.edit_event("edit", "next_event", "chaos")
+                }
 
             }
             game_vars.edit_event("edit", "vote_type", "pre_vote")
             game_vars.edit_event("edit", "custom_queue", [])
-            final_word_maker({ user_to_talk: user_to_exit.user_id, after_speech ,game_vars,mainCycle})
+            final_word_maker({ user_to_talk: user_to_exit.user_id, after_speech, game_vars, mainCycle })
         }
-        
+
         return user_to_exit?.user_id || null
 
 

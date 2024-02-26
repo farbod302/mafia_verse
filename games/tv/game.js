@@ -967,7 +967,7 @@ const Game = class {
             //end speech
             if (speech_type === "last_word_user") {
                 const { after_speech } = this.game_vars
-                after_speech()
+                await after_speech()
                 await Helper.delay(3)
                 console.log("IM CUS THIS 4");
 
@@ -1404,16 +1404,6 @@ const Game = class {
         this.game_vars.edit_event("edit", "can_take_challenge", true)
         if (user_to_exit) {
             return
-            const game_result_check = night.check_next_day({ game_vars: this.game_vars })
-            if (game_result_check === 4) this.game_vars.edit_event("edit", "next_event", "start_night")
-            if (game_result_check === 1 || game_result_check === 2) {
-                let winner = game_result_check === 2 ? "mafia" : "citizen"
-                this.game_vars.edit_event("edit", "winner", winner)
-                this.game_vars.edit_event("edit", "next_event", "end_game")
-            }
-            if (game_result_check === 3) {
-                this.game_vars.edit_event("edit", "next_event", "chaos")
-            }
         }
         else {
             console.log("exit");
