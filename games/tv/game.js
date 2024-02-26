@@ -855,13 +855,11 @@ const Game = class {
     last_word({ user_to_talk, after_speech, game_vars, mainCycle }) {
         const live_users = start.pick_live_users({ game_vars })
         const selected_user = live_users.filter(e => e.user_id === user_to_talk)
-        console.log({user_to_talk,selected_user});
         const queue = start.generate_queue({
             type: "وصیت",
             game_vars: game_vars,
             users: selected_user
         })
-        console.log({queue});
         game_vars.edit_event("edit", "custom_queue", queue)
         game_vars.edit_event("edit", "after_speech", after_speech)
         game_vars.edit_event("edit", "speech_type", "last_word_user")
@@ -1383,6 +1381,7 @@ const Game = class {
         this.game_vars.edit_event("edit", "defenders_queue", [])
         this.game_vars.edit_event("edit", "can_take_challenge", true)
         if (user_to_exit) {
+            return
             const game_result_check = night.check_next_day({ game_vars: this.game_vars })
             if (game_result_check === 4) this.game_vars.edit_event("edit", "next_event", "start_night")
             if (game_result_check === 1 || game_result_check === 2) {
