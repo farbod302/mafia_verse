@@ -50,7 +50,7 @@ const Game = class {
 
     mainCycle() {
         const next_event = this.game_vars.next_event
-        console.log({next_event});
+        console.log({ next_event });
         this.game_vars.edit_event("edit", "cur_event", next_event)
         const abandon = () => {
             this.game_vars.edit_event("edit", "next_event", "finish")
@@ -875,8 +875,8 @@ const Game = class {
         const { game_id } = this
         const { queue, turn, can_take_challenge, speech_type, reval, player_reval, carts, player_status, second_chance } = this.game_vars
         const user_index = queue[turn]?.user_index;
-        if (user_index && !player_status[user_index]?.user_status?.is_alive){
-            console.log("IM CUS THIS");
+        if (user_index && !player_status[user_index]?.user_status?.is_alive) {
+            console.log("IM CUS THIS 1");
             return this.mainCycle()
         }
         //check player reval
@@ -916,7 +916,7 @@ const Game = class {
                 const player_socket = this.socket_finder(user_id)
                 this.socket.to(player_socket).emit("speech_time_up", { data: { user_id: queue[turn - 1]?.user_id } })
                 await Helper.delay(1)
-
+                console.log("IM CUS THIS 2");
                 this.mainCycle()
 
             }
@@ -959,6 +959,8 @@ const Game = class {
 
             if (speech_type === "chaos") {
                 this.game_vars.edit_event("edit", "next_event", "chaos_speech_second_phase")
+                console.log("IM CUS THIS 3");
+
                 this.mainCycle()
                 return
             }
@@ -967,6 +969,8 @@ const Game = class {
                 const { after_speech } = this.game_vars
                 after_speech()
                 await Helper.delay(3)
+                console.log("IM CUS THIS 4");
+
                 this.mainCycle()
                 return
             }
@@ -976,11 +980,15 @@ const Game = class {
 
                     this.game_vars.edit_event("edit", "next_event", "start_night")
                     this.game_vars.edit_event("edit", "vote_type", "pre_vote")
+                    console.log("IM CUS THIS 5");
+
                     this.mainCycle()
                     return
                 }
                 else if (game_result_check === 3) {
                     this.game_vars.edit_event("edit", "next_event", "chaos")
+                    console.log("IM CUS THIS 6");
+
                     this.mainCycle()
                     return
                 }
@@ -988,6 +996,8 @@ const Game = class {
                     let winner = game_result_check === 2 ? "mafia" : "citizen"
                     this.game_vars.edit_event("edit", "winner", winner)
                     this.game_vars.edit_event("edit", "next_event", "end_game")
+                    console.log("IM CUS THIS 7");
+
                     this.mainCycle()
                     return
 
@@ -999,6 +1009,8 @@ const Game = class {
                 let next_event = !reval ? "mafia_reval" : "pre_vote"
                 this.game_vars.edit_event("edit", "next_event", next_event, "next_player_speech")
                 this.game_vars.edit_event("edit", "speech_type", "turn", "next_player_speech")
+                console.log("IM CUS THIS 8");
+
                 this.mainCycle()
                 return
             }
@@ -1031,9 +1043,7 @@ const Game = class {
         await Helper.delay(1)
         let cur_speech = queue[turn]
         const cur_user_status = player_status.find(e => e.user_id === cur_speech.user_id)
-        console.log({
-            cur_user_status,cur_speech
-        });
+        
         if (!cur_user_status) return this.mainCycle()
         if (!cur_user_status.user_status.is_connected) {
             if (!second_chance.includes(cur_speech.user_id)) {
@@ -1042,6 +1052,8 @@ const Game = class {
                 this.game_vars.edit_event("edit", "queue", new_queue)
                 this.game_vars.second_chance.push(cur_speech.user_id)
             }
+            console.log("IM CUS THIS 9");
+
             this.mainCycle()
             return
         }
@@ -1120,6 +1132,7 @@ const Game = class {
         //set timer
         const contnue_func = () => { this.mainCycle(); }
         let speech_code = uid(4)
+        console.log("TIMMMER");
         this.game_vars.edit_event("edit", "speech_code", speech_code)
         if (this.game_vars.speech_type === "challenge") {
             this.game_vars.edit_event("edit", "speech_type", "turn")
@@ -1386,7 +1399,7 @@ const Game = class {
             game_id: this.game_id,
             play_voice: this.play_voice,
             final_word_maker: this.last_word,
-            mainCycle: ()=>{this.mainCycle()}
+            mainCycle: () => { this.mainCycle() }
         })
         this.game_vars.edit_event("edit", "defenders_queue", [])
         this.game_vars.edit_event("edit", "can_take_challenge", true)
