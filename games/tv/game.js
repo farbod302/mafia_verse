@@ -1132,7 +1132,6 @@ const Game = class {
         //set timer
         const contnue_func = () => { this.mainCycle(); }
         let speech_code = uid(4)
-        console.log("TIMMMER");
         this.game_vars.edit_event("edit", "speech_code", speech_code)
         if (this.game_vars.speech_type === "challenge") {
             this.game_vars.edit_event("edit", "speech_type", "turn")

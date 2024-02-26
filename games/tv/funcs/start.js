@@ -92,6 +92,8 @@ const start = {
                 let user = befor_start.pick_player_from_user_id({ users, user_id: player_to_set_timer })
                 const { socket_id } = user
                 socket.to(socket_id).emit("speech_time_up", { data: { user_id: user.user_id } })
+                console.log("TIMMMER");
+
                 func()
             }
         }
