@@ -172,7 +172,7 @@ const vote = {
 
     },
 
-    count_exit_vote({ game_vars, users, socket, game_id, socket_finder, final_word_maker }) {
+    count_exit_vote({ game_vars, users, socket, game_id, socket_finder, final_word_maker ,mainCycle}) {
         const { votes_status } = game_vars
         let user_to_exit = votes_status.sort((a, b) => { return b.users.length - a.users.length })
         user_to_exit = user_to_exit[0]
@@ -255,7 +255,7 @@ const vote = {
             }
             game_vars.edit_event("edit", "vote_type", "pre_vote")
             game_vars.edit_event("edit", "custom_queue", [])
-            final_word_maker({ user_to_talk: user_to_exit.user_id, after_speech ,game_vars})
+            final_word_maker({ user_to_talk: user_to_exit.user_id, after_speech ,game_vars,mainCycle})
         }
         
         return user_to_exit?.user_id || null

@@ -852,19 +852,19 @@ const Game = class {
         this.mainCycle()
     }
 
-    last_word({ user_to_talk, after_speech ,game_vars}) {
+    last_word({ user_to_talk, after_speech, game_vars, mainCycle }) {
         const live_users = start.pick_live_users({ game_vars })
         const selected_user = live_users.filter(e => e.user_id === user_to_talk)
         const queue = start.generate_queue({
             type: "وصیت",
-            game_vars: this.game_vars,
+            game_vars: game_vars,
             users: selected_user
         })
-        this.game_vars.edit_event("edit", "custom_queue", queue)
-        this.game_vars.edit_event("edit", "after_speech", after_speech)
-        this.game_vars.edit_event("edit", "speech_type", "last_word_user")
-        this.game_vars.edit_event("edit", "next_event", "start_speech")
-        this.mainCycle()
+        game_vars.edit_event("edit", "custom_queue", queue)
+        game_vars.edit_event("edit", "after_speech", after_speech)
+        game_vars.edit_event("edit", "speech_type", "last_word_user")
+        game_vars.edit_event("edit", "next_event", "start_speech")
+        mainCycle()
     }
 
 
@@ -1369,7 +1369,15 @@ const Game = class {
     async count_exit_vote() {
         this.game_vars.edit_event("edit", "speech_type", "turn")
         const { game_id, socket } = this
-        const user_to_exit = vote.count_exit_vote({ game_vars: this.game_vars, game_id, socket, users: this.users, socket_finder: this.socket_finder, game_id: this.game_id, play_voice: this.play_voice,final_word_maker:this.last_word })
+        const user_to_exit = vote.count_exit_vote({
+            game_vars: this.game_vars,
+            game_id, socket, users: this.users,
+            socket_finder: this.socket_finder,
+            game_id: this.game_id,
+            play_voice: this.play_voice,
+            final_word_maker: this.last_word,
+            mainCycle: this.mainCycle
+        })
         this.game_vars.edit_event("edit", "defenders_queue", [])
         this.game_vars.edit_event("edit", "can_take_challenge", true)
         if (user_to_exit) {
@@ -1389,7 +1397,7 @@ const Game = class {
             this.mainCycle()
 
         }
-       
+
     }
 
     async inquiry() {
