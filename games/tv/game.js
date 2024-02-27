@@ -872,10 +872,11 @@ const Game = class {
     async next_player_speech() {
         this.game_vars.edit_event("edit", "turn", "plus")
         this.game_vars.edit_event("edit", "challenge_time_status", [])
-        const { type } = queue[turn]
 
         const { game_id } = this
         const { queue, turn, can_take_challenge, speech_type, reval, player_reval, carts, player_status, second_chance } = this.game_vars
+        const { type } = queue[turn]
+
         const user_index = queue[turn]?.user_index;
         if (user_index && !player_status[user_index]?.user_status?.is_alive) {
             console.log("IM CUS THIS 1");
