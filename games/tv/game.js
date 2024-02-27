@@ -839,6 +839,7 @@ const Game = class {
         if (speech_type === "defence") {
             this.play_voice(_play_voice.play_voice("defence_speech"))
         }
+        console.log({custom_queue});
         const { game_id } = this
         let queue = start.generate_queue({
             type: speech_type,
