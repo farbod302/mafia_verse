@@ -49,7 +49,7 @@ const start = {
         let queue = live_users.map(user => {
             const { user_id, user_index, type: custom_type } = user
             return {
-                user_id, user_index, speech_status: custom_type || type, pass: false, challenge_used: false, type
+                user_id, user_index, speech_status: custom_type || type, pass: false, challenge_used: false, type:custom_type
             }
         })
         return queue
