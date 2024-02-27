@@ -876,7 +876,6 @@ const Game = class {
 
         const { game_id } = this
         const { queue, turn, can_take_challenge, speech_type, reval, player_reval, carts, player_status, second_chance } = this.game_vars
-        const { type } = queue[turn]
 
         const user_index = queue[turn]?.user_index;
         if (user_index && !player_status[user_index]?.user_status?.is_alive) {
@@ -1047,6 +1046,7 @@ const Game = class {
         await Helper.delay(1)
         let cur_speech = queue[turn]
         const cur_user_status = player_status.find(e => e.user_id === cur_speech.user_id)
+        const { type } = queue[turn]
 
         if (!cur_user_status) return this.mainCycle()
         if (!cur_user_status.user_status.is_connected) {
