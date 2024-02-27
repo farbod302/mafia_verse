@@ -1273,9 +1273,11 @@ const Game = class {
     }
 
     async next_player_target_cover() {
+
         const { game_id } = this
         const { target_cover_queue } = this.game_vars
         let turn = target_cover_queue.findIndex(q => !q.comp)
+        this.socket.to(game_id).emit("game_event",{data:{game_event:"none"}})
         if (turn === -1) {
             //end target cover
             vote.arrange_queue_after_target_cover({ game_vars: this.game_vars, users: this.users })
