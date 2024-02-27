@@ -85,6 +85,9 @@ const befor_start = {
             case ("chaos"): return "کی آس"
             case ("final_words"): return "وصیت"
             case ("last_word_user"): return "وصیت"
+            case ("target"): return "تارگت"
+            case ("cover"): return "کاور"
+            case ("target"): return "درباره"
             default: return speech_type
         }
     },
