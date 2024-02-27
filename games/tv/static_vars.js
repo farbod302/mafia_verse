@@ -1,5 +1,5 @@
 const static_vars={
-    player_count:3,
+    player_count:4,
     rols:[
         "citizen",
         "citizen",
@@ -13,13 +13,13 @@ const static_vars={
         "godfather",
     ],
     speech_time:{
-        introduction:10,
-        turn:15,
-        challenge:15,
+        introduction:30,
+        turn:45,
+        challenge:30,
         defence:30,
-        chaos:10,
-        final_words:20,
-        last_word_user:20
+        chaos:30,
+        final_words:30,
+        last_word_user:30
     },
     scenario:"nato",
     to_dec:"price"

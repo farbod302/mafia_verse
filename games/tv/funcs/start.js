@@ -157,8 +157,6 @@ const start = {
         game_vars.edit_event("edit", "speech_type", "turn")
         game_vars.edit_event("edit", "reval", true)
         game_vars.edit_event("edit", "next_event", "start_speech")
-        // game_vars.edit_event("edit", "next_event", "pre_vote")
-        // game_vars.edit_event("edit", "next_event", "chaos")
         game_vars.edit_event("edit", "can_take_challenge", true)
     },
 

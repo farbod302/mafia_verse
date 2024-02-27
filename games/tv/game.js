@@ -1060,7 +1060,7 @@ const Game = class {
         if (turn !== 0) {
             this.play_voice(_play_voice.play_voice("next"))
         }
-        let time = static_vars.speech_time[speech_type]
+        let time = static_vars.speech_time[speech_type] || 20
         this.socket.to(game_id).emit("current_speech", {
             current: cur_speech.user_id,
             timer: time,
