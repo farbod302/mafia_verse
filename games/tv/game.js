@@ -1115,6 +1115,7 @@ const Game = class {
             edit_others: true
         })
         const { type } = queue[turn]
+        console.log(befor_start.translate_speech_type({ game_vars: this.game_vars, type }));
         start.edit_game_action({
             index,
             prime_event: "user_action",
