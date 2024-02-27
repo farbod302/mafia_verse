@@ -56,11 +56,14 @@ const vote = {
         const live_users = start.pick_live_users({ game_vars })
         const live_users_count = live_users.length
         let users_to_defence = votes_status.filter(user => user.users.length >= Math.floor(live_users_count / 2))
+        console.log({ users_to_defence });
         if (users_to_defence.length && users_to_defence.length < 3) {
             users_to_defence.forEach(user => {
                 users_to_prevent_vote.push(user.user_id)
             })
         }
+        console.log({ users_to_defence_2:users_to_defence });
+
         let user_to_vote = users.filter(user => !users_to_prevent_vote.includes(user.user_id))
         new_vote_record.available_users = user_to_vote.map(e => e.user_id)
         if (index > -1) {
@@ -203,7 +206,7 @@ const vote = {
         if (user_to_exit) {
             const { user_id } = user_to_exit
             //check if guard
-            const after_speech =async () => {
+            const after_speech = async () => {
                 console.log("IM RUN");
                 const { carts, dead_list } = game_vars
                 let guard = carts.findIndex(cart => cart.name === "guard")
@@ -254,15 +257,15 @@ const vote = {
                 })
                 await Helper.delay(4)
 
-                const game_result_check = night.check_next_day({ game_vars:game_vars })
-                if (game_result_check === 4)game_vars.edit_event("edit", "next_event", "start_night")
+                const game_result_check = night.check_next_day({ game_vars: game_vars })
+                if (game_result_check === 4) game_vars.edit_event("edit", "next_event", "start_night")
                 if (game_result_check === 1 || game_result_check === 2) {
                     let winner = game_result_check === 2 ? "mafia" : "citizen"
-                   game_vars.edit_event("edit", "winner", winner)
-                   game_vars.edit_event("edit", "next_event", "end_game")
+                    game_vars.edit_event("edit", "winner", winner)
+                    game_vars.edit_event("edit", "next_event", "end_game")
                 }
                 if (game_result_check === 3) {
-                   game_vars.edit_event("edit", "next_event", "chaos")
+                    game_vars.edit_event("edit", "next_event", "chaos")
                 }
 
             }
