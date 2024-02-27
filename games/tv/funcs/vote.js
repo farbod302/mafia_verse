@@ -10,6 +10,8 @@ const vote = {
     async start_vote({ game_vars }) {
 
         await delay(3)
+        const { votes_status } = game_vars
+        game_vars.edit_event("edit", "prv_vote_status", votes_status)
         game_vars.edit_event("edit", "votes_status", [])
         const { defenders_queue, vote_type, custom_queue } = game_vars
         let custom = defenders_queue?.length ? defenders_queue : custom_queue
@@ -20,7 +22,7 @@ const vote = {
 
     },
     async next_player_vote_turn({ game_vars, socket, game_id, cycle, users, play_voice }) {
-        const { queue, turn, vote_type, custom_queue, votes_status } = game_vars
+        const { queue, turn, vote_type, prv_vote_status } = game_vars
         let new_vote_record = { user_id: queue[turn].user_id, available_users: [], users: [], vote_type, timer: 5 }
         game_vars.edit_event("push", "votes_status", new_vote_record)
         // socket.to(game_id).emit("vote", { data: new_vote_record })
@@ -53,16 +55,18 @@ const vote = {
         let dead_users = game_vars.player_status.filter(e => !e.user_status.is_alive)
         dead_users = dead_users.map(e => e.user_id)
         let users_to_prevent_vote = dead_users.concat(cur_player.user_id)
-        const live_users = start.pick_live_users({ game_vars })
-        const live_users_count = live_users.length
-        let users_to_defence = votes_status.filter(user => user.users.length >= Math.floor(live_users_count / 2))
-        console.log({ users_to_defence });
-        if (users_to_defence.length && users_to_defence.length < 3) {
-            users_to_defence.forEach(user => {
-                users_to_prevent_vote.push(user.user_id)
-            })
+        if (vote_type === "defence") {
+            const live_users = start.pick_live_users({ game_vars })
+            const live_users_count = live_users.length
+            console.log({prv_vote_status});
+            let users_to_defence = prv_vote_status.filter(user => user.users.length >= Math.floor(live_users_count / 2))
+            if (users_to_defence.length && users_to_defence.length < 3) {
+                users_to_defence.forEach(user => {
+                    users_to_prevent_vote.push(user.user_id)
+                })
+            }
+            console.log({users_to_prevent_vote});
         }
-        console.log({ users_to_defence_2:users_to_defence });
 
         let user_to_vote = users.filter(user => !users_to_prevent_vote.includes(user.user_id))
         new_vote_record.available_users = user_to_vote.map(e => e.user_id)
