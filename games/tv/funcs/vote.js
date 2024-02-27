@@ -157,12 +157,12 @@ const vote = {
         let speech_queue = []
         target_cover_queue.forEach((user) => {
             const { users_select, users_select_length, user_id } = user
-            console.log({ users_select });
-            speech_queue.push({ user_id, type: null })
+            speech_queue.push({ user_id, type: "defence" })
             if (users_select.length === users_select_length) {
                 speech_queue = speech_queue.concat(users_select)
             }
         })
+        console.log({speech_queue});
         speech_queue = speech_queue.map(({ user_id, type }) => {
             let user = befor_start.pick_player_from_user_id({ users, user_id })
             return { ...user, type }

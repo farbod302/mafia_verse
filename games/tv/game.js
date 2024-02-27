@@ -872,6 +872,8 @@ const Game = class {
     async next_player_speech() {
         this.game_vars.edit_event("edit", "turn", "plus")
         this.game_vars.edit_event("edit", "challenge_time_status", [])
+        const { type } = queue[turn]
+
         const { game_id } = this
         const { queue, turn, can_take_challenge, speech_type, reval, player_reval, carts, player_status, second_chance } = this.game_vars
         const user_index = queue[turn]?.user_index;
@@ -1043,7 +1045,7 @@ const Game = class {
         await Helper.delay(1)
         let cur_speech = queue[turn]
         const cur_user_status = player_status.find(e => e.user_id === cur_speech.user_id)
-        
+
         if (!cur_user_status) return this.mainCycle()
         if (!cur_user_status.user_status.is_connected) {
             if (!second_chance.includes(cur_speech.user_id)) {
@@ -1059,8 +1061,9 @@ const Game = class {
         }
         if (turn !== 0) {
             this.play_voice(_play_voice.play_voice("next"))
+
         }
-        let time = static_vars.speech_time[speech_type] || 20
+        let time = static_vars.speech_time[(type || speech_type)] || 20
         this.socket.to(game_id).emit("current_speech", {
             current: cur_speech.user_id,
             timer: time,
@@ -1088,7 +1091,7 @@ const Game = class {
                 let user_in_queue = queue.filter(u => u.user_id === user_id)
                 return {
                     user_id,
-                    status:true
+                    status: true
                 }
             })
             this.socket.to(game_id).emit("users_challenge_status", { data: status_list })
@@ -1114,7 +1117,6 @@ const Game = class {
             game_vars: this.game_vars,
             edit_others: true
         })
-        const { type } = queue[turn]
         console.log(befor_start.translate_speech_type({ game_vars: this.game_vars, type }));
         start.edit_game_action({
             index,
@@ -1278,7 +1280,7 @@ const Game = class {
         const { game_id } = this
         const { target_cover_queue } = this.game_vars
         let turn = target_cover_queue.findIndex(q => !q.comp)
-        this.socket.to(game_id).emit("game_event",{data:{game_event:"none"}})
+        this.socket.to(game_id).emit("game_event", { data: { game_event: "none" } })
         if (turn === -1) {
             //end target cover
             vote.arrange_queue_after_target_cover({ game_vars: this.game_vars, users: this.users })

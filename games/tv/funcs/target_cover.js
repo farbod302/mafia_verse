@@ -10,7 +10,9 @@ const targetCover = {
                 return { user_id: user.user_id, type: "about", users_select: [], users_select_length: 1, permission: null, comp: false }
             })
         }
+        const ids=queue.map(e=>e.user_id)
         game_vars.edit_event("edit", "target_cover_queue", target_cover_queue)
+        game_vars.edit_event("edit", "target_cover_disable", ids)
     },
 
     next_target_cover({ game_vars, users }) {

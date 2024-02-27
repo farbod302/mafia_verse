@@ -75,7 +75,6 @@ const befor_start = {
 
 
     translate_speech_type({ game_vars, type }) {
-        console.log({type});
         let { speech_type } = game_vars
         if (type) speech_type = type
         switch (speech_type) {
@@ -85,7 +84,7 @@ const befor_start = {
             case ("defence"): return "دفاعیه"
             case ("chaos"): return "کی آس"
             case ("final_words"): return "وصیت"
-            case ("final_word_user"): return "وصیت"
+            case ("last_word_user"): return "وصیت"
             default: return speech_type
         }
     },

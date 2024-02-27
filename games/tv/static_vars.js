@@ -19,7 +19,9 @@ const static_vars={
         defence:60,
         chaos:30,
         final_words:15,
-        last_word_user:15
+        last_word_user:15,
+        target:15,
+        cover:15,about:15
     },
     scenario:"nato",
     to_dec:"price"
