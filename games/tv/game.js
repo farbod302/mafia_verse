@@ -1289,7 +1289,6 @@ const Game = class {
         let live_users = start.pick_live_users({ game_vars: this.game_vars })
 
         const _user = live_users.find(e => e.user_id === user_id)
-        console.log({ _user });
         let socket_id = this.socket_finder(user.user_id)
         if (target_cover_queue[turn].permission === null) {
             await Helper.delay(4)
@@ -1341,7 +1340,7 @@ const Game = class {
             this.socket.to(socket_id).emit("report",
                 {
                     data: {
-                        msg: `از بین بازیکنا یکی رو برای ${translate()} انتخاب کن`, timer: 2
+                        msg: `از بین داوطلبان یکی رو برای ${translate()} انتخاب کن`, timer: 2
                     }
                 })
 

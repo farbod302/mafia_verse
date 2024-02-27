@@ -56,9 +56,8 @@ const vote = {
         const live_users = start.pick_live_users({ game_vars })
         const live_users_count = live_users.length
         let users_to_defence = votes_status.filter(user => user.users.length >= Math.floor(live_users_count / 2))
-        if (custom_queue.length && users_to_defence.length < 3) {
-            custom_queue.forEach(user => {
-                console.log(user.user_id, "PREVENT");
+        if (users_to_defence.length && users_to_defence.length < 3) {
+            users_to_defence.forEach(user => {
                 users_to_prevent_vote.push(user.user_id)
             })
         }
