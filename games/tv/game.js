@@ -1364,7 +1364,7 @@ const Game = class {
                     data: {
                         requester_id: user.user_id,
                         option: choose_type,
-                        timer: 10
+                        timer: 4
                     }
                 })
 
