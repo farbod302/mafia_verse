@@ -1270,11 +1270,11 @@ const Game = class {
     }
 
     enable_target_cover() {
+        this.game_vars.edit_event("edit", "target_cover_disable", [])
         targetCover.enable_target_cover({ game_vars: this.game_vars, user: this.users })
         this.game_vars.edit_event("edit", "next_event", "next_player_target_cover")
         this.game_vars.edit_event("edit", "custom_cur_event", "target_cover")
         this.game_vars.edit_event("edit", "can_act", false)
-        this.game_vars.edit_event("edit", "target_cover_disable", [])
         this.mainCycle()
     }
 
