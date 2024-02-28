@@ -29,7 +29,7 @@ const user = mongoose.Schema({
             month: { win: 0, lose: 0 },
         }
     },
-    ranking: { type: Object, default: { xp: 0, rank: 1500, medal: 0 } },
+    ranking: { type: Object, default: { xp: 1, rank: 1500, medal: 0 } },
     session_rank: Object,
     achivments: { type: Array, default: [] },
     items: { type: Array, default: [] },
