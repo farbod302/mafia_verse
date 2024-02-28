@@ -184,12 +184,14 @@ router.post("/profile", async (req, res) => {
     const user = req.body.user
     if (!user) return reject(1, res)
     const s_user = await User.findOne({ uid: user.uid })
+    const { ranking } = s_user
+    const { xp, rank } = ranking
     const user_games = await GameHistory.find({ users: user.uid }).sort({ _id: 1 }).limit(25)
     const game_id = user_games.map(e => e.game_id)
     const user_reports = await Report.find({ user_reported: user.uid, game_id: { $in: game_id } })
 
     const reports = {
-        "abdon": 0,
+        "abandon": 0,
         "com_report": 0,
         "role_report": 0,
         "age_report": 0
@@ -201,6 +203,10 @@ router.post("/profile", async (req, res) => {
         avatar: {
             avatar: "files/" + avatar.avatar,
             table: "files/" + avatar.table,
+        },
+        ranking:{
+            rank,
+            xp:Math.floor(xp/1000)
         },
         user_last_reports: user_reports
     }
@@ -518,7 +524,7 @@ router.post("/user_profile", async (req, res) => {
     const { xp, rank } = ranking
     const player_level = Math.floor(xp / 1000)
     const { win, lose } = points
-    const data = { idenity, session_rank, ranking:{xp:player_level,rank}, avatar, win, lose }
+    const data = { idenity, session_rank, ranking: { xp: player_level, rank }, avatar, win, lose }
     const user_last_game = await GameHistory.find({ user: user_id }).limit(-1)
     data.last_game = user_last_game[0] || null
     res.json({
