@@ -164,14 +164,14 @@ router.post("/items_list", async (req, res) => {
     const { table, avatar: image } = avatar
     const clean_list = items_list.map(i => {
         const { original_file } = i
-        console.log({original_file,image});
+        console.log({ original_file, image });
         return {
             ...i,
             active: (original_file === table || original_file === image)
         }
 
     })
-    console.log({clean_list});
+    console.log({ clean_list });
     res.json({
         status: true,
         msg: "",
@@ -388,9 +388,9 @@ router.post("/has_enough_gold", async (req, res) => {
     const user = req.body.user
     const { uid } = user
     let s_user = await User.findOne({ uid: uid })
-    const {gold}=s_user
-    console.log({gold,status:gold>=100});
-    res.json({ status: gold >=100, })
+    const { gold } = s_user
+    console.log({ gold, status: gold >= 100 });
+    res.json({ status: gold >= 100, })
 })
 
 
@@ -515,8 +515,10 @@ router.post("/user_profile", async (req, res) => {
     const { user_id } = req.body
     const s_user = await User.findOne({ uid: user_id })
     const { idenity, session_rank, ranking, avatar, points } = s_user
+    const { xp, rank } = ranking
+    const player_level = Math.floor(xp / 1000)
     const { win, lose } = points
-    const data = { idenity, session_rank, ranking, avatar, win, lose }
+    const data = { idenity, session_rank, ranking:{xp:player_level,rank}, avatar, win, lose }
     const user_last_game = await GameHistory.find({ user: user_id }).limit(-1)
     data.last_game = user_last_game[0] || null
     res.json({

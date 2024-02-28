@@ -63,7 +63,6 @@ const befor_start = {
 
     shuffel_carts() {
         let carts = [...static_vars.rols]
-        return carts
         for (var i = carts.length - 1; i > 0; i--) {
             var j = Math.floor(Math.random() * (i + 1));
             var temp = carts[i];
@@ -87,7 +86,8 @@ const befor_start = {
             case ("last_word_user"): return "وصیت"
             case ("target"): return "تارگت"
             case ("cover"): return "کاور"
-            case ("target"): return "درباره"
+            case ("about"): return "درباره"
+            case ("speech"): return "ترن"
             default: return speech_type
         }
     },

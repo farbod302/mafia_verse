@@ -839,7 +839,7 @@ const Game = class {
         if (speech_type === "defence") {
             this.play_voice(_play_voice.play_voice("defence_speech"))
         }
-        console.log({custom_queue});
+        console.log({ custom_queue });
         const { game_id } = this
         let queue = start.generate_queue({
             type: speech_type,
@@ -904,7 +904,7 @@ const Game = class {
                 const new_status = this.game_vars.player_status
                 this.socket.to(game_id).emit("game_action", { data: [new_status[queue[turn - 1].user_index]] })
                 this.game_vars.edit_event("edit", "turn", turn - 1)
-                this.game_vars.edit_event("edit", "speech_type", "speech")
+                this.game_vars.edit_event("edit", "speech_type", "turn")
                 const game_result = night.check_next_day({ game_vars: this.game_vars })
                 if (game_result === 3) {
                     this.game_vars.edit_event("edit", "next_event", "chaos")
@@ -1065,8 +1065,7 @@ const Game = class {
             this.play_voice(_play_voice.play_voice("next"))
 
         }
-        console.log({type});
-        let time = static_vars.speech_time[(type || speech_type)] || 20
+        let time = static_vars.speech_time[(type || speech_type)] || 40
         this.socket.to(game_id).emit("current_speech", {
             current: cur_speech.user_id,
             timer: time,
@@ -1120,7 +1119,6 @@ const Game = class {
             game_vars: this.game_vars,
             edit_others: true
         })
-        console.log(befor_start.translate_speech_type({ game_vars: this.game_vars, type }));
         start.edit_game_action({
             index,
             prime_event: "user_action",
@@ -1578,6 +1576,7 @@ const Game = class {
 
 
         const { mafia_need_token } = this.game_vars
+        const { game_id } = this
         if (mafia_need_token.length) {
             for (let user of mafia_need_token) {
                 const { user_id, } = user
@@ -1591,6 +1590,7 @@ const Game = class {
 
 
         this.play_voice(_play_voice.play_voice("next_day"))
+        this.socket.to(game_id).emit("game_event", { data: { game_event: "day" } })
         await Helper.delay(5)
         await night.next_day({
             game_vars: this.game_vars,
@@ -1779,8 +1779,9 @@ const Game = class {
 
     async end_game() {
         const { game_id } = this
+        const { winner, is_end } = this.game_vars
+        if (is_end) return
         this.game_vars.edit_event("edit", "is_end", true)
-        const { winner } = this.game_vars
         let report = await game_result.game_result_generator({
             game_vars: this.game_vars,
             users: this.game_vars.users_comp_list,
