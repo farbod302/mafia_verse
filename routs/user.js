@@ -206,7 +206,7 @@ router.post("/profile", async (req, res) => {
         },
         ranking:{
             rank,
-            xp:Math.floor(xp/1000)
+            xp:Math.ceil(xp/1000)
         },
         user_last_reports: user_reports
     }
