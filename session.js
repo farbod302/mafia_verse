@@ -22,7 +22,7 @@ const Session = {
             User.findOneAndUpdate({ uid: result[2].uid }, { $inc: { gold: prize[2] } }),
             User.updateMany({ uid: { $in: ids } }, { $inc: { gold: prize[3] } }),
         ]
-        await Promise.all(promises)
+        // await Promise.all(promises)
         const start = Date.now()
         const end = start + range_time
         const preview_session_start = start - range_time
