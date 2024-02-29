@@ -129,5 +129,4 @@ const refresh_api_token_job = new CronJob("58 * * * *", Transaction.refresh_toke
 //test_2
 
 
-Transaction.check_transaction_result_market("test_gold","17203856")
 

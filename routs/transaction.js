@@ -31,7 +31,7 @@ router.post("/confirm_transaction", async (req, res) => {
     }
 
 
-    if (purchaseState !== 0) return reject(3, res)
+    if (status !== 0) return reject(3, res)
     //check used
     const is_exist = await Transaction.findOne({ token: tr_token })
     if (is_exist) return reject(3, res)
@@ -39,7 +39,7 @@ router.post("/confirm_transaction", async (req, res) => {
         user_id: uid,
         date: Date.now(),
         plan, token: tr_token,
-        price, gold, success: purchaseState === 0 ? true : false,
+        price, gold, success: status === 0 ? true : false,
         device: req.body.device || "app", note: "افزایش اعتبار"
     }
     await new Transaction(new_transaction).save()
