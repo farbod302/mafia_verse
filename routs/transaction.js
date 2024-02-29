@@ -22,6 +22,8 @@ router.post("/confirm_transaction", async (req, res) => {
     let status
 
     if (platform) {
+        const { purchaseState } = await Tr.check_transaction_result_market(plan, tr_token)
+        status = purchaseState
 
     } else {
         const { purchaseState } = await Tr.check_transaction_result(plan, tr_token)

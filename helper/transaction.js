@@ -41,14 +41,20 @@ const Transaction = {
     },
 
     async check_transaction_result_market(plan_id, transaction_token) {
-        const { data } = await axios.get(`https://developer.myket.ir/api/applications/ir.greendex.mafia/purchases/products/${plan_id}/tokens/${transaction_token}`
-            , {
-                headers: {
-                    "X-Access-Token": this.market_access_token
+        try {
+            const { data } = await axios.get(`https://developer.myket.ir/api/applications/ir.greendex.mafia/purchases/products/${plan_id}/tokens/${transaction_token}`
+                , {
+                    headers: {
+                        "X-Access-Token": this.market_access_token
+                    }
                 }
-            }
-        )
-            console.log(data);
+            )
+            return data
+        }
+        catch {
+            return { purchaseState: 1 }
+
+        }
     }
 }
 
