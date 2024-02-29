@@ -11,13 +11,24 @@ router.post("/confirm_transaction", async (req, res) => {
     const user = req.body.user
     if (!user) return reject(3, res)
     const { uid } = user
-    const { tr_token, plan } = req.body
+    const { tr_token, plan, platform } = req.body
+
     //check transaction from bazar
     const all_plans = fs.readFileSync(`${__dirname}/../gold_pack.json`)
     const plan_js = JSON.parse(all_plans.toString())
     const selected_plan = plan_js.find(e => e.id === plan)
-    const {gold,price}=selected_plan
-    const { purchaseState } = await Tr.check_transaction_result(plan, tr_token)
+    const { gold, price } = selected_plan
+
+    let status
+
+    if (platform) {
+
+    } else {
+        const { purchaseState } = await Tr.check_transaction_result(plan, tr_token)
+        status = purchaseState
+    }
+
+
     if (purchaseState !== 0) return reject(3, res)
     //check used
     const is_exist = await Transaction.findOne({ token: tr_token })

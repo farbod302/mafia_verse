@@ -5,6 +5,7 @@ const Transaction = {
     bazar_client_secret: process.env.BAZAR_SECRET,
     api_access_code: "T8pb0GGJFbHZKcaeCZntPrJwzxAbE9",
     bazar_refresh_token: "E6gbxU5vqEKrmoEhBzG42pInn5EpWu",
+    market_access_token: "3da2bf2a-11d8-4ba6-98dd-ce33b41aedfa",
     async refresh_token() {
 
         const details = {
@@ -27,16 +28,27 @@ const Transaction = {
     async check_transaction_result(plan_id, transaction_token) {
         try {
             const { data } = await axios.get(`https://pardakht.cafebazaar.ir/devapi/v2/api/validate/ir.greendex.mafia/inapp/${plan_id}/purchases/${transaction_token}/`
-            ,{
-                headers:{
-                    Authorization:this.bazar_access_token
-                }
-            })
+                , {
+                    headers: {
+                        Authorization: this.bazar_access_token
+                    }
+                })
             return data
         } catch (err) {
             console.log(err);
             return { purchaseState: 1 }
         }
+    },
+
+    async check_transaction_result_market(plan_id, transaction_token) {
+        const { data } = await axios.get(`https://developer.myket.ir/api/applications/ir.greendex.mafia/purchases/products/${plan_id}/tokens/${transaction_token}`
+            , {
+                headers: {
+                    "X-Access-Token": this.market_access_token
+                }
+            }
+        )
+            console.log(data);
     }
 }
 
