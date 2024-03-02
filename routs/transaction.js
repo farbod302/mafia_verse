@@ -9,7 +9,7 @@ const send_notif = require("../helper/send_notif")
 const ZarinPal = require("../zarinpal-checkout-master/lib/zarinpal.js")
 const Pay = require("../db/pay")
 const payment = new ZarinPal.create(process.env.PAYMENT, true)
-
+const {uid:uuid}=require("uid")
 router.post("/confirm_transaction", async (req, res) => {
     const user = req.body.user
     if (!user) return reject(3, res)
@@ -73,7 +73,7 @@ router.post("/create_transaction", async (req, res) => {
         Description: "خرید از عصر مافیا"
     })
     const { authority, url } = z_res
-    const internal_id = uid(6)
+    const internal_id = uuid(6)
     const new_pay = {
         user: uid,
         internal_id,
