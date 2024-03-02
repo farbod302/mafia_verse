@@ -6,7 +6,7 @@ const User = require("../db/user")
 const Tr = require("../helper/transaction")
 const fs = require("fs")
 const send_notif = require("../helper/send_notif")
-const ZarinPal = require("../zarinpal-checkout-master/lib/zarinpal")
+const ZarinPal = require("../zarinpal-checkout-master/lib/zarinpal.js")
 const Pay = require("../db/pay")
 const payment = new ZarinPal.create(process.env.PAYMENT, true)
 
