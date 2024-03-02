@@ -17,7 +17,6 @@ const { check_last_msgs } = require('./socket/server_channel_msg/send_server_msg
 const Session = require('./session');
 const { CronJob } = require("cron");
 const Transaction = require('./helper/transaction');
-const send_notif = require('./helper/send_notif');
 const monitoring = require('./container/monitoring');
 const token_handler = (req, res, next) => {
     const { token } = req.body
