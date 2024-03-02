@@ -109,7 +109,7 @@ router.get("/pay_res", async (req, res) => {
         })
         const { status, RefID } = pay_res
         if (RefID && status === 100) {
-            await User.findOneAndUpdate({ uid: user_id }, { $$inc: { gold: amount } })
+            await User.findOneAndUpdate({ uid: user_id }, { $inc: { gold: amount } })
             send_notif({
                 users:[user_id],
                 msg:`حساب شما به میزان ${amount} سکه به ارزش ${price} تومان شارژ شد`,
