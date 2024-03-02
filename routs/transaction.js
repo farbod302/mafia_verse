@@ -92,7 +92,7 @@ router.post("/create_transaction", async (req, res) => {
 })
 
 
-router.post("/pay_res", async (req, res) => {
+router.get("/pay_res", async (req, res) => {
     const base_url = "https://gamingverse.ir/pey_result"
     const params = new URLSearchParams(req._parsedUrl.search)
     const Authority = params.get("Authority")
