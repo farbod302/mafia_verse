@@ -8,9 +8,9 @@ const fs = require("fs")
 const send_notif = require("../helper/send_notif")
 const ZarinPal = require("../zarinpal-checkout-master/lib/zarinpal.js")
 const Pay = require("../db/pay")
-const Payment= require("../db/payment")
+const Payment = require("../db/payment")
 const payment = new ZarinPal.create(process.env.PAYMENT, true)
-const {uid:uuid}=require("uid")
+const { uid: uuid } = require("uid")
 router.post("/confirm_transaction", async (req, res) => {
     const user = req.body.user
     if (!user) return reject(3, res)
@@ -102,6 +102,8 @@ router.get("/pay_res", async (req, res) => {
     const { used, amount, price, user_id } = selected_pay
     if (used || Status !== "OK") {
         res.redirect(`${base_url}?status=false&code=0`)
+        await Payment.findOneAndUpdate({ shopId: Authority }, { $set: { used: true, status: false } })
+
     } else {
         const pay_res = await payment.PaymentVerification({
             Amount: price,
@@ -111,14 +113,15 @@ router.get("/pay_res", async (req, res) => {
         if (RefID && status === 100) {
             await User.findOneAndUpdate({ uid: user_id }, { $inc: { gold: amount } })
             send_notif({
-                users:[user_id],
-                msg:`حساب شما به میزان ${amount} سکه به ارزش ${price} تومان شارژ شد`,
-                title:"شارژ حساب عصر مافیا"
+                users: [user_id],
+                msg: `حساب شما به میزان ${amount} سکه به ارزش ${price} تومان شارژ شد`,
+                title: "شارژ حساب عصر مافیا"
             })
             res.redirect(`${base_url}?status=true&code=${RefID}`)
+            await Payment.findOneAndUpdate({ shopId: Authority }, { $set: { used: true, track_id: RefID, status: true } })
+
         }
     }
-    await Pay.findOneAndUpdate({ shopId: Authority }, { $set: { used: true } })
 
 
 })

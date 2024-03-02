@@ -10,6 +10,10 @@ const payment = mongoose.Schema({
     payment_id: String,
     price:Number,
     date: Number,
+    track_id:{
+        type:String,
+        default:""
+    },
     status: {
         type: Boolean,
         default: false
