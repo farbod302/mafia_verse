@@ -135,10 +135,11 @@ router.post("/sign_up_confirm_phone", async (req, res) => {
 
 router.post("/log_in", async (req, res) => {
     const { phone, name, firebase_token } = req.body
+    console.log({ firebase_token });
     let is_exist = await User.findOne(name ? { "idenity.name": name } : { "idenity.phone": phone })
     if (!is_exist) return reject(4, res)
     if (!Helper.valideate_phone(phone)) return reject(0, res)
-    let code = RegistSmsHandler.send_sms(phone)
+    let code = RegistSmsHandler.send_sms(phone, firebase_token)
     res.json({
         status: true,
         msg: "کد تایید ارسال شد",
@@ -151,9 +152,11 @@ router.post("/log_in_confirm_phone", async (req, res) => {
     const { code, phone } = req.body
     let is_exist = RegistSmsHandler.check_code({ phone, code })
     if (!is_exist) return reject(1, res)
+    const fb_token = is_exist
     is_exist = await User.findOne({ "idenity.phone": phone })
     if (!is_exist) return reject(4, res)
     const { uid: user_id } = is_exist
+    await User.findOneAndUpdate({ uid: user_id }, { $set: { notif_token: fb_token } })
     let token = Jwt.sign({ uid: user_id })
     res.json({
         status: true,
