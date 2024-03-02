@@ -8,6 +8,7 @@ const fs = require("fs")
 const send_notif = require("../helper/send_notif")
 const ZarinPal = require("../zarinpal-checkout-master/lib/zarinpal.js")
 const Pay = require("../db/pay")
+const Payment= require("../db/payment.js")
 const payment = new ZarinPal.create(process.env.PAYMENT, true)
 const {uid:uuid}=require("uid")
 router.post("/confirm_transaction", async (req, res) => {
@@ -82,7 +83,7 @@ router.post("/create_transaction", async (req, res) => {
         amount: gold,
         price,
     }
-    await new Pay(new_pay).save()
+    await new Payment(new_pay).save()
     res.json({
         status: true,
         msg: "",
@@ -97,7 +98,7 @@ router.get("/pay_res", async (req, res) => {
     const params = new URLSearchParams(req._parsedUrl.search)
     const Authority = params.get("Authority")
     const Status = params.get("Status")
-    const selected_pay = await Pay.findOne({ payment_id: Authority })
+    const selected_pay = await Payment.findOne({ payment_id: Authority })
     const { used, amount, price, user_id } = selected_pay
     if (used || Status !== "OK") {
         res.redirect(`${base_url}?status=false&code=0`)
