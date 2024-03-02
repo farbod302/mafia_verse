@@ -184,6 +184,7 @@ router.post("/profile", async (req, res) => {
     const user = req.body.user
     if (!user) return reject(1, res)
     const s_user = await User.findOne({ uid: user.uid })
+    if (!s_user) return reject(1, res)
     const { ranking } = s_user
     const { xp, rank } = ranking
     const user_games = await GameHistory.find({ users: user.uid }).sort({ _id: 1 }).limit(25)
@@ -204,9 +205,9 @@ router.post("/profile", async (req, res) => {
             avatar: "files/" + avatar.avatar,
             table: "files/" + avatar.table,
         },
-        ranking:{
+        ranking: {
             rank,
-            xp:Math.ceil(xp/1000)
+            xp: Math.ceil(xp / 1000)
         },
         user_last_reports: user_reports
     }
@@ -665,9 +666,9 @@ router.post("/support", (req, res) => {
     }
     new UserReport(new_report).save()
     res.json({
-        status:true,
-        msg:"گزارش شما ثبت شد",
-        data:{}
+        status: true,
+        msg: "گزارش شما ثبت شد",
+        data: {}
     })
 })
 
