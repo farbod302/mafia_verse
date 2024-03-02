@@ -663,8 +663,12 @@ router.post("/support", (req, res) => {
         date: Date.now(),
         msg
     }
-
     new UserReport(new_report).save()
+    res.json({
+        status:true,
+        msg:"گزارش شما ثبت شد",
+        data:{}
+    })
 })
 
 
