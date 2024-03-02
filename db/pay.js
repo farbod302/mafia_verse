@@ -2,7 +2,7 @@ const mongoose = require("mongoose")
 
 
 
-const payment = mongoose.Schema({
+const pay = mongoose.Schema({
 
     user: String,
     gold_amount: Number,
@@ -18,4 +18,4 @@ const payment = mongoose.Schema({
 })
 
 
-module.exports = mongoose.model("Payment", payment)
+module.exports = mongoose.model("Pay", pay)
