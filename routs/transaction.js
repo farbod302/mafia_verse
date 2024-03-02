@@ -102,7 +102,7 @@ router.get("/pay_res", async (req, res) => {
     const { used, amount, price, user_id } = selected_pay
     if (used || Status !== "OK") {
         res.redirect(`${base_url}?status=false&code=0`)
-        await Payment.findOneAndUpdate({ shopId: Authority }, { $set: { used: true, status: false } })
+        await Payment.findOneAndUpdate({ payment_id: Authority }, { $set: { used: true, status: false } })
 
     } else {
         const pay_res = await payment.PaymentVerification({
@@ -119,7 +119,7 @@ router.get("/pay_res", async (req, res) => {
                 title: "شارژ حساب عصر مافیا"
             })
             res.redirect(`${base_url}?status=true&code=${RefID}`)
-            await Payment.findOneAndUpdate({ shopId: Authority }, { $set: { used: true, track_id: RefID, status: true } })
+            await Payment.findOneAndUpdate({ payment_id: Authority }, { $set: { used: true, track_id: RefID, status: true } })
 
         }
     }
