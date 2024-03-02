@@ -109,6 +109,7 @@ router.get("/pay_res", async (req, res) => {
             Amount: price,
             Authority
         })
+        console.log({pay_res});
         const { status, RefID } = pay_res
         if (RefID && status === 100) {
             await User.findOneAndUpdate({ uid: user_id }, { $inc: { gold: amount } })
