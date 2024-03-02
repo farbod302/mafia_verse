@@ -76,7 +76,7 @@ router.post("/create_transaction", async (req, res) => {
     const { authority, url } = z_res
     const internal_id = uuid(6)
     const new_pay = {
-        user: uid,
+        user_id: uid,
         internal_id,
         payment_id: authority,
         date: Date.now(),
