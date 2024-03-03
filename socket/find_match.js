@@ -88,7 +88,7 @@ const find_match = {
                 socket.to(party).emit("find_match", { data: new_users_list.map((user) => { return { user_image: user.user_image, user_id: user.user_id } }) })
             }
             db.replaceOne("games_queue", "game_id", game_id, updated_game)
-            if (new_remain === 0) {
+            if (new_users_list.length === 10) {
                 this.create_game({ game_id, db, socket, mode: "robot", mod: null })
             }
         }
@@ -154,7 +154,7 @@ const find_match = {
             console.log("REMOVE");
             db.removeOne("games_queue", "game_id", game_id)
         } else {
-            console.log("REPLACE");
+            console.log("REPLACE",updated_game.users);
             db.replaceOne("games_queue", "game_id", game_id, updated_game)
         }
         for (let party of partys) {
