@@ -220,7 +220,7 @@ const Game = class {
                     console.log(`ready to choose from ${client.id}`)
                     this.game_vars.edit_event("push", "join_status", user_call_idenity)
                     let connected_users_length = this.game_vars.join_status.length
-                    if (connected_users_length == static_vars.player_count) {
+                    if (connected_users_length == 1) {
                         const game_id = this.game_id
                         this.socket.to(game_id).emit("game_started")
                         this.game_vars.edit_event("edit", "next_event", "pick_cart_phase", "user connection")
@@ -294,10 +294,7 @@ const Game = class {
                 }
                 case ("user_action"): {
 
-                    const { speech_type } = this.game_vars
-                    if (speech_type !== "turn" && speech_type !== "introduction") return
                     const { action } = data
-                    console.log({ action });
                     const { user_id } = client.idenity
                     const { game_id } = this
                     let index = this.users.findIndex(user => user.user_id === user_id)
