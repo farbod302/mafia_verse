@@ -2,6 +2,7 @@ const { uid: uuid } = require("uid")
 const static = require("../container/static")
 const game_handler = require("./game_handler")
 const User = require("../db/user")
+const static_vars = require("../games/tv/static_vars")
 const games = {
     tv: {
         static_vars: require("../games/tv/static_vars")
@@ -88,7 +89,7 @@ const find_match = {
                 socket.to(party).emit("find_match", { data: new_users_list.map((user) => { return { user_image: user.user_image, user_id: user.user_id } }) })
             }
             db.replaceOne("games_queue", "game_id", game_id, updated_game)
-            if (new_users_list.length === 10) {
+            if (new_users_list.length === static_vars.player_count) {
                 this.create_game({ game_id, db, socket, mode: "robot", mod: null })
             }
         }
