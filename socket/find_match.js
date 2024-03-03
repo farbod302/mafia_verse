@@ -38,16 +38,16 @@ const find_match = {
         })
         users = await Promise.all(users)
 
-        let users_gold = users.map(async user => {
-            const gold = await find_user_gold(user.user_id)
-            return gold
-        })
-        users_gold = await Promise.all(users_gold)
-        const not_enough = users_gold.filter(e => e < 100)
-        if (not_enough.length > 0) {
-            socket.to(party_id).emit("find_match_gold", { data: { msg: "شما گلد کافی ندارید" } })
-            return
-        }
+        // let users_gold = users.map(async user => {
+        //     const gold = await find_user_gold(user.user_id)
+        //     return gold
+        // })
+        // users_gold = await Promise.all(users_gold)
+        // const not_enough = users_gold.filter(e => e < 100)
+        // if (not_enough.length > 0) {
+        //     socket.to(party_id).emit("find_match_gold", { data: { msg: "شما گلد کافی ندارید" } })
+        //     return
+        // }
         let party_players_count = users.length
         let seleced_game = games[senario]
         let game_players_count = seleced_game.static_vars.player_count

@@ -5,7 +5,7 @@ const fs = require("fs")
 const online_users_handler = require("./online_users_handler")
 const User = require("../db/user")
 const join_handler = async ({ token, db, client, socket }) => {
-    console.log({token});
+    console.log({ token });
     const user = Jwt.verify(token)
     if (!user) return
     const version = fs.readFileSync(`${__dirname}/../version.json`)
@@ -51,7 +51,7 @@ const join_handler = async ({ token, db, client, socket }) => {
         party_id: user_party,
         users: [idenity]
     })
-    socket.to(client.id).emit("join_status", { data: { user_id: uid, auth: (s_user.age && s_user.age > 16) ? true : false} })
+    socket.to(client.id).emit("join_status", { data: { user_id: uid, free_game: true, auth: (s_user.age && s_user.age > 16) ? true : false } })
 }
 
 module.exports = join_handler

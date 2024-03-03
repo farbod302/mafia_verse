@@ -786,7 +786,7 @@ const Game = class {
         this.mainCycle()
         const { users } = this
         const users_id = users.map(e => e.user_id)
-        await User.updateMany({ uid: { $in: users_id } }, { $inc: { gold: -100 } })
+        // await User.updateMany({ uid: { $in: users_id } }, { $inc: { gold: -100 } })
     }
 
 
