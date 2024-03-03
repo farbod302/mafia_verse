@@ -1812,7 +1812,7 @@ const Game = class {
                     "session_rank.week": update.point,
                     "session_rank.month": update.point,
                     "ranking.xp": update.xp,
-                    gold: update.winner ? 100 : 0,
+                    // gold: update.winner ? 100 : 0,
                     [day_key]: 1,
                     [week_key]: 1,
                     [mounth_key]: 1,
