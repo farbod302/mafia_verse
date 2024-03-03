@@ -155,8 +155,8 @@ const find_match = {
             console.log("REMOVE");
             db.removeOne("games_queue", "game_id", game_id)
         } else {
-            console.log("REPLACE",);
-            db.replaceOne("games_queue", "game_id", game_id, updated_game.users.length)
+            console.log("REPLACE",updated_game.users.length);
+            db.replaceOne("games_queue", "game_id", game_id, )
         }
         for (let party of partys) {
             socket.to(party).emit("find_match", { data: users_after_leave.map((user) => { return { user_image: user.user_image, user_id: user.user_id } }) })
