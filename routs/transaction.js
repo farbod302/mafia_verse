@@ -66,8 +66,8 @@ router.post("/create_transaction", async (req, res) => {
     const all_plans = fs.readFileSync(`${__dirname}/../gold_pack.json`)
     const plan_js = JSON.parse(all_plans.toString())
     const selected_plan = plan_js.find(e => e.id === plan)
-    const { gold, price } = selected_plan
-
+    let { gold, price, off } = selected_plan
+    price = price - ((off * price) / 100)
     const z_res = await payment.PaymentRequest({
         Amount: price,
         CallbackURL: "https://mafia.gamingverse.ir/transaction/pay_res",
@@ -94,7 +94,7 @@ router.post("/create_transaction", async (req, res) => {
 
 
 router.get("/pay_res", async (req, res) => {
-    const base_url = "https://gamingverse.ir/pey_result"
+    const base_url = "https://gamingverse.ir/pay_result"
     const params = new URLSearchParams(req._parsedUrl.search)
     const Authority = params.get("Authority")
     const Status = params.get("Status")
@@ -109,7 +109,7 @@ router.get("/pay_res", async (req, res) => {
             Amount: price,
             Authority
         })
-        console.log({pay_res});
+        console.log({ pay_res });
         const { status, RefID } = pay_res
         if (RefID && status === 100) {
             await User.findOneAndUpdate({ uid: user_id }, { $inc: { gold: amount } })
