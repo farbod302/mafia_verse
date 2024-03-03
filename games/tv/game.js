@@ -217,7 +217,6 @@ const Game = class {
             console.log({ op, data });
             switch (op) {
                 case ("ready_to_choose"): {
-                    console.log(`ready to choose from ${client.id}`)
                     this.game_vars.edit_event("push", "join_status", user_call_idenity)
                     let connected_users_length = this.game_vars.join_status.length
                     if (connected_users_length == 1) {

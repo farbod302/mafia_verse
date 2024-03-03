@@ -9,7 +9,7 @@ const befor_start = {
             const { join_status } = game_vars
             const { player_count } = static_vars
             let players_join = join_status.length
-            if (player_count > players_join) abandon()
+            if (player_count > 1) abandon()
         }
         run_timer(10, abandon_func)
 
