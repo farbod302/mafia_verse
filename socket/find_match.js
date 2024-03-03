@@ -76,6 +76,7 @@ const find_match = {
             let { users: already_joined, partys, remain, game_id } = choosen_game
             let new_users_list = already_joined.concat(users)
             let new_remain = remain - party_players_count
+            console.log({new_remain});
             let new_partys_list = partys.concat(party_id)
             let updated_game = {
                 ...choosen_game,
@@ -88,7 +89,7 @@ const find_match = {
                 socket.to(party).emit("find_match", { data: new_users_list.map((user) => { return { user_image: user.user_image, user_id: user.user_id } }) })
             }
             db.replaceOne("games_queue", "game_id", game_id, updated_game)
-            if (new_remain === 0) {
+            if (new_users_list.length === 10) {
                 this.create_game({ game_id, db, socket, mode: "robot", mod: null })
             }
         }
@@ -154,8 +155,8 @@ const find_match = {
             console.log("REMOVE");
             db.removeOne("games_queue", "game_id", game_id)
         } else {
-            console.log("REPLACE");
-            db.replaceOne("games_queue", "game_id", game_id, updated_game)
+            console.log("REPLACE",);
+            db.replaceOne("games_queue", "game_id", game_id, updated_game.users.length)
         }
         for (let party of partys) {
             socket.to(party).emit("find_match", { data: users_after_leave.map((user) => { return { user_image: user.user_image, user_id: user.user_id } }) })
