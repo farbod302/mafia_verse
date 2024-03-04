@@ -1,5 +1,9 @@
 const static_vars={
+<<<<<<< HEAD
     player_count:4,
+=======
+    player_count:10,
+>>>>>>> main
     rols:[
         "citizen",
         "citizen",
