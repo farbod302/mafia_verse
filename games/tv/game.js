@@ -217,19 +217,15 @@ const Game = class {
             console.log({ op, data });
             switch (op) {
                 case ("ready_to_choose"): {
+                    console.log(`ready to choose from ${client.id}`)
                     this.game_vars.edit_event("push", "join_status", user_call_idenity)
                     let connected_users_length = this.game_vars.join_status.length
-                    const { start } = this.game_vars
-                    console.log({start});
-                    if (connected_users_length == 1 && !start) {
-                        this.game_vars.edit_event("edit", "start", true)
+                    if (connected_users_length == static_vars.player_count) {
                         const game_id = this.game_id
                         this.socket.to(game_id).emit("game_started")
-                        setTimeout(() => {
-                            this.game_vars.edit_event("edit", "next_event", "pick_cart_phase", "user connection")
-                            this.game_vars.edit_event("edit", "start", true, "user connection")
-                            this.mainCycle()
-                        }, 2000)
+                        this.game_vars.edit_event("edit", "next_event", "pick_cart_phase", "user connection")
+                        this.game_vars.edit_event("edit", "start", true, "user connection")
+                        this.mainCycle()
                     }
                 }
                     break
