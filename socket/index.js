@@ -11,6 +11,7 @@ const Jwt = require("../helper/jwt")
 const fs = require("fs")
 const monitoring = require("../container/monitoring")
 const User = require("../db/user")
+const lobby = require("./lobby")
 const SocketProvider = class {
 
     constructor(io) {
@@ -87,7 +88,7 @@ const SocketProvider = class {
                 }
             })
             client.on("abandon", () => {
-                
+
                 let game_id = client.game_id
                 let user_game = null
                 if (game_id) { user_game = this.db.getOne("games", "game_id", game_id) }
@@ -102,7 +103,7 @@ const SocketProvider = class {
                 }
                 // console.log({user_game:user_game.game_id,op,data,client:client.idenity});
                 if (!user_game) return
-                console.log({user_game});
+                console.log({ user_game });
                 client.game_id = ""
                 user_game.game_class.player_abandon({ client: client.idenity })
             })
@@ -129,8 +130,8 @@ const SocketProvider = class {
             })
 
             client.on("create_local_game", (data) => {
-                const { player_count }=data
-                console.log({data});
+                const { player_count } = data
+                console.log({ data });
                 const { idenity } = client
                 const game_id = uid(4)
                 client.local_game_id = game_id
@@ -148,7 +149,7 @@ const SocketProvider = class {
             })
 
             client.on("test", (data) => {
-                console.log({data});
+                console.log({ data });
                 this.io.emit("test_res", { data })
             })
 
@@ -168,6 +169,20 @@ const SocketProvider = class {
                 const version = fs.readFileSync(`${__dirname}/../version.json`)
                 const { v } = JSON.parse(version.toString())
                 client.emit("app_detail", { data: { v, server_update: false } })
+            })
+
+            client.on("create_lobby", (data) => {
+                const lobby_id = lobby.create_lobby(client, data, this.io)
+                this.io.to(client.id).emit("lobby_create_result", { lobby_id })
+            })
+
+            client.on("lobby_list", () => {
+                const lobby_list = lobby.get_lobby_list()
+                this.io.to(client.id).emit("lobby_list", { lobby_list })
+
+            })
+            client.on("join_lobby", (data) => {
+                
             })
 
         })
