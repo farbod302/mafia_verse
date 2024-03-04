@@ -49,15 +49,15 @@ mongoose.connect(process.env.DB)
 let keys = Object.keys(imports)
 
 
-// const conf = {
-//     key: fs.readFileSync("/etc/letsencrypt/live/mafia.gamingverse.ir/privkey.pem"),
-//     cert: fs.readFileSync("/etc/letsencrypt/live/mafia.gamingverse.ir/fullchain.pem")
-// }
-
 const conf = {
-    key: fs.readFileSync("/etc/letsencrypt/live/mafia.altf1.ir/privkey.pem"),
-    cert: fs.readFileSync("/etc/letsencrypt/live/mafia.altf1.ir/fullchain.pem")
+    key: fs.readFileSync("/etc/letsencrypt/live/mafia.gamingverse.ir/privkey.pem"),
+    cert: fs.readFileSync("/etc/letsencrypt/live/mafia.gamingverse.ir/fullchain.pem")
 }
+
+// const conf = {
+//     key: fs.readFileSync("/etc/letsencrypt/live/mafia.altf1.ir/privkey.pem"),
+//     cert: fs.readFileSync("/etc/letsencrypt/live/mafia.altf1.ir/fullchain.pem")
+// }
 
 
 

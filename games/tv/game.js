@@ -214,7 +214,6 @@ const Game = class {
     async player_action({ op, data, client }) {
         try {
             let user_call_idenity = client.idenity
-            console.log({ op, data });
             switch (op) {
                 case ("ready_to_choose"): {
                     console.log(`ready to choose from ${client.id}`)
