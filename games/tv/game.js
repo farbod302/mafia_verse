@@ -220,11 +220,13 @@ const Game = class {
                     this.game_vars.edit_event("push", "join_status", user_call_idenity)
                     let connected_users_length = this.game_vars.join_status.length
                     if (connected_users_length == 1) {
-                        const game_id = this.game_id
-                        this.socket.to(game_id).emit("game_started")
-                        this.game_vars.edit_event("edit", "next_event", "pick_cart_phase", "user connection")
-                        this.game_vars.edit_event("edit", "start", true, "user connection")
-                        this.mainCycle()
+                        setTimeout(() => {
+                            const game_id = this.game_id
+                            this.socket.to(game_id).emit("game_started")
+                            this.game_vars.edit_event("edit", "next_event", "pick_cart_phase", "user connection")
+                            this.game_vars.edit_event("edit", "start", true, "user connection")
+                            this.mainCycle()
+                        }, 10000)
                     }
                 }
                     break

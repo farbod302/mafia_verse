@@ -44,7 +44,9 @@ const user = mongoose.Schema({
     device_id: String,
     cur_game: { type: String, default: "" },
     notif_token: String,
-    lucky_wheel_status: { type: Number, default: 0 }
+    lucky_wheel_status: { type: Number, default: 0 },
+    vip: { type: Boolean, default: false },
+    vip_until: { type: Boolean, default: false }
 
 })
 
