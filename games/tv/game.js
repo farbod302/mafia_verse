@@ -219,7 +219,9 @@ const Game = class {
                 case ("ready_to_choose"): {
                     this.game_vars.edit_event("push", "join_status", user_call_idenity)
                     let connected_users_length = this.game_vars.join_status.length
-                    if (connected_users_length == 1) {
+                    const { start } = this.game_vars
+                    if (connected_users_length == 1 && !start) {
+                        this.game_vars.edit_event("edit", "start", true)
                         const game_id = this.game_id
                         this.socket.to(game_id).emit("game_started")
                         setTimeout(() => {

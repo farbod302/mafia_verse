@@ -2,6 +2,7 @@ const dinamic_vars = class {
     constructor() {
         this.is_end = false
         this.time = "day"
+        this.start=false
         this.start = false
         this.turn = -1
         this.cur_event = " wait_to_join"
