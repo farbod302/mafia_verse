@@ -45,7 +45,7 @@ router.post("/", async (req, res) => {
                 idenity: { name: idenity.name }, session_rank: session_rank[session], ranking, avatar: {
                     avatar: "files/" + avatar.avatar,
                     table: "files/" + avatar.table,
-                }, win, lose, user_id: uid, rate: index + 1, prize: 10
+                }, win, lose, user_id: uid, rate: index + 1, prize: 0
             }
         })
         const user_self = ranking.findIndex(e => e.uid === req_user_id)
