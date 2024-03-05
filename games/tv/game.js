@@ -86,7 +86,7 @@ const Game = class {
             }
             setTimeout(() => {
                 abandon_func(index, abandon_user)
-            }, 1000 * 60 * 3)
+            }, 1000 * 60 * 7)
 
         } else {
             console.log("ADD to queue");
