@@ -3,14 +3,14 @@ const fs = require("fs")
 const { get_user_socket_id } = require("./online_users_handler")
 const lobby = {
     create_lobby(client, data, socket) {
-        const { name, scenario, player_cnt, characters, carts, type, password } = data
+        const { name, scenario, player_cnt, characters, cards, type, password } = data
         const lobby_id = uid(5)
         const new_lobby = {
             name,
             scenario,
             player_cnt,
             characters,
-            carts,
+            cards,
             type,
             password,
             creator: client.idenity,
@@ -53,7 +53,7 @@ const lobby = {
         const cur_lobby_list = this.get_lobby_list(true)
         const selected_lobby_index = cur_lobby_list.findIndex(e => e.lobby_id === lobby_id)
         if (selected_lobby_index === -1 || cur_lobby_list[selected_lobby_index].started) return { status: false, msg: "لابی تکمیل است" }
-        const { type, password: lobby_password, ban_list } = selected_lobby_index
+        const { type, password: lobby_password, ban_list } = cur_lobby_list[selected_lobby_index]
         if (type === "private" && password !== lobby_password) return { status: false, msg: "کلمه عبور اشتباه است" }
         if (ban_list.includes(client.user_id)) return { status: false, msg: "شما اجازه ورود به این لابی را ندارید" }
         cur_lobby_list[selected_lobby_index].players.push(client)
