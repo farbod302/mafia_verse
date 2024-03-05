@@ -10,7 +10,10 @@ router.get("/deck", (req, res) => {
     res.json({
         status: true,
         msg: "",
-        data: { deck }
+        data: { deck:deck.map(e=>{
+            delete e.description
+            return e
+        }) }
     })
 
 })
