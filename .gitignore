@@ -5,3 +5,4 @@ games_temp_data/games/*
 socket/online_users.json
 /sessions_result/*
 session.json
+/socket/lobby.json
