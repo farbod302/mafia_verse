@@ -22,6 +22,7 @@ router.get("/deck", (req, res) => {
 router.get("/list",(req,res)=>{
     const lobby_list_json=fs.readFileSync(`${__dirname}/../socket/lobby.json`)
     const lobby_list = JSON.parse(lobby_list_json.toString())
+    console.log({lobby_list});
     res.json({
         status: true,
         msg: "",
