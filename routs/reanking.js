@@ -60,14 +60,14 @@ router.post("/", async (req, res) => {
                 idenity: { name: idenity.name }, session_rank: session_rank[session], ranking: user_rank, avatar: {
                     avatar: "files/" + avatar.avatar,
                     table: "files/" + avatar.table,
-                }, win, lose, user_id: uid, rate: user_self + 1, prize: 10
+                }, win, lose, user_id: uid, rate: user_self + 1, prize: 0
             }
         })
     }
     res.json({
         status: true,
         msg: "",
-        data: { ranking: ranking_res,available:false }
+        data: { ranking: ranking_res,available:true }
     })
 
 })
