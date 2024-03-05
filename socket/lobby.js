@@ -1,5 +1,6 @@
 const { uid } = require("uid")
 const fs = require("fs")
+const { get_user_socket_id } = require("./online_users_handler")
 const lobby = {
     create_lobby(client, data, socket) {
         const { name, scenario, player_cnt, characters, carts, type, password } = data
@@ -17,7 +18,7 @@ const lobby = {
             ban_list: [],
             started: false,
             messages: [],
-            lobby_id
+            lobby_id,
         }
         const lobby_list = this.add_lobby_to_json(new_lobby)
         socket.to("lobby_list").emit("lobby_list", { lobby_list })
@@ -48,7 +49,7 @@ const lobby = {
     update_lobbies(new_lobby_list) {
         fs.writeFileSync(`${__dirname}/lobby.json`, JSON.stringify(new_lobby_list))
     },
-    join_lobby({ lobby_id, password, client }) {
+    join_lobby({ lobby_id, password, client, socket }) {
         const cur_lobby_list = this.get_lobby_list(true)
         const selected_lobby_index = cur_lobby_list.findIndex(e => e.lobby_id === lobby_id)
         if (selected_lobby_index === -1 || cur_lobby_list[selected_lobby_index].started) return { status: false, msg: "لابی تکمیل است" }
@@ -56,14 +57,65 @@ const lobby = {
         if (type === "private" && password !== lobby_password) return { status: false, msg: "کلمه عبور اشتباه است" }
         if (ban_list.includes(client.user_id)) return { status: false, msg: "شما اجازه ورود به این لابی را ندارید" }
         cur_lobby_list[selected_lobby_index].players.push(client)
-        this.update_lobbies(cur_lobby_list)
         socket.to("lobby_list").emit("lobby_list", { lobby_list: cur_lobby_list })
-        return { status: true, msg: "" }
+        client.join(lobby_id)
+        socket.to(lobby_id).emit("update_lobby_users", { lobby_users: cur_lobby_list[selected_lobby_index].players })
+        this.update_lobbies(cur_lobby_list)
+        const idenity = client.idenity
+        idenity.lobby_id = lobby_id
+        client.idenity = idenity
+        return { status: true, msg: "", is_creator: cur_lobby_list[selected_lobby_index].creator === client.user_id }
     },
-    kick_player({lobby_id,player_to_kick,client}){
+    kick_player({ lobby_id, player_to_kick, client, socket }) {
         const cur_lobby_list = this.get_lobby_list(true)
         const selected_lobby_index = cur_lobby_list.findIndex(e => e.lobby_id === lobby_id)
         if (selected_lobby_index === -1) return { status: false, msg: "لابی یافت نشد" }
+        const { creator } = cur_lobby_list[selected_lobby_index]
+        if (creator.user_id !== client.user_id) return { status: false, msg: "شما گرداننده این لابی نیستید" }
+        let cur_players = structuredClone(cur_lobby_list[selected_lobby_index].players)
+        cur_players = cur_players.filter(e => e.user_id !== player_to_kick)
+        cur_lobby_list[selected_lobby_index].players = cur_players
+        cur_lobby_list[selected_lobby_index].ban_list = player_to_kick
+        this.update_lobbies(cur_lobby_list)
+        socket.to("lobby_list").emit("lobby_list", { lobby_list: cur_lobby_list })
+        socket.to(lobby_id).emit("update_lobby_users", { lobby_users: cur_lobby_list[selected_lobby_index].players })
+        const kicked_player_socket = get_user_socket_id(player_to_kick)
+        socket.to(kicked_player_socket).emit("kick_from_lobby")
+        socket.sockets.sockets.get(kicked_player_socket)?.leave(lobby_id);
+        return { status: true, msg: "بازیکن حذف شد" }
+    },
+    leave_lobby({ lobby_id, client, socket }) {
+        if (!lobby_id) lobby_id = client.lobby_id
+        const cur_lobby_list = this.get_lobby_list(true)
+        const selected_lobby_index = cur_lobby_list.findIndex(e => e.lobby_id === lobby_id)
+        if (selected_lobby_index === -1) return { status: false, msg: "لابی یافت نشد" }
+        let cur_players = structuredClone(cur_lobby_list[selected_lobby_index].players)
+        cur_players = cur_players.filter(e => e.user_id !== client.user_id)
+        cur_lobby_list[selected_lobby_index].players = cur_players
+        this.update_lobbies(cur_lobby_list)
+        // socket.to("lobby_list").emit("lobby_list", { lobby_list: cur_lobby_list })
+        socket.to(lobby_id).emit("update_lobby_users", { lobby_users: cur_lobby_list[selected_lobby_index].players })
+        client.leave(lobby_id)
+        const idenity = client.idenity
+        idenity.lobby_id = null
+        client.idenity = idenity
+    },
+    send_message_to_lobby({ client, lobby_id, msg, is_system_msg, socket }) {
+        if (!lobby_id) lobby_id = client.lobby_id
+        const cur_lobby_list = this.get_lobby_list(true)
+        const selected_lobby_index = cur_lobby_list.findIndex(e => e.lobby_id === lobby_id)
+        if (selected_lobby_index === -1) return { status: false, msg: "لابی یافت نشد" }
+        let cur_messages = structuredClone(cur_lobby_list[selected_lobby_index].messages)
+        cur_messages.push({
+            sender: (is_system_msg || !client) ? { avatar: "", name: "پیام سیستم" } : { avatar: client.image, name: client.name },
+            msg
+        })
+        cur_lobby_list[selected_lobby_index].messages = cur_messages
+        this.update_lobbies(cur_lobby_list)
+        socket.to(lobby_id).emit("new_message", {
+            sender: (is_system_msg || !client) ? { avatar: "", name: "پیام سیستم" } : { avatar: client.image, name: client.name },
+            msg
+        })
     }
 }
 

@@ -1,5 +1,6 @@
 const UserChannelConfig = require("../db/user_channel_config")
 const find_match = require("./find_match")
+const lobby = require("./lobby")
 const online_users_handler = require("./online_users_handler")
 
 const handel_disconnect = async ({ client, db, socket }) => {
@@ -29,6 +30,9 @@ const handel_disconnect = async ({ client, db, socket }) => {
         if(local_game){
             local_game.game_class.users_leave(user_id)
         }
+    }
+    if(client.lobby_id){
+        lobby.leave_lobby({lobby_id:client.leave_lobby,client,socket})
     }
 
 

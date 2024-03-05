@@ -182,7 +182,27 @@ const SocketProvider = class {
 
             })
             client.on("join_lobby", (data) => {
-                
+                const result = lobby.join_lobby({ ...data, client, socket: this.io })
+                this.io.to(client.id).emit("lobby_join_result", { result })
+            })
+
+            client.on("lobby_detail", ({ lobby_id }) => {
+                const lobby_detail = lobby.get_lobby_list(false)
+                const selected_lobby = lobby_detail.find(e => e.lobby_id === lobby_id)
+                if (!selected_lobby) client.emit("lobby_detail", { status: false, msg: "لابی یافت نشد", data: {} })
+                client.emit("lobby_detail", { status: true, msg: "", data: selected_lobby })
+            })
+
+            client.on("kick_user_from_lobby", (data) => {
+                const result = lobby.kick_player({ ...data, client, socket: this.io })
+                this.io.to(client.id).emit("lobby_kick_result", { result })
+
+            })
+            client.on("leave_lobby", (data) => {
+                lobby.leave_lobby({ ...data, client, socket: this.io })
+            })
+            client.on("new_message", ({message,lobby_id}) => {
+                lobby.send_message_to_lobby({client,lobby_id,msg:message,is_system_msg:false,socket:this.io,})
             })
 
         })
