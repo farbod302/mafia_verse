@@ -155,7 +155,6 @@ const find_match = {
             console.log("REMOVE");
             db.removeOne("games_queue", "game_id", game_id)
         } else {
-            console.log("REPLACE",updated_game.users);
             db.replaceOne("games_queue", "game_id", game_id, updated_game)
         }
         for (let party of partys) {

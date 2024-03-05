@@ -49,7 +49,7 @@ const start = {
         let queue = live_users.map(user => {
             const { user_id, user_index, type: custom_type } = user
             return {
-                user_id, user_index, speech_status: custom_type || type, pass: false, challenge_used: false, type:custom_type
+                user_id, user_index, speech_status: custom_type || type, pass: false, challenge_used: false, type: custom_type
             }
         })
         return queue
@@ -88,7 +88,7 @@ const start = {
         const timer_func = () => {
             const { speech_code: cur_speech_code } = game_vars
 
-            if (speech_code === cur_speech_code ) {
+            if (speech_code === cur_speech_code) {
                 let user = befor_start.pick_player_from_user_id({ users, user_id: player_to_set_timer })
                 const { socket_id } = user
                 socket.to(socket_id).emit("speech_time_up", { data: { user_id: user.user_id } })
@@ -177,15 +177,15 @@ const start = {
 
     inquiry({ game_vars }) {
         const { dead_list, carts } = game_vars
+        console.log({ carts });
+        console.log({ dead_list });
         let mafia_rols = ["nato", "godfather", "hostage_taker"]
         let mafia_death = dead_list.filter(dead => {
-
             let role = carts.find(cart => cart.user_id === dead)
             if (role && mafia_rols.includes(role.name)) return true
             return false
         })
         const city_death = dead_list.filter(dead => {
-
             let role = carts.find(cart => cart.user_id === dead)
             if (role && !mafia_rols.includes(role.name)) return true
             return false

@@ -33,7 +33,7 @@ const join_handler = async ({ token, db, client, socket }) => {
         let s_game = db.getOne("games", "game_id", user_exist_game.game_id)
         if (!s_game) return
         const { carts } = s_game.game_class.game_vars
-        let user_char = carts.find(e => e.user_id === uid) || null
+        let user_char = carts?.find(e => e.user_id === uid) || null
         socket.to(client.id).emit("reconnect_notification", {
             data: {
                 game_id: user_exist_game.game_id,
