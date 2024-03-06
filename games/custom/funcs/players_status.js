@@ -14,7 +14,8 @@ const players_status = {
             },
         }
         return player
-    }
+    },
+    
 
 
 }
