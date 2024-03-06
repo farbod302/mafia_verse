@@ -318,6 +318,7 @@ const Game = class {
                     })
                     const { queue, turn } = this.game_vars
                     if (action === "challenge_request") {
+                        if (this.challenge_used) return
                         this.game_vars.edit_event(
                             "push",
                             "challenge_time_status",
@@ -330,6 +331,7 @@ const Game = class {
                     break
                 }
                 case ("accept_challenge"): {
+                    if (this.challenge_used) return
                     const { user_id } = data
                     const { game_id } = this
                     let index = this.users.findIndex(user => user.user_id === user_id)
@@ -357,6 +359,7 @@ const Game = class {
                         game_vars: this.game_vars,
                     })
                     this.game_vars.edit_event("edit", "speech_type", "challenge")
+                    this.challenge_used = true
                     break
                 }
                 case ("night_act"): {
@@ -871,6 +874,7 @@ const Game = class {
     async next_player_speech() {
         this.game_vars.edit_event("edit", "turn", "plus")
         this.game_vars.edit_event("edit", "challenge_time_status", [])
+        this.challenge_used = false
 
         const { game_id } = this
         const { queue, turn, can_take_challenge, speech_type, reval, player_reval, carts, player_status, second_chance } = this.game_vars
