@@ -126,23 +126,13 @@ const lobby = {
     },
     send_message_to_lobby({ client, lobby_id, msg, is_system_msg, socket }) {
         if (!lobby_id) lobby_id = client.lobby_id
-        const cur_lobby_list = this.get_lobby_list(true)
-        const selected_lobby_index = cur_lobby_list.findIndex(e => e.lobby_id === lobby_id)
-        if (selected_lobby_index === -1) return { status: false, msg: "لابی یافت نشد" }
-        let cur_messages = structuredClone(cur_lobby_list[selected_lobby_index].messages)
-        cur_messages.push({
-            sender: (is_system_msg || !client) ? { avatar: "", name: "پیام سیستم" } : { avatar: client.image, name: client.name },
-            msg
-        })
-        cur_lobby_list[selected_lobby_index].messages = cur_messages
-        this.update_lobbies(cur_lobby_list)
-        socket.to(lobby_id).emit("new_message", {
+        socket.to(lobby_id).emit("waiting_lobby_new_message", {
             sender: (is_system_msg || !client) ? { avatar: "", name: "پیام سیستم" } : { avatar: client.image, name: client.name },
             msg
         })
     },
-    reset_list(){
-        fs.writeFileSync(`${__dirname}/lobby.json`,"[]")
+    reset_list() {
+        fs.writeFileSync(`${__dirname}/lobby.json`, "[]")
 
     }
 }

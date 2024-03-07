@@ -175,6 +175,7 @@ const SocketProvider = class {
 
             client.on("create_lobby",  (data) => {
                 const lobby_id = lobby.create_lobby(client, data, this.io)
+                client.idenity.lobby_id=lobby_id
                 this.io.to(lobby_id).emit("lobby_create_result", { lobby_id })
             })
 
@@ -203,7 +204,7 @@ const SocketProvider = class {
             client.on("leave_lobby", (data) => {
                 lobby.leave_lobby({ ...data, client, socket: this.io })
             })
-            client.on("new_message", ({ message, lobby_id }) => {
+            client.on("waiting_lobby_message", ({ message, lobby_id }) => {
                 lobby.send_message_to_lobby({ client, lobby_id, msg: message, is_system_msg: false, socket: this.io, })
             })
             client.on("start_custom_game", (data) => {
