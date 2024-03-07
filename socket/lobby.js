@@ -10,16 +10,16 @@ const lobby = {
         if (this.is_running) return
         if (!this.update_list.length) return
         this.is_running = true
-        await this.update_list[0]
-        this.update_list.shift()
-        this.is_running = false
-        console.log("don");
-
-        this.run_cycle()
+        this.update_list[0].then(() => {
+            this.update_list.shift()
+            this.is_running = false
+            console.log("don");
+            this.run_cycle()
+        })
     },
     create_lobby(client, data, socket) {
         const { name, scenario, player_cnt, characters, cards, private, password } = data
-        
+
         const lobby_id = uid(5)
         const new_lobby = {
             name,
@@ -139,7 +139,7 @@ const lobby = {
         })
     },
     reset_list() {
-        fs.writeFileSync(`${__dirname}/lobby.json`,"[]")
+        fs.writeFileSync(`${__dirname}/lobby.json`, "[]")
     }
 
 
