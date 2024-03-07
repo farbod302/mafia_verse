@@ -18,7 +18,7 @@ const lobby = {
             this.run_cycle()
         })
     },
-  async  create_lobby(client, data, socket) {
+    async create_lobby(client, data, socket) {
         const { name, scenario, player_cnt, characters, cards, private, password } = data
 
         const lobby_id = uid(5)
@@ -37,15 +37,16 @@ const lobby = {
             messages: [],
             lobby_id,
         }
-        const lobby_list =await this.add_lobby_to_json(new_lobby)
+        const lobby_list = await this.add_lobby_to_json(new_lobby)
         socket.to("lobby_list").emit("lobby_list", { lobby_list })
         client.join(lobby_id)
         return lobby_id
 
 
     },
-   async add_lobby_to_json(lobby) {
-        const cur_file_json =await this.get_lobby_list(true)
+    async add_lobby_to_json(lobby) {
+        const cur_file_json = await this.get_lobby_list(true)
+        console.log({ cur_file_json });
         const new_file = cur_file_json.concat(lobby)
         this.update_lobbies(new_file)
         return new_file.map(e => {
@@ -53,15 +54,15 @@ const lobby = {
             return e
         })
     },
-   async read_file(){
-        if(this.is_running){
+    async read_file() {
+        if (this.is_running) {
             await Helper.delay(1)
-            return await this.read_file()
+            this.read_file()
         }
         return fs.readFileSync(`${__dirname}/lobby.json`)
     },
-   async get_lobby_list(keep_pass) {
-        const cur_file_raw =await this.read_file()
+    async get_lobby_list(keep_pass) {
+        const cur_file_raw = await this.read_file()
         const cur_file_json = JSON.parse(cur_file_raw.toString())
         if (keep_pass) return cur_file_json
         return cur_file_json.map(e => {
