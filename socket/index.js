@@ -173,9 +173,10 @@ const SocketProvider = class {
                 client.emit("app_detail", { data: { v, server_update: false } })
             })
 
-            client.on("create_lobby",  (data) => {
+            client.on("create_lobby", (data) => {
                 const lobby_id = lobby.create_lobby(client, data, this.io)
-                client.idenity.lobby_id=lobby_id
+                client.idenity.lobby_id = lobby_id
+                client.idenity.lobby_creator = client.idenity.user_id
                 this.io.to(lobby_id).emit("lobby_create_result", { lobby_id })
             })
 
@@ -186,6 +187,8 @@ const SocketProvider = class {
             })
             client.on("join_lobby", (data) => {
                 const result = lobby.join_lobby({ ...data, client, socket: this.io })
+                const {creator_id}=result
+                client.idenity.lobby_creator=creator_id
                 this.io.to(client.id).emit("lobby_join_result", { result })
             })
 
@@ -205,7 +208,7 @@ const SocketProvider = class {
                 lobby.leave_lobby({ ...data, client, socket: this.io })
             })
             client.on("waiting_lobby_message", ({ message, lobby_id }) => {
-                console.log("mmd send",{message},client.idenity);
+                console.log("mmd send", { message }, client.idenity);
                 lobby.send_message_to_lobby({ client, lobby_id, msg: message, is_system_msg: false, socket: this.io, })
             })
             client.on("start_custom_game", (data) => {

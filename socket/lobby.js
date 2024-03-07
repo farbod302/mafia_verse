@@ -41,7 +41,7 @@ const lobby = {
             const cur_file_raw = fs.readFileSync(`${__dirname}/lobby.json`)
             const cur_file_json = JSON.parse(cur_file_raw.toString())
             const new_file = cur_file_json.concat(lobby)
-            fs.writeFile(`${__dirname}/lobby.json`, JSON.stringify(new_file),()=>{
+            fs.writeFile(`${__dirname}/lobby.json`, JSON.stringify(new_file), () => {
 
                 lockFile.unlock(lock_path, (err) => {
                     return new_file.map(e => {
@@ -69,7 +69,7 @@ const lobby = {
     },
     update_lobbies(new_lobby_list) {
         lockFile.lock(lock_path, lockOptions, (err) => {
-            fs.writeFile(`${__dirname}/lobby.json`, JSON.stringify(new_lobby_list),()=>{
+            fs.writeFile(`${__dirname}/lobby.json`, JSON.stringify(new_lobby_list), () => {
 
                 lockFile.unlock(lock_path, () => {
                     return true
@@ -92,7 +92,7 @@ const lobby = {
         const idenity = client.idenity
         idenity.lobby_id = lobby_id
         client.idenity = idenity
-        return { status: true, msg: "", is_creator: cur_lobby_list[selected_lobby_index].creator === client.user_id }
+        return { status: true, msg: "", is_creator: cur_lobby_list[selected_lobby_index].creator === client.user_id ,creator_id:cur_lobby_list[selected_lobby_index].creator}
     },
     kick_player({ lobby_id, player_to_kick, client, socket }) {
         const cur_lobby_list = this.get_lobby_list(true)
@@ -131,12 +131,24 @@ const lobby = {
     send_message_to_lobby({ client, lobby_id, msg, is_system_msg, socket }) {
         if (!lobby_id) lobby_id = client.idenity.lobby_id
         socket.to(lobby_id).emit("waiting_lobby_new_message", {
-            sender: (is_system_msg || !client) ? { avatar: "", name: "پیام سیستم" } : { avatar: client.idenity.image, name: client.idenity.name },
+            sender: (is_system_msg || !client) ?
+                {
+                    avatar: "",
+                    name: "پیام سیستم",
+                    is_system: true,
+                    is_creator: false
+                } :
+                {
+                    avatar: client.idenity.image,
+                    name: client.idenity.name,
+                    is_system: false,
+                    is_creator:client.idenity.lobby_creator === client.idenity.user_id
+                },
             msg
         })
     },
     reset_list() {
-        fs.writeFile(`${__dirname}/lobby.json`, "[]",()=>{
+        fs.writeFile(`${__dirname}/lobby.json`, "[]", () => {
             console.log("clear");
         })
     }
