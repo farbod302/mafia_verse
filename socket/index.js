@@ -205,7 +205,7 @@ const SocketProvider = class {
                 lobby.leave_lobby({ ...data, client, socket: this.io })
             })
             client.on("waiting_lobby_message", ({ message, lobby_id }) => {
-                console.log("mmd send",{message},client);
+                console.log("mmd send",{message},client.idenity);
                 lobby.send_message_to_lobby({ client, lobby_id, msg: message, is_system_msg: false, socket: this.io, })
             })
             client.on("start_custom_game", (data) => {

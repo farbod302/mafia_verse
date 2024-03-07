@@ -131,7 +131,7 @@ const lobby = {
     send_message_to_lobby({ client, lobby_id, msg, is_system_msg, socket }) {
         if (!lobby_id) lobby_id = client.idenity.lobby_id
         socket.to(lobby_id).emit("waiting_lobby_new_message", {
-            sender: (is_system_msg || !client) ? { avatar: "", name: "پیام سیستم" } : { avatar: client.image, name: client.name },
+            sender: (is_system_msg || !client) ? { avatar: "", name: "پیام سیستم" } : { avatar: client.idenity.image, name: client.idenity.name },
             msg
         })
     },
