@@ -1,5 +1,5 @@
 const helper = {
-    shuffle_carts(carts) {
+    shuffle_card(carts) {
         return carts
     }
 }

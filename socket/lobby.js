@@ -70,7 +70,6 @@ const lobby = {
     update_lobbies(new_lobby_list) {
         lockFile.lock(lock_path, lockOptions, (err) => {
             fs.writeFile(`${__dirname}/lobby.json`, JSON.stringify(new_lobby_list), () => {
-
                 lockFile.unlock(lock_path, () => {
                     return true
                 })

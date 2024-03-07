@@ -5,6 +5,7 @@ const helper = require("./funcs/helper")
 const { generate_player_status } = require("./funcs/players_status")
 const speech = require("./funcs/speech")
 const static_vars = require("./funcs/static_vars")
+const fs=require("fs")
 const CustomGame = class {
     constructor({ lobby_id, game_detail, socket }) {
         this.game_vars = new Dynamic_vars(game_detail)
@@ -50,17 +51,32 @@ const CustomGame = class {
                 this.started = true
                 this.to(lobby_id).emit("game_started")
                 await Helper.delay(4)
-                const shuffled_carts = helper.shuffle_carts(this.game_detail.characters)
+                let deck=[]
+                const default_card_json=fs.readFileSync("../local/clean_deck.json")
+                const default_card=JSON.parse(default_card_json.toString())
+                this.game_detail.characters.forEach(cart=>{
+                    const {side,id,count,name}=cart
+                    const selected_card=default_card.find(e=>e.id === id)
+                    const card_to_add={
+                        name,
+                        side,
+                        image:selected_card.icon,
+                    }
+                    const arr_to_add=new Array(count).fill(card_to_add)
+                    deck=deck.concat(arr_to_add)
+                })
+                const shuffled_card = helper.shuffle_card(deck)
                 const cur_player_status = [...this.player_status]
                 for (let user of cur_player_status) {
                     const { index, user_id } = user
-                    const selected_cart = shuffled_carts[index - 1]
+                    const selected_cart = shuffled_card[index - 1]
                     const socket_id = this.socket_finder(user_id)
                     this.socket.to(socket_id).emit("selected_character", { character: selected_cart })
                     this.characters_list.push({
                         user_id,
                         user,
-                        character: selected_cart
+                        character: selected_cart,
+                        side:selected_cart.side
                     })
                 }
                 this.emit_to_creator("players_characters", { characters: this.characters_list })
