@@ -141,6 +141,10 @@ const lobby = {
             sender: (is_system_msg || !client) ? { avatar: "", name: "پیام سیستم" } : { avatar: client.image, name: client.name },
             msg
         })
+    },
+    reset_list(){
+        fs.writeFileSync(`${__dirname}/lobby.json`,"[]")
+
     }
 }
 
