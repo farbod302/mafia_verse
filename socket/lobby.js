@@ -6,12 +6,15 @@ const lobby = {
     update_list: [],
     is_running: false,
     async run_cycle() {
+        console.log("run");
         if (this.is_running) return
         if (!this.update_list.length) return
         this.is_running = true
         await this.update_list[0]
         this.update_list.shift()
         this.is_running = false
+        console.log("don");
+
         this.run_cycle()
     },
     create_lobby(client, data, socket) {
