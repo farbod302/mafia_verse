@@ -56,7 +56,8 @@ const lobby = {
     },
     async read_file() {
         if (this.is_running) {
-            await Helper.delay(1)
+            console.log("weight");
+            await Helper.delay(3)
             return await this.read_file()
         }
         return fs.readFileSync(`${__dirname}/lobby.json`)
