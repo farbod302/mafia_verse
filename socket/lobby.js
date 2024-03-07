@@ -41,11 +41,13 @@ const lobby = {
             const cur_file_raw = fs.readFileSync(`${__dirname}/lobby.json`)
             const cur_file_json = JSON.parse(cur_file_raw.toString())
             const new_file = cur_file_json.concat(lobby)
-            fs.writeFileSync(`${__dirname}/lobby.json`, JSON.stringify(new_file))
-            lockFile.unlock(lock_path, (err) => {
-                return new_file.map(e => {
-                    delete e.password
-                    return e
+            fs.writeFile(`${__dirname}/lobby.json`, JSON.stringify(new_file),()=>{
+
+                lockFile.unlock(lock_path, (err) => {
+                    return new_file.map(e => {
+                        delete e.password
+                        return e
+                    })
                 })
             })
         })
@@ -67,9 +69,11 @@ const lobby = {
     },
     update_lobbies(new_lobby_list) {
         lockFile.lock(lock_path, lockOptions, (err) => {
-            fs.writeFileSync(`${__dirname}/lobby.json`, JSON.stringify(new_lobby_list))
-            lockFile.unlock(lock_path, () => {
-                return true
+            fs.writeFile(`${__dirname}/lobby.json`, JSON.stringify(new_lobby_list),()=>{
+
+                lockFile.unlock(lock_path, () => {
+                    return true
+                })
             })
         })
     },
@@ -125,15 +129,16 @@ const lobby = {
         client.idenity = idenity
     },
     send_message_to_lobby({ client, lobby_id, msg, is_system_msg, socket }) {
-        if (!lobby_id) lobby_id = client.lobby_id
+        if (!lobby_id) lobby_id = client.idenity.lobby_id
         socket.to(lobby_id).emit("waiting_lobby_new_message", {
             sender: (is_system_msg || !client) ? { avatar: "", name: "پیام سیستم" } : { avatar: client.image, name: client.name },
             msg
         })
     },
     reset_list() {
-        fs.writeFileSync(`${__dirname}/lobby.json`, "[]")
-
+        fs.writeFile(`${__dirname}/lobby.json`, "[]",()=>{
+            console.log("clear");
+        })
     }
 }
 
