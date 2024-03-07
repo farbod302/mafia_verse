@@ -57,12 +57,13 @@ const lobby = {
     async read_file() {
         if (this.is_running) {
             await Helper.delay(1)
-            this.read_file()
+            return await this.read_file()
         }
         return fs.readFileSync(`${__dirname}/lobby.json`)
     },
     async get_lobby_list(keep_pass) {
         const cur_file_raw = await this.read_file()
+        console.log(cur_file_raw);
         const cur_file_json = JSON.parse(cur_file_raw.toString())
         if (keep_pass) return cur_file_json
         return cur_file_json.map(e => {
