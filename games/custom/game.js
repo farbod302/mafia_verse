@@ -5,7 +5,7 @@ const helper = require("./funcs/helper")
 const { generate_player_status } = require("./funcs/players_status")
 const speech = require("./funcs/speech")
 const static_vars = require("./funcs/static_vars")
-const Game = class {
+const CustomGame = class {
     constructor({ lobby_id, game_detail, socket }) {
         this.game_vars = new Dynamic_vars(game_detail)
         this.creator = game_detail.creator
@@ -106,3 +106,6 @@ const Game = class {
     }
 
 }
+
+
+module.exports=CustomGame

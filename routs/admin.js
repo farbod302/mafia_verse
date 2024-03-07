@@ -89,8 +89,14 @@ router.post("/add_admin", (req, res) => {
 router.post("/get_payments", check_admin, async (req, res) => {
 
     let confirmed_pays = await Pay.find({ status: true })
-    res.json({confirmed_pays})
+    res.json({ confirmed_pays })
 
+})
+
+router.post("/edit_version", check_admin, (req, res) => {
+    const { new_version } = req.body
+    fs.writeFileSync("../version.json", JSON.stringify({ v: new_version }))
+    res.json({ status: true, msg: "", data: {} })
 })
 
 

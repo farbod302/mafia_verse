@@ -12,6 +12,7 @@ const fs = require("fs")
 const monitoring = require("../container/monitoring")
 const User = require("../db/user")
 const lobby = require("./lobby")
+const CustomGame = require("../games/custom/game")
 const SocketProvider = class {
 
     constructor(io) {
@@ -24,6 +25,7 @@ const SocketProvider = class {
     lunch() {
         channel_socket_handler.set_online_games()
         online_users_handler.reset()
+        lobby.reset_list()
         setInterval(() => {
             const games = this.db.getAll("games")
             monitoring.set_games(games.length)
@@ -201,8 +203,34 @@ const SocketProvider = class {
             client.on("leave_lobby", (data) => {
                 lobby.leave_lobby({ ...data, client, socket: this.io })
             })
-            client.on("new_message", ({message,lobby_id}) => {
-                lobby.send_message_to_lobby({client,lobby_id,msg:message,is_system_msg:false,socket:this.io,})
+            client.on("new_message", ({ message, lobby_id }) => {
+                lobby.send_message_to_lobby({ client, lobby_id, msg: message, is_system_msg: false, socket: this.io, })
+            })
+            client.on("start_custom_game", (data) => {
+                const { lobby_id } = data
+                const lobby_list = lobby.get_lobby_list(true)
+                const selected_lobby_index = lobby_list.findIndex(e => e.lobby_id === lobby_id)
+                if (selected_lobby_index === -1) return client.emit("error", { msg: "لابی یافت نشد" })
+                const { player_cnt, players, creator } = lobby_list[selected_lobby_index]
+                if (player_cnt != players.length) return client.emit("error", { msg: "ظرفیت بازی هنوز تکمیل نشده" })
+                const { user_id } = client
+                if (user_id !== creator) return client.emit("error", { msg: "شما دسترسی لازم برای شروع بازی را ندارید" })
+                const new_custom_game = new CustomGame({
+                    lobby_id,
+                    game_detail: lobby_list[selected_lobby_index],
+                    socket: this.io
+                })
+                lobby_list[selected_lobby_index].started = true
+                lobby.update_lobbies(lobby_list)
+                this.io.to(lobby_id).emit("custom_game_created")
+                this.db.add_data("custom_game", { game_class:new_custom_game, lobby_id })
+            })
+            client.on("custom_game_handler", ({ op, data, lobby_id }) => {
+                const selected_lobby_id = lobby_id || client.lobby_id
+                if (!selected_lobby_id) return console.log("no lobby id");
+                const selected_lobby=this.db.getOne("custom_game","lobby_id",lobby_id)
+                if(!selected_lobby)return console.log("no lobby");
+                selected_lobby.game_class.game_handler(client,op,data)
             })
 
         })

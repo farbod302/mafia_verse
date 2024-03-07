@@ -2,6 +2,18 @@ const { uid } = require("uid")
 const fs = require("fs")
 const { get_user_socket_id } = require("./online_users_handler")
 const lobby = {
+
+    update_list: [],
+    is_running: false,
+    async run_cycle() {
+        if (this.is_running) return
+        if (!this.update_list.length) return
+        this.is_running = true
+        await this.update_list[0]()
+        this.update_list.shift()
+        this.is_running = false
+        this.run_cycle()
+    },
     create_lobby(client, data, socket) {
         const { name, scenario, player_cnt, characters, cards, type, password } = data
         const lobby_id = uid(5)
@@ -28,10 +40,9 @@ const lobby = {
 
     },
     add_lobby_to_json(lobby) {
-        const cur_file_raw = fs.readFileSync(`${__dirname}/lobby.json`)
-        const cur_file_json = JSON.parse(cur_file_raw.toString())
+        const cur_file_json = this.get_lobby_list(true)
         const new_file = cur_file_json.concat(lobby)
-        fs.writeFileSync(`${__dirname}/lobby.json`, JSON.stringify(new_file))
+        this.update_lobbies(new_file)
         return new_file.map(e => {
             delete e.password
             return e
@@ -46,8 +57,14 @@ const lobby = {
             return e
         })
     },
-    update_lobbies(new_lobby_list) {
-        fs.writeFileSync(`${__dirname}/lobby.json`, JSON.stringify(new_lobby_list))
+    async update_lobbies(new_lobby_list) {
+        const promises = new Promise(resolve => {
+            fs.writeFile(`${__dirname}/lobby.json`, JSON.stringify(new_lobby_list), () => {
+                resolve()
+            })
+        })
+        this.update_list.push(promises)
+        this.run_cycle()
     },
     join_lobby({ lobby_id, password, client, socket }) {
         const cur_lobby_list = this.get_lobby_list(true)
@@ -116,7 +133,12 @@ const lobby = {
             sender: (is_system_msg || !client) ? { avatar: "", name: "پیام سیستم" } : { avatar: client.image, name: client.name },
             msg
         })
+    },
+    reset_list() {
+        fs.writeFileSync(`${__dirname}/lobby.json`,"[]")
     }
+
+
 }
 
 module.exports = lobby

@@ -9,7 +9,7 @@ router.post("/game_play", async (req, res) => {
     const { report_id, game_id, kind } = req.body
     let now = Date.now()
     if (!user) return res.json({ status: false, msg: "invalid token" })
-    let is_report_submitted = await Report.findOne({ game_id, user_submitted: user.uid })
+    let is_report_submitted = await Report.findOne({ game_id, user_submitted: user.uid, report_id, kind })
     if (is_report_submitted) return res.json({ status: false, msg: "گزارش شما قبلا ثبت شده" })
     new Report({ kind, report_id, user_submitted: user.uid, game_id, date: now }).save()
     res.json({ status: true, msg: "گزارش شما ثبت شد", data: {} })
