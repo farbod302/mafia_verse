@@ -12,7 +12,7 @@ const lockOptions = {
 };
 const lobby = {
     create_lobby(client, data, socket) {
-        const { name, scenario, player_cnt, characters, cards, type, password } = data
+        const { name, scenario, player_cnt, characters, cards, type, password,sides } = data
         const lobby_id = uid(5)
         const new_lobby = {
             name,
@@ -28,6 +28,7 @@ const lobby = {
             started: false,
             messages: [],
             lobby_id,
+            sides
         }
         const lobby_list = this.add_lobby_to_json(new_lobby)
         socket.to("lobby_list").emit("lobby_list", { lobby_list })
@@ -42,7 +43,6 @@ const lobby = {
             const cur_file_json = JSON.parse(cur_file_raw.toString())
             const new_file = cur_file_json.concat(lobby)
             fs.writeFile(`${__dirname}/lobby.json`, JSON.stringify(new_file), () => {
-
                 lockFile.unlock(lock_path, (err) => {
                     return new_file.map(e => {
                         delete e.password
@@ -92,7 +92,7 @@ const lobby = {
         const idenity = client.idenity
         idenity.lobby_id = lobby_id
         client.idenity = idenity
-        return { status: true, msg: "", is_creator: cur_lobby_list[selected_lobby_index].creator === client.user_id ,creator_id:cur_lobby_list[selected_lobby_index].creator}
+        return { status: true, msg: "", is_creator: cur_lobby_list[selected_lobby_index].creator === client.user_id, creator_id: cur_lobby_list[selected_lobby_index].creator }
     },
     kick_player({ lobby_id, player_to_kick, client, socket }) {
         const cur_lobby_list = this.get_lobby_list(true)
@@ -133,16 +133,20 @@ const lobby = {
         socket.to(lobby_id).emit("waiting_lobby_new_message", {
             sender: (is_system_msg || !client) ?
                 {
-                    avatar: "",
+                    avatar: client?.idenity.image,
                     name: "پیام سیستم",
                     is_system: true,
-                    is_creator: false
+                    is_creator: client.idenity.lobby_creator === client.idenity.user_id,
+                    user_id: "system"
+
                 } :
                 {
                     avatar: client.idenity.image,
                     name: client.idenity.name,
                     is_system: false,
-                    is_creator:client.idenity.lobby_creator === client.idenity.user_id
+                    is_creator: client.idenity.lobby_creator === client.idenity.user_id,
+                    user_id: client.idenity.user_id
+
                 },
             msg
         })
