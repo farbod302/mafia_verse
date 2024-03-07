@@ -9,7 +9,6 @@ const lobby = {
         if (this.is_running) return
         if (!this.update_list.length) return
         this.is_running = true
-        console.log(this.update_list);
         await this.update_list[0]
         this.update_list.shift()
         this.is_running = false
