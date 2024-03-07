@@ -1,6 +1,7 @@
 const { uid } = require("uid")
 const fs = require("fs")
-const { get_user_socket_id } = require("./online_users_handler")
+const { get_user_socket_id } = require("./online_users_handler");
+const Helper = require("../helper/helper");
 const lobby = {
 
     update_list: [],
@@ -52,8 +53,11 @@ const lobby = {
             return e
         })
     },
-    read_file(){
-        if(this.is_running)return this.read_file()
+   async read_file(){
+        if(this.is_running){
+            await Helper.delay(1)
+            return this.read_file()
+        }
         return fs.readFileSync(`${__dirname}/lobby.json`)
     },
     get_lobby_list(keep_pass) {
