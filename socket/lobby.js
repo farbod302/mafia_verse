@@ -18,7 +18,7 @@ const lobby = {
             this.run_cycle()
         })
     },
-    create_lobby(client, data, socket) {
+  async  create_lobby(client, data, socket) {
         const { name, scenario, player_cnt, characters, cards, private, password } = data
 
         const lobby_id = uid(5)
@@ -37,15 +37,15 @@ const lobby = {
             messages: [],
             lobby_id,
         }
-        const lobby_list = this.add_lobby_to_json(new_lobby)
+        const lobby_list =await this.add_lobby_to_json(new_lobby)
         socket.to("lobby_list").emit("lobby_list", { lobby_list })
         client.join(lobby_id)
         return lobby_id
 
 
     },
-    add_lobby_to_json(lobby) {
-        const cur_file_json = this.get_lobby_list(true)
+   async add_lobby_to_json(lobby) {
+        const cur_file_json =await this.get_lobby_list(true)
         const new_file = cur_file_json.concat(lobby)
         this.update_lobbies(new_file)
         return new_file.map(e => {

@@ -173,9 +173,9 @@ const SocketProvider = class {
                 client.emit("app_detail", { data: { v, server_update: false } })
             })
 
-            client.on("create_lobby", (data) => {
+            client.on("create_lobby", async (data) => {
                 console.log("call");
-                const lobby_id = lobby.create_lobby(client, data, this.io)
+                const lobby_id = await lobby.create_lobby(client, data, this.io)
                 this.io.to(lobby_id).emit("lobby_create_result", { lobby_id })
             })
 
@@ -224,14 +224,14 @@ const SocketProvider = class {
                 lobby_list[selected_lobby_index].started = true
                 lobby.update_lobbies(lobby_list)
                 this.io.to(lobby_id).emit("custom_game_created")
-                this.db.add_data("custom_game", { game_class:new_custom_game, lobby_id })
+                this.db.add_data("custom_game", { game_class: new_custom_game, lobby_id })
             })
             client.on("custom_game_handler", ({ op, data, lobby_id }) => {
                 const selected_lobby_id = lobby_id || client.lobby_id
                 if (!selected_lobby_id) return console.log("no lobby id");
-                const selected_lobby=this.db.getOne("custom_game","lobby_id",lobby_id)
-                if(!selected_lobby)return console.log("no lobby");
-                selected_lobby.game_class.game_handler(client,op,data)
+                const selected_lobby = this.db.getOne("custom_game", "lobby_id", lobby_id)
+                if (!selected_lobby) return console.log("no lobby");
+                selected_lobby.game_class.game_handler(client, op, data)
             })
 
         })
