@@ -57,7 +57,7 @@ const lobby = {
         return fs.readFileSync(`${__dirname}/lobby.json`)
     },
     get_lobby_list(keep_pass) {
-        const cur_file_raw = fs.readFileSync(`${__dirname}/lobby.json`)
+        const cur_file_raw = this.read_file()
         const cur_file_json = JSON.parse(cur_file_raw.toString())
         if (keep_pass) return cur_file_json
         return cur_file_json.map(e => {
