@@ -7,8 +7,8 @@ const lobby = {
     is_running: false,
     async run_cycle() {
         console.log("run");
-        if (this.is_running) return
-        if (!this.update_list.length) return
+        if (this.is_running) return console.log("running");
+        if (!this.update_list.length) return console.log("no task");
         this.is_running = true
         this.update_list[0].then(() => {
             this.update_list.shift()
