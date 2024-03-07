@@ -12,6 +12,7 @@ const lobby = {
         if (!this.update_list.length) return console.log("no task");
         this.is_running = true
         this.update_list[0].then(() => {
+            console.log("promis resolve");
             this.update_list.shift()
             this.is_running = false
             console.log("don");
@@ -75,6 +76,7 @@ const lobby = {
     async update_lobbies(new_lobby_list) {
         const promises = new Promise(resolve => {
             fs.writeFile(`${__dirname}/lobby.json`, JSON.stringify(new_lobby_list), () => {
+                console.log("RESOLVE");
                 resolve()
             })
         })
