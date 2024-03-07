@@ -2,7 +2,6 @@ const { uid } = require("uid")
 const fs = require("fs")
 const { get_user_socket_id } = require("./online_users_handler")
 const lockFile = require('lockfile');
-const json_path = `${__dirname}/lobby.json`
 const lock_path = `${__dirname}/lobby.json.lock`
 
 const lockOptions = {
@@ -67,7 +66,7 @@ const lobby = {
 
     },
     update_lobbies(new_lobby_list) {
-        lockFile.lock(lock_path, lockOptions, () => {
+        lockFile.lock(lock_path, lockOptions, (err) => {
             fs.writeFileSync(`${__dirname}/lobby.json`, JSON.stringify(new_lobby_list))
             lockFile.unlock(lock_path, () => {
                 return true
