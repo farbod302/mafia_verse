@@ -174,6 +174,7 @@ const SocketProvider = class {
             })
 
             client.on("create_lobby", (data) => {
+                console.log("call");
                 const lobby_id = lobby.create_lobby(client, data, this.io)
                 this.io.to(lobby_id).emit("lobby_create_result", { lobby_id })
             })
