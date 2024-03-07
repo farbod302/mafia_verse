@@ -173,9 +173,8 @@ const SocketProvider = class {
                 client.emit("app_detail", { data: { v, server_update: false } })
             })
 
-            client.on("create_lobby", async (data) => {
-                console.log("call");
-                const lobby_id = await lobby.create_lobby(client, data, this.io)
+            client.on("create_lobby",  (data) => {
+                const lobby_id = lobby.create_lobby(client, data, this.io)
                 this.io.to(lobby_id).emit("lobby_create_result", { lobby_id })
             })
 

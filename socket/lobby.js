@@ -1,27 +1,19 @@
 const { uid } = require("uid")
 const fs = require("fs")
-const { get_user_socket_id } = require("./online_users_handler");
-const Helper = require("../helper/helper");
+const { get_user_socket_id } = require("./online_users_handler")
+const lockFile = require('lockfile');
+const json_path = `${__dirname}/lobby.json`
+const lock_path = `${__dirname}/lobby.json.lock`
+
+const lockOptions = {
+    wait: 1000,
+    stale: 5000,
+    retries: 100,
+    retryWait: 1000
+};
 const lobby = {
-
-    update_list: [],
-    is_running: false,
-    async run_cycle() {
-        console.log("run");
-        if (this.is_running) return console.log("running");
-        if (!this.update_list.length) return console.log("no task");
-        this.is_running = true
-        this.update_list[0].then(() => {
-            console.log("promis resolve");
-            this.update_list.shift()
-            this.is_running = false
-            console.log("don");
-            this.run_cycle()
-        })
-    },
-    async create_lobby(client, data, socket) {
-        const { name, scenario, player_cnt, characters, cards, private, password } = data
-
+    create_lobby(client, data, socket) {
+        const { name, scenario, player_cnt, characters, cards, type, password } = data
         const lobby_id = uid(5)
         const new_lobby = {
             name,
@@ -29,7 +21,7 @@ const lobby = {
             player_cnt,
             characters,
             cards,
-            private,
+            type,
             password,
             creator: client.idenity,
             players: [],
@@ -38,57 +30,56 @@ const lobby = {
             messages: [],
             lobby_id,
         }
-        const lobby_list = await this.add_lobby_to_json(new_lobby)
+        const lobby_list = this.add_lobby_to_json(new_lobby)
         socket.to("lobby_list").emit("lobby_list", { lobby_list })
         client.join(lobby_id)
         return lobby_id
 
 
     },
-    async add_lobby_to_json(lobby) {
-        const cur_file_json = await this.get_lobby_list(true)
-        console.log({ cur_file_json });
-        const new_file = cur_file_json.concat(lobby)
-        this.update_lobbies(new_file)
-        return new_file.map(e => {
-            delete e.password
-            return e
-        })
-    },
-    async read_file() {
-        if (this.is_running) {
-            console.log("weight");
-            await Helper.delay(3)
-            return await this.read_file()
-        }
-        return fs.readFileSync(`${__dirname}/lobby.json`)
-    },
-    async get_lobby_list(keep_pass) {
-        const cur_file_raw = await this.read_file()
-        console.log(cur_file_raw);
-        const cur_file_json = JSON.parse(cur_file_raw.toString())
-        if (keep_pass) return cur_file_json
-        return cur_file_json.map(e => {
-            delete e.password
-            return e
-        })
-    },
-    async update_lobbies(new_lobby_list) {
-        const promises = new Promise(resolve => {
-            fs.writeFile(`${__dirname}/lobby.json`, JSON.stringify(new_lobby_list), () => {
-                console.log("RESOLVE");
-                resolve()
+    add_lobby_to_json(lobby) {
+        lockFile.lock(lock_path, lockOptions, (err) => {
+            const cur_file_raw = fs.readFileSync(`${__dirname}/lobby.json`)
+            const cur_file_json = JSON.parse(cur_file_raw.toString())
+            const new_file = cur_file_json.concat(lobby)
+            fs.writeFileSync(`${__dirname}/lobby.json`, JSON.stringify(new_file))
+            lockFile.unlock(lock_path, (err) => {
+                return new_file.map(e => {
+                    delete e.password
+                    return e
+                })
             })
         })
-        this.update_list.push(promises)
-        this.run_cycle()
+    },
+    get_lobby_list(keep_pass) {
+        lockFile.lock(lock_path, lockOptions, (err) => {
+            const cur_file_raw = fs.readFileSync(`${__dirname}/lobby.json`)
+            const cur_file_json = JSON.parse(cur_file_raw.toString())
+            lockFile.unlock(lock_path, (err) => {
+                if (keep_pass) return cur_file_json
+                return cur_file_json.map(e => {
+                    delete e.password
+                    return e
+                })
+            })
+        })
+
+
+    },
+    update_lobbies(new_lobby_list) {
+        lockFile.lock(lock_path, lockOptions, () => {
+            fs.writeFileSync(`${__dirname}/lobby.json`, JSON.stringify(new_lobby_list))
+            lockFile.unlock(lock_path, () => {
+                return true
+            })
+        })
     },
     join_lobby({ lobby_id, password, client, socket }) {
         const cur_lobby_list = this.get_lobby_list(true)
         const selected_lobby_index = cur_lobby_list.findIndex(e => e.lobby_id === lobby_id)
         if (selected_lobby_index === -1 || cur_lobby_list[selected_lobby_index].started) return { status: false, msg: "لابی تکمیل است" }
-        const { private, password: lobby_password, ban_list } = cur_lobby_list[selected_lobby_index]
-        if (private && password !== lobby_password) return { status: false, msg: "کلمه عبور اشتباه است" }
+        const { type, password: lobby_password, ban_list } = cur_lobby_list[selected_lobby_index]
+        if (type === "private" && password !== lobby_password) return { status: false, msg: "کلمه عبور اشتباه است" }
         if (ban_list.includes(client.user_id)) return { status: false, msg: "شما اجازه ورود به این لابی را ندارید" }
         cur_lobby_list[selected_lobby_index].players.push(client)
         socket.to("lobby_list").emit("lobby_list", { lobby_list: cur_lobby_list })
@@ -150,12 +141,7 @@ const lobby = {
             sender: (is_system_msg || !client) ? { avatar: "", name: "پیام سیستم" } : { avatar: client.image, name: client.name },
             msg
         })
-    },
-    reset_list() {
-        fs.writeFileSync(`${__dirname}/lobby.json`, "[]")
     }
-
-
 }
 
 module.exports = lobby
