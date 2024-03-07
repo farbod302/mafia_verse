@@ -56,7 +56,7 @@ const lobby = {
    async read_file(){
         if(this.is_running){
             await Helper.delay(1)
-            return this.read_file()
+            return await this.read_file()
         }
         return fs.readFileSync(`${__dirname}/lobby.json`)
     },
