@@ -34,7 +34,7 @@ const CustomGame = class {
                     index: cur_length + 1,
                     ...player_status
                 })
-                const new_permissions = { ...static_vars.permissions }
+                const new_permissions = { ...static_vars.permissions,user_id }
                 client.emit("permissions_status", { permissions: new_permissions })
                 this.players_permissions.push(new_permissions)
                 if (this.players_permissions.length >= this.game_detail.player_cnt) {

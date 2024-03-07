@@ -1,6 +1,5 @@
 const static_vars = {
     permissions: {
-        user_id,
         speech: false,
         listen:true,
         hand_rise: false,
