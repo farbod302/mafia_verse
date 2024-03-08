@@ -12,6 +12,7 @@ const lockOptions = {
 };
 const lobby = {
     create_lobby(client, data, socket) {
+        console.log({data});
         const { name, scenario, player_cnt, characters, cards, type, password,sides } = data
         const lobby_id = uid(5)
         const new_lobby = {
