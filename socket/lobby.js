@@ -76,10 +76,9 @@ const lobby = {
     join_lobby({ lobby_id, password, client, socket }) {
         const cur_lobby_list = this.get_lobby_list(true)
         const selected_lobby_index = cur_lobby_list.findIndex(e => e.lobby_id === lobby_id)
-        console.log({selected_lobby_index});
         if (selected_lobby_index === -1 || cur_lobby_list[selected_lobby_index].started) return { status: false, msg: "لابی تکمیل است" }
-        const { type, password: lobby_password, ban_list } = cur_lobby_list[selected_lobby_index]
-        if (type === "private" && password !== lobby_password) return { status: false, msg: "کلمه عبور اشتباه است" }
+        const { private, password: lobby_password, ban_list } = cur_lobby_list[selected_lobby_index]
+        if (private && password !== lobby_password) return { status: false, msg: "کلمه عبور اشتباه است" }
         if (ban_list.includes(client.user_id)) return { status: false, msg: "شما اجازه ورود به این لابی را ندارید" }
         cur_lobby_list[selected_lobby_index].players.push(client)
         socket.to("lobby_list").emit("lobby_list", { lobby_list: cur_lobby_list })
