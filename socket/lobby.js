@@ -83,14 +83,10 @@ const lobby = {
         cur_lobby_list[selected_lobby_index].players.push(client.idenity)
         client.join(lobby_id)
         socket.to(lobby_id).emit("update_lobby_users", { lobby_users: cur_lobby_list[selected_lobby_index].players })
-        console.log("2");
         this.update_lobbies(cur_lobby_list)
-        console.log("3");
         const idenity = client.idenity
         idenity.lobby_id = lobby_id
         client.idenity = idenity
-        console.log("4");
-
         return { status: true, msg: "", is_creator: cur_lobby_list[selected_lobby_index].creator === client.user_id, creator_id: cur_lobby_list[selected_lobby_index].creator }
     },
     kick_player({ lobby_id, player_to_kick, client, socket }) {
