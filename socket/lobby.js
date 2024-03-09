@@ -55,8 +55,12 @@ const lobby = {
     },
     get_lobby_list(keep_pass) {
         const list_json = fs.readFileSync(`${__dirname}/lobby.json`)
-        const list=JSON.parse(list_json)
-        return list
+        const list = JSON.parse(list_json)
+        if (keep_pass) return list
+        return list.map(e=>{
+            delete e.password
+            return e
+        })
 
 
     },
@@ -71,8 +75,8 @@ const lobby = {
     },
     join_lobby({ lobby_id, password, client, socket }) {
         const cur_lobby_list = this.get_lobby_list(true)
-        console.log({ cur_lobby_list });
         const selected_lobby_index = cur_lobby_list.findIndex(e => e.lobby_id === lobby_id)
+        console.log({selected_lobby_index});
         if (selected_lobby_index === -1 || cur_lobby_list[selected_lobby_index].started) return { status: false, msg: "لابی تکمیل است" }
         const { type, password: lobby_password, ban_list } = cur_lobby_list[selected_lobby_index]
         if (type === "private" && password !== lobby_password) return { status: false, msg: "کلمه عبور اشتباه است" }
