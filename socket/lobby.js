@@ -12,8 +12,8 @@ const lockOptions = {
 };
 const lobby = {
     create_lobby(client, data, socket) {
-        console.log({data});
-        const { name, scenario, player_cnt, characters, cards, private, password,sides } = data
+        console.log({ data });
+        const { name, scenario, player_cnt, characters, cards, private, password, sides } = data
         const lobby_id = uid(5)
         const new_lobby = {
             name,
@@ -54,12 +54,9 @@ const lobby = {
         })
     },
     get_lobby_list(keep_pass) {
-        
-        lockFile.lock(lock_path,lockOptions,(err)=>{
-            const file=fs.readFileSync(`${__dirname}/lobby.json`)
-            console.log({file});
-        })
-        
+        const list_json = fs.readFileSync(`${__dirname}/lobby.json`)
+        const list=JSON.parse(list_json)
+        return list
 
 
     },
@@ -74,7 +71,7 @@ const lobby = {
     },
     join_lobby({ lobby_id, password, client, socket }) {
         const cur_lobby_list = this.get_lobby_list(true)
-        console.log({cur_lobby_list});
+        console.log({ cur_lobby_list });
         const selected_lobby_index = cur_lobby_list.findIndex(e => e.lobby_id === lobby_id)
         if (selected_lobby_index === -1 || cur_lobby_list[selected_lobby_index].started) return { status: false, msg: "لابی تکمیل است" }
         const { type, password: lobby_password, ban_list } = cur_lobby_list[selected_lobby_index]
