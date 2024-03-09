@@ -111,7 +111,7 @@ const lobby = {
         const cur_lobby_list = this.get_lobby_list(true)
         const selected_lobby_index = cur_lobby_list.findIndex(e => e.lobby_id === lobby_id)
         if (selected_lobby_index === -1) return { status: false, msg: "لابی یافت نشد" }
-        let cur_players = structuredClone(cur_lobby_list[selected_lobby_index].players)
+        let cur_players = JSON.parse(JSON.stringify(cur_lobby_list[selected_lobby_index].players))
         cur_players = cur_players.filter(e => e.user_id !== client.user_id)
         cur_lobby_list[selected_lobby_index].players = cur_players
         this.update_lobbies(cur_lobby_list)
