@@ -5,6 +5,7 @@ const online_users_handler = require("./online_users_handler")
 
 const handel_disconnect = async ({ client, db, socket }) => {
     //handel dc during find match
+    console.log(client.idenity.lobby_id);
     find_match.leave_find({ client, db, socket })
     let game_id = client.game_id
     if (game_id) {

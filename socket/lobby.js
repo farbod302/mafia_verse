@@ -77,7 +77,7 @@ const lobby = {
         const cur_lobby_list = this.get_lobby_list(true)
         const selected_lobby_index = cur_lobby_list.findIndex(e => e.lobby_id === lobby_id)
         if (selected_lobby_index === -1 || cur_lobby_list[selected_lobby_index].started) return { status: false, msg: "بازی شروع شده.جا موندی" }
-        if(cur_lobby_list[selected_lobby_index].players.length === cur_lobby_list[selected_lobby_index].player_cnt)return { status: false, msg: "ظرفیت تکمیل" }
+        if (cur_lobby_list[selected_lobby_index].players.length === cur_lobby_list[selected_lobby_index].player_cnt) return { status: false, msg: "ظرفیت تکمیل" }
         const { private, password: lobby_password, ban_list } = cur_lobby_list[selected_lobby_index]
         if (private && password !== lobby_password) return { status: false, msg: "کلمه عبور اشتباه است" }
         if (ban_list.includes(client.user_id)) return { status: false, msg: "شما اجازه ورود به این لابی را ندارید" }
@@ -118,9 +118,6 @@ const lobby = {
         // socket.to("lobby_list").emit("lobby_list", { lobby_list: cur_lobby_list })
         socket.to(lobby_id).emit("update_lobby_users", { lobby_users: cur_lobby_list[selected_lobby_index].players })
         client.leave(lobby_id)
-        const idenity = client.idenity
-        idenity.lobby_id = null
-        client.idenity = idenity
     },
     send_message_to_lobby({ client, lobby_id, msg, is_system_msg, socket }) {
         if (!lobby_id) lobby_id = client.idenity.lobby_id
