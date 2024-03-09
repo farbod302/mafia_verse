@@ -54,26 +54,12 @@ const lobby = {
         })
     },
     get_lobby_list(keep_pass) {
-        const file=lockFile.lock(lock_path, lockOptions, (err) => {
-            console.log({err});
-            const cur_file_raw = fs.readFileSync(`${__dirname}/lobby.json`)
-            console.log({cur_file_raw});
-            const cur_file_json = JSON.parse(cur_file_raw.toString())
-            console.log({cur_file_json_1:cur_file_json});
-            const file=lockFile.unlock(lock_path, (err) => {
-                console.log({err});
-                if (keep_pass) return cur_file_json
-                return cur_file_json.map(e => {
-                    delete e.password
-                    return e
-                })
-            })
+        
+        lockFile.lock(lock_path,lockOptions,(err)=>{
+            const file=fs.readFileSync(`${__dirname}/lobby.json`)
             console.log({file});
-            return file
         })
-        console.log({file});
-
-        return file
+        
 
 
     },
