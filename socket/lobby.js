@@ -148,6 +148,7 @@ const lobby = {
         })
     },
     reset_list() {
+        return
         fs.writeFile(`${__dirname}/lobby.json`, "[]", () => {
             console.log("clear");
         })

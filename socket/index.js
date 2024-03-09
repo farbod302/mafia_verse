@@ -219,10 +219,11 @@ const SocketProvider = class {
                 const lobby_list = lobby.get_lobby_list(true)
                 const selected_lobby_index = lobby_list.findIndex(e => e.lobby_id === lobby_id)
                 if (selected_lobby_index === -1) return client.emit("error", { msg: "لابی یافت نشد" })
-                const { player_cnt, players, creator } = lobby_list[selected_lobby_index]
+                const { player_cnt, players, creator,started } = lobby_list[selected_lobby_index]
                 if (player_cnt != players.length) return client.emit("error", { msg: "ظرفیت بازی هنوز تکمیل نشده" })
+                if(started)  return client.emit("error", { msg: "بازی قبلا شروع شده" })
                 const { user_id } = client.idenity
-                if (user_id !== creator) return client.emit("error", { msg: "شما دسترسی لازم برای شروع بازی را ندارید" })
+                if (user_id !== creator.user_id) return client.emit("error", { msg: "شما دسترسی لازم برای شروع بازی را ندارید" })
                 const new_custom_game = new CustomGame({
                     lobby_id,
                     game_detail: lobby_list[selected_lobby_index],
