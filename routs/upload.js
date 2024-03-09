@@ -1,7 +1,7 @@
 const express = require("express")
 const router = express.Router()
 const User = require("../db/user")
-var base64ToImage = require('base64-to-image');
+var base64Img = require('base64-img');
 const { uid } = require("uid");
 
 
@@ -15,11 +15,8 @@ router.post("/submit_avatar_request", async (req, res) => {
     //save image
     const path = `${__dirname}/../user_images`
     const name = `${user.uid}_${uid(5)}`
-    const image_info = base64ToImage(image, path, {
-        fileName: name,
-        debug:true
-    })
-    console.log({image_info});
+    const format = (image.split("/")[1]).split(";")[0]
+    console.log({ format });
 })
 
 
