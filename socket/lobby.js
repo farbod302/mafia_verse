@@ -87,7 +87,7 @@ const lobby = {
         const idenity = client.idenity
         idenity.lobby_id = lobby_id
         client.idenity = idenity
-        return { status: true, msg: "", is_creator: cur_lobby_list[selected_lobby_index].creator === client.user_id, creator_id: cur_lobby_list[selected_lobby_index].creator }
+        return { status: true, msg: "",lobby_id, is_creator: cur_lobby_list[selected_lobby_index].creator === client.user_id, creator_id: cur_lobby_list[selected_lobby_index].creator }
     },
     kick_player({ lobby_id, player_to_kick, client, socket }) {
         const cur_lobby_list = this.get_lobby_list(true)
