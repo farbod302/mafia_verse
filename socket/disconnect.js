@@ -31,7 +31,7 @@ const handel_disconnect = async ({ client, db, socket }) => {
             local_game.game_class.users_leave(user_id)
         }
     }
-    if(client.lobby_id){
+    if(client.idenity.lobby_id){
         lobby.leave_lobby({lobby_id:client.leave_lobby,client,socket})
     }
 
