@@ -58,6 +58,7 @@ const lobby = {
             console.log({err});
             const cur_file_raw = fs.readFileSync(`${__dirname}/lobby.json`)
             const cur_file_json = JSON.parse(cur_file_raw.toString())
+            console.log({cur_file_json});
             const file=lockFile.unlock(lock_path, (err) => {
                 if (keep_pass) return cur_file_json
                 return cur_file_json.map(e => {
@@ -65,8 +66,11 @@ const lobby = {
                     return e
                 })
             })
+            console.log({file});
             return file
         })
+        console.log({file});
+
         return file
 
 
