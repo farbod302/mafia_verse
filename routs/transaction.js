@@ -11,6 +11,7 @@ const Pay = require("../db/pay")
 const Payment = require("../db/payment")
 const payment = new ZarinPal.create(process.env.PAYMENT, false)
 const { uid: uuid } = require("uid")
+const moment = require("moment")
 router.post("/confirm_transaction", async (req, res) => {
     const user = req.body.user
     if (!user) return reject(3, res)
@@ -57,6 +58,37 @@ router.post("/confirm_transaction", async (req, res) => {
     })
     await send_notif({ users: [uid], msg: `خرید ${gold} سکه با موفقیت انجام شد`, title: "خرید انجام شد" })
 })
+router.post("/confirm_vip_sub", async (req, res) => {
+    const user = req.body.user
+    if (!user) return reject(3, res)
+    const vip_plans = fs.readFileSync(`${__dirname}/../vip_plans.json`)
+    const plans = JSON.parse(vip_plans.toString())
+    const { uid } = user
+    const { tr_token, plan } = req.body
+    const selected_plan = plans.find(e => e.id === plan)
+    const { purchaseState } = await Tr.check_transaction_result_market(plan, tr_token)
+    const status = purchaseState
+    if (status !== 0) return reject(3, res)
+    //check used
+    const is_exist = await Transaction.findOne({ token: tr_token })
+    if (is_exist) return reject(3, res)
+    const new_transaction = {
+        user_id: uid,
+        date: Date.now(),
+        plan, token: tr_token,
+        price: selected_plan.price, gold: selected_plan.duration, success: status === 0 ? true : false,
+        device: req.body.device || "app", note: selected_plan.name
+    }
+    new Transaction(new_transaction).save()
+    const vip_until = moment().add(selected_plan.duration, "days")
+    await User.findOneAndUpdate({ uid }, { $set: { vip: true, vip_until: new Date(vip_until).getTime() } })
+    res.json({
+        status: true,
+        msg: "اشتراک با موفقیت ثبت شد",
+        data: { vip_until }
+    })
+
+})
 
 router.post("/create_transaction", async (req, res) => {
     const user = req.body.user
@@ -82,6 +114,7 @@ router.post("/create_transaction", async (req, res) => {
         date: Date.now(),
         amount: gold,
         price,
+        type: false
     }
     await new Payment(new_pay).save()
     res.json({

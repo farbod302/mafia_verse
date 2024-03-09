@@ -121,10 +121,9 @@ const lobby = {
         cur_lobby_list[selected_lobby_index].players = cur_players
         cur_lobby_list[selected_lobby_index].ban_list = player_to_kick
         this.update_lobbies(cur_lobby_list)
-        socket.to("lobby_list").emit("lobby_list", { lobby_list: cur_lobby_list })
         socket.to(lobby_id).emit("update_lobby_users", { lobby_users: cur_lobby_list[selected_lobby_index].players })
         const kicked_player_socket = get_user_socket_id(player_to_kick)
-        socket.to(kicked_player_socket).emit("kick_from_lobby")
+        socket.to(kicked_player_socket).emit("kicked_from_lobby")
         socket.sockets.sockets.get(kicked_player_socket)?.leave(lobby_id);
         return { status: true, msg: "بازیکن حذف شد" }
     },

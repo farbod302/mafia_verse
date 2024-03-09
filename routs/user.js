@@ -185,7 +185,7 @@ router.post("/profile", async (req, res) => {
     if (!user) return reject(1, res)
     const s_user = await User.findOne({ uid: user.uid })
     if (!s_user) return reject(1, res)
-    const { ranking } = s_user
+    const { ranking, moderator } = s_user
     const { xp, rank } = ranking
     const user_games = await GameHistory.find({ users: user.uid }).sort({ _id: 1 }).limit(25)
     const game_id = user_games.map(e => e.game_id)
@@ -209,7 +209,11 @@ router.post("/profile", async (req, res) => {
             rank,
             xp: Math.ceil(xp / 1000)
         },
-        user_last_reports: user_reports
+        user_last_reports: user_reports,
+        moderator: {
+            ...moderator,
+            avg: moderator.score / moderator.cnt
+        }
     }
     res.json({
         status: true,
@@ -222,14 +226,18 @@ router.post("/others_profile", async (req, res) => {
     const { user_id } = req.body
     const selected_user = await User.findOne({ uid: user_id })
     if (!selected_user) return reject(20, res)
-    const { idenity, avatar, points, games_result, session_rank } = selected_user
+    const { idenity, avatar, points, games_result, moderator } = selected_user
     const new_avatar = {
         avatar: "files/" + avatar.avatar,
         table: "files/" + avatar.table,
     }
     const data = {
         idenity: idenity.name,
-        avatar: new_avatar, points, games_result, session_rank
+        avatar: new_avatar, points, games_result,
+        moderator: {
+            ...moderator,
+            avg: moderator.score / moderator.cnt
+        }
     }
 
     res.json({ status: true, msg: "", data: { data } })

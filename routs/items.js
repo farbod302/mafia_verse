@@ -13,11 +13,13 @@ router.get("/items_list", async (req, res) => {
 
 
     const gold_pack_file = fs.readFileSync(`${__dirname}/../gold_pack.json`)
+    const vip_plans_file = fs.readFileSync(`${__dirname}/../vip_plans.json`)
     let gold_pack = JSON.parse(gold_pack_file.toString())
+    let vip_plans = JSON.parse(vip_plans_file.toString())
     gold_pack = gold_pack.map(e => {
         return {
             ...e,
-            price_after_off: e.price - Math.floor((e.price * e.off / 100))-500,
+            price_after_off: e.price - Math.floor((e.price * e.off / 100)),
 
         }
     })
@@ -33,6 +35,10 @@ router.get("/items_list", async (req, res) => {
     clean_items.push({
         type: "gold",
         items: gold_pack
+    })
+    clean_items.push({
+        type: "vip",
+        items: vip_plans
     })
 
     res.json({

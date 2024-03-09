@@ -214,14 +214,13 @@ const SocketProvider = class {
                 lobby.send_message_to_lobby({ client, lobby_id, msg: message, is_system_msg: false, socket: this.io, })
             })
             client.on("start_custom_game", (data) => {
-                console.log("emitted", { data });
                 const { lobby_id } = data
                 const lobby_list = lobby.get_lobby_list(true)
                 const selected_lobby_index = lobby_list.findIndex(e => e.lobby_id === lobby_id)
                 if (selected_lobby_index === -1) return client.emit("error", { msg: "لابی یافت نشد" })
-                const { player_cnt, players, creator,started } = lobby_list[selected_lobby_index]
+                const { player_cnt, players, creator, started } = lobby_list[selected_lobby_index]
                 if (player_cnt != players.length) return client.emit("error", { msg: "ظرفیت بازی هنوز تکمیل نشده" })
-                if(started)  return client.emit("error", { msg: "بازی قبلا شروع شده" })
+                if (started) return client.emit("error", { msg: "بازی قبلا شروع شده" })
                 const { user_id } = client.idenity
                 if (user_id !== creator.user_id) return client.emit("error", { msg: "شما دسترسی لازم برای شروع بازی را ندارید" })
                 const new_custom_game = new CustomGame({
@@ -240,6 +239,14 @@ const SocketProvider = class {
                 const selected_lobby = this.db.getOne("custom_game", "lobby_id", lobby_id)
                 if (!selected_lobby) return console.log("no lobby");
                 selected_lobby.game_class.game_handler(client, op, data)
+            })
+
+            client.emit("delete_lobby", ({ lobby_id }) => {
+                lobby.remove_lobby({
+                    lobby_id,
+                    client,
+                    socket: this.io
+                })
             })
 
         })

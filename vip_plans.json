@@ -1,0 +1,30 @@
+[
+    {
+        "id": "vip_plan_1",
+        "price": 1000,
+        "off": 0,
+        "duration": 15,
+        "name": "اشتراک ۱۵ روزه"
+    },
+    {
+        "id": "vip_plan_2",
+        "price": 1000,
+        "off": 0,
+        "duration": 30,
+        "name": "اشتراک 1 ماهه"
+    },
+    {
+        "id": "vip_plan_3",
+        "price": 1000,
+        "off": 0,
+        "duration": 90,
+        "name": "اشتراک 3 ماهه"
+    },
+    {
+        "id": "vip_plan_4",
+        "price": 1000,
+        "off": 0,
+        "duration": 180,
+        "name": "اشتراک 6 ماهه"
+    }
+]

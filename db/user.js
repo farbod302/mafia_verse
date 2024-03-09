@@ -46,7 +46,14 @@ const user = mongoose.Schema({
     notif_token: String,
     lucky_wheel_status: { type: Number, default: 0 },
     vip: { type: Boolean, default: false },
-    vip_until: { type: Boolean, default: false }
+    vip_until: { type: Boolean, default: false },
+    moderator: {
+        type: Object,
+        default: {
+            cnt: 0,
+            score: 0
+        }
+    }
 
 })
 

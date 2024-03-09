@@ -8,11 +8,11 @@ const payment = mongoose.Schema({
     amount: Number,
     internal_id: String,
     payment_id: String,
-    price:Number,
+    price: Number,
     date: Number,
-    track_id:{
-        type:String,
-        default:""
+    track_id: {
+        type: String,
+        default: ""
     },
     status: {
         type: Boolean,
@@ -21,7 +21,8 @@ const payment = mongoose.Schema({
     used: {
         type: Boolean,
         default: false
-    }
+    },
+    type: Boolean
 
 })
 
