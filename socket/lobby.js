@@ -117,7 +117,7 @@ const lobby = {
         this.update_lobbies(cur_lobby_list)
         // socket.to("lobby_list").emit("lobby_list", { lobby_list: cur_lobby_list })
         socket.to(lobby_id).emit("update_lobby_users", { lobby_users: cur_lobby_list[selected_lobby_index].players })
-        this.send_message_to_lobby({ client, lobby_id: client.idenity.lobby_id, msg: "از لابی خارج شد", is_system_msg: true, socket: this.io, })
+        this.send_message_to_lobby({ client, lobby_id: client.idenity.lobby_id, msg: "از لابی خارج شد", is_system_msg: true, socket, })
         client.leave(lobby_id)
         client.idenity.lobby_id = null
     },
