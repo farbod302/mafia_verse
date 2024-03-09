@@ -18,12 +18,14 @@ const handel_disconnect = async ({ client, db, socket }) => {
         }
 
     }
+    if(client.idenity.lobby_id){
+        lobby.leave_lobby({lobby_id:client.idenity.lobby_id,client,socket})
+    }
     online_users_handler.remove_user(client.idenity?.user_id)
     const user_id = client.idenity?.user_id
     const prv_channel = client.channel_data
     if (!user_id || !prv_channel) return
     await UserChannelConfig.updateOne({ user_id, channel_id: prv_channel.channel_id }, { $set: { last_visit: Date.now() } })
-
     if(client.local_game_data){
         const {game_id,user_id}=client.local_game_data
         const local_game=db.getOne("local_game","local_game_id",game_id)
@@ -31,9 +33,7 @@ const handel_disconnect = async ({ client, db, socket }) => {
             local_game.game_class.users_leave(user_id)
         }
     }
-    if(client.idenity.lobby_id){
-        lobby.leave_lobby({lobby_id:client.leave_lobby,client,socket})
-    }
+    
 
 
 }
