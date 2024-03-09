@@ -54,7 +54,7 @@ const lobby = {
         })
     },
     get_lobby_list(keep_pass) {
-        lockFile.lock(lock_path, lockOptions, (err) => {
+        const file=lockFile.lock(lock_path, lockOptions, (err) => {
             const cur_file_raw = fs.readFileSync(`${__dirname}/lobby.json`)
             const cur_file_json = JSON.parse(cur_file_raw.toString())
             const file=lockFile.unlock(lock_path, (err) => {
@@ -66,6 +66,7 @@ const lobby = {
             })
             return file
         })
+        return file
 
 
     },
@@ -154,6 +155,7 @@ const lobby = {
         })
     },
     reset_list() {
+        return
         fs.writeFile(`${__dirname}/lobby.json`, "[]", () => {
             console.log("clear");
         })
