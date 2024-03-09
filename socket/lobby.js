@@ -57,13 +57,14 @@ const lobby = {
         lockFile.lock(lock_path, lockOptions, (err) => {
             const cur_file_raw = fs.readFileSync(`${__dirname}/lobby.json`)
             const cur_file_json = JSON.parse(cur_file_raw.toString())
-            lockFile.unlock(lock_path, (err) => {
+            const file=lockFile.unlock(lock_path, (err) => {
                 if (keep_pass) return cur_file_json
                 return cur_file_json.map(e => {
                     delete e.password
                     return e
                 })
             })
+            return file
         })
 
 
@@ -79,6 +80,7 @@ const lobby = {
     },
     join_lobby({ lobby_id, password, client, socket }) {
         const cur_lobby_list = this.get_lobby_list(true)
+        console.log({cur_lobby_list});
         const selected_lobby_index = cur_lobby_list.findIndex(e => e.lobby_id === lobby_id)
         if (selected_lobby_index === -1 || cur_lobby_list[selected_lobby_index].started) return { status: false, msg: "لابی تکمیل است" }
         const { type, password: lobby_password, ban_list } = cur_lobby_list[selected_lobby_index]
