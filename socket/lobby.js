@@ -57,7 +57,7 @@ const lobby = {
         const list_json = fs.readFileSync(`${__dirname}/lobby.json`)
         const list = JSON.parse(list_json)
         if (keep_pass) return list
-        return list.map(e=>{
+        return list.map(e => {
             delete e.password
             return e
         })
@@ -84,10 +84,8 @@ const lobby = {
         client.join(lobby_id)
         socket.to(lobby_id).emit("update_lobby_users", { lobby_users: cur_lobby_list[selected_lobby_index].players })
         this.update_lobbies(cur_lobby_list)
-        const idenity = client.idenity
-        idenity.lobby_id = lobby_id
-        client.idenity = idenity
-        return { status: true, msg: "",lobby_id, is_creator: cur_lobby_list[selected_lobby_index].creator === client.user_id, creator_id: cur_lobby_list[selected_lobby_index].creator }
+        client.idenity.lobby_id = lobby_id
+        return { status: true, msg: "", lobby_id, is_creator: cur_lobby_list[selected_lobby_index].creator === client.user_id, creator_id: cur_lobby_list[selected_lobby_index].creator }
     },
     kick_player({ lobby_id, player_to_kick, client, socket }) {
         const cur_lobby_list = this.get_lobby_list(true)
@@ -108,7 +106,7 @@ const lobby = {
         return { status: true, msg: "بازیکن حذف شد" }
     },
     leave_lobby({ lobby_id, client, socket }) {
-        if (!lobby_id) lobby_id = client.lobby_id
+        if (!lobby_id) lobby_id = client.idenity.lobby_id
         const cur_lobby_list = this.get_lobby_list(true)
         const selected_lobby_index = cur_lobby_list.findIndex(e => e.lobby_id === lobby_id)
         if (selected_lobby_index === -1) return { status: false, msg: "لابی یافت نشد" }
@@ -147,7 +145,6 @@ const lobby = {
         })
     },
     reset_list() {
-        return
         fs.writeFile(`${__dirname}/lobby.json`, "[]", () => {
             console.log("clear");
         })
