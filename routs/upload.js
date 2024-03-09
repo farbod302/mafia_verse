@@ -16,7 +16,8 @@ router.post("/submit_avatar_request", async (req, res) => {
     const path = `${__dirname}/../user_images`
     const name = `${user.uid}_${uid(5)}`
     const image_info = base64ToImage(image, path, {
-        fileName: name
+        fileName: name,
+        debug:true
     })
     console.log({image_info});
 })
