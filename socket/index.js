@@ -192,7 +192,7 @@ const SocketProvider = class {
                 const { creator_id } = result
                 client.idenity.lobby_creator = creator_id
                 lobby.send_message_to_lobby({ client, lobby_id: data.lobby_id, msg: "به لابی پیوست", is_system_msg: true, socket: this.io, })
-                client.emit("lobby_join_result",  result )
+                client.emit("lobby_join_result", result)
             })
 
             client.on("lobby_detail", ({ lobby_id }) => {
@@ -214,11 +214,14 @@ const SocketProvider = class {
                 lobby.send_message_to_lobby({ client, lobby_id, msg: message, is_system_msg: false, socket: this.io, })
             })
             client.on("start_custom_game", (data) => {
+                console.log("emitted", { data });
                 const { lobby_id } = data
                 const lobby_list = lobby.get_lobby_list(true)
                 const selected_lobby_index = lobby_list.findIndex(e => e.lobby_id === lobby_id)
+                console.log({ selected_lobby_index });
                 if (selected_lobby_index === -1) return client.emit("error", { msg: "لابی یافت نشد" })
                 const { player_cnt, players, creator } = lobby_list[selected_lobby_index]
+                console.log( player_cnt, players.length );
                 if (player_cnt != players.length) return client.emit("error", { msg: "ظرفیت بازی هنوز تکمیل نشده" })
                 const { user_id } = client
                 if (user_id !== creator) return client.emit("error", { msg: "شما دسترسی لازم برای شروع بازی را ندارید" })
