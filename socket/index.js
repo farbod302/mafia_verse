@@ -218,12 +218,10 @@ const SocketProvider = class {
                 const { lobby_id } = data
                 const lobby_list = lobby.get_lobby_list(true)
                 const selected_lobby_index = lobby_list.findIndex(e => e.lobby_id === lobby_id)
-                console.log({ selected_lobby_index });
                 if (selected_lobby_index === -1) return client.emit("error", { msg: "لابی یافت نشد" })
                 const { player_cnt, players, creator } = lobby_list[selected_lobby_index]
-                console.log( player_cnt, players.length );
                 if (player_cnt != players.length) return client.emit("error", { msg: "ظرفیت بازی هنوز تکمیل نشده" })
-                const { user_id } = client
+                const { user_id } = client.idenity
                 if (user_id !== creator) return client.emit("error", { msg: "شما دسترسی لازم برای شروع بازی را ندارید" })
                 const new_custom_game = new CustomGame({
                     lobby_id,

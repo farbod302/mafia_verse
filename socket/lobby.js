@@ -96,7 +96,7 @@ const lobby = {
         const selected_lobby_index = cur_lobby_list.findIndex(e => e.lobby_id === lobby_id)
         if (selected_lobby_index === -1) return { status: false, msg: "لابی یافت نشد" }
         const { creator } = cur_lobby_list[selected_lobby_index]
-        if (creator.user_id !== client.user_id) return { status: false, msg: "شما گرداننده این لابی نیستید" }
+        if (creator.user_id !== client.idenity.user_id) return { status: false, msg: "شما گرداننده این لابی نیستید" }
         let cur_players = structuredClone(cur_lobby_list[selected_lobby_index].players)
         cur_players = cur_players.filter(e => e.user_id !== player_to_kick)
         cur_lobby_list[selected_lobby_index].players = cur_players
