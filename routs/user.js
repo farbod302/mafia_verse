@@ -212,7 +212,7 @@ router.post("/profile", async (req, res) => {
         user_last_reports: user_reports,
         moderator: {
             ...moderator,
-            avg: moderator.score / moderator.cnt
+            avg: moderator.score / moderator.cnt || 0
         }
     }
     res.json({
@@ -236,7 +236,7 @@ router.post("/others_profile", async (req, res) => {
         avatar: new_avatar, points, games_result,
         moderator: {
             ...moderator,
-            avg: moderator.score / moderator.cnt
+            avg: moderator.score / moderator.cnt || 0
         }
     }
 
