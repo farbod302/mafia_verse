@@ -31,7 +31,7 @@ router.post("/submit_avatar_request", async (req, res) => {
         msg: "درخواست شما ثبت شد آواتار پس از تایید به حساب شما اضافه خواهد شد",
         data: { review_id }
     })
-    await User.findOneAndUpdate({ uid: user.user_id }, { $ind: { gold: -1000 } })
+    await User.findOneAndUpdate({ uid: user.user_id }, { $inc: { gold: -1000 } })
 })
 
 
