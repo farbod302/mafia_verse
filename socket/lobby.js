@@ -57,6 +57,7 @@ const lobby = {
         const file=lockFile.lock(lock_path, lockOptions, (err) => {
             console.log({err});
             const cur_file_raw = fs.readFileSync(`${__dirname}/lobby.json`)
+            console.log({cur_file_raw});
             const cur_file_json = JSON.parse(cur_file_raw.toString())
             console.log({cur_file_json_1:cur_file_json});
             const file=lockFile.unlock(lock_path, (err) => {
