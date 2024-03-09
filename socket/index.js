@@ -209,10 +209,6 @@ const SocketProvider = class {
             })
             client.on("leave_lobby", (data) => {
                 lobby.leave_lobby({ ...data, client, socket: this.io })
-                lobby.send_message_to_lobby({ client, lobby_id: client.idenity.lobby_id, msg: "از لابی خارج شد", is_system_msg: true, socket: this.io, })
-                client.idenity.lobby_id = null
-
-
             })
             client.on("waiting_lobby_message", ({ message, lobby_id }) => {
                 lobby.send_message_to_lobby({ client, lobby_id, msg: message, is_system_msg: false, socket: this.io, })
