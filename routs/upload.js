@@ -14,9 +14,10 @@ router.post("/submit_avatar_request", async (req, res) => {
     const { image } = req.body
     //save image
     const path = `${__dirname}/../user_images`
-    const name = `${user.uid}_${uid(5)}`
     const format = (image.split("/")[1]).split(";")[0]
-    console.log({ format });
+    const name = `${user.uid}_${uid(5)}.${format}`
+    base64Img.imgSync(image, path, name)
+    res.json("true")
 })
 
 
