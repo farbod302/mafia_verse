@@ -77,7 +77,8 @@ const lobby = {
         const cur_lobby_list = this.get_lobby_list(true)
         const selected_lobby_index = cur_lobby_list.findIndex(e => e.lobby_id === lobby_id)
         if (selected_lobby_index === -1 || cur_lobby_list[selected_lobby_index].started) return { status: false, msg: "بازی شروع شده.جا موندی" }
-        if (cur_lobby_list[selected_lobby_index].players.length === cur_lobby_list[selected_lobby_index].player_cnt) return { status: false, msg: "ظرفیت تکمیل" }
+        const cur_lobby=cur_lobby_list[selected_lobby_index]
+        if (cur_lobby.players.length === cur_lobby.player_cnt && client.idenity.user_id !== cur_lobby.creator.user_id) return { status: false, msg: "ظرفیت تکمیل" }
         const { private, password: lobby_password, ban_list } = cur_lobby_list[selected_lobby_index]
         if (private && password !== lobby_password) return { status: false, msg: "کلمه عبور اشتباه است" }
         if (ban_list.includes(client.user_id)) return { status: false, msg: "شما اجازه ورود به این لابی را ندارید" }
@@ -112,7 +113,7 @@ const lobby = {
         const selected_lobby_index = cur_lobby_list.findIndex(e => e.lobby_id === lobby_id)
         if (selected_lobby_index === -1) return { status: false, msg: "لابی یافت نشد" }
         let cur_players = JSON.parse(JSON.stringify(cur_lobby_list[selected_lobby_index].players))
-        cur_players = cur_players.filter(e => e.user_id !== client.user_id)
+        cur_players = cur_players.filter(e => e.user_id !== client.idenity.user_id)
         cur_lobby_list[selected_lobby_index].players = cur_players
         this.update_lobbies(cur_lobby_list)
         // socket.to("lobby_list").emit("lobby_list", { lobby_list: cur_lobby_list })
