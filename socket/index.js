@@ -192,6 +192,7 @@ const SocketProvider = class {
                 const { creator_id } = result
                 client.idenity.lobby_creator = creator_id
                 lobby.send_message_to_lobby({ client, lobby_id: data.lobby_id, msg: "به لابی پیوست", is_system_msg: true, socket: this.io, })
+                console.log({result});
                 client.emit("lobby_join_result", { result })
             })
 
