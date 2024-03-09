@@ -18,7 +18,7 @@ const CustomGame = class {
         this.socket_finder = socket_handler.get_user_socket_id
         this.characters_list = []
         this.act_record = []
-        this.last_cards = game_detail.map(card => { return { ...card, used: false, id: uid(3) } })
+        this.last_cards = game_detail.cards.map(card => { return { ...card, used: false, id: uid(3) } })
         this.game_event = "day"
     }
 
