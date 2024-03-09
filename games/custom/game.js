@@ -20,6 +20,7 @@ const CustomGame = class {
         this.act_record = []
         this.last_cards = game_detail.cards.map(card => { return { ...card, used: false, id: uid(3) } })
         this.game_event = "day"
+        console.log(this);
     }
 
     async game_handler({ op, data, client }) {
