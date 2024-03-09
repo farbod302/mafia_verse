@@ -8,6 +8,7 @@ const imports = {
     ranking: require("../routs/reanking"),
     transaction: require("../routs/transaction"),
     lobby: require("../routs/lobby"),
+    upload: require("../routs/upload"),
 }
 
 module.exports = imports
