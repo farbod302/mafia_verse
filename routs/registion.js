@@ -151,12 +151,15 @@ router.post("/log_in_confirm_phone", async (req, res) => {
 
     const { code, phone } = req.body
     let is_exist = RegistSmsHandler.check_code({ phone, code })
+    console.log({ is_exist });
     if (!is_exist) return reject(1, res)
     const fb_token = is_exist
     is_exist = await User.findOne({ "idenity.phone": phone })
     if (!is_exist) return reject(4, res)
     const { uid: user_id } = is_exist
-    await User.findOneAndUpdate({ uid: user_id }, { $set: { notif_token: fb_token } })
+    if (fb_token !== "none") {
+        await User.findOneAndUpdate({ uid: user_id }, { $set: { notif_token: fb_token } })
+    }
     let token = Jwt.sign({ uid: user_id })
     res.json({
         status: true,

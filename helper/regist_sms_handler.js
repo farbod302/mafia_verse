@@ -14,7 +14,7 @@ const RegistSmsHandler = {
         let is_exis = RegistSmsHandler._temp.find(c => c.code == code && c.phone == phone)
         if (is_exis) {
             RegistSmsHandler._temp = RegistSmsHandler._temp.filter(c => c.phone !== phone)
-            return is_exis.token
+            return is_exis.token || "none"
         }
         return false
     }
