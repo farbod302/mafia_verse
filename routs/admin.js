@@ -72,6 +72,7 @@ router.post("/log_in", (req, res) => {
     const { password } = req.body
     let true_hash = process.env.ADMIN_PANEL_PASSWORD
     let hash = sha256(password)
+    console.log(hash);
     res.json({
         status: hash === true_hash
     })
