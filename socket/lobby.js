@@ -119,7 +119,7 @@ const lobby = {
         let cur_players = JSON.parse(JSON.stringify(cur_lobby_list[selected_lobby_index].players))
         cur_players = cur_players.filter(e => e.user_id !== player_to_kick)
         cur_lobby_list[selected_lobby_index].players = cur_players
-        cur_lobby_list[selected_lobby_index].ban_list = player_to_kick
+        cur_lobby_list[selected_lobby_index].ban_list.push(player_to_kick)
         this.update_lobbies(cur_lobby_list)
         socket.to(lobby_id).emit("update_lobby_users", { lobby_users: cur_lobby_list[selected_lobby_index].players })
         const kicked_player_socket = get_user_socket_id(player_to_kick)
