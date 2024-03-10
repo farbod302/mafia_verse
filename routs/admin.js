@@ -122,6 +122,9 @@ router.post("/review_avatar", async (req, res) => {
             msg: "آواتار اختصاصی شما تایید شد و به حساب شما اضافه شد "
         })
     }
+    res.json({
+        status:true
+    })
 })
 
 router.post("/add_admin", (req, res) => {
