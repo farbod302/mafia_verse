@@ -241,8 +241,7 @@ const SocketProvider = class {
                 selected_lobby.game_class.game_handler(client, op, data)
             })
 
-            client.emit("delete_lobby", ({ lobby_id }) => {
-                console.log("deleeeeeeeeeeeeeeeeete");
+            client.on("delete_lobby", ({ lobby_id }) => {
                 lobby.remove_lobby({
                     lobby_id,
                     client,
