@@ -9,6 +9,7 @@ const static_vars = require("./funcs/static_vars")
 const fs = require("fs")
 const CustomGame = class {
     constructor({ lobby_id, game_detail, socket }) {
+        console.log({game_detail});
         this.game_vars = new Dynamic_vars(game_detail)
         this.creator = game_detail.creator
         this.lobby_id = lobby_id
