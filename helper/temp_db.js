@@ -22,10 +22,12 @@ const TempDb = class {
         return filter || []
     }
     getOne(model, item, value) {
+        console.log({value});
         const dataModel = this.file[model];
         if (!dataModel) {
             return null
         }
+        console.log({dataModel});
         const filtered = dataModel.filter((data) => data[item] == value);
         if (!filtered.length) {
             return null
