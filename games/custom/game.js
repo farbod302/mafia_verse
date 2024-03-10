@@ -61,6 +61,7 @@ const CustomGame = class {
                 const user_permission = this.players_permissions.find(e => e.user_id === user_id)
                 client.emit("permissions_status", { permissions: user_permission })
                 this.socket.to(lobby_id).emit("all_players_status", { players_status: this.player_status })
+                break
             }
 
             case ("change_permission"): {
