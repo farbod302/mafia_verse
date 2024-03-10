@@ -3,7 +3,7 @@ const Helper = require("../../helper/helper")
 const socket_handler = require("../../socket/online_users_handler")
 const Dynamic_vars = require("./dynamic_vars")
 const helper = require("./funcs/helper")
-const { generate_player_status } = require("./funcs/players_status")
+const { generate_all_players_status } = require("./funcs/players_status")
 const speech = require("./funcs/speech")
 const static_vars = require("./funcs/static_vars")
 const fs = require("fs")
@@ -13,78 +13,54 @@ const CustomGame = class {
         this.creator = game_detail.creator
         this.lobby_id = lobby_id
         this.socket = socket
-        this.player_status = []
-        this.players_permissions = []
         this.socket_finder = socket_handler.get_user_socket_id
         this.characters_list = []
         this.act_record = []
         this.last_cards = game_detail.cards.map(card => { return { ...card, used: false, id: uid(3) } })
         this.game_event = "day"
+        speech.create_room({ lobby_id })
+        const { players } = game_detail
+        let deck = []
+        const default_card_json = fs.readFileSync("../local/clean_deck.json")
+        const default_card = JSON.parse(default_card_json.toString())
+        this.game_detail.characters.forEach(cart => {
+            const { side, id, count, name } = cart
+            const selected_card = default_card.find(e => e.id === id)
+            const card_to_add = {
+                name,
+                side,
+                image: selected_card.icon,
+                used: false
+            }
+            const arr_to_add = new Array(count).fill(card_to_add)
+            deck = deck.concat(arr_to_add)
+        })
+        const shuffled_card = helper.shuffle_card(deck)
+        const statuses = generate_all_players_status({ players, characters: shuffled_card })
+        this.player_status = statuses
+        const all_permissions = players.map((p, index) => {
+            return {
+                user_id: p.user_id,
+                user_index: index,
+                ...static_vars.permissions
+            }
+        })
+        this.players_permissions = all_permissions
+
     }
 
     async game_handler({ op, data, client }) {
         switch (op) {
             case ("ready_to_game"): {
-                const { user_id } = client
+                const { user_id } = client.idenity
                 const { lobby_id } = this
                 const livekit_token = await speech.create_join_token({ user_id, lobby_id: this.lobby_id })
                 client.emit("livekit_token", { token: livekit_token })
-                const is_already_connected = this.player_status.find(u => u.user_id === user_id)
-                if (is_already_connected) return
-                const player_status = generate_player_status({ user_id: client.user_id })
-                const cur_length = this.player_status.length
-                this.player_status.push({
-                    ...client,
-                    index: cur_length + 1,
-                    ...player_status,
-                })
-                const new_permissions = { ...static_vars.permissions, user_id }
-                client.emit("permissions_status", { permissions: new_permissions })
-                this.players_permissions.push(new_permissions)
-                if (this.players_permissions.length >= this.game_detail.player_cnt) {
-                    if (this.all_join) return
-                    this.all_join = true
-                    this.socket.to(lobby_id).emit("all_players_status", { players_status: this.player_status })
-                }
-                break
+                const user_permission = this.players_permissions.find(e => e.user_id === user_id)
+                client.emit("permissions_status", { permissions: user_permission })
+                this.socket.to(lobby_id).emit("all_players_status", { players_status: this.player_status })
             }
-            case ("start_game"): {
-                const { lobby_id, started } = this
-                if (started) return
-                this.started = true
-                this.to(lobby_id).emit("game_started")
-                await Helper.delay(4)
-                let deck = []
-                const default_card_json = fs.readFileSync("../local/clean_deck.json")
-                const default_card = JSON.parse(default_card_json.toString())
-                this.game_detail.characters.forEach(cart => {
-                    const { side, id, count, name } = cart
-                    const selected_card = default_card.find(e => e.id === id)
-                    const card_to_add = {
-                        name,
-                        side,
-                        image: selected_card.icon,
-                    }
-                    const arr_to_add = new Array(count).fill(card_to_add)
-                    deck = deck.concat(arr_to_add)
-                })
-                const shuffled_card = helper.shuffle_card(deck)
-                const cur_player_status = [...this.player_status]
-                for (let user of cur_player_status) {
-                    const { index, user_id } = user
-                    const selected_cart = shuffled_card[index - 1]
-                    const socket_id = this.socket_finder(user_id)
-                    this.socket.to(socket_id).emit("selected_character", { character: selected_cart })
-                    this.characters_list.push({
-                        user_id,
-                        user,
-                        character: selected_cart,
-                        side: selected_cart.side
-                    })
-                }
-                this.emit_to_creator("players_characters", { characters: this.characters_list })
-                break
-            }
+           
             case ("change_permission"): {
                 const { users, permission, new_status } = data
                 const { players } = this.game_vars

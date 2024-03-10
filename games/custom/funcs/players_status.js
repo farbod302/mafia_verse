@@ -1,21 +1,26 @@
 const players_status = {
 
-    generate_player_status({ user_id }) {
-        const player = {
-            status: {
-                alive: true,
-                disconnect: false,
-                speech: false,
-                hand_rise: false,
-                day_act: false,
-                like: false,
-                dislike: false,
-                challenge: false
-            },
-        }
-        return player
+    generate_all_players_status({ players, characters }) {
+        const status = players.map((p, index) => {
+            return {
+                status: {
+                    alive: true,
+                    connected: false,
+                    speech: false,
+                    hand_rise: false,
+                    day_act: false,
+                    like: false,
+                    dislike: false,
+                    challenge: false
+                },
+                user_id: p.user_id,
+                user_index:index+1,
+                character: characters[index]
+            }
+        })
+        return status
     },
-    
+
 
 
 }
