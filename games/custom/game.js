@@ -9,7 +9,7 @@ const static_vars = require("./funcs/static_vars")
 const fs = require("fs")
 const CustomGame = class {
     constructor({ lobby_id, game_detail, socket }) {
-        console.log({game_detail});
+        console.log({ game_detail });
         this.game_vars = new Dynamic_vars(game_detail)
         this.creator = game_detail.creator
         this.lobby_id = lobby_id
@@ -24,7 +24,7 @@ const CustomGame = class {
         let deck = []
         const default_card_json = fs.readFileSync(`${__dirname}/../local/clean_deck.json`)
         const default_card = JSON.parse(default_card_json.toString())
-        this.game_detail.characters.forEach(cart => {
+        game_detail.characters.forEach(cart => {
             const { side, id, count, name } = cart
             const selected_card = default_card.find(e => e.id === id)
             const card_to_add = {
@@ -47,6 +47,7 @@ const CustomGame = class {
             }
         })
         this.players_permissions = all_permissions
+        console.log(this);
 
     }
 
@@ -61,7 +62,7 @@ const CustomGame = class {
                 client.emit("permissions_status", { permissions: user_permission })
                 this.socket.to(lobby_id).emit("all_players_status", { players_status: this.player_status })
             }
-           
+
             case ("change_permission"): {
                 const { users, permission, new_status } = data
                 const { players } = this.game_vars
