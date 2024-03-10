@@ -109,6 +109,7 @@ router.post("/review_avatar", async (req, res) => {
             active: false,
         }
         const item_added = await new Item(new_item).save()
+        console.log({item_added});
         const { _id } = item_added
         await User.findOneAndUpdate({ uid: user_id },
             {
