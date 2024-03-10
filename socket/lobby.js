@@ -116,7 +116,7 @@ const lobby = {
         if (selected_lobby_index === -1) return { status: false, msg: "لابی یافت نشد" }
         const { creator } = cur_lobby_list[selected_lobby_index]
         if (creator.user_id !== client.idenity.user_id) return { status: false, msg: "شما گرداننده این لابی نیستید" }
-        let cur_players = structuredClone(cur_lobby_list[selected_lobby_index].players)
+        let cur_players = JSON.parse(JSON.stringify(cur_lobby_list[selected_lobby_index].players))
         cur_players = cur_players.filter(e => e.user_id !== player_to_kick)
         cur_lobby_list[selected_lobby_index].players = cur_players
         cur_lobby_list[selected_lobby_index].ban_list = player_to_kick
