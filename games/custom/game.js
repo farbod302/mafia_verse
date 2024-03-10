@@ -21,7 +21,7 @@ const CustomGame = class {
         speech.create_room({ lobby_id })
         const { players } = game_detail
         let deck = []
-        const default_card_json = fs.readFileSync("../local/clean_deck.json")
+        const default_card_json = fs.readFileSync(`${__dirname}/../local/clean_deck.json`)
         const default_card = JSON.parse(default_card_json.toString())
         this.game_detail.characters.forEach(cart => {
             const { side, id, count, name } = cart
