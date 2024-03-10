@@ -42,16 +42,16 @@ const CustomGame = class {
         const all_permissions = players.map((p, index) => {
             return {
                 user_id: p.user_id,
-                user_index: index,
+                user_index: index + 1,
                 ...static_vars.permissions
             }
         })
         this.players_permissions = all_permissions
-        console.log(this);
 
     }
 
     async game_handler({ op, data, client }) {
+        console.log({op, data});
         switch (op) {
             case ("ready_to_game"): {
                 const { user_id } = client.idenity
