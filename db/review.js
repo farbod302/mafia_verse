@@ -7,7 +7,8 @@ const review = mongoose.Schema({
     review_id: String,
     user_id: String,
     image: String,
-    status: String,
+    file_name:String,
+    status: Number,
     date:Number
 
 })

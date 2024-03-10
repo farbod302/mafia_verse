@@ -11,7 +11,7 @@ router.post("/submit_avatar_request", async (req, res) => {
     const user = req.body.user
     if (!user) return res.json({ status: false, mag: "شناسه نامعتبر اشت", data: {} })
     const selected_user = await User.findOne({ uid: user.uid })
-    if (!selected_user || selected_user.gold < 1000) return res.json({ status: false, msg: "شما گلد کافی برای آپاتار اختصاصی ندارید", data: {} })
+    if (!selected_user || selected_user.gold < 1000) return res.json({ status: false, msg: "شما گلد کافی برای آواتار اختصاصی ندارید", data: {} })
     const { image } = req.body
     //save image
     const path = `${__dirname}/../user_images`
@@ -23,7 +23,8 @@ router.post("/submit_avatar_request", async (req, res) => {
     const new_review_request = {
         user_id: user.uid,
         review_id,
-        image: `${static_url}/${name}.${format}`
+        image: `${static_url}/${name}.${format}`,
+        file_name: `${name}.${format}`
     }
     new Review(new_review_request).save()
     res.json({
