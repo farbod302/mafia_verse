@@ -242,6 +242,7 @@ const SocketProvider = class {
             })
 
             client.emit("delete_lobby", ({ lobby_id }) => {
+                console.log("deleeeeeeeeeeeeeeeeete");
                 lobby.remove_lobby({
                     lobby_id,
                     client,
