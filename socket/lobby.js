@@ -87,7 +87,7 @@ const lobby = {
         if (cur_lobby.players.length === cur_lobby.player_cnt && client.idenity.user_id !== cur_lobby.creator.user_id) return { status: false, msg: "ظرفیت تکمیل" }
         const { private, password: lobby_password, ban_list } = cur_lobby_list[selected_lobby_index]
         if (private && password !== lobby_password) return { status: false, msg: "کلمه عبور اشتباه است" }
-        if (ban_list.includes(client.user_id)) return { status: false, msg: "شما اجازه ورود به این لابی را ندارید" }
+        if (ban_list.includes(client.idenity.user_id)) return { status: false, msg: "شما اجازه ورود به این لابی را ندارید" }
         if (cur_lobby_list[selected_lobby_index].creator.user_id !== client.idenity.user_id) {
             cur_lobby_list[selected_lobby_index].players.push(client.idenity)
         }
