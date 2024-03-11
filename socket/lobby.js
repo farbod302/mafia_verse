@@ -18,6 +18,7 @@ const lobby = {
         const cur_lobby_list = this.get_lobby_list()
         const is_exist = cur_lobby_list.find(e => e.creator.user_id === user_id)
         if (is_exist) return client.emit("err", { msg: "شما یک لابی فعال دارید" })
+       
         const new_lobby = {
             name,
             scenario,

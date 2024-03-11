@@ -29,7 +29,6 @@ const CustomGame = class {
         const default_card_json = fs.readFileSync(`${__dirname}/../local/clean_deck.json`)
         const default_card = JSON.parse(default_card_json.toString())
         game_detail.characters.forEach(cart => {
-            console.log({cart});
             const { side, id, count, name } = cart
             const selected_card = default_card.find(e => e.id === id)
             const card_to_add = {
@@ -86,7 +85,7 @@ const CustomGame = class {
                         client.emit("permissions_status", { permissions: user_permission })
                         const player_index = this.player_status.findIndex(e => e.user_id === user_id)
                         this.player_status[player_index].connected = true
-                        client.to(lobby_id).emit("player_status_update", [{ ...this.player_status[player_index].status, user_id }])
+                        client.to(lobby_id).emit("player_status_update", { ...this.player_status[player_index].status, user_id })
                     }
                 } else {
                     this.creator_status.connected = true
