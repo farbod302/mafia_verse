@@ -63,7 +63,7 @@ const CustomGame = class {
         const { creator, socket, lobby_id } = this
         if (creator === user_id) {
             this.creator_status.connected = false
-            // socket.to(lobby_id).emit("creator_status", { creator_status: this.creator_status })
+            socket.to(lobby_id).emit("creator_status", { creator_status: this.creator_status })
         } else {
 
         }
@@ -91,7 +91,6 @@ const CustomGame = class {
                     this.creator_status.connected = true
                     client.emit("all_players_permissions", { players_permission: this.players_permissions })
                     this.socket.to(lobby_id).emit("creator_status", { creator_status: this.creator_status })
-
                 }
                 console.log({ players_status: this.player_status});
                 client.emit("all_players_status", { players_status: this.player_status })
