@@ -1,7 +1,7 @@
 const express = require("express")
 const router = express.Router()
 
-const fs=require("fs")
+const fs = require("fs")
 
 router.get("/deck", (req, res) => {
 
@@ -10,26 +10,47 @@ router.get("/deck", (req, res) => {
     res.json({
         status: true,
         msg: "",
-        data: { deck:deck.map(e=>{
-            delete e.description
-            return e
-        }) }
+        data: {
+            deck: deck.map(e => {
+                delete e.description
+                return e
+            })
+        }
     })
 
 })
 
 
-router.get("/list",(req,res)=>{
-    const lobby_list_json=fs.readFileSync(`${__dirname}/../socket/lobby.json`)
+router.post("/list", (req, res) => {
+    const user = req.body.user
+    const { uid } = user
+    const { type } = req.body
+    const lobby_list_json = fs.readFileSync(`${__dirname}/../socket/lobby.json`)
     const lobby_list = JSON.parse(lobby_list_json.toString())
-    console.log({lobby_list});
+    let filter = []
+    switch (type) {
+        case ("self"): {
+            filter = lobby_list.filter(e => e.players.some(p => p.user_id === uid) || e.creator.user_id === uid)
+            break
+        }
+        case ("online"): {
+            filter = lobby_list.filter(e => e.started)
+            break
+        }
+        case ("online"): {
+            filter = lobby_list.filter(e => !e.started)
+            break
+        }
+    }
     res.json({
         status: true,
         msg: "",
-        data: { lobby_list:lobby_list.map(e=>{
-            delete e.password
-            return e
-        }) }
+        data: {
+            lobby_list: filter.map(e => {
+                delete e.password
+                return e
+            })
+        }
     })
 
 })

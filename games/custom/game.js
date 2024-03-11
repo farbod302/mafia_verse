@@ -36,6 +36,10 @@ const CustomGame = class {
             const arr_to_add = new Array(count).fill(card_to_add)
             deck = deck.concat(arr_to_add)
         })
+        let sides = game_detail.characters.map(e => e.side)
+        sides = game_detail.sides.concat(sides)
+        sides = [...new Set(sides)]
+        this.sides = sides
         const shuffled_card = helper.shuffle_card(deck)
         const statuses = generate_all_players_status({ players, characters: shuffled_card })
         this.player_status = statuses
@@ -51,7 +55,7 @@ const CustomGame = class {
     }
 
     async game_handler({ op, data, client }) {
-        console.log({op, data});
+        console.log({ op, data });
         switch (op) {
             case ("ready_to_game"): {
                 const { user_id } = client.idenity
