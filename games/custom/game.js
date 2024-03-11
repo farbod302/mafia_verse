@@ -29,6 +29,7 @@ const CustomGame = class {
         const default_card_json = fs.readFileSync(`${__dirname}/../local/clean_deck.json`)
         const default_card = JSON.parse(default_card_json.toString())
         game_detail.characters.forEach(cart => {
+            console.log({cart});
             const { side, id, count, name } = cart
             const selected_card = default_card.find(e => e.id === id)
             const card_to_add = {
