@@ -55,6 +55,7 @@ const CustomGame = class {
             }
         })
         this.players_permissions = all_permissions
+        this.game_detail = game_detail
 
     }
 
@@ -80,7 +81,7 @@ const CustomGame = class {
                 const is_creator = this.game_detail.creator.user_id === user_id
                 if (!is_creator) {
                     const user_permission = this.players_permissions.find(e => e.user_id === user_id)
-                    console.log({ user_permission});
+                    console.log({ user_permission });
                     if (user_permission) {
                         client.emit("permissions_status", { permissions: user_permission })
                         const player_index = this.player_status.findIndex(e => e.user_id === user_id)
