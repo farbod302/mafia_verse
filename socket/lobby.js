@@ -16,9 +16,9 @@ const lobby = {
         const lobby_id = uid(5)
         const { user_id } = client.idenity
         const cur_lobby_list = this.get_lobby_list()
-        const is_exist = cur_lobby_list.find(e => e.creator.user_id === user_id)
+        const is_exist = cur_lobby_list.find(e => e.creator.user_id === user_id || e.players.some(p => p.user_id === user_id))
         if (is_exist) return client.emit("err", { msg: "شما یک لابی فعال دارید" })
-       
+
         const new_lobby = {
             name,
             scenario,
@@ -78,7 +78,6 @@ const lobby = {
         })
     },
     join_lobby({ lobby_id, password, client, socket }) {
-
         const cur_lobby_list = this.get_lobby_list(true)
         const is_exist = cur_lobby_list.find(e => e.creator.user_id === client.idenity.user_id && e.lobby_id !== lobby_id)
         if (is_exist && lobby_id) return client.emit("err", { msg: "شما گرداننده یک لابی دیگر هستید" })
@@ -131,7 +130,7 @@ const lobby = {
     leave_lobby({ lobby_id, client, socket }) {
         if (!lobby_id) lobby_id = client.idenity.lobby_id
         const cur_lobby_list = this.get_lobby_list(true)
-        const selected_lobby_index = cur_lobby_list.findIndex(e => e.lobby_id === lobby_id)
+        const selected_lobby_index = cur_lobby_list.findIndex(e => e.lobby_id === lobby_id && !e.started)
         if (selected_lobby_index === -1) return { status: false, msg: "لابی یافت نشد" }
         let cur_players = JSON.parse(JSON.stringify(cur_lobby_list[selected_lobby_index].players))
         cur_players = cur_players.filter(e => e.user_id !== client.idenity.user_id)
