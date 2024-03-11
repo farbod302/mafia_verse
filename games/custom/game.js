@@ -58,12 +58,18 @@ const CustomGame = class {
         console.log({ op, data });
         switch (op) {
             case ("ready_to_game"): {
+                await Helper.delay(3)
                 const { user_id } = client.idenity
                 const { lobby_id } = this
                 const livekit_token = await speech.create_join_token({ user_id, lobby_id: this.lobby_id })
                 client.emit("livekit_token", { token: livekit_token })
-                const user_permission = this.players_permissions.find(e => e.user_id === user_id)
-                client.emit("permissions_status", { permissions: user_permission })
+                const is_creator = this.game_detail.creator.user_id === user_id
+                if (!is_creator) {
+                    const user_permission = this.players_permissions.find(e => e.user_id === user_id)
+                    client.emit("permissions_status", { permissions: user_permission })
+                } else {
+                    client.emit("all_players_permissions", { players_permission: this.players_permissions })
+                }
                 this.socket.to(lobby_id).emit("all_players_status", { players_status: this.player_status })
                 break
             }
@@ -83,6 +89,16 @@ const CustomGame = class {
                     this.players_permissions[cur_permissions] = new_permission_status
                 }
                 break
+            }
+            case ("change_multi_permission"): {
+                const { user_id, permissions } = data
+                const selected_user_permissions = this.players_permissions.findIndex(e => e.user_id === user_id)
+                for (let p of permissions) {
+                    this.players_permissions[selected_user_permissions][p.permission] = p.status
+                }
+                client.emit("all_players_permissions", { players_permission: this.players_permissions })
+                const player_socket = this.socket_finder(user_id)
+                client.to(player_socket).emit("permissions_status", { permission_status: this.players_permissions[selected_user_permissions] })
             }
             case ("user_action"): {
                 const { action, new_status, auto_turn_off } = data
