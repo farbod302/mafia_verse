@@ -41,6 +41,9 @@ router.post("/list", (req, res) => {
             filter = lobby_list.filter(e => !e.started)
             break
         }
+        default: {
+            filter = [...lobby_list]
+        }
     }
     res.json({
         status: true,
