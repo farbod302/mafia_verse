@@ -81,7 +81,6 @@ const CustomGame = class {
                 const is_creator = this.game_detail.creator.user_id === user_id
                 if (!is_creator) {
                     const user_permission = this.players_permissions.find(e => e.user_id === user_id)
-                    console.log({ user_permission });
                     if (user_permission) {
                         client.emit("permissions_status", { permissions: user_permission })
                         const player_index = this.player_status.findIndex(e => e.user_id === user_id)
@@ -93,6 +92,7 @@ const CustomGame = class {
                     client.emit("all_players_permissions", { players_permission: this.players_permissions })
                 }
                 this.socket.to(lobby_id).emit("creator_status", { creator_status: this.creator_status })
+                console.log({ players_status: this.player_status});
                 client.emit("all_players_status", { players_status: this.player_status })
                 client.emit("creator_status", { creator_status: this.creator_status })
 
