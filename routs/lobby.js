@@ -35,11 +35,11 @@ router.post("/list", (req, res) => {
             filter = lobby_list.filter(e => e.players.some(p => p.user_id === uid) || e.creator.user_id === uid)
             break
         }
-        case ("online"): {
+        case ("started"): {
             filter = lobby_list.filter(e => e.started)
             break
         }
-        case ("online"): {
+        case ("un_started"): {
             filter = lobby_list.filter(e => !e.started)
             break
         }
