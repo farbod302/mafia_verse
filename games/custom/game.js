@@ -17,6 +17,10 @@ const CustomGame = class {
         this.socket_finder = socket_handler.get_user_socket_id
         this.characters_list = []
         this.act_record = []
+        this.creator_status = {
+            speech: false,
+            connected: false
+        }
         this.last_cards = game_detail.cards.map(card => { return { ...card, used: false, id: uid(3) } })
         this.game_event = "day"
         speech.create_room({ lobby_id })
@@ -54,6 +58,16 @@ const CustomGame = class {
 
     }
 
+    submit_player_disconnect({ user_id }) {
+        const { creator, socket, lobby_id } = this
+        if (creator === user_id) {
+            this.creator_status.connected = false
+            socket.to(lobby_id).emit("creator_status", { creator_status: this.creator_status })
+        } else {
+
+        }
+    }
+
     async game_handler({ op, data, client }) {
         console.log({ op, data });
         switch (op) {
@@ -66,11 +80,21 @@ const CustomGame = class {
                 const is_creator = this.game_detail.creator.user_id === user_id
                 if (!is_creator) {
                     const user_permission = this.players_permissions.find(e => e.user_id === user_id)
-                    client.emit("permissions_status", { permissions: user_permission })
+                    console.log({ user_permission});
+                    if (user_permission) {
+                        client.emit("permissions_status", { permissions: user_permission })
+                        const player_index = this.player_status.findIndex(e => e.user_id === user_id)
+                        this.player_status[player_index].connected = true
+                        client.to(lobby_id).emit("player_status_update", [{ ...this.player_status[player_index].status, user_id }])
+                    }
                 } else {
+                    this.creator_status.connected = true
                     client.emit("all_players_permissions", { players_permission: this.players_permissions })
                 }
-                this.socket.to(lobby_id).emit("all_players_status", { players_status: this.player_status })
+                this.socket.to(lobby_id).emit("creator_status", { creator_status: this.creator_status })
+                client.emit("all_players_status", { players_status: this.player_status })
+                client.emit("creator_status", { creator_status: this.creator_status })
+
                 break
             }
 
@@ -99,18 +123,20 @@ const CustomGame = class {
                 client.emit("all_players_permissions", { players_permission: this.players_permissions })
                 const player_socket = this.socket_finder(user_id)
                 client.to(player_socket).emit("permissions_status", { permission_status: this.players_permissions[selected_user_permissions] })
+                break
             }
             case ("user_action"): {
                 const { action, new_status, auto_turn_off } = data
                 const { user_id } = client.idenity
                 const user_cur_status = this.player_status.findIndex(e => e.user_id == user_id)
                 this.player_status[user_cur_status][action] = new_status
+                const { status } = this.player_status[user_cur_status]
                 const { lobby_id } = this
-                this.socket.to(lobby_id).emit("player_status", { user_cur_status })
+                this.socket.to(lobby_id).emit("player_status_update", [{ ...status, user_id }])
                 if (auto_turn_off) {
                     setTimeout(() => {
                         this.player_status[user_cur_status][action] = false
-                    }, 2000)
+                    }, 5000)
                 }
                 break
             }
@@ -123,6 +149,7 @@ const CustomGame = class {
                     permission: "last_move_card",
                     new_status: true
                 })
+                break
             }
             case ("last_move_card"): {
                 const random_index = Math.floor(Math.random() * remain_cards.length)
@@ -149,6 +176,24 @@ const CustomGame = class {
                 this.game_event = new_game_event
                 const { socket, lobby_id } = this
                 socket.to(lobby_id).emit("game_event", { game_event: new_game_event })
+                break
+            }
+            case ("change_player_status"): {
+                const { target_player, selected_status, new_value } = data
+                const { socket, lobby_id } = this
+                const index = this.player_status.findIndex(e => e.user_id === target_player)
+                this.player_status[index][selected_status] = new_value
+                socket.to(lobby_id).emit("all_players_status", { players_status: this.player_status })
+                if (selected_status === "alive" && new_value === false) {
+                    const selected_user_permissions = this.players_permissions.findIndex(e => e.user_id === target_player)
+                    const keys = Object.keys(this.players_permissions[selected_user_permissions])
+                    keys.forEach(e => {
+                        this.players_permissions[selected_user_permissions][e] = false
+                    })
+                    const player_socket = this.socket_finder(target_player)
+                    client.to(player_socket).emit("permissions_status", { permission_status: this.players_permissions[selected_user_permissions] })
+                }
+                break
             }
         }
     }

@@ -29,7 +29,6 @@ router.post("/list", (req, res) => {
     const lobby_list_json = fs.readFileSync(`${__dirname}/../socket/lobby.json`)
     const lobby_list = JSON.parse(lobby_list_json.toString())
     let filter = []
-    console.log({lobby_list,type});
     switch (type) {
         case ("self"): {
             filter = lobby_list.filter(e => e.players.some(p => p.user_id === uid) || e.creator.user_id === uid)
