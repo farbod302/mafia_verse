@@ -129,8 +129,7 @@ const CustomGame = class {
                 const { action, new_status, auto_turn_off } = data
                 const { user_id } = client.idenity
                 const user_cur_status = this.player_status.findIndex(e => e.user_id == user_id)
-                this.player_status[user_cur_status][action] = new_status
-                console.log(this.player_status[user_cur_status]);
+                this.player_status[user_cur_status].status[action] = new_status
                 const { status } = this.player_status[user_cur_status]
                 const { lobby_id } = this
                 this.socket.to(lobby_id).emit("player_status_update", [{ ...status, user_id }])
