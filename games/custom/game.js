@@ -7,6 +7,7 @@ const { generate_all_players_status } = require("./funcs/players_status")
 const speech = require("./funcs/speech")
 const static_vars = require("./funcs/static_vars")
 const fs = require("fs")
+const lobby = require("../../socket/lobby")
 const CustomGame = class {
     constructor({ lobby_id, game_detail, socket }) {
         console.log({ game_detail });
@@ -29,18 +30,18 @@ const CustomGame = class {
         const default_card_json = fs.readFileSync(`${__dirname}/../local/clean_deck.json`)
         const default_card = JSON.parse(default_card_json.toString())
         game_detail.characters.forEach(cart => {
-            const { side, id, count, name } = cart
+            const { id, count, name, custom_side } = cart
             const selected_card = default_card.find(e => e.id === id)
             const card_to_add = {
                 name,
-                side,
+                side: custom_side || selected_card.side,
                 image: selected_card.icon,
                 used: false
             }
             const arr_to_add = new Array(count).fill(card_to_add)
             deck = deck.concat(arr_to_add)
         })
-        let sides = game_detail.characters.map(e => e.side)
+        let sides = deck.map(e => e.side)
         sides = game_detail.sides.concat(sides)
         sides = [...new Set(sides)]
         this.sides = sides
@@ -63,7 +64,6 @@ const CustomGame = class {
         const { creator, socket, lobby_id } = this
         if (creator === user_id) {
             this.creator_status.connected = false
-            console.log("dc");
             socket.to(lobby_id).emit("creator_status", { creator_status: this.creator_status })
         } else {
 
@@ -93,7 +93,7 @@ const CustomGame = class {
                     client.emit("all_players_permissions", { players_permission: this.players_permissions })
                     this.socket.to(lobby_id).emit("creator_status", { creator_status: this.creator_status })
                 }
-                console.log({ players_status: this.player_status});
+                console.log({ players_status: this.player_status });
                 client.emit("all_players_status", { players_status: this.player_status })
                 client.emit("creator_status", { creator_status: this.creator_status })
 
@@ -197,6 +197,21 @@ const CustomGame = class {
                 }
                 break
             }
+            case ("flick"): {
+                const { target_player } = data
+                const socket_id = this.socket_finder(target_player)
+                client.to(socket_id).emit("flick")
+            }
+            case ("end_game"): {
+                if (this.end_game) return client.emit("error", { msg: "بازی قبلا به اتمام رسیده" })
+                const { winner_side } = data
+                const { lobby_id, socket } = this
+                socket.to(lobby_id).emit("end_game", { winner_side })
+                this.end_game = true
+                setTimeout(() => {
+                    this.remove_game(client)
+                }, 60000)
+            }
         }
     }
 
@@ -217,6 +232,12 @@ const CustomGame = class {
             return player_cur_permission
         })
         this.players_permissions = updated_permissions
+    }
+
+
+    remove_game(client) {
+        const { lobby_id } = this
+        lobby.remove_lobby({ lobby_id, client, socket: this.socket })
     }
 
     change_custom_users_permissions({ users, permission, new_status }) {
@@ -265,7 +286,7 @@ const CustomGame = class {
                     break
                 }
                 case ("alive"): {
-                    this.player_status[player_status_index].alive = false
+                    this.player_status[player_status_index].alive = true
                     break
                 }
                 case ("change_side"): {

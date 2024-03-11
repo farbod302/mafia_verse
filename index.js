@@ -18,6 +18,7 @@ const Session = require('./session');
 const { CronJob } = require("cron");
 const Transaction = require('./helper/transaction');
 const monitoring = require('./container/monitoring');
+const lobby = require('./socket/lobby');
 const token_handler = (req, res, next) => {
     const { token } = req.body
     if (!token) return next()
@@ -61,7 +62,7 @@ const conf = {
 
 
 
-const server = https.createServer(conf,app);
+const server = https.createServer(conf, app);
 const io = new Server(server, {
     cors: {
         origin: "*",
@@ -133,5 +134,16 @@ const refresh_api_token_job = new CronJob("58 * * * *", Transaction.refresh_toke
 //3119103712
 //test_2
 
+
+const remove_inactive_lobbies = () => {
+    const lobby_list = lobby.get_lobby_list()
+    const inactive_list = lobby_list.filter(e => {
+        const { started, create_date, players } = e
+        if (!started && (create_date + (1000 * 60 * 1)) < Date.now() && players.length === 0) return true
+    })
+    const lobby_ids = inactive_list.map(e => e.lobby_id)
+    const new_list = lobby_list.filter(e => !lobby_ids.includes(e.lobby_id))
+    lobby.update_lobbies(new_list)
+}
 
 

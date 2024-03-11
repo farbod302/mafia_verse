@@ -33,7 +33,8 @@ const lobby = {
             started: false,
             messages: [],
             lobby_id,
-            sides
+            sides,
+            create_date:Date.now()
         }
         const lobby_list = this.add_lobby_to_json(new_lobby)
         socket.to("lobby_list").emit("lobby_list", { lobby_list })
