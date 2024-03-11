@@ -10,7 +10,6 @@ const fs = require("fs")
 const lobby = require("../../socket/lobby")
 const CustomGame = class {
     constructor({ lobby_id, game_detail, socket }) {
-        console.log({ game_detail });
         this.game_vars = new Dynamic_vars(game_detail)
         this.creator = game_detail.creator
         this.lobby_id = lobby_id
@@ -93,7 +92,6 @@ const CustomGame = class {
                     client.emit("all_players_permissions", { players_permission: this.players_permissions })
                     this.socket.to(lobby_id).emit("creator_status", { creator_status: this.creator_status })
                 }
-                console.log({ players_status: this.player_status });
                 client.emit("all_players_status", { players_status: this.player_status })
                 client.emit("creator_status", { creator_status: this.creator_status })
 
