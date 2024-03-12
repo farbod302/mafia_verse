@@ -171,6 +171,26 @@ const CustomGame = class {
                 })
                 break
             }
+            case ("create_private_speech"): {
+                const { target_players } = data
+                this.change_all_users_permissions({
+                    permission: "listen",
+                    new_status: false
+                })
+                await Helper.delay(1)
+                this.change_custom_users_permissions({
+                    users:target_players,
+                    permission:"listen",
+                    new_status:"true"
+                })
+                await Helper.delay(1)
+                this.change_custom_users_permissions({
+                    users:target_players,
+                    permission:"speech",
+                    new_status:"true"
+                })
+                break
+            }
             case ("last_move_card"): {
                 const random_index = Math.floor(Math.random() * remain_cards.length)
                 const selected_card = remain_cards[random_index]
@@ -219,6 +239,7 @@ const CustomGame = class {
                 const { target_player } = data
                 const socket_id = this.socket_finder(target_player)
                 client.to(socket_id).emit("flick")
+                break
             }
 
             case ("send_message_to_mod"): {
@@ -231,6 +252,8 @@ const CustomGame = class {
                 const { user_id: creator_id } = this.creator
                 const socket_id = this.socket_finder(creator_id)
                 client.to(socket_id).emit("new_message", { new_message })
+                break
+
             }
             case ("end_game"): {
                 if (this.end_game) return client.emit("error", { msg: "بازی قبلا به اتمام رسیده" })
@@ -241,6 +264,8 @@ const CustomGame = class {
                 setTimeout(() => {
                     this.remove_game(client)
                 }, 60000)
+                break
+
             }
         }
     }
