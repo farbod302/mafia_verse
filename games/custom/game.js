@@ -18,6 +18,7 @@ const CustomGame = class {
         this.characters_list = []
         this.creator_messages = []
         this.act_record = []
+        this.observer = 0
         this.creator_status = {
             speech: false,
             connected: false
@@ -68,6 +69,11 @@ const CustomGame = class {
         } else {
             const { socket, lobby_id } = this
             const index = this.player_status.findIndex(e => e.user_id === user_id)
+            if (index === -1) {
+                this.observer--
+                socket.to(lobby).emit("observer", { observer: this.observer })
+                return
+            }
             this.player_status[index]["connected"] = false
             socket.to(lobby_id).emit("player_status_update", { ...this.player_status.status, user_id })
         }
@@ -88,6 +94,15 @@ const CustomGame = class {
                     if (user_permission) {
                         client.emit("permissions_status", { permissions: user_permission })
                         const player_index = this.player_status.findIndex(e => e.user_id === user_id)
+                        if (player_index === -1) {
+                            this.observer++
+                            socket.to(lobby).emit("observer", { observer: this.observer })
+                            client.emit("all_players_status", { players_status: this.player_status })
+                            client.emit("creator_status", { creator_status: this.creator_status })
+                            client.emit("game_event", { game_event: new_game_event })
+
+                            return
+                        }
                         this.player_status[player_index].connected = true
                         client.to(lobby_id).emit("player_status_update", { ...this.player_status[player_index].status, user_id })
                     }
@@ -99,6 +114,8 @@ const CustomGame = class {
                 }
                 client.emit("all_players_status", { players_status: this.player_status })
                 client.emit("creator_status", { creator_status: this.creator_status })
+                client.emit("game_event", { game_event: new_game_event })
+
 
                 break
             }
@@ -137,7 +154,7 @@ const CustomGame = class {
                 this.player_status[user_cur_status].status[action] = new_status
                 const { status } = this.player_status[user_cur_status]
                 const { lobby_id } = this
-                this.socket.to(lobby_id).emit("player_status_update", [{ ...status, user_id }])
+                this.socket.to(lobby_id).emit("player_status_update", { ...status, user_id })
                 if (auto_turn_off) {
                     this.player_status[user_cur_status].status[action] = false
                 }

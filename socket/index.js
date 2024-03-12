@@ -240,7 +240,6 @@ const SocketProvider = class {
                 }
                 if (!selected_lobby_id) return console.log("no lobby id");
                 const selected_lobby = this.db.getOne("custom_game", "lobby_id", selected_lobby_id)
-                if (!selected_lobby) return console.log("no lobby");
                 selected_lobby.game_class.game_handler({ client, op, data })
             })
 
