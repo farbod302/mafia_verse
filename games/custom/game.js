@@ -34,7 +34,7 @@ const CustomGame = class {
             const card_to_add = {
                 name,
                 side: custom_side || selected_card.side,
-                image: selected_card.icon,
+                image: selected_card?.icon || "",
                 used: false
             }
             const arr_to_add = new Array(count).fill(card_to_add)
