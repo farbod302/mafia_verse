@@ -99,7 +99,7 @@ const CustomGame = class {
                             socket.to(lobby).emit("observer", { observer: this.observer })
                             client.emit("all_players_status", { players_status: this.player_status })
                             client.emit("creator_status", { creator_status: this.creator_status })
-                            client.emit("game_event", { game_event: new_game_event })
+                            client.emit("game_event", { game_event: this.game_event })
 
                             return
                         }
