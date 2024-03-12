@@ -21,6 +21,7 @@ const CustomGame = class {
         this.observer = 0
         const {creator}=game_detail
         const {name,image}=creator
+        console.log({creator});
         this.creator_status = {
             speech: false,
             connected: false,
