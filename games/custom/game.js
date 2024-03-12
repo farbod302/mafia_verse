@@ -80,7 +80,7 @@ const CustomGame = class {
             }
             this.player_status[index].status["connected"] = false
             console.log( this.player_status[index].status);
-            socket.to(lobby_id).emit("player_status_update", { ...this.player_status.status, user_id })
+            socket.to(lobby_id).emit("player_status_update", { ...this.player_status[index].status, user_id })
         }
     }
 
@@ -228,7 +228,7 @@ const CustomGame = class {
                 const { socket, lobby_id } = this
                 const index = this.player_status.findIndex(e => e.user_id === target_player)
                 this.player_status[index][selected_status] = new_value
-                socket.to(lobby_id).emit("player_status_update", { ...this.player_status.status, user_id: target_player })
+                socket.to(lobby_id).emit("player_status_update", { ...this.player_status[index].status, user_id: target_player })
                 if (selected_status === "alive" && new_value === false) {
                     const selected_user_permissions = this.players_permissions.findIndex(e => e.user_id === target_player)
                     const keys = Object.keys(this.players_permissions[selected_user_permissions])
