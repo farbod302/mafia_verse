@@ -23,7 +23,7 @@ router.get("/deck", (req, res) => {
 
 router.post("/list", (req, res) => {
     const user = req.body.user
-    if (!user) return { status: false, msg: "شناسه نامعتبر", data: {} }
+    if (!user) return res.json({ status: false, msg: "شناسه نامعتبر", data: {} })
     const { uid } = user
     const { type } = req.body
     const lobby_list_json = fs.readFileSync(`${__dirname}/../socket/lobby.json`)
