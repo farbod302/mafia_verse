@@ -21,7 +21,6 @@ const CustomGame = class {
         this.observer = 0
         const {creator}=game_detail
         const {name,image}=creator
-        console.log({creator});
         this.creator_status = {
             speech: false,
             connected: false,
@@ -79,7 +78,8 @@ const CustomGame = class {
                 socket.to(lobby).emit("observer", { observer: this.observer })
                 return
             }
-            this.player_status[index]["connected"] = false
+            this.player_status[index].status["connected"] = false
+            console.log( this.player_status[index].status);
             socket.to(lobby_id).emit("player_status_update", { ...this.player_status.status, user_id })
         }
     }
@@ -108,7 +108,7 @@ const CustomGame = class {
 
                             return
                         }
-                        this.player_status[player_index].connected = true
+                        this.player_status[player_index].status.connected = true
                         client.to(lobby_id).emit("player_status_update", { ...this.player_status[player_index].status, user_id })
                     }
                 } else {
