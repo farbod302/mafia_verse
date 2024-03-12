@@ -70,7 +70,7 @@ const CustomGame = class {
     }
 
     async game_handler({ op, data, client }) {
-        console.log({ op, data });
+        console.log({ op, data, client: client.idenity });
         switch (op) {
             case ("ready_to_game"): {
                 await Helper.delay(3)

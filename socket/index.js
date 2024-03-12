@@ -234,7 +234,7 @@ const SocketProvider = class {
                 this.db.add_data("custom_game", { game_class: new_custom_game, lobby_id })
             })
             client.on("custom_game_handler", ({ op, data, lobby_id }) => {
-                const selected_lobby_id = client.idenity.lobby_id
+                const selected_lobby_id = client.idenity.lobby_id || lobby_id
                 if (!selected_lobby_id) return console.log("no lobby id");
                 const selected_lobby = this.db.getOne("custom_game", "lobby_id", selected_lobby_id)
                 if (!selected_lobby) return console.log("no lobby");
