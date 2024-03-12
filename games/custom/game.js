@@ -16,6 +16,7 @@ const CustomGame = class {
         this.socket = socket
         this.socket_finder = socket_handler.get_user_socket_id
         this.characters_list = []
+        this.creator_messages = []
         this.act_record = []
         this.creator_status = {
             speech: false,
@@ -33,7 +34,7 @@ const CustomGame = class {
             const selected_card = default_card.find(e => e.id === id)
             const card_to_add = {
                 name,
-                side: custom_side || selected_card.side,
+                side: helper.translate_side(custom_side || selected_card.side),
                 image: selected_card?.icon || "",
                 used: false
             }
@@ -61,11 +62,14 @@ const CustomGame = class {
 
     submit_player_disconnect({ user_id }) {
         const { creator, socket, lobby_id } = this
-        if (creator === user_id) {
+        if (creator.user_id === user_id) {
             this.creator_status.connected = false
             socket.to(lobby_id).emit("creator_status", { creator_status: this.creator_status })
         } else {
-
+            const { socket, lobby_id } = this
+            const index = this.player_status.findIndex(e => e.user_id === user_id)
+            this.player_status[index]["connected"] = false
+            socket.to(lobby_id).emit("player_status_update", { ...this.player_status.status, user_id })
         }
     }
 
@@ -91,6 +95,7 @@ const CustomGame = class {
                     this.creator_status.connected = true
                     client.emit("all_players_permissions", { players_permission: this.players_permissions })
                     this.socket.to(lobby_id).emit("creator_status", { creator_status: this.creator_status })
+                    client.emit("messages_box", { messages: this.messages })
                 }
                 client.emit("all_players_status", { players_status: this.player_status })
                 client.emit("creator_status", { creator_status: this.creator_status })
@@ -134,9 +139,7 @@ const CustomGame = class {
                 const { lobby_id } = this
                 this.socket.to(lobby_id).emit("player_status_update", [{ ...status, user_id }])
                 if (auto_turn_off) {
-                    setTimeout(() => {
-                        this.player_status[user_cur_status].status[action] = false
-                    }, 5000)
+                    this.player_status[user_cur_status].status[action] = false
                 }
                 break
             }
@@ -183,7 +186,7 @@ const CustomGame = class {
                 const { socket, lobby_id } = this
                 const index = this.player_status.findIndex(e => e.user_id === target_player)
                 this.player_status[index][selected_status] = new_value
-                socket.to(lobby_id).emit("all_players_status", { players_status: this.player_status })
+                socket.to(lobby_id).emit("player_status_update", { ...this.player_status.status, user_id: target_player })
                 if (selected_status === "alive" && new_value === false) {
                     const selected_user_permissions = this.players_permissions.findIndex(e => e.user_id === target_player)
                     const keys = Object.keys(this.players_permissions[selected_user_permissions])
@@ -199,6 +202,18 @@ const CustomGame = class {
                 const { target_player } = data
                 const socket_id = this.socket_finder(target_player)
                 client.to(socket_id).emit("flick")
+            }
+
+            case ("send_message_to_mod"): {
+                const { user_id } = client.idenity
+                const new_message = {
+                    sender: user_id,
+                    content: data.content
+                }
+                this.creator_messages.push(new_message)
+                const { user_id: creator_id } = this.creator
+                const socket_id = this.socket_finder(creator_id)
+                client.to(socket_id).emit("new_message", { new_message })
             }
             case ("end_game"): {
                 if (this.end_game) return client.emit("error", { msg: "بازی قبلا به اتمام رسیده" })
@@ -249,20 +264,6 @@ const CustomGame = class {
             this.players_permissions[index][permission] = new_status
         })
         this.players_permissions = updated_permissions
-    }
-    update_players_status() {
-        const { socket, lobby_id } = this
-        socket.to(lobby_id).emit("all_players_status", { players_status: this.player_status })
-        this.players_permissions.forEach(p => {
-            const { user_id } = p
-            const player_socket_id = this.socket_finder(user_id)
-            socket.to(player_socket_id).emit("permissions_status", { permission_status: p })
-        })
-        this.characters_list.forEach(p => {
-            const { user_id } = p
-            const player_socket_id = this.socket_finder(user_id)
-            socket.to(player_socket_id).emit("selected_character", { character: p })
-        })
     }
 
 
