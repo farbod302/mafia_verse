@@ -25,7 +25,7 @@ const CustomGame = class {
             speech: false,
             connected: false,
             name,
-            avatar
+            avatar:image
         }
         this.last_cards = game_detail.cards.map(card => { return { ...card, used: false, id: uid(3) } })
         this.game_event = "day"
