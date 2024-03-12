@@ -17,6 +17,7 @@ const players_status = {
                 user_id: p.user_id,
                 user_index:index+1,
                 avatar:p.image,
+                name:p.name,
                 character: characters[index].name,
                 side: characters[index].side,
             }
