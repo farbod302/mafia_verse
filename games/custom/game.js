@@ -19,9 +19,13 @@ const CustomGame = class {
         this.creator_messages = []
         this.act_record = []
         this.observer = 0
+        const {creator}=game_detail
+        const {name,image}=creator
         this.creator_status = {
             speech: false,
-            connected: false
+            connected: false,
+            name,
+            avatar
         }
         this.last_cards = game_detail.cards.map(card => { return { ...card, used: false, id: uid(3) } })
         this.game_event = "day"
