@@ -19,13 +19,13 @@ const CustomGame = class {
         this.creator_messages = []
         this.act_record = []
         this.observer = 0
-        const {creator}=game_detail
-        const {name,image}=creator
+        const { creator } = game_detail
+        const { name, image } = creator
         this.creator_status = {
             speech: false,
             connected: false,
             name,
-            avatar:image
+            avatar: image
         }
         this.last_cards = game_detail.cards.map(card => { return { ...card, used: false, id: uid(3) } })
         this.game_event = "day"
@@ -79,7 +79,7 @@ const CustomGame = class {
                 return
             }
             this.player_status[index].status["connected"] = false
-            console.log( this.player_status[index].status);
+            console.log(this.player_status[index].status);
             socket.to(lobby_id).emit("player_status_update", { ...this.player_status[index].status, user_id })
         }
     }
@@ -184,15 +184,15 @@ const CustomGame = class {
                 })
                 await Helper.delay(1)
                 this.change_custom_users_permissions({
-                    users:target_players,
-                    permission:"listen",
-                    new_status:"true"
+                    users: target_players,
+                    permission: "listen",
+                    new_status: "true"
                 })
                 await Helper.delay(1)
                 this.change_custom_users_permissions({
-                    users:target_players,
-                    permission:"speech",
-                    new_status:"true"
+                    users: target_players,
+                    permission: "speech",
+                    new_status: "true"
                 })
                 break
             }
@@ -231,13 +231,14 @@ const CustomGame = class {
                 socket.to(lobby_id).emit("player_status_update", { ...this.player_status[index].status, user_id: target_player })
                 if (selected_status === "alive" && new_value === false) {
                     const selected_user_permissions = this.players_permissions.findIndex(e => e.user_id === target_player)
-                    console.log( this.players_permissions,selected_user_permissions);
+                    console.log(this.players_permissions, selected_user_permissions);
                     const keys = Object.keys(this.players_permissions[selected_user_permissions])
                     keys.forEach(e => {
+                        if (e === "user_index") return
                         this.players_permissions[selected_user_permissions][e] = false
                     })
-                    this.players_permissions[selected_user_permissions].user_id=target_player
-                    this.players_permissions[selected_user_permissions].listen=true
+                    this.players_permissions[selected_user_permissions].user_id = target_player
+                    this.players_permissions[selected_user_permissions].listen = true
                     const player_socket = this.socket_finder(target_player)
                     client.emit("all_players_permissions", { players_permission: this.players_permissions })
                     client.to(player_socket).emit("permissions_status", { permissions: this.players_permissions[selected_user_permissions] })
