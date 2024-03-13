@@ -136,7 +136,7 @@ const CustomGame = class {
                     if (cur_permissions === -1) continue
                     const new_permission_status = { ...this.player_status[cur_permissions] }
                     new_permission_status[permission] = new_status
-                    this.socket.to(socket_id).emit("permissions_status", { permission_status: new_permission_status })
+                    this.socket.to(socket_id).emit("permissions_status", { permissions: new_permission_status })
                     this.players_permissions[cur_permissions] = new_permission_status
                 }
                 break
@@ -149,7 +149,7 @@ const CustomGame = class {
                 }
                 client.emit("all_players_permissions", { players_permission: this.players_permissions })
                 const player_socket = this.socket_finder(user_id)
-                client.to(player_socket).emit("permissions_status", { permission_status: this.players_permissions[selected_user_permissions] })
+                client.to(player_socket).emit("permissions_status", { permissions: this.players_permissions[selected_user_permissions] })
                 break
             }
             case ("user_action"): {
@@ -236,7 +236,7 @@ const CustomGame = class {
                         this.players_permissions[selected_user_permissions][e] = false
                     })
                     const player_socket = this.socket_finder(target_player)
-                    client.to(player_socket).emit("permissions_status", { permission_status: this.players_permissions[selected_user_permissions] })
+                    client.to(player_socket).emit("permissions_status", { permissions: this.players_permissions[selected_user_permissions] })
                 }
                 break
             }
@@ -288,7 +288,7 @@ const CustomGame = class {
             const player_socket = this.socket_finder(player.user_id)
             const player_cur_permission = { ...permission }
             player_cur_permission[permission] = new_status
-            this.socket.to(player_socket).emit("permissions_status", { permission_status: player_cur_permission })
+            this.socket.to(player_socket).emit("permissions_status", { permissions: player_cur_permission })
             return player_cur_permission
         })
         this.players_permissions = updated_permissions
@@ -307,7 +307,7 @@ const CustomGame = class {
             const player_socket = this.socket_finder(player.user_id)
             const player_cur_permission = { ...permission }
             player_cur_permission[permission] = new_status
-            this.socket.to(player_socket).emit("permissions_status", { permission_status: player_cur_permission })
+            this.socket.to(player_socket).emit("permissions_status", { permissions: player_cur_permission })
             this.players_permissions[index][permission] = new_status
         })
         this.players_permissions = updated_permissions
