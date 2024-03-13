@@ -83,6 +83,7 @@ keys.forEach(key => {
 });
 
 app.use("/files", express.static("./files"))
+app.use("/user_images", express.static("./user_images"))
 app.use("/characters", express.static("./characters"))
 server.listen(process.env.PORT, () => { console.log("Server Run"); })
 
