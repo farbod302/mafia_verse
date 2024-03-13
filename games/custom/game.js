@@ -236,6 +236,7 @@ const CustomGame = class {
                     keys.forEach(e => {
                         this.players_permissions[selected_user_permissions][e] = false
                     })
+                    this.players_permissions[selected_user_permissions].user_id=target_player
                     const player_socket = this.socket_finder(target_player)
                     client.to(player_socket).emit("permissions_status", { permissions: this.players_permissions[selected_user_permissions] })
                 }
