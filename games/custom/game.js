@@ -231,6 +231,7 @@ const CustomGame = class {
                 socket.to(lobby_id).emit("player_status_update", { ...this.player_status[index].status, user_id: target_player })
                 if (selected_status === "alive" && new_value === false) {
                     const selected_user_permissions = this.players_permissions.findIndex(e => e.user_id === target_player)
+                    console.log( this.players_permissions,selected_user_permissions);
                     const keys = Object.keys(this.players_permissions[selected_user_permissions])
                     keys.forEach(e => {
                         this.players_permissions[selected_user_permissions][e] = false
