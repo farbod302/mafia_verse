@@ -122,6 +122,8 @@ router.post("/review_avatar", async (req, res) => {
             title: "آواتار اختصاصی تایید شد!",
             msg: "آواتار اختصاصی شما تایید شد و به حساب شما اضافه شد "
         })
+        await Review.findOneAndUpdate({ review_id }, { $set: { status: 2 } })
+
     }
     res.json({
         status:true

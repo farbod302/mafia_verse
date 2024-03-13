@@ -4,7 +4,7 @@ const User = require("../db/user")
 const Review = require("../db/review")
 var base64Img = require('base64-img');
 const { uid } = require("uid");
-const static_url = "https://mafia.altf1.ir:4090/user_images"
+const static_url = "https://mafia.gamingverse.ir:4090/user_images"
 
 
 router.post("/submit_avatar_request", async (req, res) => {
