@@ -125,7 +125,7 @@ const CustomGame = class {
                 break
             }
 
-            case ("change_permission"): {
+            case ("change_multi_users_permission"): {
                 const { users, permission, new_status } = data
                 const { players } = this.game_vars
                 let selected_users = []
