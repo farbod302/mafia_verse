@@ -158,9 +158,19 @@ const CustomGame = class {
             }
             case ("change_multi_permission"): {
                 const { user_id, permissions } = data
+                const valid_status = ["speech", "hand_rise", "day_act", "challenge", "private"]
                 const selected_user_permissions = this.players_permissions.findIndex(e => e.user_id === user_id)
                 for (let p of permissions) {
                     this.players_permissions[selected_user_permissions][p.permission] = p.status
+                    if (p.status === false && valid_status.includes(p.permission)) {
+                        this.change_custom_users_permissions(
+                            {
+                                users: [user_id],
+                                permission: p.permission,
+                                new_status: false
+                            }
+                        )
+                    }
                 }
                 client.emit("all_players_permissions", { players_permission: this.players_permissions })
                 const player_socket = this.socket_finder(user_id)
@@ -305,12 +315,12 @@ const CustomGame = class {
                     client.emit("all_players_permissions", { players_permission: this.players_permissions })
                     client.to(player_socket).emit("permissions_status", { permissions: this.players_permissions[selected_user_permissions] })
                     let all_status = Object.keys(this.player_status[index].status)
-                    all_status=all_status.filter(e=>e !== "connected")
-                    all_status.forEach(s=>{
+                    all_status = all_status.filter(e => e !== "connected")
+                    all_status.forEach(s => {
                         this.change_players_status({
-                            players:[target_player],
-                            selected_status:s,
-                            new_value:false
+                            players: [target_player],
+                            selected_status: s,
+                            new_value: false
                         })
                     })
                 }
