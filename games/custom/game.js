@@ -182,7 +182,7 @@ const CustomGame = class {
                 const half = Math.floor(all_players_count)
                 const permissions = ["speech", "hand_rise", "like_dislike", "challenge", "chat"]
                 const overall_status = permissions.map(p => {
-                    const active = this.all_permissions.filter(e => e[p])
+                    const active = this.players_permissions.filter(e => e[p])
                     if (active.length >= half) return { [p]: true }
                     return { [p]: false }
                 })
