@@ -182,7 +182,7 @@ const CustomGame = class {
                 const { action, new_status, auto_turn_off } = data
                 const { user_id } = client.idenity
                 const { lobby_id } = this
-                if (user_id === this.creator.id) {
+                if (user_id === this.creator.user_id) {
                     this.creator_status[action] = new_status
                     client.to(lobby_id).emit("creator_status", { creator_status: this.creator_status })
                     return
