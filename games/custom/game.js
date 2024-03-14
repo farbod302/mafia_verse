@@ -50,7 +50,7 @@ const CustomGame = class {
         let sides = deck.map(e => e.side)
         sides = game_detail.sides.concat(sides)
         sides = [...new Set(sides)]
-        console.log({sides});
+        console.log({ sides });
         this.sides = sides
         const shuffled_card = helper.shuffle_card(deck)
         const statuses = generate_all_players_status({ players, characters: shuffled_card })
@@ -84,6 +84,15 @@ const CustomGame = class {
             console.log(this.player_status[index].status);
             socket.to(lobby_id).emit("player_status_update", { ...this.player_status[index].status, user_id })
         }
+    }
+
+    report_to_players({ players, msg }) {
+        const players_to_emit = players ? players : this.player_status.map(e => e.user_id)
+        const { socket } = this
+        players_to_emit.forEach(p => {
+            const player_socket = this.socket_finder(p)
+            socket.to(player_socket).emit("report", { msg, timer: 3 })
+        })
     }
 
     async game_handler({ op, data, client }) {
@@ -122,7 +131,10 @@ const CustomGame = class {
                 client.emit("all_players_status", { players_status: this.player_status })
                 client.emit("creator_status", { creator_status: this.creator_status })
                 client.emit("game_event", { game_event: this.game_event })
-
+                this.report_to_players({
+                    players:[user_id],
+                    msg:"خوش امدید"
+                })
 
                 break
             }

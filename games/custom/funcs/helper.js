@@ -3,11 +3,11 @@ const helper = {
         return carts
     },
     translate_side(side) {
-        console.log({sideee:side});
+        console.log({ sideee: side });
         switch (side) {
             case ("mafia"): return "مافیا"
             case ("citizen"): return "شهروند"
-            case ("solo"): "مستقل"
+            case ("solo"): return "مستقل"
             default: return side
         }
     }
