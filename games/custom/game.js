@@ -163,10 +163,10 @@ const CustomGame = class {
                 for (let p of permissions) {
                     this.players_permissions[selected_user_permissions][p.permission] = p.status
                     if (p.status === false && valid_status.includes(p.permission)) {
-                        this.change_custom_users_permissions(
+                        this.change_players_status(
                             {
-                                users: [user_id],
-                                permission: p.permission,
+                                players: [user_id],
+                                selected_status: p.permission,
                                 new_status: false
                             }
                         )
@@ -397,14 +397,14 @@ const CustomGame = class {
     change_custom_users_permissions({ users, permission, new_status }) {
         const cur_permissions = this.players_permissions
         cur_permissions.forEach((player, index) => {
-            if (!users.includes(player.user_id)) return
+            if (!users.includes(player)) return
             const player_socket = this.socket_finder(player.user_id)
             const player_cur_permission = { ...permission }
             player_cur_permission[permission] = new_status
             this.socket.to(player_socket).emit("permissions_status", { permissions: player_cur_permission })
             this.players_permissions[index][permission] = new_status
         })
-        this.players_permissions = updated_permissions
+        this.players_permissions = cur_permissions
     }
 
 
