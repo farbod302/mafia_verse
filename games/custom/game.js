@@ -187,8 +187,8 @@ const CustomGame = class {
                     if (active.length >= half) return status[p] = true
                     return status[p] = false
                 })
-                console.log({ overall_status });
-                client.emit("permissions_overall", { overall_status })
+                console.log({ status });
+                client.emit("permissions_overall", { overall_status :status})
 
                 break
             }
