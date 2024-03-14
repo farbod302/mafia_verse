@@ -181,12 +181,13 @@ const CustomGame = class {
                 const all_players_count = this.player_status.length
                 const half = Math.floor(all_players_count)
                 const permissions = ["speech", "hand_rise", "like_dislike", "challenge", "chat"]
-                const overall_status = permissions.map(p => {
+                const status = {}
+                const overall_status = permissions.forEach(p => {
                     const active = this.players_permissions.filter(e => e[p])
-                    if (active.length >= half) return { [p]: true }
-                    return { [p]: false }
+                    if (active.length >= half) return status[p] = true
+                    return status[p] = false
                 })
-                console.log({overall_status});
+                console.log({ overall_status });
                 client.emit("permissions_overall", { overall_status })
 
                 break
