@@ -353,11 +353,12 @@ const CustomGame = class {
         const cur_permissions = this.players_permissions
         const updated_permissions = cur_permissions.map((player, index) => {
             const player_socket = this.socket_finder(player.user_id)
-            const player_cur_permission = { ...permission }
+            const player_cur_permission = { ...player }
             player_cur_permission[permission] = new_status
             this.socket.to(player_socket).emit("permissions_status", { permissions: player_cur_permission })
             return player_cur_permission
         })
+        console.log({updated_permissions});
         this.players_permissions = updated_permissions
     }
 
