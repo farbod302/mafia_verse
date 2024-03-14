@@ -23,7 +23,7 @@ const CustomGame = class {
         const { creator } = game_detail
         const { name, image } = creator
         this.creator_status = {
-            
+
             speech: false,
             connected: false,
             name,
@@ -181,10 +181,11 @@ const CustomGame = class {
             case ("user_action"): {
                 const { action, new_status, auto_turn_off } = data
                 const { user_id } = client.idenity
-                const {lobby_id}=this
-                if(user_id === this.creator.id){
-                    this.creator_status[action]=new_status
+                const { lobby_id } = this
+                if (user_id === this.creator.id) {
+                    this.creator_status[action] = new_status
                     client.to(lobby_id).emit("creator_status", { creator_status: this.creator_status })
+                    return
                 }
                 const user_cur_status = this.player_status.findIndex(e => e.user_id == user_id)
                 this.player_status[user_cur_status].status[action] = new_status
