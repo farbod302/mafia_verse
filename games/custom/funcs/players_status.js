@@ -12,7 +12,8 @@ const players_status = {
                     like: false,
                     dislike: false,
                     challenge: false,
-                    challenge_accepted: false
+                    challenge_accepted: false,
+                    private:false
                 },
                 user_id: p.user_id,
                 user_index:index+1,

@@ -116,6 +116,7 @@ const CustomGame = class {
                     client.emit("all_players_permissions", { players_permission: this.players_permissions })
                     this.socket.to(lobby_id).emit("creator_status", { creator_status: this.creator_status })
                     client.emit("messages_box", { messages: this.messages })
+                    client.emit("sides_list", { sides: this.sides })
                 }
                 client.emit("all_players_status", { players_status: this.player_status })
                 client.emit("creator_status", { creator_status: this.creator_status })
@@ -196,6 +197,11 @@ const CustomGame = class {
                 this.change_all_users_permissions({
                     permission: "listen",
                     new_status: false
+                })
+                this.change_players_status({
+                    players: target_players,
+                    selected_status: "private",
+                    new_value: true
                 })
                 await Helper.delay(1)
                 this.change_custom_users_permissions({
@@ -334,6 +340,17 @@ const CustomGame = class {
             this.players_permissions[index][permission] = new_status
         })
         this.players_permissions = updated_permissions
+    }
+
+
+    change_players_status({ players, selected_status, new_value }) {
+        const { socket, lobby_id } = this
+        players.forEach(player => {
+            const index = this.player_status.findIndex(e => e.user_id === player)
+            this.player_status[index].status[selected_status] = new_value
+            socket.to(lobby_id).emit("player_status_update", { ...this.player_status[index].status, user_id: player })
+        })
+
     }
 
 
