@@ -8,6 +8,7 @@ const speech = require("./funcs/speech")
 const static_vars = require("./funcs/static_vars")
 const fs = require("fs")
 const lobby = require("../../socket/lobby")
+const { log } = require("console")
 const CustomGame = class {
     constructor({ lobby_id, game_detail, socket }) {
         this.game_vars = new Dynamic_vars(game_detail)
@@ -19,13 +20,13 @@ const CustomGame = class {
         this.creator_messages = []
         this.act_record = []
         this.observer = 0
-        const {creator}=game_detail
-        const {name,image}=creator
+        const { creator } = game_detail
+        const { name, image } = creator
         this.creator_status = {
             speech: false,
             connected: false,
             name,
-            avatar:image
+            avatar: image
         }
         this.last_cards = game_detail.cards.map(card => { return { ...card, used: false, id: uid(3) } })
         this.game_event = "day"
@@ -79,7 +80,7 @@ const CustomGame = class {
                 return
             }
             this.player_status[index].status["connected"] = false
-            console.log( this.player_status[index].status);
+            console.log(this.player_status[index].status);
             socket.to(lobby_id).emit("player_status_update", { ...this.player_status[index].status, user_id })
         }
     }
@@ -176,6 +177,20 @@ const CustomGame = class {
                 })
                 break
             }
+            case ("permissions_overall"): {
+                const all_players_count = this.player_status.length
+                const half = Math.floor(all_players_count)
+                const permissions = ["speech", "hand_rise", "like_dislike", "challenge", "chat"]
+                const overall_status = permissions.map(p => {
+                    const active = this.all_permissions.filter(e => e[p])
+                    if (active.length >= half) return { [p]: true }
+                    return { [p]: false }
+                })
+                console.log({overall_status});
+                client.emit("permissions_overall", { overall_status })
+
+                break
+            }
             case ("create_private_speech"): {
                 const { target_players } = data
                 this.change_all_users_permissions({
@@ -184,15 +199,15 @@ const CustomGame = class {
                 })
                 await Helper.delay(1)
                 this.change_custom_users_permissions({
-                    users:target_players,
-                    permission:"listen",
-                    new_status:"true"
+                    users: target_players,
+                    permission: "listen",
+                    new_status: "true"
                 })
                 await Helper.delay(1)
                 this.change_custom_users_permissions({
-                    users:target_players,
-                    permission:"speech",
-                    new_status:"true"
+                    users: target_players,
+                    permission: "speech",
+                    new_status: "true"
                 })
                 break
             }
