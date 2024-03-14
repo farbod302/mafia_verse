@@ -29,7 +29,7 @@ const CustomGame = class {
             avatar: image
         }
         this.last_cards = game_detail.cards.map(card => { return { ...card, used: false, id: uid(3) } })
-        this.game_event = "day"
+        this.game_event = "روز"
         speech.create_room({ lobby_id })
         const { players } = game_detail
         let deck = []
@@ -86,7 +86,6 @@ const CustomGame = class {
     }
 
     async game_handler({ op, data, client }) {
-        console.log({ op, data, client: client.idenity });
         switch (op) {
             case ("ready_to_game"): {
                 await Helper.delay(3)
@@ -228,8 +227,11 @@ const CustomGame = class {
                 break
             }
             case ("change_all_users_permissions"): {
-                const { permission, new_status } = data
-                this.change_all_users_permissions({ permission, new_status })
+                const { changes } = data
+                changes.forEach(e => {
+                    const { permission, new_status } = e
+                    this.change_all_users_permissions({ permission, new_status })
+                })
                 break
             }
             case ("change_game_event"): {
