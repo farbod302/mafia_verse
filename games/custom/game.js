@@ -115,7 +115,7 @@ const CustomGame = class {
                     this.creator_status.connected = true
                     client.emit("all_players_permissions", { players_permission: this.players_permissions })
                     this.socket.to(lobby_id).emit("creator_status", { creator_status: this.creator_status })
-                    client.emit("messages_box", { messages: this.messages })
+                    client.emit("messages_box", { messages: this.creator_messages })
                     client.emit("sides_list", { sides: this.sides })
                 }
                 client.emit("all_players_status", { players_status: this.player_status })
