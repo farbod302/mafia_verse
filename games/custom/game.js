@@ -384,6 +384,18 @@ const CustomGame = class {
         })
         this.emit_to_creator("all_players_permissions", { players_permission: updated_permissions })
 
+        const valid_status = ["speech", "hand_rise", "day_act", "challenge", "private"]
+
+        if (new_status === false && valid_status.includes(permission)) {
+            this.change_players_status(
+                {
+                    players: null,
+                    selected_status: permission,
+                    new_value: false
+                }
+            )
+        }
+
 
         this.players_permissions = updated_permissions
     }
@@ -410,6 +422,7 @@ const CustomGame = class {
 
     change_players_status({ players, selected_status, new_value }) {
         const { socket, lobby_id } = this
+        if (!players) players = this.player_status.map(e => e.user_id)
         players.forEach(player => {
             const index = this.player_status.findIndex(e => e.user_id === player)
             this.player_status[index].status[selected_status] = new_value
