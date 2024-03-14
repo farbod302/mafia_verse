@@ -167,7 +167,7 @@ const CustomGame = class {
                             {
                                 players: [user_id],
                                 selected_status: p.permission,
-                                new_status: false
+                                new_value: false
                             }
                         )
                     }
