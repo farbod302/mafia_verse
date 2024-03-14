@@ -271,8 +271,7 @@ const CustomGame = class {
                 break
             }
             case ("change_all_users_permissions"): {
-                const { changes } = data
-                changes.forEach(e => {
+                data.forEach(e => {
                     const { permission, new_status } = e
                     this.change_all_users_permissions({ permission, new_status })
                 })
