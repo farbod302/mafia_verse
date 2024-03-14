@@ -304,7 +304,8 @@ const CustomGame = class {
                     const player_socket = this.socket_finder(target_player)
                     client.emit("all_players_permissions", { players_permission: this.players_permissions })
                     client.to(player_socket).emit("permissions_status", { permissions: this.players_permissions[selected_user_permissions] })
-                    const all_status = Object.keys(this.player_status[index].status)
+                    let all_status = Object.keys(this.player_status[index].status)
+                    all_status=all_status.filter(e=>e !== "connected")
                     all_status.forEach(s=>{
                         this.change_players_status({
                             players:[target_player],
