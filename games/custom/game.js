@@ -8,7 +8,6 @@ const speech = require("./funcs/speech")
 const static_vars = require("./funcs/static_vars")
 const fs = require("fs")
 const lobby = require("../../socket/lobby")
-const { log } = require("console")
 const CustomGame = class {
     constructor({ lobby_id, game_detail, socket }) {
         this.game_vars = new Dynamic_vars(game_detail)
@@ -19,6 +18,7 @@ const CustomGame = class {
         this.characters_list = []
         this.creator_messages = []
         this.act_record = []
+        this.private_speech_list=[]
         this.observer = 0
         const { creator } = game_detail
         const { name, image } = creator
@@ -207,6 +207,8 @@ const CustomGame = class {
             }
             case ("create_private_speech"): {
                 const { target_players } = data
+                this.report_to_players(null,"گفت و گوی خصوصی ایجاد شد")
+                this.private_speech_list=target_players
                 this.change_all_users_permissions({
                     permission: "listen",
                     new_status: false
@@ -228,6 +230,29 @@ const CustomGame = class {
                     permission: "speech",
                     new_status: "true"
                 })
+                target_players.forEach((player)=>{
+                    const socket_id=this.socket_finder(player)
+                    client.to(socket_id).emit("private_speech_list",{players_list:target_players})
+                })
+                break
+            }
+
+            case("end_private_speech"):{
+                this.change_all_users_permissions({
+                    permission: "listen",
+                    new_status: true
+                })
+                this.change_players_status({
+                    players: this.private_speech_list,
+                    selected_status: "private",
+                    new_value: false
+                })
+                this.change_custom_users_permissions({
+                    users: this.private_speech_list,
+                    permission: "speech",
+                    new_status: "false"
+                })
+                this.private_speech_list=[]
                 break
             }
             case ("last_move_card"): {
