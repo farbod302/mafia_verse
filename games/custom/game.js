@@ -358,7 +358,9 @@ const CustomGame = class {
             this.socket.to(player_socket).emit("permissions_status", { permissions: player_cur_permission })
             return player_cur_permission
         })
-        console.log({updated_permissions});
+        client.emit("all_players_permissions", { players_permission: updated_permissions })
+
+
         this.players_permissions = updated_permissions
     }
 
