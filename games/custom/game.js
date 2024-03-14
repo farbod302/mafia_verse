@@ -50,6 +50,7 @@ const CustomGame = class {
         let sides = deck.map(e => e.side)
         sides = game_detail.sides.concat(sides)
         sides = [...new Set(sides)]
+        console.log({sides});
         this.sides = sides
         const shuffled_card = helper.shuffle_card(deck)
         const statuses = generate_all_players_status({ players, characters: shuffled_card })
