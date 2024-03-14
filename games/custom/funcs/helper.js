@@ -3,6 +3,7 @@ const helper = {
         return carts
     },
     translate_side(side) {
+        console.log({sideee:side});
         switch (side) {
             case ("mafia"): return "مافیا"
             case ("citizen"): return "شهروند"
