@@ -225,7 +225,10 @@ const CustomGame = class {
             case ("create_private_speech"): {
                 const { target_players } = data
                 const {lobby_id}=this
-                this.report_to_players(null, "گفت و گوی خصوصی ایجاد شد")
+                this.report_to_players({
+                    players:null,
+                    msg:"گفتگوی خصوصی ایجاد شد"
+                })
                 this.private_speech_list = target_players
                 this.creator_status.privet=true
                 client.to(lobby_id).emit("creator_status", { creator_status: this.creator_status })
