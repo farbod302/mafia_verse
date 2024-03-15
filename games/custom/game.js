@@ -223,8 +223,8 @@ const CustomGame = class {
                 break
             }
             case ("create_private_speech"): {
-                console.log(target_players,this.players_permissions);
                 const { target_players } = data
+                console.log(target_players,this.players_permissions);
                 const { lobby_id, socket } = this
                 this.report_to_players({
                     players: null,
