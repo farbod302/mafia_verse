@@ -262,6 +262,7 @@ const CustomGame = class {
 
             case ("end_private_speech"): {
                 const {lobby_id}=this
+                console.log(this.private_speech_list);
                 this.creator_status.private=false
                 client.to(lobby_id).emit("creator_status", { creator_status: this.creator_status })
                 this.change_all_users_permissions({
