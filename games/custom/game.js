@@ -224,14 +224,14 @@ const CustomGame = class {
             }
             case ("create_private_speech"): {
                 const { target_players } = data
-                const {lobby_id}=this
+                const {lobby_id,socket}=this
                 this.report_to_players({
                     players:null,
                     msg:"گفتگوی خصوصی ایجاد شد"
                 })
                 this.private_speech_list = target_players
                 this.creator_status.privet=true
-                client.to(lobby_id).emit("creator_status", { creator_status: this.creator_status })
+                socket.to(lobby_id).emit("creator_status", { creator_status: this.creator_status })
                 this.change_all_users_permissions({
                     permission: "listen",
                     new_status: false
