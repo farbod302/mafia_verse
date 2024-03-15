@@ -230,7 +230,7 @@ const CustomGame = class {
                     msg:"گفتگوی خصوصی ایجاد شد"
                 })
                 this.private_speech_list = target_players
-                this.creator_status.privet=true
+                this.creator_status.private=true
                 socket.to(lobby_id).emit("creator_status", { creator_status: this.creator_status })
                 this.change_all_users_permissions({
                     permission: "listen",
