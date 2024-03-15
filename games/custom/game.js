@@ -276,7 +276,7 @@ const CustomGame = class {
                 this.change_custom_users_permissions({
                     users: this.private_speech_list,
                     permission: "speech",
-                    new_status: "false"
+                    new_status: false
                 })
                 this.private_speech_list.forEach((player) => {
                     const socket_id = this.socket_finder(player)
