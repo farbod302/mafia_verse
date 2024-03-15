@@ -278,6 +278,10 @@ const CustomGame = class {
                     permission: "speech",
                     new_status: "false"
                 })
+                this.private_speech_list.forEach((player) => {
+                    const socket_id = this.socket_finder(player)
+                    client.to(socket_id).emit("private_speech_end")
+                })
                 this.private_speech_list = []
                 break
             }
