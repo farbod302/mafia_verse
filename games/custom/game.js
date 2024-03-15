@@ -26,6 +26,7 @@ const CustomGame = class {
 
             speech: false,
             connected: false,
+            privet:false,
             name,
             avatar: image
         }
@@ -223,8 +224,11 @@ const CustomGame = class {
             }
             case ("create_private_speech"): {
                 const { target_players } = data
+                const {lobby_id}=this
                 this.report_to_players(null, "گفت و گوی خصوصی ایجاد شد")
                 this.private_speech_list = target_players
+                this.creator_status.privet=true
+                client.to(lobby_id).emit("creator_status", { creator_status: this.creator_status })
                 this.change_all_users_permissions({
                     permission: "listen",
                     new_status: false
@@ -254,6 +258,9 @@ const CustomGame = class {
             }
 
             case ("end_private_speech"): {
+                const {lobby_id}=this
+                this.creator_status.privet=false
+                client.to(lobby_id).emit("creator_status", { creator_status: this.creator_status })
                 this.change_all_users_permissions({
                     permission: "listen",
                     new_status: true
@@ -338,7 +345,7 @@ const CustomGame = class {
                 break
             }
 
-            case ("send_message_to_mod"): {
+            case ("send_message_to_creator"): {
                 const { user_id } = client.idenity
                 const new_message = {
                     sender: user_id,
