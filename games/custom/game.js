@@ -26,7 +26,7 @@ const CustomGame = class {
 
             speech: false,
             connected: false,
-            private:false,
+            private: false,
             name,
             avatar: image
         }
@@ -224,13 +224,13 @@ const CustomGame = class {
             }
             case ("create_private_speech"): {
                 const { target_players } = data
-                const {lobby_id,socket}=this
+                const { lobby_id, socket } = this
                 this.report_to_players({
-                    players:null,
-                    msg:"گفتگوی خصوصی ایجاد شد"
+                    players: null,
+                    msg: "گفتگوی خصوصی ایجاد شد"
                 })
                 this.private_speech_list = target_players
-                this.creator_status.private=true
+                this.creator_status.private = true
                 socket.to(lobby_id).emit("creator_status", { creator_status: this.creator_status })
                 this.change_all_users_permissions({
                     permission: "listen",
@@ -257,12 +257,13 @@ const CustomGame = class {
                     const socket_id = this.socket_finder(player)
                     client.to(socket_id).emit("private_speech_list", { players_list: target_players })
                 })
+                this.emit_to_creator("private_speech_list", { players_list: target_players })
                 break
             }
 
             case ("end_private_speech"): {
-                const {lobby_id,socket}=this
-                this.creator_status.private=false
+                const { lobby_id, socket } = this
+                this.creator_status.private = false
                 socket.to(lobby_id).emit("creator_status", { creator_status: this.creator_status })
                 this.change_all_users_permissions({
                     permission: "listen",
@@ -282,6 +283,7 @@ const CustomGame = class {
                     const socket_id = this.socket_finder(player)
                     client.to(socket_id).emit("private_speech_end")
                 })
+                this.emit_to_creator("private_speech_end",null)
                 this.private_speech_list = []
                 break
             }
