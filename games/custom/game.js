@@ -26,7 +26,7 @@ const CustomGame = class {
 
             speech: false,
             connected: false,
-            privet:false,
+            private:false,
             name,
             avatar: image
         }
