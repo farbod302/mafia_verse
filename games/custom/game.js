@@ -268,6 +268,7 @@ const CustomGame = class {
                     socket.to(socket_id).emit("lobby_new_speech_token", { token })
                 }
                 const { user_id: creator_id } = this.creator
+                console.log({creator_id});
                 const creator_token = await speech.create_join_token({
                     user_id: creator_id,
                     lobby_id: `${this.lobby_id}_private`
