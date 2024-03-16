@@ -269,7 +269,6 @@ const CustomGame = class {
                     user_id: creator_id,
                     lobby_id: `${this.lobby_id}private`
                 })
-                console.log({creator_token});
                 const socket_id = this.socket_finder(creator_id)
                 socket.to(socket_id).emit("lobby_new_speech_token", { token: creator_token })
 
