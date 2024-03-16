@@ -422,7 +422,7 @@ const CustomGame = class {
                     this.creator_status.connected = false
                     socket.to(lobby_id).emit("creator_status", { creator_status: this.creator_status })
                     socket.to(lobby_id).emit("end_game")
-
+                    console.log("LEFT");
                 }
                 const index = this.player_status.findIndex(e => e.user_id === user_id)
                 if (index === -1) return
