@@ -111,6 +111,7 @@ const CustomGame = class {
                 const { user_id } = client.idenity
                 const { lobby_id } = this
                 const livekit_token = await speech.create_join_token({ user_id, lobby_id: this.lobby_id })
+                console.log({livekit_token});
                 const is_creator = this.game_detail.creator.user_id === user_id
                 if (!is_creator) {
                     const user_permission = this.players_permissions.find(e => e.user_id === user_id)
@@ -259,6 +260,7 @@ const CustomGame = class {
                         user_id: user,
                         lobby_id: `${this.lobby_id}private`
                     })
+                    console.log({token});
                     const socket_id = this.socket_finder(user)
                     socket.to(socket_id).emit("lobby_new_speech_token", { token })
                 }
