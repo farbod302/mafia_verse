@@ -415,7 +415,7 @@ const CustomGame = class {
                 break
             }
             case ("left"): {
-                const { user_id } = client
+                const { user_id } = client.idenity
                 const { socket, lobby_id } = this
                 const { user_id: creator_id } = this.creator
                 if (user_id === creator_id) {
