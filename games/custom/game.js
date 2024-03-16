@@ -74,6 +74,7 @@ const CustomGame = class {
             for (let user of users) {
                const parts=await svc.listRooms()
                console.log({parts});
+              
                 // svc.updateParticipant(this.lobby_id, user, null, {
                 //     canPublish: false,
                 //     canSubscribe: false,
