@@ -224,7 +224,7 @@ const CustomGame = class {
             }
             case ("create_private_speech"): {
                 const { target_players } = data
-                console.log(target_players,this.players_permissions);
+                console.log(target_players, this.players_permissions);
                 const { lobby_id, socket } = this
                 this.report_to_players({
                     players: null,
@@ -284,7 +284,7 @@ const CustomGame = class {
                     const socket_id = this.socket_finder(player)
                     client.to(socket_id).emit("private_speech_end")
                 })
-                this.emit_to_creator("private_speech_end",null)
+                this.emit_to_creator("private_speech_end", null)
                 this.private_speech_list = []
                 break
             }
@@ -443,7 +443,12 @@ const CustomGame = class {
         if (!players) players = this.player_status.map(e => e.user_id)
         players.forEach(player => {
             const index = this.player_status.findIndex(e => e.user_id === player)
-            this.player_status[index].status[selected_status] = new_value
+            if (selected_status === "side") {
+                this.player_status[index].side = new_value
+                this.player_status[index].status[selected_status] = new_value
+            } else {
+                this.player_status[index].status[selected_status] = new_value
+            }
             socket.to(lobby_id).emit("player_status_update", { ...this.player_status[index].status, user_id: player })
         })
 
