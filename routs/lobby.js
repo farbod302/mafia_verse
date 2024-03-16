@@ -2,6 +2,7 @@ const express = require("express")
 const router = express.Router()
 
 const fs = require("fs")
+const User = require("../db/user")
 
 router.get("/deck", (req, res) => {
 
@@ -58,6 +59,13 @@ router.post("/list", (req, res) => {
     })
 
 })
+
+router.post("/rate_creator", async (req, res) => {
+    const { rate, creator_id } = req.body
+    await User.findOneAndUpdate({ uid: creator_id }, { $inc: { "moderator.score": rate } })
+    res.json({status:true,msg:"امتیاز ثبت شد",data:{}})
+})
+
 
 
 module.exports = router
