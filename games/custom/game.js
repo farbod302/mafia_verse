@@ -79,7 +79,8 @@ const CustomGame = class {
                         tracks.push(e.tracks[0])
                     }
                 })
-                svc.updateSubscriptions(lobby_id, user, tracks, false)
+                console.log({tracks,user});
+                svc.updateSubscriptions(lobby_id,user,tracks,false)
 
                 // svc.updateParticipant(this.lobby_id, user, null, {
                 //     canPublish: false,
