@@ -503,6 +503,7 @@ const CustomGame = class {
 
 
     change_players_status({ players, selected_status, new_value }) {
+        console.log(selected_status);
         const { socket, lobby_id } = this
         if (!players) players = this.player_status.map(e => e.user_id)
         players.forEach(player => {
