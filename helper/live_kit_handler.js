@@ -14,7 +14,8 @@ const Voice = {
             emptyTimeout: 60 * 60,
         };
         try {
-            await svc.createRoom(opts)
+           const status= await svc.createRoom(opts)
+           console.log({status});
         }
         catch (err) {
             console.log(err);
