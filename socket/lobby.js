@@ -80,6 +80,8 @@ const lobby = {
     },
     join_lobby({ lobby_id, password, client, socket }) {
         const cur_lobby_list = this.get_lobby_list(true)
+        const is_game=cur_lobby_list.find(e =>e.lobby_id == lobby_id)
+        if(!is_game)return client.emit("err",{msg:"بازی یافت نشد"})
         const is_exist = cur_lobby_list.find(e => e.creator.user_id === client.idenity.user_id && e.lobby_id !== lobby_id)
         if (is_exist && lobby_id) return client.emit("err", { msg: "شما گرداننده یک لابی دیگر هستید" })
         const selected_lobby_index = cur_lobby_list.findIndex(e => e.lobby_id === lobby_id)
