@@ -110,7 +110,6 @@ const CustomGame = class {
                 const { user_id } = client.idenity
                 const { lobby_id } = this
                 const livekit_token = await speech.create_join_token({ user_id, lobby_id: this.lobby_id })
-                client.emit("livekit_token", { token: livekit_token })
                 const is_creator = this.game_detail.creator.user_id === user_id
                 if (!is_creator) {
                     const user_permission = this.players_permissions.find(e => e.user_id === user_id)
@@ -140,10 +139,7 @@ const CustomGame = class {
                 client.emit("all_players_status", { players_status: this.player_status })
                 client.emit("creator_status", { creator_status: this.creator_status })
                 client.emit("game_event", { game_event: this.game_event })
-                this.report_to_players({
-                    players: [user_id],
-                    msg: "خوش امدید"
-                })
+                client.emit("livekit_token", { token: livekit_token })
 
                 break
             }
