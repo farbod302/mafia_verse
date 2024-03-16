@@ -508,11 +508,13 @@ const CustomGame = class {
         players.forEach(player => {
             const index = this.player_status.findIndex(e => e.user_id === player)
             if (selected_status === "side") {
+                console.log("run");
                 this.player_status[index].side = new_value
                 this.player_status[index].status[selected_status] = new_value
             } else {
                 this.player_status[index].status[selected_status] = new_value
             }
+            console.log(this.player_status[index]);
             socket.to(lobby_id).emit("player_status_update", { ...this.player_status[index].status, user_id: player })
         })
 
