@@ -246,7 +246,7 @@ const CustomGame = class {
                 })
                 socket.to(lobby_id).emit("creator_status", { creator_status: this.creator_status })
 
-                await Helper.delay(2)
+                await Helper.delay(1)
                 this.change_all_users_permissions({
                     permission: "listen",
                     new_status: false
