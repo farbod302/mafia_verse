@@ -272,8 +272,8 @@ const CustomGame = class {
                     user_id: creator_id,
                     lobby_id: `${this.lobby_id}_private`
                 })
-                const socket_id = this.socket_finder(user_id)
-                socket.to(socket_id).emit("lobby_new_speech_token", { token })
+                const socket_id = this.socket_finder(creator_id)
+                socket.to(socket_id).emit("lobby_new_speech_token", { token:creator_token })
 
                 target_players.forEach((player) => {
                     const socket_id = this.socket_finder(player)
@@ -315,8 +315,8 @@ const CustomGame = class {
                     user_id: creator_id,
                     lobby_id: `${this.lobby_id}`
                 })
-                const socket_id = this.socket_finder(user_id)
-                socket.to(socket_id).emit("lobby_new_speech_token", { token })
+                const socket_id = this.socket_finder(creator_id)
+                socket.to(socket_id).emit("lobby_new_speech_token", { token:creator_token })
 
                 this.private_speech_list = []
 
