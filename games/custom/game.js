@@ -37,7 +37,6 @@ const CustomGame = class {
         this.last_cards = game_detail.cards.map(card => { return { ...card, used: false, id: uid(3) } })
         this.game_event = "روز"
         speech.create_room({ lobby_id })
-        speech.create_room({ lobby_id: `${lobby_id}private` })
         const { players } = game_detail
         let deck = []
         const default_card_json = fs.readFileSync(`${__dirname}/../local/clean_deck.json`)
@@ -70,6 +69,7 @@ const CustomGame = class {
         })
         this.players_permissions = all_permissions
         this.game_detail = game_detail
+        speech.create_room({ lobby_id: `${lobby_id}private` })
 
 
 
@@ -269,6 +269,7 @@ const CustomGame = class {
                     user_id: creator_id,
                     lobby_id: `${this.lobby_id}private`
                 })
+                console.log({creator_token});
                 const socket_id = this.socket_finder(creator_id)
                 socket.to(socket_id).emit("lobby_new_speech_token", { token: creator_token })
 
