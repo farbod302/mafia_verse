@@ -325,7 +325,7 @@ const CustomGame = class {
                 const index_from_main_array = this.last_cards.findIndex(e => e.id === id)
                 this.last_cards[index_from_main_array].used = true
                 const { lobby_id, socket } = this
-                socket.to(lobby_id).emit("last_move_card_result", { name })
+                socket.to(lobby_id).emit("report", { msg: `کارت حرکت آخر \n ${name}`, timer: 5 })
                 this.change_custom_users_permissions({
                     users: [client.user_id],
                     permission: "last_move_card",
@@ -400,9 +400,8 @@ const CustomGame = class {
             }
             case ("end_game"): {
                 if (this.end_game) return client.emit("error", { msg: "بازی قبلا به اتمام رسیده" })
-                const { winner_side } = data
                 const { lobby_id, socket } = this
-                socket.to(lobby_id).emit("end_game", { winner_side })
+                socket.to(lobby_id).emit("end_game")
                 this.end_game = true
                 setTimeout(() => {
                     this.remove_game(client)
@@ -417,13 +416,14 @@ const CustomGame = class {
             }
             case ("left"): {
                 const { user_id } = client
+                const { socket, lobby_id } = this
                 const { user_id: creator_id } = this.creator
                 if (user_id === creator_id) {
                     this.creator_status.connected = false
                     socket.to(lobby_id).emit("creator_status", { creator_status: this.creator_status })
-                    this.end_game()
+                    socket.to(lobby_id).emit("end_game")
+
                 }
-                const { socket, lobby_id } = this
                 const index = this.player_status.findIndex(e => e.user_id === user_id)
                 if (index === -1) return
                 this.player_status[index].status["alive"] = false
