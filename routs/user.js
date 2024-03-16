@@ -679,9 +679,6 @@ router.post("/support", (req, res) => {
     })
 })
 
-router.post("rate_creator", (req, res) => {
-
-})
 
 
 module.exports = router

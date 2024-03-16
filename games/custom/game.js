@@ -75,9 +75,11 @@ const CustomGame = class {
     }
 
     submit_player_disconnect({ user_id }) {
+        console.log({user_id});
         const { creator, socket, lobby_id } = this
         if (creator.user_id === user_id) {
             this.creator_status.connected = false
+            console.log("mod dc");
             socket.to(lobby_id).emit("creator_status", { creator_status: this.creator_status })
         } else {
             const { socket, lobby_id } = this
