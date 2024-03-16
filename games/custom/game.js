@@ -73,6 +73,7 @@ const CustomGame = class {
             const svc = new RoomServiceClient(livekitHost, process.env.LIVEKIT_API, process.env.LIVEKIT_SEC,);
             for (let user of users) {
                const parts=await svc.listRooms()
+               svc.
                console.log({parts});
               
                 // svc.updateParticipant(this.lobby_id, user, null, {

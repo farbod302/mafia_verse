@@ -11,7 +11,12 @@ const speech = {
         const at = new AccessToken(process.env.LIVEKIT_API, process.env.LIVEKIT_SEC, {
             identity: `${user_id}`,
         });
-        at.addGrant({ roomJoin: true, room: `${lobby_id}` });
+        at.addGrant({
+            roomJoin: true,
+            room: `${lobby_id}`,
+            canPublish: true,
+            canSubscribe: true,
+        });
         const token = at.toJwt();
         return token
     }
