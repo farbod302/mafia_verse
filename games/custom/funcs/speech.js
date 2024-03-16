@@ -1,4 +1,4 @@
-const { AccessToken } = require("livekit-server-sdk")
+const { AccessToken, } = require("livekit-server-sdk")
 const Helper = require("../../../helper/helper")
 const Voice = require("../../../helper/live_kit_handler")
 

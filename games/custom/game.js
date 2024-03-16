@@ -8,6 +8,8 @@ const speech = require("./funcs/speech")
 const static_vars = require("./funcs/static_vars")
 const fs = require("fs")
 const lobby = require("../../socket/lobby")
+const { RoomServiceClient } = require("livekit-server-sdk")
+
 const CustomGame = class {
     constructor({ lobby_id, game_detail, socket }) {
         this.game_vars = new Dynamic_vars(game_detail)
@@ -65,6 +67,17 @@ const CustomGame = class {
         })
         this.players_permissions = all_permissions
         this.game_detail = game_detail
+        const livekitHost = "http://mafia.altf1.ir:7880"
+        const svc = new RoomServiceClient(livekitHost, process.env.LIVEKIT_API, process.env.LIVEKIT_SEC,);
+        this.mute = function (users) {
+            for (let user of users) {
+                console.log({ user });
+                svc.updateParticipant(this.lobby_id, user, null, {
+                    canPublish: false,
+                    canSubscribe: false,
+                })
+            }
+        }
 
     }
 
@@ -243,18 +256,19 @@ const CustomGame = class {
                     permission: "listen",
                     new_status: false
                 })
-                // await Helper.delay(1)
-                // this.change_custom_users_permissions({
-                //     users: target_players,
-                //     permission: "listen",
-                //     new_status: true
-                // })
+                this.mute(this.player_status.map(e => e.user_id))
+                await Helper.delay(1)
+                this.change_custom_users_permissions({
+                    users: target_players,
+                    permission: "listen",
+                    new_status: true
+                })
                 target_players.forEach((player) => {
                     const socket_id = this.socket_finder(player)
                     client.to(socket_id).emit("private_speech_list", { players_list: target_players })
                 })
                 this.emit_to_creator("private_speech_list", { players_list: target_players })
-                
+
                 break
             }
 
@@ -277,7 +291,7 @@ const CustomGame = class {
                 })
                 this.emit_to_creator("private_speech_end", null)
                 this.private_speech_list = []
-              
+
                 break
             }
             case ("last_move_card"): {
