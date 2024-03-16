@@ -78,6 +78,7 @@ const CustomGame = class {
         const { creator, socket, lobby_id } = this
         if (creator.user_id === user_id) {
             this.creator_status.connected = false
+            console.log({creator_status: this.creator_status});
             socket.to(lobby_id).emit("creator_status", { creator_status: this.creator_status })
 
         } else {
