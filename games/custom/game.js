@@ -232,16 +232,16 @@ const CustomGame = class {
                 })
                 this.private_speech_list = target_players
                 this.creator_status.private = true
-                socket.to(lobby_id).emit("creator_status", { creator_status: this.creator_status })
-                this.change_all_users_permissions({
-                    permission: "listen",
-                    new_status: false
-                })
-                await Helper.delay(1)
                 this.change_players_status({
                     players: target_players,
                     selected_status: "private",
                     new_value: true
+                })
+                socket.to(lobby_id).emit("creator_status", { creator_status: this.creator_status })
+                await Helper.delay(2)
+                this.change_all_users_permissions({
+                    permission: "listen",
+                    new_status: false
                 })
                 // await Helper.delay(1)
                 // this.change_custom_users_permissions({
