@@ -7,7 +7,6 @@ const speech = {
         await Voice.start_room(lobby_id)
     },
     async create_join_token({ user_id, lobby_id }) {
-        await Helper.delay(3)
         const at = new AccessToken(process.env.LIVEKIT_API, process.env.LIVEKIT_SEC, {
             identity: `${user_id}`,
         });
