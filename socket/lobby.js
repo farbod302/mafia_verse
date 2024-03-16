@@ -81,7 +81,6 @@ const lobby = {
     join_lobby({ lobby_id, password, client, socket }) {
         const cur_lobby_list = this.get_lobby_list(true)
         const is_exist = cur_lobby_list.find(e => e.creator.user_id === client.idenity.user_id && e.lobby_id !== lobby_id)
-        if(!is_exist)return client.emit("error",{msg:"لابی یافت نشد"})
         if (is_exist && lobby_id) return client.emit("err", { msg: "شما گرداننده یک لابی دیگر هستید" })
         const selected_lobby_index = cur_lobby_list.findIndex(e => e.lobby_id === lobby_id)
         if (selected_lobby_index === -1 || cur_lobby_list[selected_lobby_index].started) return { status: false, msg: "بازی شروع شده.جا موندی" }

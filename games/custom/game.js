@@ -485,7 +485,6 @@ const CustomGame = class {
     change_custom_users_permissions({ users, permission, new_status }) {
         const cur_permissions = this.players_permissions
         cur_permissions.forEach((player, index) => {
-
             if (!users.includes(player.user_id)) return
             const player_socket = this.socket_finder(player.user_id)
             const player_cur_permission = cur_permissions[index]
