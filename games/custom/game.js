@@ -253,8 +253,7 @@ const CustomGame = class {
                     client.to(socket_id).emit("private_speech_list", { players_list: target_players })
                 })
                 this.emit_to_creator("private_speech_list", { players_list: target_players })
-                console.log(this.player_status);
-                console.log(this.players_permissions);
+                
                 break
             }
 
@@ -277,8 +276,7 @@ const CustomGame = class {
                 })
                 this.emit_to_creator("private_speech_end", null)
                 this.private_speech_list = []
-                console.log(this.player_status);
-                console.log(this.players_permissions);
+              
                 break
             }
             case ("last_move_card"): {
