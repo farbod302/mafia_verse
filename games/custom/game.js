@@ -8,9 +8,6 @@ const speech = require("./funcs/speech")
 const static_vars = require("./funcs/static_vars")
 const fs = require("fs")
 const lobby = require("../../socket/lobby")
-const { RoomServiceClient } = require("livekit-server-sdk")
-const User = require("../../db/user")
-
 const CustomGame = class {
     constructor({ lobby_id, game_detail, socket }) {
         this.game_vars = new Dynamic_vars(game_detail)
@@ -23,7 +20,6 @@ const CustomGame = class {
         this.act_record = []
         this.private_speech_list = []
         this.observer = 0
-        this.observer_list = []
         const { creator } = game_detail
         const { name, image } = creator
         this.creator_status = {
@@ -37,7 +33,6 @@ const CustomGame = class {
         this.last_cards = game_detail.cards.map(card => { return { ...card, used: false, id: uid(3) } })
         this.game_event = "روز"
         speech.create_room({ lobby_id })
-        speech.create_room({ lobby_id: `${lobby_id}_private` })
         const { players } = game_detail
         let deck = []
         const default_card_json = fs.readFileSync(`${__dirname}/../local/clean_deck.json`)
@@ -70,8 +65,6 @@ const CustomGame = class {
         })
         this.players_permissions = all_permissions
         this.game_detail = game_detail
-
-
 
     }
 
@@ -111,6 +104,7 @@ const CustomGame = class {
                 const { user_id } = client.idenity
                 const { lobby_id } = this
                 const livekit_token = await speech.create_join_token({ user_id, lobby_id: this.lobby_id })
+                client.emit("livekit_token", { token: livekit_token })
                 const is_creator = this.game_detail.creator.user_id === user_id
                 if (!is_creator) {
                     const user_permission = this.players_permissions.find(e => e.user_id === user_id)
@@ -119,7 +113,6 @@ const CustomGame = class {
                         const player_index = this.player_status.findIndex(e => e.user_id === user_id)
                         if (player_index === -1) {
                             this.observer++
-                            thi
                             socket.to(lobby).emit("observer", { observer: this.observer })
                             client.emit("all_players_status", { players_status: this.player_status })
                             client.emit("creator_status", { creator_status: this.creator_status })
@@ -140,7 +133,10 @@ const CustomGame = class {
                 client.emit("all_players_status", { players_status: this.player_status })
                 client.emit("creator_status", { creator_status: this.creator_status })
                 client.emit("game_event", { game_event: this.game_event })
-                client.emit("livekit_token", { token: livekit_token })
+                this.report_to_players({
+                    players: [user_id],
+                    msg: "خوش امدید"
+                })
 
                 break
             }
@@ -228,7 +224,7 @@ const CustomGame = class {
             }
             case ("create_private_speech"): {
                 const { target_players } = data
-                console.log(target_players, this.players_permissions);
+                console.log(target_players,this.players_permissions);
                 const { lobby_id, socket } = this
                 this.report_to_players({
                     players: null,
@@ -236,42 +232,28 @@ const CustomGame = class {
                 })
                 this.private_speech_list = target_players
                 this.creator_status.private = true
+                socket.to(lobby_id).emit("creator_status", { creator_status: this.creator_status })
+                this.change_all_users_permissions({
+                    permission: "listen",
+                    new_status: false
+                })
                 this.change_players_status({
                     players: target_players,
                     selected_status: "private",
                     new_value: true
                 })
-                socket.to(lobby_id).emit("creator_status", { creator_status: this.creator_status })
-
-                this.change_all_users_permissions({
-                    permission: "listen",
-                    new_status: false
-                })
-
+                await Helper.delay(1)
                 this.change_custom_users_permissions({
                     users: target_players,
                     permission: "listen",
                     new_status: true
                 })
-
-                for (let user of target_players) {
-                    const token = await speech.create_join_token({
-                        user_id: user,
-                        lobby_id: `${this.lobby_id}_private`
-                    })
-                    const socket_id = this.socket_finder(user)
-                    socket.to(socket_id).emit("lobby_new_speech_token", { token })
-                }
-                const { user_id: creator_id } = this.creator
-                console.log({ creator_id });
-                const creator_token = await speech.create_join_token({
-                    user_id: creator_id,
-                    lobby_id: `${this.lobby_id}_private`
+                await Helper.delay(1)
+                this.change_custom_users_permissions({
+                    users: target_players,
+                    permission: "speech",
+                    new_status: true
                 })
-                console.log({ creator_token });
-                const socket_id = this.socket_finder(creator_id)
-                socket.to(socket_id).emit("lobby_new_speech_token", { token: creator_token })
-
                 target_players.forEach((player) => {
                     const socket_id = this.socket_finder(player)
                     client.to(socket_id).emit("private_speech_list", { players_list: target_players })
@@ -293,30 +275,17 @@ const CustomGame = class {
                     selected_status: "private",
                     new_value: false
                 })
+                this.change_custom_users_permissions({
+                    users: this.private_speech_list,
+                    permission: "speech",
+                    new_status: false
+                })
                 this.private_speech_list.forEach((player) => {
                     const socket_id = this.socket_finder(player)
                     client.to(socket_id).emit("private_speech_end")
                 })
-                this.emit_to_creator("private_speech_end",  null)
-
-                for (let user of this.private_speech_list) {
-                    const token = await speech.create_join_token({
-                        user_id: user,
-                        lobby_id: `${this.lobby_id}`
-                    })
-                    const socket_id = this.socket_finder(user)
-                    socket.to(socket_id).emit("lobby_new_speech_token", { token })
-                }
-                const { user_id: creator_id } = this.creator
-                const creator_token = await speech.create_join_token({
-                    user_id: creator_id,
-                    lobby_id: `${this.lobby_id}`
-                })
-                const socket_id = this.socket_finder(creator_id)
-                socket.to(socket_id).emit("lobby_new_speech_token", { token: creator_token })
-
+                this.emit_to_creator("private_speech_end",null)
                 this.private_speech_list = []
-
                 break
             }
             case ("last_move_card"): {
@@ -326,7 +295,7 @@ const CustomGame = class {
                 const index_from_main_array = this.last_cards.findIndex(e => e.id === id)
                 this.last_cards[index_from_main_array].used = true
                 const { lobby_id, socket } = this
-                socket.to(lobby_id).emit("report", { msg: `کارت حرکت آخر \n ${name}`, timer: 5 })
+                socket.to(lobby_id).emit("last_move_card_result", { name })
                 this.change_custom_users_permissions({
                     users: [client.user_id],
                     permission: "last_move_card",
@@ -377,6 +346,10 @@ const CustomGame = class {
                         })
                     })
                 }
+
+                if(selected_status === "side"){
+                this.player_status[index].side = new_value
+                }
                 break
             }
             case ("flick"): {
@@ -401,49 +374,15 @@ const CustomGame = class {
             }
             case ("end_game"): {
                 if (this.end_game) return client.emit("error", { msg: "بازی قبلا به اتمام رسیده" })
+                const { winner_side } = data
                 const { lobby_id, socket } = this
-                socket.to(lobby_id).emit("end_game")
+                socket.to(lobby_id).emit("end_game", { winner_side })
                 this.end_game = true
-                User.findOneAndUpdate({ uid: this.creator.user_id }, { $inc: { "moderator.cnt": 1 } })
-                this.remove_game(client)
+                setTimeout(() => {
+                    this.remove_game(client)
+                }, 60000)
                 break
 
-            }
-            case ("dc"): {
-                const { user_id } = client.idenity
-                this.submit_player_disconnect({ user_id })
-                break
-            }
-            case ("left"): {
-                const { user_id } = client.idenity
-                const { socket, lobby_id } = this
-                const { user_id: creator_id } = this.creator
-                if (user_id === creator_id) {
-                    this.creator_status.connected = false
-                    socket.to(lobby_id).emit("creator_status", { creator_status: this.creator_status })
-                    socket.to(lobby_id).emit("end_game")
-                    lobby.remove_lobby({
-                        lobby_id: this.lobby_id,
-                        client,
-                        socket: this.socket,
-                        force: true
-                    })
-                }
-                const index = this.player_status.findIndex(e => e.user_id === user_id)
-                if (index === -1) return
-                this.player_status[index].status["alive"] = false
-                socket.to(lobby_id).emit("player_status_update", { ...this.player_status[index].status, user_id })
-                lobby.leave_lobby({
-                    lobby_id: this.lobby_id,
-                    client,
-                    socket: this.socket
-                })
-                lobby.kick_player({
-                    lobby_id: this.lobby_id,
-                    player_to_kick: user_id,
-                    client,
-                    socket: this.socket
-                })
             }
         }
     }
@@ -485,12 +424,13 @@ const CustomGame = class {
 
     remove_game(client) {
         const { lobby_id } = this
-        lobby.remove_lobby({ lobby_id, client, socket: this.socket, force: true })
+        lobby.remove_lobby({ lobby_id, client, socket: this.socket })
     }
 
     change_custom_users_permissions({ users, permission, new_status }) {
         const cur_permissions = this.players_permissions
         cur_permissions.forEach((player, index) => {
+
             if (!users.includes(player.user_id)) return
             const player_socket = this.socket_finder(player.user_id)
             const player_cur_permission = cur_permissions[index]
@@ -503,19 +443,11 @@ const CustomGame = class {
 
 
     change_players_status({ players, selected_status, new_value }) {
-        console.log(selected_status);
         const { socket, lobby_id } = this
         if (!players) players = this.player_status.map(e => e.user_id)
         players.forEach(player => {
             const index = this.player_status.findIndex(e => e.user_id === player)
-            if (selected_status === "side") {
-                console.log("run");
-                this.player_status[index].side = new_value
-                this.player_status[index].status[selected_status] = new_value
-            } else {
-                this.player_status[index].status[selected_status] = new_value
-            }
-            console.log(this.player_status[index]);
+            this.player_status[index].status[selected_status] = new_value
             socket.to(lobby_id).emit("player_status_update", { ...this.player_status[index].status, user_id: player })
         })
 
