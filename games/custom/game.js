@@ -424,6 +424,12 @@ const CustomGame = class {
                     this.creator_status.connected = false
                     socket.to(lobby_id).emit("creator_status", { creator_status: this.creator_status })
                     socket.to(lobby_id).emit("end_game")
+                    lobby.remove_lobby({
+                        lobby_id:this.lobby_id,
+                        client,
+                        socket:this.socket,
+                        force:true
+                    })
                 }
                 const index = this.player_status.findIndex(e => e.user_id === user_id)
                 if (index === -1) return
