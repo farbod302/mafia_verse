@@ -9,6 +9,7 @@ const static_vars = require("./funcs/static_vars")
 const fs = require("fs")
 const lobby = require("../../socket/lobby")
 const { RoomServiceClient } = require("livekit-server-sdk")
+const User = require("../../db/user")
 
 const CustomGame = class {
     constructor({ lobby_id, game_detail, socket }) {
@@ -78,9 +79,7 @@ const CustomGame = class {
         const { creator, socket, lobby_id } = this
         if (creator.user_id === user_id) {
             this.creator_status.connected = false
-            console.log({creator_status: this.creator_status});
             socket.to(lobby_id).emit("creator_status", { creator_status: this.creator_status })
-
         } else {
             const { socket, lobby_id } = this
             const index = this.player_status.findIndex(e => e.user_id === user_id)
@@ -405,6 +404,7 @@ const CustomGame = class {
                 const { lobby_id, socket } = this
                 socket.to(lobby_id).emit("end_game")
                 this.end_game = true
+                User.findOneAndUpdate({ uid: this.creator.user_id }, { $inc: { "moderator.cnt": 1 } })
                 setTimeout(() => {
                     this.remove_game(client)
                 }, 60000)
