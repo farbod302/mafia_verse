@@ -67,14 +67,20 @@ const CustomGame = class {
         })
         this.players_permissions = all_permissions
         this.game_detail = game_detail
-      
-        this.mute =async function (users) {
+
+        this.mute = async function (users) {
             const livekitHost = "https://voice.gamingverse.ir"
             const svc = new RoomServiceClient(livekitHost, process.env.LIVEKIT_API, process.env.LIVEKIT_SEC,);
             for (let user of users) {
-               const parts=await svc.listParticipants(lobby_id)
-               console.log({parts});
-              
+                const parts = await svc.listParticipants(lobby_id)
+                const tracks = []
+                parts.forEach(e => {
+                    if (e.tracks.length) {
+                        tracks.push(e.tracks[0])
+                    }
+                })
+                svc.updateSubscriptions(lobby_id, user, tracks, false)
+
                 // svc.updateParticipant(this.lobby_id, user, null, {
                 //     canPublish: false,
                 //     canSubscribe: false,
@@ -259,7 +265,7 @@ const CustomGame = class {
                     permission: "listen",
                     new_status: false
                 })
-              
+
                 await Helper.delay(1)
                 this.change_custom_users_permissions({
                     users: target_players,
