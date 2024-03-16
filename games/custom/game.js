@@ -262,14 +262,14 @@ const CustomGame = class {
                     socket.to(socket_id).emit("lobby_new_speech_token", { token })
                 }
                 const { user_id: creator_id } = this.creator
-                console.log({creator_id});
+                console.log({ creator_id });
                 const creator_token = await speech.create_join_token({
                     user_id: creator_id,
                     lobby_id: `${this.lobby_id}_private`
                 })
-                console.log({creator_token});
+                console.log({ creator_token });
                 const socket_id = this.socket_finder(creator_id)
-                socket.to(socket_id).emit("lobby_new_speech_token", { token:creator_token })
+                socket.to(socket_id).emit("lobby_new_speech_token", { token: creator_token })
 
                 target_players.forEach((player) => {
                     const socket_id = this.socket_finder(player)
@@ -312,7 +312,7 @@ const CustomGame = class {
                     lobby_id: `${this.lobby_id}`
                 })
                 const socket_id = this.socket_finder(creator_id)
-                socket.to(socket_id).emit("lobby_new_speech_token", { token:creator_token })
+                socket.to(socket_id).emit("lobby_new_speech_token", { token: creator_token })
 
                 this.private_speech_list = []
 
@@ -409,6 +409,36 @@ const CustomGame = class {
                 }, 60000)
                 break
 
+            }
+            case ("dc"): {
+                const { user_id } = client
+                this.submit_player_disconnect({ user_id })
+                break
+            }
+            case ("left"): {
+                const { user_id } = client
+                const { user_id: creator_id } = this.creator
+                if (user_id === creator_id) {
+                    this.creator_status.connected = false
+                    socket.to(lobby_id).emit("creator_status", { creator_status: this.creator_status })
+                    this.end_game()
+                }
+                const { socket, lobby_id } = this
+                const index = this.player_status.findIndex(e => e.user_id === user_id)
+                if (index === -1) return
+                this.player_status[index].status["alive"] = false
+                socket.to(lobby_id).emit("player_status_update", { ...this.player_status[index].status, user_id })
+                lobby.leave_lobby({
+                    lobby_id: this.lobby_id,
+                    client,
+                    socket: this.socket
+                })
+                lobby.kick_player({
+                    lobby_id: this.lobby_id,
+                    player_to_kick: user_id,
+                    client,
+                    socket: this.socket
+                })
             }
         }
     }
