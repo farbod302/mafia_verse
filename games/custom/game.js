@@ -246,13 +246,11 @@ const CustomGame = class {
                 })
                 socket.to(lobby_id).emit("creator_status", { creator_status: this.creator_status })
 
-                await Helper.delay(1)
                 this.change_all_users_permissions({
                     permission: "listen",
                     new_status: false
                 })
 
-                await Helper.delay(1)
                 this.change_custom_users_permissions({
                     users: target_players,
                     permission: "listen",
@@ -273,6 +271,7 @@ const CustomGame = class {
                     user_id: creator_id,
                     lobby_id: `${this.lobby_id}_private`
                 })
+                console.log({creator_token});
                 const socket_id = this.socket_finder(creator_id)
                 socket.to(socket_id).emit("lobby_new_speech_token", { token:creator_token })
 
