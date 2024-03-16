@@ -259,8 +259,7 @@ const CustomGame = class {
                     permission: "listen",
                     new_status: false
                 })
-                await Helper.delay(5)
-                this.mute(this.player_status.map(e => e.user_id))
+              
                 await Helper.delay(1)
                 this.change_custom_users_permissions({
                     users: target_players,
@@ -272,7 +271,8 @@ const CustomGame = class {
                     client.to(socket_id).emit("private_speech_list", { players_list: target_players })
                 })
                 this.emit_to_creator("private_speech_list", { players_list: target_players })
-
+                await Helper.delay(5)
+                this.mute(this.player_status.map(e => e.user_id))
                 break
             }
 
