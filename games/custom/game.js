@@ -410,7 +410,7 @@ const CustomGame = class {
 
             }
             case ("dc"): {
-                const { user_id } = client
+                const { user_id } = client.idenity
                 this.submit_player_disconnect({ user_id })
                 break
             }
