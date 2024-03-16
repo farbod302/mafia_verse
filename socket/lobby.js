@@ -100,13 +100,13 @@ const lobby = {
         return { status: true, msg: "", lobby_id, is_creator: cur_lobby_list[selected_lobby_index].creator === client.user_id, creator_id: cur_lobby_list[selected_lobby_index].creator?.user_id }
     },
 
-    remove_lobby({ lobby_id, client, socket }) {
+    remove_lobby({ lobby_id, client, socket,force }) {
         const cur_lobby_list = this.get_lobby_list(true)
         const selected_lobby_index = cur_lobby_list.findIndex(e => e.lobby_id === lobby_id)
         const cur_lobby = cur_lobby_list[selected_lobby_index]
         const { creator } = cur_lobby
         const { user_id } = client.idenity
-        if (creator.user_id !== user_id) return client.emit("err", { msg: "شما اجازه حذف لابی را ندارید" })
+        if (creator.user_id !== user_id && !force) return client.emit("err", { msg: "شما اجازه حذف لابی را ندارید" })
         let new_lobby_list = cur_lobby_list.filter(e => e.lobby_id !== lobby_id)
         this.update_lobbies(new_lobby_list)
         socket.to(lobby_id).emit("lobby_removed")
