@@ -71,12 +71,12 @@ const CustomGame = class {
         const svc = new RoomServiceClient(livekitHost, process.env.LIVEKIT_API, process.env.LIVEKIT_SEC,);
         this.mute = function (users) {
             for (let user of users) {
-               const parts=svc.listParticipants(this.lobby_id)
+               const parts=svc.listParticipants(lobby_id)
                console.log({parts});
-                // svc.updateParticipant(this.lobby_id, user, null, {
-                //     canPublish: false,
-                //     canSubscribe: false,
-                // })
+                svc.updateParticipant(this.lobby_id, user, null, {
+                    canPublish: false,
+                    canSubscribe: false,
+                })
             }
         }
 
