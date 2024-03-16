@@ -69,14 +69,14 @@ const CustomGame = class {
         this.game_detail = game_detail
         const livekitHost = "http://mafia.altf1.ir:7880"
         const svc = new RoomServiceClient(livekitHost, process.env.LIVEKIT_API, process.env.LIVEKIT_SEC,);
-        this.mute = function (users) {
+        this.mute =async function (users) {
             for (let user of users) {
-               const parts=svc.listParticipants(lobby_id)
+               const parts=await svc.listParticipants(lobby_id)
                console.log({parts});
-                svc.updateParticipant(this.lobby_id, user, null, {
-                    canPublish: false,
-                    canSubscribe: false,
-                })
+                // svc.updateParticipant(this.lobby_id, user, null, {
+                //     canPublish: false,
+                //     canSubscribe: false,
+                // })
             }
         }
 
