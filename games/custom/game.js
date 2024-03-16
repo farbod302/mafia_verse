@@ -67,9 +67,10 @@ const CustomGame = class {
         })
         this.players_permissions = all_permissions
         this.game_detail = game_detail
-        const livekitHost = "http://mafia.altf1.ir:7880"
-        const svc = new RoomServiceClient(livekitHost, process.env.LIVEKIT_API, process.env.LIVEKIT_SEC,);
+      
         this.mute =async function (users) {
+            const livekitHost = "http://mafia.altf1.ir:7880"
+            const svc = new RoomServiceClient(livekitHost, process.env.LIVEKIT_API, process.env.LIVEKIT_SEC,);
             for (let user of users) {
                const parts=await svc.listRooms()
                console.log({parts});
