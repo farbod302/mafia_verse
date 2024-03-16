@@ -1,7 +1,7 @@
 const livekitApi = require('livekit-server-sdk');
 const AccessToken = livekitApi.AccessToken;
 const RoomServiceClient = livekitApi.RoomServiceClient;
-const livekitHost = "http://mafia.altf1.ir:7880"
+const livekitHost = "https://voice.gamingverce.ir"
 
 const svc = new RoomServiceClient(livekitHost, process.env.LIVEKIT_API, process.env.LIVEKIT_SEC,);
 
