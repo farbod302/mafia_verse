@@ -22,6 +22,7 @@ const CustomGame = class {
         this.act_record = []
         this.private_speech_list = []
         this.observer = 0
+        this.observer_list = []
         const { creator } = game_detail
         const { name, image } = creator
         this.creator_status = {
@@ -35,6 +36,7 @@ const CustomGame = class {
         this.last_cards = game_detail.cards.map(card => { return { ...card, used: false, id: uid(3) } })
         this.game_event = "روز"
         speech.create_room({ lobby_id })
+        speech.create_room({ lobby_id: `${lobby_id}_private` })
         const { players } = game_detail
         let deck = []
         const default_card_json = fs.readFileSync(`${__dirname}/../local/clean_deck.json`)
@@ -67,16 +69,8 @@ const CustomGame = class {
         })
         this.players_permissions = all_permissions
         this.game_detail = game_detail
-      
-        this.mute =async function (users) {
-            const livekitHost = "https://voice.gamingverse.ir"
-            const svc = new RoomServiceClient(livekitHost, process.env.LIVEKIT_API, process.env.LIVEKIT_SEC,);
-            for (let user of users) {
-              
-                svc.removeParticipant(lobby_id,user)
-               
-            }
-        }
+
+
 
     }
 
@@ -125,6 +119,7 @@ const CustomGame = class {
                         const player_index = this.player_status.findIndex(e => e.user_id === user_id)
                         if (player_index === -1) {
                             this.observer++
+                            thi
                             socket.to(lobby).emit("observer", { observer: this.observer })
                             client.emit("all_players_status", { players_status: this.player_status })
                             client.emit("creator_status", { creator_status: this.creator_status })
@@ -250,25 +245,41 @@ const CustomGame = class {
                     new_value: true
                 })
                 socket.to(lobby_id).emit("creator_status", { creator_status: this.creator_status })
+
                 await Helper.delay(2)
                 this.change_all_users_permissions({
                     permission: "listen",
                     new_status: false
                 })
-              
+
                 await Helper.delay(1)
                 this.change_custom_users_permissions({
                     users: target_players,
                     permission: "listen",
                     new_status: true
                 })
+
+                for (let user of target_players) {
+                    const token = await speech.create_join_token({
+                        user_id: user,
+                        lobby_id: `${this.lobby_id}_private`
+                    })
+                    const socket_id = this.socket_finder(user)
+                    socket.to(socket_id).emit("lobby_new_speech_token", { token })
+                }
+                const { user_id: creator_id } = this.creator
+                const creator_token = await speech.create_join_token({
+                    user_id: creator_id,
+                    lobby_id: `${this.lobby_id}_private`
+                })
+                const socket_id = this.socket_finder(user_id)
+                socket.to(socket_id).emit("lobby_new_speech_token", { token })
+
                 target_players.forEach((player) => {
                     const socket_id = this.socket_finder(player)
                     client.to(socket_id).emit("private_speech_list", { players_list: target_players })
                 })
                 this.emit_to_creator("private_speech_list", { players_list: target_players })
-                await Helper.delay(5)
-                this.mute(this.player_status.map(e => e.user_id))
                 break
             }
 
@@ -290,6 +301,23 @@ const CustomGame = class {
                     client.to(socket_id).emit("private_speech_end")
                 })
                 this.emit_to_creator("private_speech_end", null)
+
+                for (let user of this.private_speech_list) {
+                    const token = await speech.create_join_token({
+                        user_id: user,
+                        lobby_id: `${this.lobby_id}`
+                    })
+                    const socket_id = this.socket_finder(user)
+                    socket.to(socket_id).emit("lobby_new_speech_token", { token })
+                }
+                const { user_id: creator_id } = this.creator
+                const creator_token = await speech.create_join_token({
+                    user_id: creator_id,
+                    lobby_id: `${this.lobby_id}`
+                })
+                const socket_id = this.socket_finder(user_id)
+                socket.to(socket_id).emit("lobby_new_speech_token", { token })
+
                 this.private_speech_list = []
 
                 break
