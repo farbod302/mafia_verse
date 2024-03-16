@@ -1,7 +1,7 @@
 const livekitApi = require('livekit-server-sdk');
 const AccessToken = livekitApi.AccessToken;
 const RoomServiceClient = livekitApi.RoomServiceClient;
-const livekitHost = "https://voice.gamingverce.ir"
+const livekitHost = "https://voice.gamingverse.ir"
 
 const svc = new RoomServiceClient(livekitHost, process.env.LIVEKIT_API, process.env.LIVEKIT_SEC,);
 
