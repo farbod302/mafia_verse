@@ -248,12 +248,6 @@ const CustomGame = class {
                     permission: "listen",
                     new_status: true
                 })
-                await Helper.delay(1)
-                this.change_custom_users_permissions({
-                    users: target_players,
-                    permission: "speech",
-                    new_status: true
-                })
                 target_players.forEach((player) => {
                     const socket_id = this.socket_finder(player)
                     client.to(socket_id).emit("private_speech_list", { players_list: target_players })
@@ -276,11 +270,6 @@ const CustomGame = class {
                     players: this.private_speech_list,
                     selected_status: "private",
                     new_value: false
-                })
-                this.change_custom_users_permissions({
-                    users: this.private_speech_list,
-                    permission: "speech",
-                    new_status: false
                 })
                 this.private_speech_list.forEach((player) => {
                     const socket_id = this.socket_finder(player)
