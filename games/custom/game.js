@@ -319,7 +319,9 @@ const CustomGame = class {
 
                 break
             }
-            case ("last_move_card"): {
+            case ("pick_last_move"): {
+                const remain_cards=this.last_cards.filter(e=>!e.used)
+                if(!remain_cards.length)return client.emit("report",{msg:"کارت حرکت آخری باقی تمانده",timer:2})
                 const random_index = Math.floor(Math.random() * remain_cards.length)
                 const selected_card = remain_cards[random_index]
                 const { id, name } = selected_card
@@ -328,7 +330,7 @@ const CustomGame = class {
                 const { lobby_id, socket } = this
                 socket.to(lobby_id).emit("report", { msg: `کارت حرکت آخر \n ${name}`, timer: 5 })
                 this.change_custom_users_permissions({
-                    users: [client.user_id],
+                    users: [client.idenity.user_id],
                     permission: "last_move_card",
                     new_status: false
                 })
