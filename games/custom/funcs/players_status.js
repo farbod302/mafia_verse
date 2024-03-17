@@ -16,6 +16,8 @@ const players_status = {
                     challenge_accepted: false,
                     private: false,
                     character: characters[index].name,
+                    side: characters[index].side,
+
 
                 },
                 user_id: p.user_id,
