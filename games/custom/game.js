@@ -412,7 +412,7 @@ const CustomGame = class {
                 const { lobby_id, socket } = this
                 socket.to(lobby_id).emit("end_game")
                 this.end_game = true
-                User.findOneAndUpdate({ uid: this.creator.user_id }, { $inc: { "moderator.cnt": 1 } })
+                await User.findOneAndUpdate({ uid: this.creator.user_id }, { $inc: { "moderator.cnt": 1 } })
                 this.remove_game(client)
                 break
 
