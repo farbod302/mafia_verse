@@ -43,6 +43,7 @@ const CustomGame = class {
         const default_card = JSON.parse(default_card_json.toString())
         game_detail.characters.forEach(cart => {
             const { id, count, name, custom_side } = cart
+            console.log({name});
             const selected_card = default_card.find(e => e.id === id)
             const card_to_add = {
                 name,

@@ -2,6 +2,7 @@ const players_status = {
 
     generate_all_players_status({ players, characters }) {
         const status = players.map((p, index) => {
+            console.log(characters[index]);
             return {
                 status: {
                     alive: true,
@@ -13,12 +14,14 @@ const players_status = {
                     dislike: false,
                     challenge: false,
                     challenge_accepted: false,
-                    private:false
+                    private: false,
+                    character: characters[index].name,
+
                 },
                 user_id: p.user_id,
-                user_index:index+1,
-                avatar:p.image,
-                name:p.name,
+                user_index: index + 1,
+                avatar: p.image,
+                name: p.name,
                 character: characters[index].name,
                 side: characters[index].side,
             }
