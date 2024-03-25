@@ -37,13 +37,13 @@ const CustomGame = class {
         this.last_cards = game_detail.cards.map(card => { return { ...card, used: false, id: uid(3) } })
         this.game_event = "روز"
         speech.create_room({ lobby_id })
-        speech.create_room({ lobby_id: `${lobby_id}_private` })
         const { players } = game_detail
         let deck = []
         const default_card_json = fs.readFileSync(`${__dirname}/../local/clean_deck.json`)
         const default_card = JSON.parse(default_card_json.toString())
         game_detail.characters.forEach(cart => {
             const { id, count, name, custom_side } = cart
+            console.log({name});
             const selected_card = default_card.find(e => e.id === id)
             const card_to_add = {
                 name,
@@ -70,6 +70,7 @@ const CustomGame = class {
         })
         this.players_permissions = all_permissions
         this.game_detail = game_detail
+        speech.create_room({ lobby_id: `${lobby_id}private` })
 
 
 
@@ -111,6 +112,7 @@ const CustomGame = class {
                 const { user_id } = client.idenity
                 const { lobby_id } = this
                 const livekit_token = await speech.create_join_token({ user_id, lobby_id: this.lobby_id })
+                console.log({livekit_token});
                 const is_creator = this.game_detail.creator.user_id === user_id
                 if (!is_creator) {
                     const user_permission = this.players_permissions.find(e => e.user_id === user_id)
@@ -257,18 +259,17 @@ const CustomGame = class {
                 for (let user of target_players) {
                     const token = await speech.create_join_token({
                         user_id: user,
-                        lobby_id: `${this.lobby_id}_private`
+                        lobby_id: `${this.lobby_id}private`
                     })
+                    console.log({token});
                     const socket_id = this.socket_finder(user)
                     socket.to(socket_id).emit("lobby_new_speech_token", { token })
                 }
                 const { user_id: creator_id } = this.creator
-                console.log({ creator_id });
                 const creator_token = await speech.create_join_token({
                     user_id: creator_id,
-                    lobby_id: `${this.lobby_id}_private`
+                    lobby_id: `${this.lobby_id}private`
                 })
-                console.log({ creator_token });
                 const socket_id = this.socket_finder(creator_id)
                 socket.to(socket_id).emit("lobby_new_speech_token", { token: creator_token })
 
@@ -319,7 +320,9 @@ const CustomGame = class {
 
                 break
             }
-            case ("last_move_card"): {
+            case ("pick_last_move"): {
+                const remain_cards=this.last_cards.filter(e=>!e.used)
+                if(!remain_cards.length)return client.emit("report",{msg:"کارت حرکت آخری باقی تمانده",timer:2})
                 const random_index = Math.floor(Math.random() * remain_cards.length)
                 const selected_card = remain_cards[random_index]
                 const { id, name } = selected_card
@@ -328,7 +331,7 @@ const CustomGame = class {
                 const { lobby_id, socket } = this
                 socket.to(lobby_id).emit("report", { msg: `کارت حرکت آخر \n ${name}`, timer: 5 })
                 this.change_custom_users_permissions({
-                    users: [client.user_id],
+                    users: [client.idenity.user_id],
                     permission: "last_move_card",
                     new_status: false
                 })
@@ -377,6 +380,11 @@ const CustomGame = class {
                         })
                     })
                 }
+                if(selected_status === "side"){
+                    console.log("side");
+                this.player_status[index].side = new_value
+
+                }
                 break
             }
             case ("flick"): {
@@ -404,6 +412,7 @@ const CustomGame = class {
                 const { lobby_id, socket } = this
                 socket.to(lobby_id).emit("end_game")
                 this.end_game = true
+                await User.findOneAndUpdate({ uid: this.creator.user_id }, { $inc: { "moderator.cnt": 1 } })
                 this.remove_game(client)
                 break
 
