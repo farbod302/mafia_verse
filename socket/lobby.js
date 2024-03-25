@@ -2,6 +2,7 @@ const { uid } = require("uid")
 const fs = require("fs")
 const { get_user_socket_id } = require("./online_users_handler")
 const lockFile = require('lockfile');
+const Voice = require("../helper/live_kit_handler");
 const lock_path = `${__dirname}/lobby.json.lock`
 
 const lockOptions = {
@@ -11,14 +12,14 @@ const lockOptions = {
     retryWait: 1000
 };
 const lobby = {
-    create_lobby(client, data, socket) {
+    async create_lobby(client, data, socket) {
         const { name, scenario, player_cnt, characters, cards, private, password, sides } = data
         const lobby_id = uid(5)
         const { user_id } = client.idenity
         const cur_lobby_list = this.get_lobby_list()
         const is_exist = cur_lobby_list.find(e => e.creator.user_id === user_id || e.players.some(p => p.user_id === user_id))
         if (is_exist) return client.emit("err", { msg: "شما یک لابی فعال دارید" })
-
+     await   Voice.start_room(`${lobby_id}_lobby`)
         const new_lobby = {
             name,
             scenario,

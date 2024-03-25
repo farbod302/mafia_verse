@@ -11,7 +11,7 @@ const Voice = {
         const room_name = `${game_id}`
         const opts = {
             name: room_name,
-            emptyTimeout: 60 * 60,
+            emptyTimeout: 60 * 30,
         };
         try {
            const status= await svc.createRoom(opts)

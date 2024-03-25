@@ -13,6 +13,7 @@ const monitoring = require("../container/monitoring")
 const User = require("../db/user")
 const lobby = require("./lobby")
 const CustomGame = require("../games/custom/game")
+const Voice = require("../helper/live_kit_handler")
 const SocketProvider = class {
 
     constructor(io) {
@@ -173,11 +174,12 @@ const SocketProvider = class {
                 client.emit("app_detail", { data: { v, server_update: false } })
             })
 
-            client.on("create_lobby", (data) => {
-                const lobby_id = lobby.create_lobby(client, data, this.io)
+            client.on("create_lobby", async (data) => {
+                const lobby_id = await lobby.create_lobby(client, data, this.io)
                 client.idenity.lobby_id = lobby_id
                 client.idenity.lobby_creator = client.idenity.user_id
-                this.io.to(lobby_id).emit("lobby_create_result", { lobby_id, is_free: true })
+                const lobby_token = Voice.join_room(client.idenity.user_id, `${lobby_id}_lobby`)
+                this.io.to(lobby_id).emit("lobby_create_result", { lobby_id, is_free: true, token: lobby_token })
             })
 
             client.on("lobby_list", () => {
@@ -198,8 +200,9 @@ const SocketProvider = class {
                 if (!result.status) return client.emit("err", { msg: result.msg })
                 const { creator_id } = result
                 client.idenity.lobby_creator = creator_id
+                const lobby_token = Voice.join_room(client.idenity.user_id, `${data.lobby_id}_lobby`)
                 lobby.send_message_to_lobby({ client, lobby_id: data.lobby_id, msg: "به لابی پیوست", is_system_msg: true, socket: this.io, })
-                client.emit("lobby_join_result", { ...result, is_free: true })
+                client.emit("lobby_join_result", { ...result, token: lobby_token, is_free: true })
             })
 
             client.on("lobby_detail", ({ lobby_id }) => {
@@ -248,7 +251,7 @@ const SocketProvider = class {
                 }
                 if (!selected_lobby_id) return console.log("no lobby id");
                 const selected_lobby = this.db.getOne("custom_game", "lobby_id", selected_lobby_id)
-                if(!selected_lobby)return client.emit("err",{msg:"لابی یافت نشد"})
+                if (!selected_lobby) return client.emit("err", { msg: "لابی یافت نشد" })
                 selected_lobby.game_class.game_handler({ client, op, data })
             })
 
