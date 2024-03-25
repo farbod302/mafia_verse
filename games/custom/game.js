@@ -43,7 +43,7 @@ const CustomGame = class {
         const default_card = JSON.parse(default_card_json.toString())
         game_detail.characters.forEach(cart => {
             const { id, count, name, custom_side } = cart
-            console.log({name});
+            console.log({ name });
             const selected_card = default_card.find(e => e.id === id)
             const card_to_add = {
                 name,
@@ -112,7 +112,6 @@ const CustomGame = class {
                 const { user_id } = client.idenity
                 const { lobby_id } = this
                 const livekit_token = await speech.create_join_token({ user_id, lobby_id: this.lobby_id })
-                console.log({livekit_token});
                 const is_creator = this.game_detail.creator.user_id === user_id
                 if (!is_creator) {
                     const user_permission = this.players_permissions.find(e => e.user_id === user_id)
@@ -261,7 +260,7 @@ const CustomGame = class {
                         user_id: user,
                         lobby_id: `${this.lobby_id}private`
                     })
-                    console.log({token});
+                    console.log({ token });
                     const socket_id = this.socket_finder(user)
                     socket.to(socket_id).emit("lobby_new_speech_token", { token })
                 }
@@ -321,8 +320,8 @@ const CustomGame = class {
                 break
             }
             case ("pick_last_move"): {
-                const remain_cards=this.last_cards.filter(e=>!e.used)
-                if(!remain_cards.length)return client.emit("report",{msg:"کارت حرکت آخری باقی تمانده",timer:2})
+                const remain_cards = this.last_cards.filter(e => !e.used)
+                if (!remain_cards.length) return client.emit("report", { msg: "کارت حرکت آخری باقی تمانده", timer: 2 })
                 const random_index = Math.floor(Math.random() * remain_cards.length)
                 const selected_card = remain_cards[random_index]
                 const { id, name } = selected_card
@@ -372,17 +371,18 @@ const CustomGame = class {
                     client.to(player_socket).emit("permissions_status", { permissions: this.players_permissions[selected_user_permissions] })
                     let all_status = Object.keys(this.player_status[index].status)
                     all_status = all_status.filter(e => e !== "connected" && e !== "side" && e !== "character")
-                    all_status.forEach(s => {
+                    all_status.forEach((s, i) => {
                         this.change_players_status({
                             players: [target_player],
                             selected_status: s,
-                            new_value: false
+                            new_value: false,
+                            prevent: i < all_status.length - 1
                         })
                     })
                 }
-                if(selected_status === "side"){
+                if (selected_status === "side") {
                     console.log("side");
-                this.player_status[index].side = new_value
+                    this.player_status[index].side = new_value
 
                 }
                 break
@@ -509,13 +509,14 @@ const CustomGame = class {
     }
 
 
-    change_players_status({ players, selected_status, new_value }) {
+    change_players_status({ players, selected_status, new_value, prevent }) {
         const { socket, lobby_id } = this
         if (!players) players = this.player_status.map(e => e.user_id)
         players.forEach(player => {
             const index = this.player_status.findIndex(e => e.user_id === player)
             this.player_status[index].status[selected_status] = new_value
-            socket.to(lobby_id).emit("player_status_update", { ...this.player_status[index].status, user_id: player })
+            if (!prevent) socket.to(lobby_id).emit("player_status_update", { ...this.player_status[index].status, user_id: player })
+
         })
 
     }
