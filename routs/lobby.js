@@ -62,8 +62,8 @@ router.post("/list", (req, res) => {
 
 router.post("/rate_creator", async (req, res) => {
     const { rate, creator_id } = req.body
-    await User.findOneAndUpdate({ uid: creator_id }, { $inc: { "moderator.score": rate } })
-    res.json({status:true,msg:"امتیاز ثبت شد",data:{}})
+    await User.findOneAndUpdate({ uid: creator_id }, { $inc: { "moderator.score": rate, "moderator.cnt": 1 } })
+    res.json({ status: true, msg: "امتیاز ثبت شد", data: {} })
 })
 
 

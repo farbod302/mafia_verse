@@ -368,7 +368,7 @@ const CustomGame = class {
                     client.emit("all_players_permissions", { players_permission: this.players_permissions })
                     client.to(player_socket).emit("permissions_status", { permissions: this.players_permissions[selected_user_permissions] })
                     let all_status = Object.keys(this.player_status[index].status)
-                    all_status = all_status.filter(e => e !== "connected")
+                    all_status = all_status.filter(e => e !== "connected" && e !== "side" && e !== "character")
                     all_status.forEach(s => {
                         this.change_players_status({
                             players: [target_player],
@@ -404,7 +404,6 @@ const CustomGame = class {
                 const { lobby_id, socket } = this
                 socket.to(lobby_id).emit("end_game")
                 this.end_game = true
-                User.findOneAndUpdate({ uid: this.creator.user_id }, { $inc: { "moderator.cnt": 1 } })
                 this.remove_game(client)
                 break
 
