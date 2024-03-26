@@ -250,6 +250,7 @@ const SocketProvider = class {
 
             })
             client.on("leave_lobby", (data) => {
+                console.log("call");
                 lobby.leave_lobby({ ...data, client, socket: this.io })
                 const lobby_id = client.idenity.lobby_id
                 console.log(lobby_id);
