@@ -353,7 +353,7 @@ const CustomGame = class {
                 this.game_event = new_game_event
                 const { socket, lobby_id } = this
                 socket.to(lobby_id).emit("game_event", { game_event: new_game_event })
-                if (new_game_event === "day") {
+                if (new_game_event === "روز") {
                     this.day++
                     this.socket.to(this.lobby_id).emit("day_count", { day: this.day })
                 }
