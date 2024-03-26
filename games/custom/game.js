@@ -431,7 +431,7 @@ const CustomGame = class {
                 if (index === -1) {
                     this.observer--
                     this.observer_list = this.observer_list.filter(e => e.user_id !== user_id)
-                    socket.to(lobby).emit("observers_list", this.observer_list)
+                    this.socket.to(lobby).emit("observers_list", this.observer_list)
                     return
                 }
                 this.submit_player_disconnect({ user_id })
