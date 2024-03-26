@@ -79,10 +79,10 @@ const CustomGame = class {
 
     submit_player_disconnect({ user_id }) {
         const { creator, socket, lobby_id } = this
-        console.log({creator,user_id});
         if (creator.user_id === user_id) {
             this.creator_status.connected = false
             socket.to(lobby_id).emit("creator_status", { creator_status: this.creator_status })
+            return
         } else {
             const { socket, lobby_id } = this
             const index = this.player_status.findIndex(e => e.user_id === user_id)
@@ -428,14 +428,8 @@ const CustomGame = class {
             }
             case ("dc"): {
                 const { user_id } = client.idenity
-                const {socket,lobby_id}=this
-                const index = this.player_status.findIndex(e => e.user_id === user_id)
-                if (index === -1) {
-                    this.observer--
-                    this.observer_list = this.observer_list.filter(e => e.user_id !== user_id)
-                    socket.to(lobby_id).emit("observers_list", this.observer_list)
-                    return
-                }
+              
+               
                 this.submit_player_disconnect({ user_id })
                 break
             }
