@@ -24,7 +24,7 @@ const SocketProvider = class {
         const broadcast_speech_status = (lobby_id) => {
             console.log(this.lobby_speech_status);
             const speech_status = this.lobby_speech_status[lobby_id]
-            console.log(speech_status);
+            console.log(speech_status,lobby_id);
             if (!speech_status) return
             io.to(lobby_id).emit("lobby_speech_status", speech_status)
         }
