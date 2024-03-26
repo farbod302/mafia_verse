@@ -24,7 +24,7 @@ const SocketProvider = class {
         const broadcast_speech_status = (lobby_id) => {
             console.log(this.lobby_speech_status);
             const speech_status = this.lobby_speech_status[lobby_id]
-            console.log( this.lobby_speech_status[lobby_id]);
+            console.log(this.lobby_speech_status[lobby_id]);
             if (!speech_status) return
             io.to(lobby_id).emit("lobby_speech_status", speech_status)
         }
@@ -202,6 +202,16 @@ const SocketProvider = class {
                 this.broadcast_speech_status(lobby_id)
                 console.log(this.lobby_speech_status);
 
+            })
+
+            client.on("waiting_speech", ({ stats }) => {
+                const {user_id,lobby_id}=client.idenity
+                const is_exist=this.lobby_speech_status[lobby_id]
+                if(!is_exist)return console.log("lobby not font");
+                const player_index=this.lobby_speech_status[lobby_id].findIndex(e=>e.user === user_id)
+                if(player_index === -1)return console.log("player not font");
+                this.lobby_speech_status[lobby_id][player_index]=stats
+                this.broadcast_speech_status(lobby_id)
             })
 
             client.on("lobby_list", () => {
