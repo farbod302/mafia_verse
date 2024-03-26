@@ -225,6 +225,7 @@ const SocketProvider = class {
                 client.emit("lobby_join_result", { ...result, token: lobby_token, is_free: true })
                 if (result.status) {
                     const { lobby_id } = result
+                    client.idenity.lobby_id = lobby_id
                     this.lobby_speech_status[lobby_id].push({ user: s_user.uid, speech: false })
                     this.broadcast_speech_status(lobby_id)
 

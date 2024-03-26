@@ -98,7 +98,6 @@ const lobby = {
         client.join(lobby_id)
         socket.to(lobby_id).emit("update_lobby_users", { lobby_users: cur_lobby_list[selected_lobby_index].players })
         this.update_lobbies(cur_lobby_list)
-        client.idenity.lobby_id = lobby_id
         return { status: true, msg: "", lobby_id, is_creator: cur_lobby_list[selected_lobby_index].creator === client.user_id, creator_id: cur_lobby_list[selected_lobby_index].creator?.user_id }
     },
 
