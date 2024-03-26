@@ -252,6 +252,7 @@ const SocketProvider = class {
             client.on("leave_lobby", (data) => {
                 lobby.leave_lobby({ ...data, client, socket: this.io })
                 const lobby_id = client.idenity.lobby_id
+                console.log(lobby_id);
                 if (lobby_id) {
                     this.lobby_speech_status[lobby_id] = this.lobby_speech_status[lobby_id].filter(e => e.user !== client.idenity.user_id)
                     this.broadcast_speech_status(lobby_id)
