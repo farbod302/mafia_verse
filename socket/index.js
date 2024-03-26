@@ -298,6 +298,8 @@ const SocketProvider = class {
             })
 
             client.on("delete_lobby", ({ lobby_id }) => {
+                delete this.lobby_speech_status[lobby_id]
+                console.log(this.lobby_speech_status);
                 lobby.remove_lobby({
                     lobby_id,
                     client,
