@@ -21,7 +21,9 @@ const handel_disconnect = async ({ client, db, socket,remove_player_from_lobby_s
     if (client.idenity?.lobby_id) {
         lobby.leave_lobby({ lobby_id: client.idenity.lobby_id, client, socket })
         const user_game = db.getOne("custom_game", "lobby_id", client.idenity.lobby_id)
-        user_game.game_class?.submit_player_disconnect({ user_id: client.idenity.user_id })
+        if(user_game){
+            user_game.game_class?.submit_player_disconnect({ user_id: client.idenity.user_id })
+        }
         remove_player_from_lobby_speech_status(client.idenity.lobby_id,client.idenity.user_id)
 
     }
