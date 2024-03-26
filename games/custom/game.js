@@ -446,7 +446,12 @@ const CustomGame = class {
                     })
                 }
                 const index = this.player_status.findIndex(e => e.user_id === user_id)
-                if (index === -1) return
+                if (index === -1) {
+                    this.observer--
+                    this.observer_list = this.observer_list.filter(e => e.user_id !== user_id)
+                    socket.to(lobby).emit("observers_list", this.observer_list)
+                    return
+                }
                 this.player_status[index].status["alive"] = false
                 socket.to(lobby_id).emit("player_status_update", { ...this.player_status[index].status, user_id })
                 lobby.leave_lobby({
