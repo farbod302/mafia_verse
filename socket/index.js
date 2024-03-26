@@ -221,6 +221,7 @@ const SocketProvider = class {
 
             })
             client.on("join_lobby", async (data) => {
+                console.log({data});
                 let s_user = await User.findOne({ uid: client.idenity.user_id })
                 if (s_user) {
                     const name = s_user.idenity.name
