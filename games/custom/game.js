@@ -23,6 +23,7 @@ const CustomGame = class {
         this.act_record = []
         this.private_speech_list = []
         this.observer = 0
+        this.day = 1
         this.observer_list = []
         const { creator } = game_detail
         const { name, image } = creator
@@ -130,6 +131,7 @@ const CustomGame = class {
                         client.emit("creator_status", { creator_status: this.creator_status })
                         client.emit("game_event", { game_event: this.game_event })
                         client.emit("livekit_token", { token: livekit_token })
+                        client.emit("day_count", { day: this.day })
                         return
                     }
                 } else {
@@ -143,6 +145,8 @@ const CustomGame = class {
                 client.emit("creator_status", { creator_status: this.creator_status })
                 client.emit("game_event", { game_event: this.game_event })
                 client.emit("livekit_token", { token: livekit_token })
+                client.emit("day_count", { day: this.day })
+
 
                 break
             }
@@ -349,6 +353,10 @@ const CustomGame = class {
                 this.game_event = new_game_event
                 const { socket, lobby_id } = this
                 socket.to(lobby_id).emit("game_event", { game_event: new_game_event })
+                if (new_game_event === "day") {
+                    this.day++
+                    this.socket.to(this.lobby_id).emit("day_count", { day: this.day })
+                }
                 break
             }
             case ("change_player_status"): {
