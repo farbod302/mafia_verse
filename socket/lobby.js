@@ -143,7 +143,6 @@ const lobby = {
         socket.to(lobby_id).emit("update_lobby_users", { lobby_users: cur_lobby_list[selected_lobby_index].players })
         this.send_message_to_lobby({ client, lobby_id: client.idenity.lobby_id, msg: "از لابی خارج شد", is_system_msg: true, socket, })
         client.leave(lobby_id)
-        client.idenity.lobby_id = null
     },
     send_message_to_lobby({ client, lobby_id, msg, is_system_msg, socket }) {
         if (!lobby_id) lobby_id = client.idenity.lobby_id
