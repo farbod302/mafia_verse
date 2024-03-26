@@ -3,7 +3,7 @@ const find_match = require("./find_match")
 const lobby = require("./lobby")
 const online_users_handler = require("./online_users_handler")
 
-const handel_disconnect = async ({ client, db, socket }) => {
+const handel_disconnect = async ({ client, db, socket,remove_player_from_lobby_speech_status }) => {
     //handel dc during find match
     find_match.leave_find({ client, db, socket })
     let game_id = client.game_id
@@ -22,6 +22,7 @@ const handel_disconnect = async ({ client, db, socket }) => {
         lobby.leave_lobby({ lobby_id: client.idenity.lobby_id, client, socket })
         const user_game = db.getOne("custom_game", "lobby_id", client.idenity.lobby_id)
         user_game.game_class.submit_player_disconnect({ user_id: client.idenity.user_id })
+        remove_player_from_lobby_speech_status(client.idenity.lobby_id,client.idenity.user_id)
 
     }
     online_users_handler.remove_user(client.idenity?.user_id)

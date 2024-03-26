@@ -14,11 +14,26 @@ const User = require("../db/user")
 const lobby = require("./lobby")
 const CustomGame = require("../games/custom/game")
 const Voice = require("../helper/live_kit_handler")
+const Helper = require("../helper/helper")
 const SocketProvider = class {
 
     constructor(io) {
         this.io = io
         this.db = new TempDb()
+        this.lobby_speech_status = {}
+        const broadcast_speech_status = (lobby_id) => {
+            const speech_status = this.lobby_speech_status[lobby_id]
+            if (!speech_status) return
+            io.to(lobby_id).emit("lobby_speech_status", speech_status)
+        }
+        const remove_player_from_lobby_speech_status = (lobby_id, user_id) => {
+            if (!this.lobby_speech_status[lobby_id]) return
+            this.lobby_speech_status[lobby_id] = this.lobby_speech_status[lobby_id].filter(e => e.user != user_id)
+            broadcast_speech_status(lobby_id)
+            console.log(this.lobby_speech_status);
+        }
+        this.remove_player_from_lobby_speech_status = remove_player_from_lobby_speech_status
+        this.broadcast_speech_status = broadcast_speech_status
     }
 
 
@@ -78,7 +93,7 @@ const SocketProvider = class {
             })
 
             client.on("disconnect", () => {
-                handel_disconnect({ client, db: this.db, socket: this.io })
+                handel_disconnect({ client, db: this.db, socket: this.io, remove_player_from_lobby_speech_status: this.remove_player_from_lobby_speech_status })
             })
             client.on("game_history", () => { })
             client.on("reconnect", ({ game_id }) => {
@@ -178,8 +193,13 @@ const SocketProvider = class {
                 const lobby_id = await lobby.create_lobby(client, data, this.io)
                 client.idenity.lobby_id = lobby_id
                 client.idenity.lobby_creator = client.idenity.user_id
+                this.lobby_speech_status[lobby_id] = [{ user: client.idenity.user_id, speech: false }]
                 const lobby_token = Voice.join_room(client.idenity.user_id, `${lobby_id}_lobby`)
                 this.io.to(lobby_id).emit("lobby_create_result", { lobby_id, is_free: true, token: lobby_token })
+                await Helper.delay(1)
+                this.broadcast_speech_status(lobby_id)
+                console.log(this.lobby_speech_status);
+
             })
 
             client.on("lobby_list", () => {
@@ -203,6 +223,14 @@ const SocketProvider = class {
                 const lobby_token = Voice.join_room(client.idenity.user_id, `${data.lobby_id}_lobby`)
                 lobby.send_message_to_lobby({ client, lobby_id: data.lobby_id, msg: "به لابی پیوست", is_system_msg: true, socket: this.io, })
                 client.emit("lobby_join_result", { ...result, token: lobby_token, is_free: true })
+                if (result.status) {
+                    const { lobby_id } = result
+                    this.lobby_speech_status[lobby_id].push({ user: s_user.uid, speech: false })
+                    this.broadcast_speech_status(lobby_id)
+
+                }
+                console.log(this.lobby_speech_status);
+
             })
 
             client.on("lobby_detail", ({ lobby_id }) => {
@@ -215,10 +243,22 @@ const SocketProvider = class {
             client.on("kick_user_from_lobby", (data) => {
                 const result = lobby.kick_player({ ...data, client, socket: this.io })
                 this.io.to(client.id).emit("lobby_kick_result", { result })
+                this.lobby_speech_status[data.lobby_id] = this.lobby_speech_status[data.lobby_id].filter(e => e.user !== data.player_to_kick)
+                this.broadcast_speech_status(data.lobby_id)
+                console.log(this.lobby_speech_status);
+
 
             })
             client.on("leave_lobby", (data) => {
                 lobby.leave_lobby({ ...data, client, socket: this.io })
+                const lobby_id = client.idenity.lobby_id
+                if (lobby_id) {
+                    this.lobby_speech_status[lobby_id] = this.lobby_speech_status[lobby_id].filter(e => e.user !== client.idenity.user_id)
+                    this.broadcast_speech_status(lobby_id)
+                    console.log(this.lobby_speech_status);
+
+                }
+
             })
             client.on("waiting_lobby_message", ({ message, lobby_id }) => {
                 lobby.send_message_to_lobby({ client, lobby_id, msg: message, is_system_msg: false, socket: this.io, })
