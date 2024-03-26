@@ -87,7 +87,7 @@ const CustomGame = class {
             if (index === -1) {
                 this.observer--
                 this.observer_list = this.observer_list.filter(e => e.user_id !== user_id)
-                socket.to(lobby).emit("observer_list",  this.observer_list )
+                socket.to(lobby).emit("observers_list",  this.observer_list )
                 return
             }
             this.player_status[index].status["connected"] = false
