@@ -87,7 +87,7 @@ const CustomGame = class {
             if (index === -1) {
                 this.observer--
                 this.observer_list = this.observer_list.filter(e => e.user_id !== user_id)
-                socket.to(lobby).emit("observers_list",  this.observer_list )
+                socket.to(lobby).emit("observers_list", this.observer_list)
                 return
             }
             this.player_status[index].status["connected"] = false
@@ -119,19 +119,18 @@ const CustomGame = class {
                     if (user_permission) {
                         client.emit("permissions_status", { permissions: user_permission })
                         const player_index = this.player_status.findIndex(e => e.user_id === user_id)
-                        if (player_index === -1) {
-                            console.log("OBSERVER");
-                            this.observer++
-                            this.observer_list.push({ user_id, name, image })
-                            socket.to(lobby).emit("observers_list", this.observer_list)
-                            client.emit("all_players_status", { players_status: this.player_status })
-                            client.emit("creator_status", { creator_status: this.creator_status })
-                            client.emit("game_event", { game_event: this.game_event })
-
-                            return
-                        }
                         this.player_status[player_index].status.connected = true
                         client.to(lobby_id).emit("player_status_update", { ...this.player_status[player_index].status, user_id })
+                    } else {
+                        console.log("OBSERVER");
+                        this.observer++
+                        this.observer_list.push({ user_id, name, image })
+                        socket.to(lobby).emit("observers_list", this.observer_list)
+                        client.emit("all_players_status", { players_status: this.player_status })
+                        client.emit("creator_status", { creator_status: this.creator_status })
+                        client.emit("game_event", { game_event: this.game_event })
+
+                        return
                     }
                 } else {
                     this.creator_status.connected = true
