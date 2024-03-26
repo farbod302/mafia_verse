@@ -22,7 +22,9 @@ const SocketProvider = class {
         this.db = new TempDb()
         this.lobby_speech_status = {}
         const broadcast_speech_status = (lobby_id) => {
+            console.log({lobby_id});
             const speech_status = this.lobby_speech_status[lobby_id]
+            console.log(speech_status);
             if (!speech_status) return
             io.to(lobby_id).emit("lobby_speech_status", speech_status)
         }
@@ -230,7 +232,6 @@ const SocketProvider = class {
                     this.broadcast_speech_status(lobby_id)
 
                 }
-                console.log(this.lobby_speech_status);
 
             })
 
