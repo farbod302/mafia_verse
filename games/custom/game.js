@@ -537,7 +537,7 @@ const CustomGame = class {
         players.forEach(player => {
             const index = this.player_status.findIndex(e => e.user_id === player)
             this.player_status[index].status[selected_status] = new_value
-            if (!prevent) socket.to(lobby_id).emit("player_status_update", { ...this.player_status[index].status, user_id: player })
+           socket.to(lobby_id).emit("player_status_update", { ...this.player_status[index].status, user_id: player })
 
         })
 
