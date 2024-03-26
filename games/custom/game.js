@@ -86,7 +86,8 @@ const CustomGame = class {
             const index = this.player_status.findIndex(e => e.user_id === user_id)
             if (index === -1) {
                 this.observer--
-                socket.to(lobby).emit("observer", { observer: this.observer })
+                this.observer_list = this.observer_list.filter(e => e.user_id !== user_id)
+                socket.to(lobby).emit("observer_list", { observers: this.observer_list })
                 return
             }
             this.player_status[index].status["connected"] = false
@@ -109,7 +110,7 @@ const CustomGame = class {
         switch (op) {
             case ("ready_to_game"): {
                 await Helper.delay(3)
-                const { user_id } = client.idenity
+                const { user_id, name, image } = client.idenity
                 const { lobby_id } = this
                 const livekit_token = await speech.create_join_token({ user_id, lobby_id: this.lobby_id })
                 const is_creator = this.game_detail.creator.user_id === user_id
@@ -120,8 +121,8 @@ const CustomGame = class {
                         const player_index = this.player_status.findIndex(e => e.user_id === user_id)
                         if (player_index === -1) {
                             this.observer++
-                            thi
-                            socket.to(lobby).emit("observer", { observer: this.observer })
+                            this.observer_list.push({ user_id, name, image })
+                            socket.to(lobby).emit("observers_list", { observers: this.observer_list})
                             client.emit("all_players_status", { players_status: this.player_status })
                             client.emit("creator_status", { creator_status: this.creator_status })
                             client.emit("game_event", { game_event: this.game_event })
