@@ -120,6 +120,7 @@ const CustomGame = class {
                         client.emit("permissions_status", { permissions: user_permission })
                         const player_index = this.player_status.findIndex(e => e.user_id === user_id)
                         if (player_index === -1) {
+                            console.log("OBSERVER");
                             this.observer++
                             this.observer_list.push({ user_id, name, image })
                             socket.to(lobby).emit("observers_list", this.observer_list)
