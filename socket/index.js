@@ -210,7 +210,7 @@ const SocketProvider = class {
                 if(!is_exist)return console.log("lobby not font");
                 const player_index=this.lobby_speech_status[lobby_id].findIndex(e=>e.user === user_id)
                 if(player_index === -1)return console.log("player not font");
-                this.lobby_speech_status[lobby_id][player_index].status=status
+                this.lobby_speech_status[lobby_id][player_index].speech=status
                 this.broadcast_speech_status(lobby_id)
             })
 
