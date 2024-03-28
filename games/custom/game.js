@@ -97,7 +97,6 @@ const CustomGame = class {
             this.player_status[index].status["connected"] = false
             socket.to(lobby_id).emit("player_status_update", { ...this.player_status[index].status, user_id })
         }
-        client.idenity.lobby_id = null
     }
 
     report_to_players({ players, msg }) {
