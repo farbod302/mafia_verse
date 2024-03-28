@@ -82,6 +82,7 @@ const CustomGame = class {
         if (creator.user_id === user_id) {
             this.creator_status.connected = false
             socket.to(lobby_id).emit("creator_status", { creator_status: this.creator_status })
+            client.idenity.lobby_id = null
             return
         } else {
             const { socket, lobby_id } = this
@@ -90,12 +91,14 @@ const CustomGame = class {
                 this.observer--
                 this.observer_list = this.observer_list.filter(e => e.user_id !== user_id)
                 socket.to(lobby_id).emit("observers_list", this.observer_list)
+                client.idenity.lobby_id = null
+
                 return
             }
             this.player_status[index].status["connected"] = false
-            console.log(this.player_status[index].status);
             socket.to(lobby_id).emit("player_status_update", { ...this.player_status[index].status, user_id })
         }
+        client.idenity.lobby_id = null
     }
 
     report_to_players({ players, msg }) {
@@ -457,6 +460,8 @@ const CustomGame = class {
                     this.observer--
                     this.observer_list = this.observer_list.filter(e => e.user_id !== user_id)
                     socket.to(lobby_id).emit("observers_list", this.observer_list)
+                    client.idenity.lobby_id = null
+
                     return
                 }
                 this.player_status[index].status["alive"] = false
@@ -472,6 +477,8 @@ const CustomGame = class {
                     client,
                     socket: this.socket
                 })
+                client.idenity.lobby_id = null
+
             }
         }
     }
