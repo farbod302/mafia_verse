@@ -82,7 +82,6 @@ const CustomGame = class {
         if (creator.user_id === user_id) {
             this.creator_status.connected = false
             socket.to(lobby_id).emit("creator_status", { creator_status: this.creator_status })
-            client.idenity.lobby_id = null
             return
         } else {
             const { socket, lobby_id } = this
@@ -435,9 +434,8 @@ const CustomGame = class {
             }
             case ("dc"): {
                 const { user_id } = client.idenity
-
-
                 this.submit_player_disconnect({ user_id })
+                client.idenity.lobby_id = null
                 break
             }
             case ("left"): {
