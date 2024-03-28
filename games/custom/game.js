@@ -133,6 +133,8 @@ const CustomGame = class {
                         client.emit("game_event", { game_event: this.game_event })
                         client.emit("livekit_token", { token: livekit_token })
                         client.emit("day_count", { day: this.day })
+                        client.emit("observers_list", this.observer_list)
+
                         return
                     }
                 } else {
@@ -147,6 +149,8 @@ const CustomGame = class {
                 client.emit("game_event", { game_event: this.game_event })
                 client.emit("livekit_token", { token: livekit_token })
                 client.emit("day_count", { day: this.day })
+                client.emit("observers_list", this.observer_list)
+
 
 
                 break
@@ -428,8 +432,8 @@ const CustomGame = class {
             }
             case ("dc"): {
                 const { user_id } = client.idenity
-              
-               
+
+
                 this.submit_player_disconnect({ user_id })
                 break
             }
@@ -532,7 +536,7 @@ const CustomGame = class {
         players.forEach(player => {
             const index = this.player_status.findIndex(e => e.user_id === player)
             this.player_status[index].status[selected_status] = new_value
-           socket.to(lobby_id).emit("player_status_update", { ...this.player_status[index].status, user_id: player })
+            socket.to(lobby_id).emit("player_status_update", { ...this.player_status[index].status, user_id: player })
 
         })
 
